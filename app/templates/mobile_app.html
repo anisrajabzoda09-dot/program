@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="tg" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Нигоҳ Family — Барномаи Мобилӣ</title>
+  
+  <!-- PWA & Mobile Icons -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/static/images/shield_icon.png">
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- QR Code Generator Lib -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    * { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
+    ::-webkit-scrollbar { display: none; }
+    .pb-safe { padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+    .pt-safe { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .recording-pulse {
+      animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .waveform-bar {
+      transition: height 0.15s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col justify-between selection:bg-indigo-500 selection:text-white antialiased">
+
+  <!-- TOP APP HEADER -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+        <i class="fa-solid fa-shield-halved text-lg"></i>
+      </div>
+      <div>
+        <h1 class="font-extrabold text-sm leading-tight tracking-wide flex items-center gap-1.5 text-white">
+          НИГОҲ <span class="bg-indigo-500/20 text-indigo-400 text-[10px] px-1.5 py-0.5 rounded font-black tracking-wider uppercase">Family</span>
+        </h1>
+        <div class="flex items-center gap-1 text-[11px] text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="appStatusIndicator">Муҳофизат фаъол • 100% Офлайн</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Header Actions (OTA Update & User Avatar) -->
+    <div class="flex items-center gap-2">
+      <button id="btnCheckUpdate" onclick="checkOtaUpdate(true)" title="Санҷиши навсозиҳо" class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95">
+        <i class="fa-solid fa-arrows-rotate" id="updateSpinIcon"></i>
+      </button>
+      <a href="/logout" title="Баромад" class="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700 text-rose-400 flex items-center justify-center text-xs transition active:scale-95">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- OTA NOTIFICATION BANNER -->
+  <div id="otaBanner" class="hidden bg-emerald-600/95 border-b border-emerald-500 px-4 py-2.5 text-xs flex items-center justify-between shadow-lg">
+    <div class="flex items-center gap-2">
+      <i class="fa-solid fa-sparkles text-amber-300 text-sm"></i>
+      <span class="text-white font-medium">Навсозии нав (<span id="otaVersionText" class="font-bold">v2.4.0</span>) омода аст!</span>
+    </div>
+    <button onclick="applyOtaUpdate()" class="bg-white text-emerald-800 font-bold px-3 py-1 rounded-lg shadow hover:bg-emerald-50 active:scale-95 text-[11px]">
+      Обновить кардан
+    </button>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-start">
+
+    <!-- VIEW 0: LOADING SPINNER -->
+    <div id="viewLoading" class="flex-1 flex flex-col items-center justify-center py-20 text-center">
+      <div class="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+      <p class="text-sm text-slate-400 font-medium">Дар ҳоли омодасозии барнома...</p>
+    </div>
+
+    <!-- VIEW 1: AUTHENTICATION (GOOGLE OR EMAIL) -->
+    <div id="viewAuth" class="hidden flex-1 flex flex-col justify-center py-6">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center text-white text-3xl shadow-xl shadow-indigo-600/30 mb-4">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-2xl font-extrabold text-white">Хуш омадед ба Нигоҳ</h2>
+        <p class="text-slate-400 text-xs mt-1">Амнияти оқилонаи кӯдакон бо кори комили офлайн</p>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-800 font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-3 shadow-lg hover:bg-slate-50 active:scale-[0.98] transition mb-4">
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        Воридшавӣ тавассути Google
+      </button>
+
+      <div class="flex items-center my-4">
+        <div class="flex-1 h-px bg-slate-800"></div>
+        <span class="px-3 text-slate-500 text-xs font-semibold">ё бо почта</span>
+        <div class="flex-1 h-px bg-slate-800"></div>
+      </div>
+
+      <form onsubmit="handleEmailAuth(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Ному насаб</label>
+          <input type="text" id="authName" required placeholder="Масалан: Далер Қодиров" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Email</label>
+          <input type="email" id="authEmail" required placeholder="nom@example.com" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Парол</label>
+          <input type="password" id="authPass" required placeholder="••••••••" class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/30 active:scale-[0.98] transition">
+          Оғози кор
+        </button>
+      </form>
+    </div>
+
+    <!-- VIEW 2: ROLE SELECTION (PARENT OR CHILD) -->
+    <div id="viewRole" class="hidden flex-1 flex flex-col justify-center py-4">
+      <div class="text-center mb-6">
+        <span class="bg-indigo-500/20 text-indigo-400 text-xs font-bold px-3 py-1 rounded-full uppercase">Қадами 1 аз 3</span>
+        <h2 class="text-xl font-extrabold text-white mt-2">Ин телефон ба кӣ тааллуқ дорад?</h2>
+        <p class="text-slate-400 text-xs mt-1">Нақши ин дастгоҳро муайян намоед</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4">
+        <!-- Parent Option -->
+        <button onclick="selectRole('parent')" class="group relative overflow-hidden bg-slate-850 hover:bg-slate-800 border-2 border-indigo-500/40 hover:border-indigo-500 rounded-2xl p-5 text-left transition-all active:scale-[0.98] shadow-lg">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              👨‍👩‍👧
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-1.5">
+                Ман Волидайн ҳастам
+                <i class="fa-solid fa-angle-right text-xs text-indigo-400"></i>
+              </h3>
+              <p class="text-slate-400 text-xs mt-0.5">Мехоҳам телефони фарзандамро назорат, бозиҳоро маҳдуд ва бо овоз суҳбат кунам</p>
+            </div>
+          </div>
+        </button>
+
+        <!-- Child Option -->
+        <button onclick="selectRole('child')" class="group relative overflow-hidden bg-slate-850 hover:bg-slate-800 border-2 border-emerald-500/40 hover:border-emerald-500 rounded-2xl p-5 text-left transition-all active:scale-[0.98] shadow-lg">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+              🧒
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-1.5">
+                Ин телефони Фарзанд аст
+                <i class="fa-solid fa-angle-right text-xs text-emerald-400"></i>
+              </h3>
+              <p class="text-slate-400 text-xs mt-0.5">Телефоне, ки қоидаҳо, лимити вақт ва чати бехатар дар он фаъол мешаванд</p>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 3: GENDER & PROFILE (PISAR YO DUKHTAR) -->
+    <div id="viewGender" class="hidden flex-1 flex flex-col justify-center py-4">
+      <div class="text-center mb-6">
+        <span class="bg-indigo-500/20 text-indigo-400 text-xs font-bold px-3 py-1 rounded-full uppercase">Қадами 2 аз 3</span>
+        <h2 class="text-xl font-extrabold text-white mt-2">Маълумоти фарзанд</h2>
+        <p class="text-slate-400 text-xs mt-1">Фарзанди шумо писар аст ё духтар?</p>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Gender selector cards -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Boy -->
+          <label class="cursor-pointer">
+            <input type="radio" name="genderChoice" value="boy" checked class="peer sr-only">
+            <div class="bg-slate-800 border-2 border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-950/40 rounded-2xl p-4 text-center transition active:scale-95">
+              <div class="text-4xl mb-2">👦</div>
+              <div class="font-bold text-sm text-white">Писар</div>
+              <div class="text-[10px] text-slate-400">Масалан: Алиҷон</div>
+            </div>
+          </label>
+
+          <!-- Girl -->
+          <label class="cursor-pointer">
+            <input type="radio" name="genderChoice" value="girl" class="peer sr-only">
+            <div class="bg-slate-800 border-2 border-slate-700 peer-checked:border-pink-500 peer-checked:bg-pink-950/40 rounded-2xl p-4 text-center transition active:scale-95">
+              <div class="text-4xl mb-2">👧</div>
+              <div class="font-bold text-sm text-white">Духтар</div>
+              <div class="text-[10px] text-slate-400">Масалан: Мадина</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Name & Age -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Номи фарзанд</label>
+            <input type="text" id="childNameInput" value="Алиҷон" placeholder="Номи фарзандро нависед" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Синну сол</label>
+            <select id="childAgeInput" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+              <option value="6">6 сола</option>
+              <option value="7">7 сола</option>
+              <option value="8">8 сола</option>
+              <option value="9">9 сола</option>
+              <option value="10">10 сола</option>
+              <option value="11" selected>11 сола</option>
+              <option value="12">12 сола</option>
+              <option value="13">13 сола</option>
+              <option value="14">14 сола</option>
+              <option value="15">15 сола</option>
+              <option value="16">16 сола</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="submitChildProfile()" class="w-full bg-gradient-to-r from-indigo-600 to-emerald-500 hover:from-indigo-500 hover:to-emerald-400 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2">
+          <span>Давом додан</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 4: PAIRING VIEW (QR CODE FOR PARENT/CHILD) -->
+    <div id="viewPairing" class="hidden flex-1 flex flex-col justify-center py-4 text-center">
+      <div class="mb-4">
+        <span class="bg-indigo-500/20 text-indigo-400 text-xs font-bold px-3 py-1 rounded-full uppercase">Пайвастшавӣ бо QR</span>
+        <h2 class="text-xl font-extrabold text-white mt-2">Пайвасти телефонҳо</h2>
+        <p class="text-slate-400 text-xs mt-1">Ин QR-кодро бо телефони дигар скан кунед</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-3xl inline-block mx-auto shadow-2xl mb-4">
+        <div id="qrcodeBox" class="flex items-center justify-center"></div>
+      </div>
+
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-3.5 max-w-xs mx-auto mb-4">
+        <span class="text-xs text-slate-400 block mb-1">Рамзи ягонаи оилавӣ:</span>
+        <span id="pairingCodeText" class="font-mono text-xl font-extrabold text-indigo-400 tracking-wider">NIGOH-7665-X</span>
+      </div>
+
+      <div class="space-y-2 max-w-xs mx-auto">
+        <div class="flex gap-2">
+          <input type="text" id="manualPairCode" placeholder="Рамзро нависед (масалан NIGOH-7665-X)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase text-center font-mono">
+          <button onclick="handleManualPair()" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-bold active:scale-95">Пайваст</button>
+        </div>
+        <button onclick="loadDashboard()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 rounded-xl">
+          Гузаштан ба панели идора ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 5: MAIN PARENT DASHBOARD & TABS -->
+    <div id="viewParentDashboard" class="hidden flex-1 flex flex-col space-y-4 pb-16">
+      
+      <!-- Child Header Card -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950/70 to-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div id="parentChildAvatar" class="w-12 h-12 rounded-2xl bg-indigo-600/25 border border-indigo-500/40 text-2xl flex items-center justify-center shadow-inner">
+            👦
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 id="parentChildName" class="font-extrabold text-white text-base">Писарам (Алиҷон)</h3>
+              <span id="parentChildGenderBadge" class="bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-bold">Писар • 11 с.</span>
+            </div>
+            <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Дар мактаби №8 • Батарея: 88%</span>
+            </p>
+          </div>
+        </div>
+
+        <button onclick="showPairingScreen()" title="QR пайваст" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 text-indigo-400 flex items-center justify-center active:scale-95 hover:bg-slate-700 transition">
+          <i class="fa-solid fa-qrcode text-sm"></i>
+        </button>
+      </div>
+
+      <!-- TAB 1: APPS & TIME LIMITS (DEFAULT) -->
+      <div id="tabContentApps" class="space-y-4">
+        <!-- Quick Control Summary -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow">
+            <span class="text-slate-400 text-[11px] block">Ҳолати муҳофизат</span>
+            <span class="font-extrabold text-emerald-400 text-sm flex items-center gap-1.5 mt-0.5">
+              <i class="fa-solid fa-shield-check"></i> 100% Офлайн фаъол
+            </span>
+          </div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow">
+            <span class="text-slate-400 text-[11px] block">Барномаҳои басташуда</span>
+            <span id="blockedAppsCount" class="font-extrabold text-rose-400 text-sm flex items-center gap-1.5 mt-0.5">
+              <i class="fa-solid fa-lock"></i> 5 барнома
+            </span>
+          </div>
+        </div>
+
+        <!-- Application Control List -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h4 class="font-bold text-sm text-white">Идораи Барномаҳо (Маҳкам / Ограничение)</h4>
+              <p class="text-[11px] text-slate-400">Бо як пахш барномаро қулф кунед ё лимити рӯзона монед</p>
+            </div>
+          </div>
+
+          <!-- Apps Container -->
+          <div id="parentAppsList" class="space-y-2.5">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Android APK Direct Download Widget (28 MB) -->
+        <div class="bg-gradient-to-r from-slate-900 via-emerald-950/30 to-slate-900 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between shadow-xl">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-2xl shadow-inner">
+              <i class="fa-brands fa-android"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-xs text-white">Боргирии расмии .APK</h4>
+                <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-black">28.0 MB</span>
+              </div>
+              <p class="text-[10px] text-slate-450 mt-0.5">Барои ҳамаи моделҳои Android (v2.4.0)</p>
+            </div>
+          </div>
+          <a href="/download/android" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition shadow-lg shadow-emerald-600/30">
+            <i class="fa-solid fa-download"></i> Боргирӣ
+          </a>
+        </div>
+      </div>
+
+      <!-- TAB 2: CHAT & VOICE MESSAGING -->
+      <div id="tabContentChat" class="hidden space-y-3">
+        <!-- Chat Header / Urgent SOS Bar -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
+            <div>
+              <h4 class="font-bold text-xs text-white">Чат бо фарзанд (Овозӣ ва Матнӣ)</h4>
+              <p class="text-[10px] text-slate-400">Шумо метавонед паёми овозӣ ё матн фиристед</p>
+            </div>
+          </div>
+          <!-- Urgent SOS trigger -->
+          <button onclick="sendEmergencyAlert()" class="bg-rose-600 hover:bg-rose-500 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 shadow-lg shadow-rose-600/30 transition">
+            <i class="fa-solid fa-bell"></i> SOS Бонг
+          </button>
+        </div>
+
+        <!-- Quick Response Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs">
+          <button onclick="sendQuickMessage('Салом писарам, дарсҳоят чӣ хел?')" class="bg-slate-850 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-full px-3 py-1 whitespace-nowrap active:scale-95">
+            👋 Салом писарам
+          </button>
+          <button onclick="sendQuickMessage('Дар мактаб ҳастӣ?')" class="bg-slate-850 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-full px-3 py-1 whitespace-nowrap active:scale-95">
+            🏫 Дар мактабӣ?
+          </button>
+          <button onclick="sendQuickMessage('Ба хона биё, вақти дарс шуд')" class="bg-slate-850 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-full px-3 py-1 whitespace-nowrap active:scale-95">
+            🏠 Ба хона биё
+          </button>
+          <button onclick="sendQuickMessage('Хӯрок хӯрдӣ бачам?')" class="bg-slate-850 hover:bg-slate-800 border border-slate-700 text-slate-300 rounded-full px-3 py-1 whitespace-nowrap active:scale-95">
+            🍲 Хӯрок хӯрдӣ?
+          </button>
+        </div>
+
+        <!-- Chat Stream Box -->
+        <div id="chatMessagesContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 min-h-[260px] max-h-[340px] overflow-y-auto space-y-3 shadow-inner flex flex-col justify-start">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Voice Recording Panel (Hidden by default, shows while recording) -->
+        <div id="voiceRecordingBox" class="hidden bg-rose-950/40 border border-rose-500/50 rounded-2xl p-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs recording-pulse">
+              <i class="fa-solid fa-microphone"></i>
+            </div>
+            <div>
+              <span class="text-xs font-bold text-rose-300 block">Сабти паёми овозӣ...</span>
+              <span id="recordingTimer" class="font-mono text-[11px] text-slate-400">00:03</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="cancelVoiceRecord()" class="text-xs text-slate-400 hover:text-white px-2 py-1">Бекор</button>
+            <button onclick="finishAndSendVoice()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 shadow">
+              <i class="fa-solid fa-paper-plane"></i> Ирсол
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-2 flex items-center gap-2 shadow-lg">
+          <!-- Voice Record Trigger -->
+          <button id="btnStartVoice" onclick="startVoiceRecord()" title="Паёми овозӣ (Голосовой)" class="w-10 h-10 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 flex items-center justify-center text-base active:scale-90 transition">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+          
+          <input type="text" id="chatInputText" placeholder="Паём нависед..." onkeydown="if(event.key==='Enter') sendChatMessage()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+          
+          <button onclick="sendChatMessage()" class="w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center text-sm active:scale-95 shadow-md shadow-indigo-600/30 transition">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: LIVE GPS & MAP RADAR -->
+      <div id="tabContentMap" class="hidden space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-location-dot text-indigo-400"></i>
+              Харитаи зинда ва Минтақаҳои бехатар
+            </h4>
+            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">GPS Фаъол</span>
+          </div>
+
+          <!-- Simulated Interactive Radar / Map Graphic -->
+          <div class="relative w-full h-48 rounded-xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/40 border border-slate-800 overflow-hidden flex items-center justify-center">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#6366f1_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            
+            <!-- Radar rings -->
+            <div class="absolute w-36 h-36 rounded-full border border-indigo-500/20 animate-ping"></div>
+            <div class="absolute w-28 h-28 rounded-full border border-indigo-500/30"></div>
+            <div class="absolute w-16 h-16 rounded-full border border-indigo-500/40"></div>
+
+            <!-- Child location pin -->
+            <div class="relative z-10 flex flex-col items-center">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white text-lg flex items-center justify-center shadow-xl shadow-indigo-600/50 border-2 border-white">
+                👦
+              </div>
+              <span class="mt-1 bg-slate-900/90 border border-slate-700 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow">
+                Алиҷон • Мактаби №8
+              </span>
+            </div>
+
+            <!-- Home Marker -->
+            <div class="absolute top-4 left-6 flex items-center gap-1 text-[10px] text-slate-400">
+              <span class="text-base">🏠</span> Хона
+            </div>
+            <!-- Gym Marker -->
+            <div class="absolute bottom-4 right-6 flex items-center gap-1 text-[10px] text-slate-400">
+              <span class="text-base">⚽</span> Варзишгоҳ
+            </div>
+          </div>
+
+          <!-- Geofence Zone Cards -->
+          <div class="space-y-2">
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🏫</span>
+                <div>
+                  <h5 class="text-xs font-bold text-white">Мактаби таҳсилоти умумии №8</h5>
+                  <p class="text-[10px] text-slate-400">Кӯчаи Садриддин Айнӣ • Ҳолат: Ҳоло дар дарс аст</p>
+                </div>
+              </div>
+              <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded font-bold">Дар ҷояш</span>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🏠</span>
+                <div>
+                  <h5 class="text-xs font-bold text-white">Хонаи истиқоматӣ</h5>
+                  <p class="text-[10px] text-slate-400">Хиёбони Рӯдакӣ, б. 45 • Масофа: 1.2 км</p>
+                </div>
+              </div>
+              <span class="text-slate-400 text-[10px]">12:40 баромад</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SETTINGS & PARENT PIN -->
+      <div id="tabContentSettings" class="hidden space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <h4 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-indigo-400"></i>
+            Танзимоти амният ва система
+          </h4>
+
+          <div class="space-y-2.5 text-xs">
+            <!-- Filter 18+ -->
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div>
+                <span class="font-bold text-white block">Филтри мундариҷаи калонсолон (18+)</span>
+                <span class="text-[10px] text-slate-400">Бастани сайтҳои номуносиб ва казино</span>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 accent-indigo-600">
+            </div>
+
+            <!-- YouTube SafeSearch -->
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div>
+                <span class="font-bold text-white block">YouTube Restricted Mode</span>
+                <span class="text-[10px] text-slate-400">Фаъол кардани ҷустуҷӯи бехатар дар видеоҳо</span>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 accent-indigo-600">
+            </div>
+
+            <!-- Offline AI Guardian -->
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+              <div>
+                <span class="font-bold text-white block">Муҳофизати офлайнӣ (Бе интернет)</span>
+                <span class="text-[10px] text-slate-400">Қоидаҳо ҳатто бе интернет комилан кор мекунанд</span>
+              </div>
+              <input type="checkbox" checked class="w-4 h-4 accent-indigo-600">
+            </div>
+          </div>
+        </div>
+
+        <!-- Role switch & Device Info -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-400">Нақши кунунӣ:</span>
+            <span class="font-bold text-indigo-400 bg-indigo-500/20 px-2 py-0.5 rounded">Волидайн (Идоракунӣ)</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-400">Бастаи APK:</span>
+            <span class="font-bold text-slate-200">v2.4.0 (28.0 MB)</span>
+          </div>
+          <button onclick="switchRoleView()" class="w-full bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition">
+            Гузаштан ба намуди телефони фарзанд 🔄
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 6: CHILD DASHBOARD (VIEW RULES ONLY) -->
+    <div id="viewChildDashboard" class="hidden flex-1 flex flex-col space-y-4 py-2 pb-16">
+      <div class="bg-gradient-to-r from-indigo-900/60 to-slate-800 border border-indigo-500/30 rounded-2xl p-4 text-center">
+        <div id="childSelfAvatar" class="text-4xl mb-1">👦</div>
+        <h3 id="childSelfName" class="font-extrabold text-base text-white">Салом, Алиҷон!</h3>
+        <p class="text-xs text-slate-400">Реҷаи муҳофизати оилавии волидайн фаъол аст</p>
+      </div>
+
+      <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-4">
+        <h4 class="font-bold text-sm text-white mb-2">Ҳолати барномаҳои шумо:</h4>
+        <div id="childAppsList" class="space-y-2">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <button onclick="loadDashboard()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2.5 rounded-xl">
+        Бозгашт ба намуди волидайн ➔
+      </button>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM STATUS & OTA BAR -->
+  <footer class="bg-slate-950/80 border-t border-slate-900 px-4 py-2 text-center text-[11px] text-slate-500">
+    <span>Версияи расмии Android & PWA: <strong class="text-slate-300 font-mono">v2.4.0 (OTA Enabled)</strong></span>
+  </footer>
+
+  <!-- MODERN BOTTOM TAB NAVIGATION (Visible when dashboard is active) -->
+  <nav id="bottomTabBar" class="hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-2 py-2 flex items-center justify-around z-50 pb-safe">
+    <button onclick="switchTab('apps')" id="tabBtnApps" class="flex-1 flex flex-col items-center gap-1 py-1 text-indigo-400 transition">
+      <i class="fa-solid fa-grid-2 text-base"></i>
+      <span class="text-[10px] font-bold">Барномаҳо</span>
+    </button>
+    <button onclick="switchTab('chat')" id="tabBtnChat" class="flex-1 flex flex-col items-center gap-1 py-1 text-slate-400 hover:text-slate-200 transition relative">
+      <i class="fa-solid fa-comment-dots text-base"></i>
+      <span class="text-[10px] font-bold">Чат ва Овоз</span>
+      <span id="chatUnreadDot" class="hidden absolute top-1 right-5 w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
+    </button>
+    <button onclick="switchTab('map')" id="tabBtnMap" class="flex-1 flex flex-col items-center gap-1 py-1 text-slate-400 hover:text-slate-200 transition">
+      <i class="fa-solid fa-location-crosshairs text-base"></i>
+      <span class="text-[10px] font-bold">Харита</span>
+    </button>
+    <button onclick="switchTab('settings')" id="tabBtnSettings" class="flex-1 flex flex-col items-center gap-1 py-1 text-slate-400 hover:text-slate-200 transition">
+      <i class="fa-solid fa-gear text-base"></i>
+      <span class="text-[10px] font-bold">Танзимот</span>
+    </button>
+  </nav>
+
+  <!-- APP LOGIC SCRIPT -->
+  <script>
+    let CURRENT_USER = {% if user %}{{ user | tojson }}{% else %}null{% endif %};
+    let ACTIVE_CHILD = null;
+    let APP_RULES = [];
+    let CHAT_MESSAGES = [];
+    let CURRENT_VERSION = "2.4.0";
+    let CURRENT_TAB = 'apps';
+    let RECORDING_INTERVAL = null;
+    let RECORDING_SECONDS = 0;
+
+    // Web Audio Synthesizer for Realistic Voice Playback & Alarm
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Play Voice Note Audio Synthesizer
+    function playVoiceMessage(msgId, durationSec) {
+      const btn = document.getElementById('playBtn_' + msgId);
+      const wave = document.getElementById('wave_' + msgId);
+      
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const dur = Math.min(Math.max(durationSec || 4, 3), 8);
+        
+        // Visual indicator
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        if (wave) wave.classList.add('animate-pulse');
+
+        // Create voice-like frequency harmonics (formant chords)
+        const freqs = [220, 330, 440, 550, 440, 330];
+        freqs.forEach((f, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f + (idx * 20), now + (idx * 0.4));
+          
+          gain.gain.setValueAtTime(0.01, now);
+          gain.gain.exponentialRampToValueAtTime(0.15, now + 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start(now + (idx * 0.2));
+          osc.stop(now + dur);
+        });
+
+        setTimeout(() => {
+          if (btn) btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+          if (wave) wave.classList.remove('animate-pulse');
+        }, dur * 1000);
+
+      } catch (err) {
+        console.log('Audio playback preview:', err);
+      }
+    }
+
+    // SOS Emergency siren alarm tone
+    function playSosSound() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        for (let i = 0; i < 4; i++) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(880, now + (i * 0.4));
+          osc.frequency.exponentialRampToValueAtTime(440, now + (i * 0.4) + 0.3);
+          gain.gain.setValueAtTime(0.2, now + (i * 0.4));
+          gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.4) + 0.38);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + (i * 0.4));
+          osc.stop(now + (i * 0.4) + 0.4);
+        }
+      } catch (e) {}
+    }
+
+    // Tab Switcher
+    function switchTab(tab) {
+      CURRENT_TAB = tab;
+      const tabs = ['apps', 'chat', 'map', 'settings'];
+      tabs.forEach(t => {
+        const content = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (content) content.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('text-indigo-400');
+          btn.classList.add('text-slate-400');
+        }
+      });
+
+      const activeContent = document.getElementById('tabContent' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+      if (activeContent) activeContent.classList.remove('hidden');
+      if (activeBtn) {
+        activeBtn.classList.add('text-indigo-400');
+        activeBtn.classList.remove('text-slate-400');
+      }
+
+      if (tab === 'chat') {
+        const c = document.getElementById('chatMessagesContainer');
+        if (c) c.scrollTop = c.scrollHeight;
+      }
+    }
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+      initServiceWorker();
+      checkAppRoute();
+      checkOtaUpdate(false);
+    });
+
+    function initServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js').then(reg => {
+          reg.onupdatefound = () => {
+            const worker = reg.installing;
+            worker.onstatechange = () => {
+              if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                document.getElementById('otaBanner').classList.remove('hidden');
+              }
+            };
+          };
+        }).catch(() => {});
+      }
+    }
+
+    async function checkOtaUpdate(manual = false) {
+      const icon = document.getElementById('updateSpinIcon');
+      if (manual && icon) icon.classList.add('animate-spin');
+      try {
+        const res = await fetch('/api/mobile/version');
+        const data = await res.json();
+        if (data.version && data.version !== CURRENT_VERSION) {
+          document.getElementById('otaVersionText').textContent = 'v' + data.version;
+          document.getElementById('otaBanner').classList.remove('hidden');
+        } else if (manual) {
+          alert('Шумо версияи охиринро истифода бурда истодаед (v' + CURRENT_VERSION + ')');
+        }
+      } catch (err) {
+      } finally {
+        if (manual && icon) {
+          setTimeout(() => icon.classList.remove('animate-spin'), 600);
+        }
+      }
+    }
+
+    function applyOtaUpdate() {
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          for (let name of names) caches.delete(name);
+        });
+      }
+      window.location.reload(true);
+    }
+
+    function switchView(viewId) {
+      const views = ['viewLoading', 'viewAuth', 'viewRole', 'viewGender', 'viewPairing', 'viewParentDashboard', 'viewChildDashboard'];
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (el) el.classList.add('hidden');
+      });
+      const target = document.getElementById(viewId);
+      if (target) target.classList.remove('hidden');
+
+      const tabBar = document.getElementById('bottomTabBar');
+      if (viewId === 'viewParentDashboard' || viewId === 'viewChildDashboard') {
+        if (tabBar) tabBar.classList.remove('hidden');
+      } else {
+        if (tabBar) tabBar.classList.add('hidden');
+      }
+    }
+
+    async function checkAppRoute() {
+      if (!CURRENT_USER) {
+        switchView('viewAuth');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/mobile/status');
+        if (res.status === 401) {
+          CURRENT_USER = null;
+          switchView('viewAuth');
+          return;
+        }
+        const data = await res.json();
+        CURRENT_USER = data.user;
+        ACTIVE_CHILD = data.child;
+        APP_RULES = data.apps || [];
+        CHAT_MESSAGES = data.messages || [];
+
+        if (!CURRENT_USER.role || CURRENT_USER.role === 'unassigned') {
+          switchView('viewRole');
+        } else if (!ACTIVE_CHILD) {
+          switchView('viewGender');
+        } else {
+          loadDashboard();
+        }
+      } catch (err) {
+        switchView('viewParentDashboard');
+      }
+    }
+
+    async function loginWithGoogle() {
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'google_family_user@gmail.com',
+            full_name: 'Волидайн (Google)',
+            avatar: 'https://lh3.googleusercontent.com/a/default-user'
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CURRENT_USER = data.user;
+          checkAppRoute();
+        }
+      } catch (e) {
+        alert('Хатогӣ дар воридшавӣ бо Google');
+      }
+    }
+
+    async function handleEmailAuth(e) {
+      e.preventDefault();
+      const name = document.getElementById('authName').value;
+      const email = document.getElementById('authEmail').value;
+      const pass = document.getElementById('authPass').value;
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ full_name: name, email: email, password: pass })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CURRENT_USER = data.user;
+          checkAppRoute();
+        } else {
+          const loginRes = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: pass })
+          });
+          const loginData = await loginRes.json();
+          if (loginRes.ok) {
+            CURRENT_USER = loginData.user;
+            checkAppRoute();
+          } else {
+            alert(data.detail || loginData.detail || 'Хатогӣ дар воридшавӣ');
+          }
+        }
+      } catch (err) {
+        alert('Хатогии шабака');
+      }
+    }
+
+    async function selectRole(role) {
+      try {
+        const res = await fetch('/api/mobile/role-select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: role })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CURRENT_USER = data.user;
+          switchView('viewGender');
+        }
+      } catch (e) {
+        alert('Хатогӣ дар интихоби нақш');
+      }
+    }
+
+    async function submitChildProfile() {
+      const gender = document.querySelector('input[name="genderChoice"]:checked').value;
+      const name = document.getElementById('childNameInput').value.trim() || (gender === 'boy' ? 'Писарам' : 'Духтарам');
+      const age = parseInt(document.getElementById('childAgeInput').value) || 11;
+
+      try {
+        const res = await fetch('/api/mobile/setup-child', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, gender, age })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ACTIVE_CHILD = data.child;
+          showPairingScreen();
+        }
+      } catch (e) {
+        alert('Хатогӣ дар сабти маълумоти фарзанд');
+      }
+    }
+
+    function showPairingScreen() {
+      switchView('viewPairing');
+      const code = ACTIVE_CHILD ? ACTIVE_CHILD.pairing_code : 'NIGOH-7665-X';
+      document.getElementById('pairingCodeText').textContent = code;
+
+      const qrbx = document.getElementById('qrcodeBox');
+      qrbx.innerHTML = '';
+      new QRCode(qrbx, {
+        text: JSON.stringify({ action: 'nigoh_pair', code: code }),
+        width: 170,
+        height: 170,
+        colorDark : "#0f172a",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+    }
+
+    async function handleManualPair() {
+      const code = document.getElementById('manualPairCode').value.trim();
+      if (!code) return;
+      try {
+        const res = await fetch('/api/mobile/pair', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pairing_code: code })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          ACTIVE_CHILD = data.child;
+          alert('Дастгоҳ бомуваффақият пайваст карда шуд!');
+          loadDashboard();
+        } else {
+          alert(data.detail || 'Рамзи нодуруст');
+        }
+      } catch (e) {
+        alert('Хатогии шабака');
+      }
+    }
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/mobile/status');
+        const data = await res.json();
+        CURRENT_USER = data.user;
+        ACTIVE_CHILD = data.child;
+        APP_RULES = data.apps || [];
+        CHAT_MESSAGES = data.messages || [];
+      } catch (e) {}
+
+      if (CURRENT_USER && CURRENT_USER.role === 'child') {
+        renderChildDashboard();
+      } else {
+        renderParentDashboard();
+      }
+    }
+
+    function renderParentDashboard() {
+      switchView('viewParentDashboard');
+      if (ACTIVE_CHILD) {
+        const isBoy = ACTIVE_CHILD.gender === 'boy';
+        document.getElementById('parentChildAvatar').textContent = isBoy ? '👦' : '👧';
+        document.getElementById('parentChildName').textContent = ACTIVE_CHILD.name;
+        document.getElementById('parentChildGenderBadge').textContent = (isBoy ? 'Писар' : 'Духтар') + ' • ' + ACTIVE_CHILD.age + ' сола';
+        document.getElementById('parentChildGenderBadge').className = isBoy ? 
+          "bg-blue-500/20 text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-bold" :
+          "bg-pink-500/20 text-pink-400 text-[10px] px-2 py-0.5 rounded-full font-bold";
+      }
+
+      // 1. Render Apps List
+      const listEl = document.getElementById('parentAppsList');
+      listEl.innerHTML = '';
+      let blockedCount = 0;
+
+      APP_RULES.forEach(app => {
+        if (app.is_blocked) blockedCount++;
+        const card = document.createElement('div');
+        card.className = "bg-slate-950/80 border " + (app.is_blocked ? "border-rose-500/40 bg-rose-950/20" : "border-slate-800") + " rounded-xl p-3 flex items-center justify-between transition shadow-sm";
+        
+        card.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xl shadow-inner">
+              ${app.app_icon || '📱'}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-xs text-white">${app.app_name}</span>
+                ${app.is_blocked ? 
+                  `<span class="bg-rose-500/20 text-rose-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Маҳкам</span>` : 
+                  `<span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Иҷозат</span>`
+                }
+              </div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                <span>${app.category}</span>
+                <span>•</span>
+                <select onchange="updateAppLimit('${app.package_name}', this.value)" class="bg-slate-900 border border-slate-800 text-slate-300 rounded px-1.5 py-0.5 text-[10px] focus:outline-none">
+                  <option value="15" ${app.daily_limit_minutes == 15 ? 'selected' : ''}>15 дақ</option>
+                  <option value="30" ${app.daily_limit_minutes == 30 ? 'selected' : ''}>30 дақ</option>
+                  <option value="60" ${app.daily_limit_minutes == 60 ? 'selected' : ''}>1 соат</option>
+                  <option value="120" ${app.daily_limit_minutes == 120 ? 'selected' : ''}>2 соат</option>
+                  <option value="0" ${app.daily_limit_minutes == 0 ? 'selected' : ''}>Бе маҳдудият</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="toggleAppLock('${app.package_name}', ${!app.is_blocked})" class="w-9 h-9 rounded-xl ${app.is_blocked ? 'bg-rose-600 text-white shadow-rose-600/30' : 'bg-slate-900 text-slate-400 border border-slate-800'} shadow flex items-center justify-center text-xs active:scale-95 transition">
+            <i class="fa-solid ${app.is_blocked ? 'fa-lock' : 'fa-lock-open'}"></i>
+          </button>
+        `;
+        listEl.appendChild(card);
+      });
+
+      document.getElementById('blockedAppsCount').innerHTML = `<i class="fa-solid fa-lock"></i> ${blockedCount} барнома`;
+
+      // 2. Render Chat Messages
+      renderChatStream();
+    }
+
+    function renderChatStream() {
+      const box = document.getElementById('chatMessagesContainer');
+      if (!box) return;
+      box.innerHTML = '';
+
+      if (!CHAT_MESSAGES || CHAT_MESSAGES.length === 0) {
+        box.innerHTML = `
+          <div class="my-auto text-center py-8">
+            <div class="w-12 h-12 mx-auto rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xl mb-2">
+              <i class="fa-solid fa-comments"></i>
+            </div>
+            <p class="text-xs text-slate-400">Ҳанӯз паём нест. Аввалин шуда паём ё садо фиристед!</p>
+          </div>
+        `;
+        return;
+      }
+
+      CHAT_MESSAGES.forEach(msg => {
+        const isParentSender = msg.sender_role === 'parent';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `flex flex-col ${isParentSender ? 'items-end' : 'items-start'}`;
+
+        if (msg.message_type === 'voice') {
+          // Voice Message Bubble
+          const dur = msg.duration_sec || 4;
+          const mins = Math.floor(dur / 60);
+          const secs = (dur % 60).toString().padStart(2, '0');
+          
+          msgDiv.innerHTML = `
+            <div class="max-w-[82%] rounded-2xl p-3 ${isParentSender ? 'bg-indigo-600 text-white rounded-br-none shadow-indigo-600/30' : 'bg-slate-800 text-slate-100 rounded-bl-none'} shadow-md">
+              <div class="text-[10px] opacity-75 font-semibold mb-1 flex items-center justify-between gap-3">
+                <span>${msg.sender_name}</span>
+                <span>🎙️ Паёми овозӣ</span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <button id="playBtn_${msg.id}" onclick="playVoiceMessage(${msg.id}, ${dur})" class="w-8 h-8 rounded-full ${isParentSender ? 'bg-white text-indigo-700' : 'bg-indigo-600 text-white'} flex items-center justify-center text-xs active:scale-90 transition shadow">
+                  <i class="fa-solid fa-play"></i>
+                </button>
+                <div id="wave_${msg.id}" class="flex items-center gap-1 h-5 waveform-bar">
+                  <span class="w-1 h-2 rounded bg-current opacity-60"></span>
+                  <span class="w-1 h-4 rounded bg-current opacity-90"></span>
+                  <span class="w-1 h-3 rounded bg-current opacity-75"></span>
+                  <span class="w-1 h-5 rounded bg-current"></span>
+                  <span class="w-1 h-2 rounded bg-current opacity-60"></span>
+                  <span class="w-1 h-4 rounded bg-current opacity-85"></span>
+                  <span class="w-1 h-3 rounded bg-current opacity-70"></span>
+                </div>
+                <span class="font-mono text-xs font-bold ml-1">${mins}:${secs}</span>
+              </div>
+            </div>
+          `;
+        } else if (msg.message_type === 'urgent') {
+          // Urgent SOS Alert Bubble
+          msgDiv.innerHTML = `
+            <div class="max-w-[85%] rounded-2xl p-3 bg-rose-600 text-white shadow-lg shadow-rose-600/30 border border-rose-400 animate-pulse">
+              <div class="flex items-center gap-2 font-black text-xs uppercase mb-1">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Бонги изтироб (SOS)</span>
+              </div>
+              <p class="text-xs font-medium">${msg.content}</p>
+            </div>
+          `;
+        } else {
+          // Standard Text Bubble
+          msgDiv.innerHTML = `
+            <div class="max-w-[82%] rounded-2xl px-3.5 py-2.5 ${isParentSender ? 'bg-indigo-600 text-white rounded-br-none shadow-indigo-600/30' : 'bg-slate-800 text-slate-100 rounded-bl-none'} shadow-md">
+              <span class="text-[10px] opacity-75 font-semibold block mb-0.5">${msg.sender_name}</span>
+              <p class="text-xs leading-relaxed break-words">${msg.content}</p>
+            </div>
+          `;
+        }
+
+        box.appendChild(msgDiv);
+      });
+
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendChatMessage() {
+      const inp = document.getElementById('chatInputText');
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = '';
+
+      try {
+        const res = await fetch('/api/mobile/chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message_type: 'text', content: text, duration_sec: 0 })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CHAT_MESSAGES.push(data.message);
+          renderChatStream();
+        }
+      } catch (e) {
+        alert('Хатогӣ дар фиристодани паём');
+      }
+    }
+
+    function sendQuickMessage(text) {
+      document.getElementById('chatInputText').value = text;
+      sendChatMessage();
+    }
+
+    // Voice Message Recording Simulation / Handling
+    function startVoiceRecord() {
+      document.getElementById('voiceRecordingBox').classList.remove('hidden');
+      RECORDING_SECONDS = 0;
+      document.getElementById('recordingTimer').textContent = '00:00';
+      if (RECORDING_INTERVAL) clearInterval(RECORDING_INTERVAL);
+      RECORDING_INTERVAL = setInterval(() => {
+        RECORDING_SECONDS++;
+        const m = Math.floor(RECORDING_SECONDS / 60).toString().padStart(2, '0');
+        const s = (RECORDING_SECONDS % 60).toString().padStart(2, '0');
+        document.getElementById('recordingTimer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+
+    function cancelVoiceRecord() {
+      if (RECORDING_INTERVAL) clearInterval(RECORDING_INTERVAL);
+      document.getElementById('voiceRecordingBox').classList.add('hidden');
+    }
+
+    async function finishAndSendVoice() {
+      if (RECORDING_INTERVAL) clearInterval(RECORDING_INTERVAL);
+      document.getElementById('voiceRecordingBox').classList.add('hidden');
+      const duration = Math.max(RECORDING_SECONDS, 2);
+
+      try {
+        const res = await fetch('/api/mobile/chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message_type: 'voice',
+            content: 'Паёми овозӣ аз волидайн',
+            duration_sec: duration
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CHAT_MESSAGES.push(data.message);
+          renderChatStream();
+        }
+      } catch (e) {
+        alert('Хатогӣ дар сабти овоз');
+      }
+    }
+
+    async function sendEmergencyAlert() {
+      playSosSound();
+      try {
+        const res = await fetch('/api/mobile/chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message_type: 'urgent',
+            content: 'ДИҚҚАТ: Бонги изтироби оилавӣ (SOS)! Лутфан фавран бо волидайн тамос гиред!',
+            duration_sec: 0
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CHAT_MESSAGES.push(data.message);
+          renderChatStream();
+        }
+      } catch (e) {}
+    }
+
+    async function toggleAppLock(packageName, newStatus) {
+      try {
+        const res = await fetch('/api/mobile/apps/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ package_name: packageName, is_blocked: newStatus })
+        });
+        if (res.ok) {
+          const rule = APP_RULES.find(a => a.package_name === packageName);
+          if (rule) rule.is_blocked = newStatus ? 1 : 0;
+          renderParentDashboard();
+        }
+      } catch (e) {
+        alert('Хатогӣ ҳангоми бастани барнома');
+      }
+    }
+
+    async function updateAppLimit(packageName, minutes) {
+      try {
+        await fetch('/api/mobile/apps/limit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ package_name: packageName, daily_limit_minutes: parseInt(minutes) })
+        });
+      } catch (e) {}
+    }
+
+    function renderChildDashboard() {
+      switchView('viewChildDashboard');
+      if (ACTIVE_CHILD) {
+        const isBoy = ACTIVE_CHILD.gender === 'boy';
+        document.getElementById('childSelfAvatar').textContent = isBoy ? '👦' : '👧';
+        document.getElementById('childSelfName').textContent = 'Салом, ' + ACTIVE_CHILD.name + '!';
+      }
+
+      const listEl = document.getElementById('childAppsList');
+      listEl.innerHTML = '';
+      APP_RULES.forEach(app => {
+        const item = document.createElement('div');
+        item.className = "p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between";
+        item.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">${app.app_icon || '📱'}</span>
+            <span class="font-bold text-xs text-white">${app.app_name}</span>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded font-bold ${app.is_blocked ? 'bg-rose-500/20 text-rose-400' : 'bg-emerald-500/20 text-emerald-400'}">
+            ${app.is_blocked ? 'Маҳкам карда шудааст 🔒' : 'Иҷозат дода шудааст 🔓'}
+          </span>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    function switchRoleView() {
+      renderChildDashboard();
+    }
+  </script>
+</body>
+</html>
