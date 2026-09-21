@@ -134,7 +134,6 @@ def logout(request: Request, response: Response):
 from app.database import get_db, init_db, create_or_get_child_for_user, ensure_default_child_apps
 from app.schemas import (
     UserRegister, UserLogin, GoogleAuthRequest, RoleSelectRequest,
-    ChildProfileSetupRequest, PairRequest, AppRuleToggleRequest, AppLimitRequest
     ChildProfileSetupRequest, PairRequest, AppRuleToggleRequest, AppLimitRequest,
     SendChatMessageRequest
 )
