@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100vh;}body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-container": "#102a43", "tertiary-container": "#002f29", "inverse-surface": "#1a324a", "surface-container-highest": "#d0e4ff", "on-surface-variant": "#43474d", "secondary-container": "#1162fe", "surface-variant": "#d0e4ff", "on-tertiary": "#ffffff", "on-primary-fixed": "#011d35", "on-secondary-fixed": "#00174c", "on-error": "#ffffff", "on-primary": "#ffffff", "surface-bright": "#f8f9ff", "primary": "#00152a", "primary-fixed": "#d1e4ff", "secondary-fixed": "#dbe1ff", "outline-variant": "#c3c6ce", "on-primary-container": "#7a92b0", "on-background": "#021d33", "tertiary": "#001814", "error": "#ba1a1a", "on-primary-fixed-variant": "#314863", "inverse-primary": "#b0c9e8", "tertiary-fixed-dim": "#59dbc7", "surface-dim": "#c5dcfb", "on-tertiary-container": "#00a290", "surface-container-high": "#dae9ff", "surface-tint": "#49607c", "outline": "#74777e", "on-secondary-fixed-variant": "#003daa", "on-tertiary-fixed": "#00201c", "error-container": "#ffdad6", "inverse-on-surface": "#e9f1ff", "background": "#f8f9ff", "primary-fixed-dim": "#b0c9e8", "on-surface": "#021d33", "on-secondary-container": "#f3f3ff", "secondary-fixed-dim": "#b4c5ff", "on-tertiary-fixed-variant": "#005047", "on-secondary": "#ffffff", "secondary": "#004cce", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", "tertiary-fixed": "#79f7e3", "surface-container": "#e4efff", "surface": "#f8f9ff", "surface-container-low": "#eef4ff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "gutter-mobile": "1rem", "space-xl": "2.5rem", "space-md": "1rem", "space-sm": "0.5rem", "margin-desktop": "3rem", "gutter": "1.5rem", "margin": "2rem", "space-xs": "0.25rem", "margin-mobile": "1rem", "space-lg": "1.5rem" }, fontFamily: { "label-sm": ["Inter"], "display": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "body-sm": ["Inter"], "label-lg": ["Inter"], "body-lg": ["Inter"], "title-md": ["Inter"], "headline-sm": ["Inter"], "headline-md": ["Inter"], "headline-lg-mobile": ["Inter"] }, fontSize: { "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.03em", "fontWeight": "500" }], "display": ["3.5rem", { "lineHeight": "4rem", "letterSpacing": "-0.03em", "fontWeight": "700" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.02em", "fontWeight": "500" }], "body-md": ["1rem", { "lineHeight": "1.5rem", "letterSpacing": "0em", "fontWeight": "400" }], "headline-lg": ["2.5rem", { "lineHeight": "3rem", "letterSpacing": "-0.025em", "fontWeight": "600" }], "body-sm": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.005em", "fontWeight": "400" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "body-lg": ["1.125rem", { "lineHeight": "1.75rem", "letterSpacing": "0em", "fontWeight": "400" }], "title-md": ["1.125rem", { "lineHeight": "1.625rem", "letterSpacing": "-0.01em", "fontWeight": "500" }], "headline-sm": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "headline-md": ["1.75rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-lg-mobile": ["1.875rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "600" }] } } } };</script></head><body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen flex flex-col antialiased selection:bg-surface-variant"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-mobile flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="NIGOH Family Brand Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VbbxMX3LG7czoEbM3jhRVOX8YPGGvps65fRS_KyJvBXtAFwofitEzN0Vn3l2d36Dwa_YqtnJ1pxi3szjZIUvCojW58q560OPr4QigyHqZ4HrnRtMPhA9MX_OijTrroX_-UMAzsL4Hc51HD97muLt6QCZp7I8ezpfIXQXsDgYRp_m9d9L9yX33BydJ2cNSun0z4mimAN6J62IpujftVdNDuJb6oHEkq7wNFp1GQ_uM3knYBzt0c356y"/><div class="flex flex-col"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">NIGOH Family</span><span class="font-title-md text-title-md text-on-surface font-semibold truncate max-w-[140px]">Family Dashboard</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Notifications" class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full text-on-surface">
+<!-- Sticky Sub-Nav Header with Language Switcher & Quick Download -->
+<header class="sticky top-0 z-40 w-full bg-surface-container-lowest/90 backdrop-blur-md px-margin-mobile py-space-sm flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-xs">
+<img alt="NIGOH Family Brand Emblem" class="w-8 h-8 rounded-lg object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VbbxMX3LG7czoEbM3jhRVOX8YPGGvps65fRS_KyJvBXtAFwofitEzN0Vn3l2d36Dwa_YqtnJ1pxi3szjZIUvCojW58q560OPr4QigyHqZ4HrnRtMPhA9MX_OijTrroX_-UMAzsL4Hc51HD97muLt6QCZp7I8ezpfIXQXsDgYRp_m9d9L9yX33BydJ2cNSun0z4mimAN6J62IpujftVdNDuJb6oHEkq7wNFp1GQ_uM3knYBzt0c356y"/>
+<span class="font-title-md text-title-md font-semibold text-primary">NIGOH</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<!-- Language Switcher Pill -->
+<div class="bg-surface-container-high rounded-full p-0.5 flex items-center text-on-surface-variant font-label-sm text-label-sm">
+<button class="px-2 py-0.5 rounded-full bg-surface-container-lowest text-secondary font-semibold shadow-xs" type="button">TG</button>
+<button class="px-2 py-0.5 rounded-full hover:text-on-surface transition-colors" type="button">RU</button>
+<button class="px-2 py-0.5 rounded-full hover:text-on-surface transition-colors" type="button">EN</button>
+</div>
+<!-- Quick Action Button -->
+<a class="bg-secondary text-on-secondary font-label-md text-label-md px-3 py-1.5 rounded-full font-medium flex items-center gap-1 hover:bg-secondary-container transition-transform active:scale-95 shadow-sm" href="#downloads-hub">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Гирифтан</span>
+</a>
+</div>
+</header>
+<div class="px-margin-mobile flex flex-col gap-space-xl pt-space-md">
+<!-- Hero Section -->
+<section class="flex flex-col gap-space-md">
+<div class="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-surface-container-high text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px] text-tertiary-container" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span>100% Шаффоф ва Бидуни Ҷосусӣ</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-bold tracking-tight">
+          Муҳофизати боэътимод ва одоби рақамии оила
+        </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Reliable Protection and Family Digital Wellbeing. Барои волидон ва фарзандоне, ки ба эҳтироми мутақобила бовар доранд: бидуни сабти пинҳонии клавиатура ва танҳо бо розигии дуҷониба.
+        </p>
+</div>
+<!-- OS Detection Interactive Banner -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm relative overflow-hidden" id="detected-os-card">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-[20px]" id="os-icon">phone_android</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">Ташхиси худкор</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm font-semibold">v1.0.0 Stable</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary" id="os-title">Дар дастгоҳи шумо ошкор шуд: Android OS</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Мувофиқ бо Android 9.0+ ва системаҳои муосир</span>
+</div>
+<div class="flex items-center gap-space-xs pt-1">
+<a class="flex-1 bg-secondary hover:bg-secondary-container text-on-secondary py-2.5 px-space-md rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-xs transition-transform active:scale-98" href="#downloads-hub">
+<span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+<span>Насби тавсияшуда</span>
+</a>
+<button class="p-2.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('downloads-hub').scrollIntoView({behavior: 'smooth'})" title="Ҳамаи системаҳо" type="button">
+<span class="material-symbols-outlined text-[20px]">devices</span>
+</button>
+</div>
+</div>
+<!-- Trust Badges Metrics Strip -->
+<div class="grid grid-cols-3 gap-2 py-space-xs">
+<div class="bg-surface-container-low p-2.5 rounded-lg flex flex-col items-center text-center">
+<span class="font-title-md text-title-md font-bold text-primary">142k+</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Оилаҳои ҳифзшуда</span>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded-lg flex flex-col items-center text-center">
+<div class="flex items-center text-amber-500">
+<span class="font-title-md text-title-md font-bold text-primary mr-0.5">4.9</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Баҳои волидон</span>
+</div>
+<div class="bg-surface-container-low p-2.5 rounded-lg flex flex-col items-center text-center">
+<span class="font-title-md text-title-md font-bold text-tertiary-container">100%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Рамзгузории маҳаллӣ</span>
+</div>
+</div>
+</section>
+<!-- Bento Download Center -->
+<section class="flex flex-col gap-space-md scroll-mt-20" id="downloads-hub">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Маркази Барномаҳо</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Боргирӣ барои тамоми дастгоҳҳо</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Файлҳои аслии тафтишшуда бо имзои рақамӣ ва калиди SHA-256</p>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Android Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">android</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Android Mobile &amp; Tablet</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Version 1.0.0 • 28.4 MB</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">APK / Play</span>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="py-2 px-3 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest font-label-md text-label-md font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">store</span>
+<span>Google Play</span>
+</button>
+<button class="py-2 px-3 rounded-lg bg-secondary text-on-secondary hover:bg-secondary-container font-label-md text-label-md font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+<span>Direct APK</span>
+</button>
+</div>
+<!-- SHA256 Copy Trigger -->
+<div class="flex items-center justify-between bg-surface-container-low px-2.5 py-1.5 rounded text-on-surface-variant">
+<span class="font-label-sm text-label-sm font-mono truncate max-w-[210px]">sha256: 8fbc4910a273eef014a0...</span>
+<button class="text-secondary font-label-sm text-label-sm font-semibold flex items-center gap-0.5" onclick="copyHash(this, '8fbc4910a273eef014a0ec819d9b62a9b3d2')" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+<span>Нусха</span>
+</button>
+</div>
+</div>
+<!-- iOS Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">phone_iphone</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">iPhone &amp; iPad</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">iOS 15.0+ • App Store</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">iOS Verified</span>
+</div>
+<button class="w-full py-2 px-3 rounded-lg bg-primary text-on-primary hover:bg-primary-container font-label-md text-label-md font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+<span>App Store-ро кушоед</span>
+</button>
+</div>
+<!-- Windows Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">desktop_windows</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Windows 11 &amp; 10</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">v1.0.0 • 64-bit • 62.1 MB</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">Desktop</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="py-2 px-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-medium flex items-center justify-center gap-1" type="button">
+<span>.exe Насбкунӣ</span>
+</button>
+<button class="py-2 px-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-medium flex items-center justify-center gap-1" type="button">
+<span>.msix баста</span>
+</button>
+</div>
+<div class="flex items-center justify-between bg-surface-container-low px-2.5 py-1.5 rounded text-on-surface-variant">
+<span class="font-label-sm text-label-sm font-mono truncate max-w-[210px]">sha256: d4a729e71b238ef1904a...</span>
+<button class="text-secondary font-label-sm text-label-sm font-semibold flex items-center gap-0.5" onclick="copyHash(this, 'd4a729e71b238ef1904ae711823901bca902')" type="button">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+<span>Нусха</span>
+</button>
+</div>
+</div>
+<!-- Ubuntu / Linux Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Ubuntu &amp; Linux</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">.deb • .AppImage • x86_64</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">Open Source Base</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="py-2 px-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-medium flex items-center justify-center gap-1" type="button">
+<span>.deb баста</span>
+</button>
+<button class="py-2 px-3 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md font-medium flex items-center justify-center gap-1" type="button">
+<span>.AppImage</span>
+</button>
+</div>
+</div>
+<!-- macOS Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">laptop_mac</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">macOS (Apple Silicon &amp; Intel)</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Universal .dmg • 58.7 MB</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-on-primary-container font-label-sm text-label-sm">Notarized</span>
+</div>
+<button class="w-full py-2 px-3 rounded-lg bg-surface-container-high text-on-surface hover:bg-surface-container-highest font-label-md text-label-md font-medium flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span>Боргирии DMG</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Bento Features Section -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Фалсафаи NIGOH</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Озодӣ дар чаҳорчӯбаи боварӣ</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Мо абзорҳои тарбиявиро месозем, на барномаи ҷосусии махфӣ.</p>
+</div>
+<!-- Bento Cards Grid -->
+<div class="flex flex-col gap-space-sm">
+<!-- Feature 1: Transparent Screen Time -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">timelapse</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-title-md text-title-md font-semibold text-primary">Вақти шаффофи экран</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Фарзанд мебинад, ки волидон чиро мебинанд. Ҳеҷ гуна сабти ниҳонӣ вуҷуд надорад; омор рӯирост ва умумӣ нишон дода мешавад.
+            </p>
+</div>
+<!-- Mini SVG Progress Visual -->
+<div class="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-medium">Ҳудуди мувофиқашуда: 2 соат</span>
+<div class="w-24 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="w-3/4 h-full bg-secondary rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Feature 2: Consent-based Safe Zones -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined text-[22px]">handshake</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-title-md text-title-md font-semibold text-primary">Шартномаҳои рақамӣ (Pacts)</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Танзимот танҳо пас аз тасдиқи дутарафа дар телефонҳои волидон ва наврасон қувваи қонунӣ мегирад.
+            </p>
+</div>
+</div>
+<!-- Feature 3: Respectful Blockers & Requests -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">notifications_active</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-title-md text-title-md font-semibold text-primary">Дархости фаврии вақт</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Барои дарсҳои иловагӣ ё бозӣ бо дӯстон, кӯдак метавонад бо як тугма вақти иловагӣ пурсад ва волидайн бо эҳтиром тасдиқ кунанд.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Storytelling Image Banner -->
+<div class="relative w-full h-48 rounded-xl overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="A serene modern living room with soft natural lighting, showing a parent and a teenager sitting calmly on a sofa, looking at their smartphones together in harmony and mutual trust. Gentle color tones of deep navy, soft slate blue, and teal accents reflecting family digital wellbeing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-elzrhyT-p2JXbrpAyq0RY-TzlbsPWl8MwZ4iW_bIMvyfY5lUiaq6zSjHFMbMTeOlHQVRBern1HC9yr-j4JLm_fpAJtt2vYMoeiDY1hncloeHZaQMeaWHngnl5klkwlP5dmb6k1gItE_gMDaYIJ1a8VWpgzQrJ-E88KhPQM51KOGfYAZZFgfMehN6Gvno8O76JJbtUYQP0bAs4cWMkf06v2XKykuDfF4OmeqAAEpW_EW8NJDgoqg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-transparent p-space-md flex flex-col justify-end">
+<span class="text-on-primary font-title-md text-title-md font-semibold">Оромӣ ва тавозуни рақамӣ</span>
+<span class="text-on-primary/80 font-body-sm text-body-sm">Эътимод арзишмандтар аз назорат аст.</span>
+</div>
+</div>
+<!-- How It Works: 4-Step Sequence -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Роҳнамои оғоз</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Чӣ тавр пайваст шудан мумкин аст?</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Танҳо чор қадами оддӣ барои эмин мондани аҳли оила</p>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Step 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-lg text-label-lg flex items-center justify-center shrink-0 font-bold">1</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Барномаро насб кунед</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Барномаро дар телефони худ ва дастгоҳи фарзанд боргирӣ намоед.</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-lg text-label-lg flex items-center justify-center shrink-0 font-bold">2</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">QR-кодро скан кунед</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Барои ҷуфтсозии бехатар ва рамзшуда, бе зарурати сохтани ҳисоби бегона.</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-lg text-label-lg flex items-center justify-center shrink-0 font-bold">3</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Аҳдномаро имзо кунед</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Соатҳои хомӯшӣ ва ҳудудҳои солимро якҷоя муайян намоед.</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary font-label-lg text-label-lg flex items-center justify-center shrink-0 font-bold">4</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Ҳифзи боэътимод</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Фазои амн, бидуни нигаронӣ ва бо гузоришҳои ҳафтаинаи солим.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Strict Ethical Charter -->
+<section class="bg-primary text-on-primary rounded-xl p-space-md shadow-md flex flex-col gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest/20 flex items-center justify-center text-tertiary-fixed">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-tertiary-fixed font-semibold uppercase tracking-wider">Хартияи Этикии NIGOH</span>
+<span class="font-headline-sm text-headline-sm font-bold">Ҳимоя, на ҷосусӣ</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm font-body-sm text-body-sm text-inverse-on-surface">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed text-[18px] shrink-0">check_circle</span>
+<span><strong>Ҳеҷ гоҳ:</strong> Сабти пинҳонии садо, камера ё паёмҳои шахсии наврасон анҷом дода намешавад.</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed text-[18px] shrink-0">check_circle</span>
+<span><strong>Ҳеҷ гоҳ:</strong> Маълумоти фарзандони шумо ба ширкатҳои таблиғотӣ фурӯхта ё интиқол намешавад.</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed text-[18px] shrink-0">check_circle</span>
+<span><strong>Мустақил:</strong> Ҳатто дар ҳолати набудани интернет, қоидаҳои бехатарӣ дар худи телефон кор мекунанд.</span>
+</div>
+</div>
+</section>
+<!-- Parent Reviews Carousel (Single-Column Mobile Flow) -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Фикру мулоҳизаҳо</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Волидон чӣ мегӯянд?</h2>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Review 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-primary font-label-md text-label-md">
+                ФР
+              </div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Фарҳод Раҳимов</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Падари ду наврас (Душанбе)</span>
+</div>
+</div>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+            «Барномаи аввалинест, ки писарам барои насбаш розӣ шуд, зеро медонад, ки ман смс-ҳои шахсии ӯро намехонам, фақат вақти хобро танзим мекунем.»
+          </p>
+</div>
+<!-- Review 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center font-bold text-primary font-label-md text-label-md">
+                МО
+              </div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md font-semibold text-primary">Мадина Олимова</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Модари 3 фарзанд (Хуҷанд)</span>
+</div>
+</div>
+<div class="flex text-amber-500">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant pt-1">
+            «Опсияи "Дархости вақт" бисёр кулай аст. Духтарам вақте дарс тайёр мекунад, бе ҷанҷол вақти иловагӣ мепурсад ва ҳама чиз шаффоф аст.»
+          </p>
+</div>
+</div>
+</section>
+<!-- Interactive FAQ Accordion -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-secondary font-semibold uppercase tracking-wider">Саволу Ҷавоб</span>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold">Саволҳои маъмул</h2>
+</div>
+<div class="flex flex-col gap-2" id="faq-container">
+<!-- Item 1 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md flex items-center justify-between text-left" onclick="toggleFaq(this)" type="button">
+<span class="font-title-md text-title-md font-semibold text-primary pr-2">Оё фарзандам метавонад худаш барномаро пок кунад?</span>
+<span class="material-symbols-outlined text-secondary transition-transform">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md text-on-surface-variant font-body-sm text-body-sm hidden">
+            Не, пок кардани барнома танҳо бо ворид намудани рамзи бехатарии волидон ё огоҳиномаи дуҷониба имконпазир аст, то интизоми мувофиқашуда риоя гардад.
+          </div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md flex items-center justify-between text-left" onclick="toggleFaq(this)" type="button">
+<span class="font-title-md text-title-md font-semibold text-primary pr-2">Оё маълумотҳо дар серверҳои хориҷӣ нигоҳ дошта мешаванд?</span>
+<span class="material-symbols-outlined text-secondary transition-transform">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md text-on-surface-variant font-body-sm text-body-sm hidden">
+            Не, NIGOH принсипи маҳаллиро истифода мебарад. Алоқа байни дастгоҳҳо тавассути рамзгузории мустақим (P2P end-to-end) амалӣ гардида, ягон тафсилоти шахсӣ дар абр захира намешавад.
+          </div>
+</div>
+<!-- Item 3 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<button class="w-full p-space-md flex items-center justify-between text-left" onclick="toggleFaq(this)" type="button">
+<span class="font-title-md text-title-md font-semibold text-primary pr-2">Оё барнома комилан ройгон аст?</span>
+<span class="material-symbols-outlined text-secondary transition-transform">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md text-on-surface-variant font-body-sm text-body-sm hidden">
+            Функсияҳои асосии муҳофизат ва шартномаҳои рақамӣ барои оилаҳо ҳамеша ройгонанд. Версияи пешрафтаи таълимӣ бо имкониятҳои васеъ ихтиёрӣ мебошад.
+          </div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="mt-space-lg pt-space-md pb-space-xl flex flex-col gap-space-md text-center text-on-surface-variant">
+<div class="flex items-center justify-center gap-space-xs">
+<img alt="NIGOH Family Logo" class="w-6 h-6 object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VbbxMX3LG7czoEbM3jhRVOX8YPGGvps65fRS_KyJvBXtAFwofitEzN0Vn3l2d36Dwa_YqtnJ1pxi3szjZIUvCojW58q560OPr4QigyHqZ4HrnRtMPhA9MX_OijTrroX_-UMAzsL4Hc51HD97muLt6QCZp7I8ezpfIXQXsDgYRp_m9d9L9yX33BydJ2cNSun0z4mimAN6J62IpujftVdNDuJb6oHEkq7wNFp1GQ_uM3knYBzt0c356y"/>
+<span class="font-title-md text-title-md font-bold text-primary">NIGOH Family OS</span>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-label-md text-label-md">
+<a class="hover:text-primary transition-colors" href="#">Сиёсати махфият</a>
+<a class="hover:text-primary transition-colors" href="#">Хартияи озодӣ</a>
+<a class="hover:text-primary transition-colors" href="#">GitHub манбаъ</a>
+<a class="hover:text-primary transition-colors" href="#">Дастгирии техникӣ</a>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant/70">
+        © 2025 NIGOH Family. Ҳамаи ҳуқуқҳо ҳифз шудаанд. Барои тарбияи оқилона ва озод.
+      </span>
+</footer>
+</div>
+<!-- Interactive JavaScript Handling OS detection & UI controls -->
+<script>
+    (function() {
+      // OS Detection
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const osTitle = document.getElementById('os-title');
+      const osIcon = document.getElementById('os-icon');
+
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        if (osTitle) osTitle.innerText = "Дар дастгоҳи шумо ошкор шуд: Apple iOS";
+        if (osIcon) osIcon.innerText = "phone_iphone";
+      } else if (/Macintosh|Mac OS X/.test(userAgent)) {
+        if (osTitle) osTitle.innerText = "Дар дастгоҳи шумо ошкор шуд: macOS";
+        if (osIcon) osIcon.innerText = "laptop_mac";
+      } else if (/Windows/.test(userAgent)) {
+        if (osTitle) osTitle.innerText = "Дар дастгоҳи шумо ошкор шуд: Windows 11 / 10";
+        if (osIcon) osIcon.innerText = "desktop_windows";
+      } else if (/Linux/.test(userAgent)) {
+        if (osTitle) osTitle.innerText = "Дар дастгоҳи шумо ошкор шуд: Linux (Ubuntu)";
+        if (osIcon) osIcon.innerText = "terminal";
+      } else {
+        if (osTitle) osTitle.innerText = "Дар дастгоҳи шумо ошкор шуд: Android";
+        if (osIcon) osIcon.innerText = "phone_android";
+      }
+
+      // Hash copy micro-interaction
+      window.copyHash = function(btn, hash) {
+        navigator.clipboard.writeText(hash).then(() => {
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<span class="material-symbols-outlined text-[14px]">done</span><span>Нусха шуд!</span>';
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+          }, 2000);
+        });
+      };
+
+      // Accordion Toggle
+      window.toggleFaq = function(button) {
+        const content = button.nextElementSibling;
+        const icon = button.querySelector('.material-symbols-outlined');
+        const isHidden = content.classList.contains('hidden');
+
+        // Close all others
+        const allContents = document.querySelectorAll('#faq-container > div > div');
+        const allIcons = document.querySelectorAll('#faq-container .material-symbols-outlined');
+        allContents.forEach(c => c.classList.add('hidden'));
+        allIcons.forEach(i => i.classList.remove('rotate-180'));
+
+        if (isHidden) {
+          content.classList.remove('hidden');
+          icon.classList.add('rotate-180');
+        }
+      };
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-4px_20px_rgba(16,42,67,0.06)]" data-active-classes="text-secondary font-semibold"><div class="flex justify-around items-center h-16 px-space-sm"><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 w-16 h-11 transition-colors text-secondary font-semibold" data-path="family-dashboard" href="#"><span class="material-symbols-outlined text-[24px]">family_restroom</span><span class="font-label-sm text-label-sm">Family</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-16 h-11 text-on-surface-variant hover:text-on-surface transition-colors" data-path="digital-pacts" href="#"><span class="material-symbols-outlined text-[24px]">handshake</span><span class="font-label-sm text-label-sm">Pacts</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-16 h-11 text-on-surface-variant hover:text-on-surface transition-colors" data-path="downtime-schedule" href="#"><span class="material-symbols-outlined text-[24px]">bedtime</span><span class="font-label-sm text-label-sm">Curfew</span></a><a class="flex flex-col items-center justify-center gap-0.5 w-16 h-11 text-on-surface-variant hover:text-on-surface transition-colors" data-path="wellness-insights" href="#"><span class="material-symbols-outlined text-[24px]">health_metrics</span><span class="font-label-sm text-label-sm">Insights</span></a></div></nav></body></html>

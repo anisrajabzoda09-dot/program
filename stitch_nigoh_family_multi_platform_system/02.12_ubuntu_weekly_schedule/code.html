@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {"darkMode":"class","theme":{"extend":{"colors":{"error-container":"#ffdad6","outline-variant":"#c3c6ce","surface-dim":"#c5dcfb","on-secondary-fixed-variant":"#003daa","secondary-container":"#1162fe","surface-bright":"#f8f9ff","on-tertiary-fixed-variant":"#005047","surface-container-lowest":"#ffffff","on-surface":"#021d33","error":"#ba1a1a","inverse-surface":"#1a324a","primary-container":"#102a43","tertiary-fixed-dim":"#59dbc7","surface":"#f8f9ff","surface-container-highest":"#d0e4ff","tertiary-container":"#002f29","primary":"#00152a","on-background":"#021d33","surface-tint":"#49607c","surface-variant":"#d0e4ff","on-tertiary-fixed":"#00201c","on-primary-fixed":"#011d35","inverse-on-surface":"#e9f1ff","inverse-primary":"#b0c9e8","secondary-fixed":"#dbe1ff","primary-fixed":"#d1e4ff","secondary-fixed-dim":"#b4c5ff","on-secondary-container":"#f3f3ff","on-surface-variant":"#43474d","tertiary":"#001814","background":"#f8f9ff","surface-container-low":"#eef4ff","on-tertiary-container":"#00a290","secondary":"#004cce","on-primary-fixed-variant":"#314863","primary-fixed-dim":"#b0c9e8","on-secondary":"#ffffff","outline":"#74777e","tertiary-fixed":"#79f7e3","on-tertiary":"#ffffff","on-primary-container":"#7a92b0","surface-container":"#e4efff","on-secondary-fixed":"#00174c","on-error":"#ffffff","on-primary":"#ffffff","surface-container-high":"#dae9ff","on-error-container":"#93000a"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xs":"0.25rem","gutter-mobile":"1rem","space-xl":"2.5rem","margin-mobile":"1rem","space-md":"1rem","margin-desktop":"3rem","margin":"2rem","space-lg":"1.5rem","space-sm":"0.5rem","gutter":"1.5rem"},"fontFamily":{"display":["Inter"],"headline-lg-mobile":["Inter"],"body-lg":["Inter"],"label-sm":["Inter"],"label-md":["Inter"],"headline-lg":["Inter"],"headline-md":["Inter"],"body-md":["Inter"],"label-lg":["Inter"],"headline-sm":["Inter"],"title-md":["Inter"],"body-sm":["Inter"]},"fontSize":{"display":["3.5rem",{"lineHeight":"4rem","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-lg-mobile":["1.875rem",{"lineHeight":"2.25rem","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","letterSpacing":"0em","fontWeight":"400"}],"label-sm":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.03em","fontWeight":"500"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.02em","fontWeight":"500"}],"headline-lg":["2.5rem",{"lineHeight":"3rem","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.02em","fontWeight":"600"}],"body-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"0em","fontWeight":"400"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"title-md":["1.125rem",{"lineHeight":"1.625rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.005em","fontWeight":"400"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col h-full overflow-hidden"><div class="h-16 px-space-md flex items-center gap-space-sm"><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-error inline-block"></span><span class="w-3 h-3 rounded-full bg-secondary inline-block"></span><span class="w-3 h-3 rounded-full bg-tertiary-fixed-dim inline-block"></span></div><span class="ml-2 font-label-md text-label-md text-on-surface-variant">Ubuntu 26.04 Shell</span></div><div class="px-space-md pb-space-sm"><div class="p-space-sm rounded-lg bg-surface-container flex items-center justify-between"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Guardian Core</span><span class="font-title-md text-title-md text-on-surface font-semibold">Larsson Home</span></div><span class="material-symbols-outlined text-secondary text-[20px]">verified_user</span></div></div><nav class="flex-1 px-space-sm space-y-1 overflow-y-auto" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm"><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="overview" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">grid_view</span>Overview</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="children" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">face</span>Children</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="devices" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">devices</span>Devices</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="applications" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">apps</span>Applications</a><a aria-current="page" class="flex items-center px-space-sm py-2 transition-colors bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm" data-path="schedule" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">schedule</span>Schedule</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="location" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">near_me</span>Location</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="requests" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">rule</span>Requests</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="reports" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">monitoring</span>Reports</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="privacy" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">lock_open_right</span>Privacy</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="local-server" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">dns</span>Local Server</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="updates" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">system_update_alt</span>Updates</a><a class="flex items-center px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined mr-3 text-[20px]">settings</span>Settings</a></nav><div class="p-space-md border-t-0 bg-surface-container-low"><div class="flex items-center justify-between px-space-sm py-1.5 rounded-full bg-surface-container text-on-surface-variant"><span class="flex items-center gap-1.5 font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></span>Daemon v26.04.1 Active</span><span class="material-symbols-outlined text-[16px] text-on-tertiary-container">cloud_done</span></div></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><img alt="Minimalist modern shield and interconnected gentle leaf/dot symbol representing family protection, digital wellbeing, and trust. Vector graphic, Deep Navy #102A43 and Action Blue #1463FF with Trust Teal #00A896 accent.. Brand logo. - Primary color: #102a43
+- Font: inter
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VbbxMX3LG7czoEbM3jhRVOX8YPGGvps65fRS_KyJvBXtAFwofitEzN0Vn3l2d36Dwa_YqtnJ1pxi3szjZIUvCojW58q560OPr4QigyHqZ4HrnRtMPhA9MX_OijTrroX_-UMAzsL4Hc51HD97muLt6QCZp7I8ezpfIXQXsDgYRp_m9d9L9yX33BydJ2cNSun0z4mimAN6J62IpujftVdNDuJb6oHEkq7wNFp1GQ_uM3knYBzt0c356y"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary tracking-tight">NIGOH Family</span><span class="font-label-sm text-label-sm text-on-surface-variant">Guardian / Ubuntu Family Core</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container"><span class="material-symbols-outlined text-[18px] text-secondary">family_restroom</span><span class="font-label-md text-label-md text-on-surface font-semibold">The Larsson Family</span><span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span><span class="font-label-sm text-label-sm text-on-tertiary-container flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-container"></span>Peer P2P Synced</span></div><button class="relative p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary-container"></span></button><div class="flex items-center gap-space-sm pl-2"><div class="hidden lg:flex flex-col text-right"><span class="font-label-md text-label-md font-semibold text-on-surface">Parent Admin</span><span class="font-label-sm text-label-sm text-on-surface-variant">Local Session</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 px-space-lg bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Desktop App Canvas: Ubuntu 26.04 Guardian Core Schedule Matrix -->
+<div class="py-space-md space-y-space-md">
+<!-- Workspace Header & Filter Bar -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-md">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<!-- Title & Subtitle in Tajik Cyrillic -->
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">calendar_view_week</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Ҷадвали ҳафтаинаи фаъолият</h1>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant font-medium">Matrix v26.4</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Танзими мувозинати вақти экран, таҳсил ва фароғати кӯдакон бо эътимоди тарафайн</p>
+</div>
+</div>
+<!-- Child Profile Pill Selector -->
+<div class="flex flex-wrap items-center gap-space-xs bg-surface-container-low p-1.5 rounded-full">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-label-md text-label-md font-semibold transition-all" id="btn-farid">
+<span class="material-symbols-outlined text-[16px] text-on-tertiary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Фарид (11 сола)</span>
+<span class="w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all" id="btn-madina">
+<span class="material-symbols-outlined text-[16px] text-outline">radio_button_unchecked</span>
+<span>Мадина (8 сола)</span>
+</button>
+</div>
+<!-- Action Commands -->
+<div class="flex flex-wrap items-center gap-2">
+<button class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-all">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">content_copy</span>
+<span>Нусхабардорӣ ба рӯзҳои дигар</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-all">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">beach_access</span>
+<span>Ҳолати таътил</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary-container hover:bg-secondary text-on-secondary-container hover:text-on-secondary font-label-md text-label-md font-semibold shadow-sm transition-all transform active:scale-95">
+<span class="material-symbols-outlined text-[18px]">check</span>
+<span>Сабти ҷадвал (Save)</span>
+</button>
+</div>
+</div>
+<!-- Color Legend Bar -->
+<div class="flex flex-wrap items-center justify-between pt-2 border-t-0 bg-surface-container-low/50 px-space-sm py-2 rounded-lg gap-2">
+<div class="flex flex-wrap items-center gap-3">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Категорияҳо:</span>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tertiary-container/30 text-on-tertiary-container font-label-sm text-label-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-on-tertiary-container"></span>
+<span>Омӯзиш ва Мактаб (School)</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container/40 text-on-error-container font-label-sm text-label-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span>Вазифаи Хонагӣ (Study)</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span>Вақти Озод ва Бозӣ (Free)</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary text-inverse-on-surface font-label-sm text-label-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-tint"></span>
+<span>Хоб ва Хомӯшӣ (Bedtime)</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+<span>Мутобиқсозӣ бо планшети Фарид (Ubuntu Touch 26)</span>
+</div>
+</div>
+</section>
+<!-- Visual Matrix Calendar (07:00 to 22:00 timeline) -->
+<section class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm overflow-x-auto">
+<div class="min-w-[1020px]">
+<!-- Day Columns Header -->
+<div class="grid grid-cols-[80px_repeat(7,1fr)] gap-2 mb-3 items-center">
+<div class="text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Вақт</div>
+<div class="p-2.5 text-center bg-surface-container-low rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-on-surface">Душанбе</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">14 Окт</span>
+</div>
+<div class="p-2.5 text-center bg-surface-container-low rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-on-surface">Сешанбе</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">15 Окт</span>
+</div>
+<div class="p-2.5 text-center bg-surface-container-low rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-on-surface">Чоршанбе</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">16 Окт</span>
+</div>
+<div class="p-2.5 text-center bg-surface-container-low rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-on-surface">Панҷшанбе</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">17 Окт</span>
+</div>
+<div class="p-2.5 text-center bg-surface-container-low rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-on-surface">Ҷумъа</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">18 Окт</span>
+</div>
+<div class="p-2.5 text-center bg-surface-container-high/60 rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-secondary">Шанбе</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">19 Окт</span>
+</div>
+<div class="p-2.5 text-center bg-surface-container-high/60 rounded-lg">
+<span class="block font-label-md text-label-md font-semibold text-secondary">Якшанбе</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">20 Окт</span>
+</div>
+</div>
+<!-- Weekly Interactive Matrix Grid -->
+<div class="relative grid grid-cols-[80px_repeat(7,1fr)] gap-2">
+<!-- Time Track Labels (07:00 - 22:00) -->
+<div class="flex flex-col justify-between py-1 text-right pr-2 space-y-6 select-none">
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">07:00</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">08:00</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">10:00</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">12:00</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">13:30</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">15:30</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">17:30</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">19:00</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">20:30</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">21:00</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant font-mono">22:00</div>
+</div>
+<!-- Helper function visual replica: Day Columns -->
+<!-- 1. Душанбе -->
+<div class="bg-surface-container-low/40 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<!-- 07:00 - 08:00 Bedtime/Wakeup transition -->
+<div class="p-2 rounded bg-primary/90 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">07:00 Бедоршавӣ</span>
+<span class="text-on-primary-container text-[10px]">Реҷаи пагоҳирӯзӣ</span>
+</div>
+<!-- 08:00 - 13:30 School -->
+<div class="flex-1 p-2 rounded-lg bg-tertiary-container/20 text-on-surface border-0 flex flex-col justify-between shadow-xs">
+<div>
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-[10px] font-semibold">08:00 - 13:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">school</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-surface mt-1">Мактаб ва Омӯзиш</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant line-clamp-2">Фақат барномаҳои дарсӣ кушодаанд</p>
+</div>
+<span class="font-label-sm text-[10px] text-on-tertiary-container font-mono">Ҳамагӣ: 5 соат 30 дақ</span>
+</div>
+<!-- 13:30 - 15:30 Free Time -->
+<div class="h-20 p-2 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-secondary">13:30 - 15:30</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">sports_esports</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти озод</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Фароғат ва бозиҳо</p>
+</div>
+</div>
+<!-- 15:30 - 17:30 Homework -->
+<div class="h-20 p-2 rounded-lg bg-error-container/30 text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-error-container">15:30 - 17:30</span>
+<span class="material-symbols-outlined text-[14px] text-error">menu_book</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вазифаи хонагӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Луғат ва китобхона</p>
+</div>
+</div>
+<!-- 17:30 - 20:30 Family Time -->
+<div class="h-20 p-2 rounded-lg bg-surface-container text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant">17:30 - 20:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">diversity_3</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти оилавӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Муошират ва сайругашт</p>
+</div>
+</div>
+<!-- 21:00 - 07:00 Bedtime -->
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between shadow-xs">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:00 Хоб (Қулф)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock</span>
+</div>
+</div>
+<!-- 2. Сешанбе -->
+<div class="bg-surface-container-low/40 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<div class="p-2 rounded bg-primary/90 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">07:00 Бедоршавӣ</span>
+<span class="text-on-primary-container text-[10px]">Реҷаи пагоҳирӯзӣ</span>
+</div>
+<div class="flex-1 p-2 rounded-lg bg-tertiary-container/20 text-on-surface flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-[10px] font-semibold">08:00 - 13:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">school</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-surface mt-1">Мактаб ва Омӯзиш</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant line-clamp-2">Дарсҳои мактаби миёна</p>
+</div>
+<span class="font-label-sm text-[10px] text-on-tertiary-container font-mono">Ҳамагӣ: 5 соат 30 дақ</span>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-secondary">13:30 - 15:30</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">sports_esports</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти озод</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Истироҳати баъдидарсӣ</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-error-container/30 text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-error-container">15:30 - 17:30</span>
+<span class="material-symbols-outlined text-[14px] text-error">menu_book</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вазифаи хонагӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Математика ва забон</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant">17:30 - 20:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">diversity_3</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти оилавӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Шомгоҳ ва хӯрокхӯрӣ</p>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:00 Хоб (Қулф)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock</span>
+</div>
+</div>
+<!-- 3. Чоршанбе -->
+<div class="bg-surface-container-low/40 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<div class="p-2 rounded bg-primary/90 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">07:00 Бедоршавӣ</span>
+<span class="text-on-primary-container text-[10px]">Реҷаи пагоҳирӯзӣ</span>
+</div>
+<div class="flex-1 p-2 rounded-lg bg-tertiary-container/20 text-on-surface flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-[10px] font-semibold">08:00 - 13:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">school</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-surface mt-1">Мактаб ва Омӯзиш</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant line-clamp-2">Фақат барномаҳои дарсӣ</p>
+</div>
+<span class="font-label-sm text-[10px] text-on-tertiary-container font-mono">Ҳамагӣ: 5 соат 30 дақ</span>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-secondary">13:30 - 15:30</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">sports_esports</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти озод</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Бозиҳои тасдиқшуда</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-error-container/30 text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-error-container">15:30 - 17:30</span>
+<span class="material-symbols-outlined text-[14px] text-error">menu_book</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вазифаи хонагӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">YouTube баста</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant">17:30 - 20:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">diversity_3</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти оилавӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Суҳбати сари миз</p>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:00 Хоб (Қулф)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock</span>
+</div>
+</div>
+<!-- 4. Панҷшанбе -->
+<div class="bg-surface-container-low/40 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<div class="p-2 rounded bg-primary/90 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">07:00 Бедоршавӣ</span>
+<span class="text-on-primary-container text-[10px]">Реҷаи пагоҳирӯзӣ</span>
+</div>
+<div class="flex-1 p-2 rounded-lg bg-tertiary-container/20 text-on-surface flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-[10px] font-semibold">08:00 - 13:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">school</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-surface mt-1">Мактаб ва Омӯзиш</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant line-clamp-2">Фақат барномаҳои дарсӣ</p>
+</div>
+<span class="font-label-sm text-[10px] text-on-tertiary-container font-mono">Ҳамагӣ: 5 соат 30 дақ</span>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-secondary">13:30 - 15:30</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">sports_esports</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти озод</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Фароғат ва бозиҳо</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-error-container/30 text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-error-container">15:30 - 17:30</span>
+<span class="material-symbols-outlined text-[14px] text-error">menu_book</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вазифаи хонагӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Машқҳои синфӣ</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant">17:30 - 20:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">diversity_3</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти оилавӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Муоширати оилавӣ</p>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:00 Хоб (Қулф)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock</span>
+</div>
+</div>
+<!-- 5. Ҷумъа -->
+<div class="bg-surface-container-low/40 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<div class="p-2 rounded bg-primary/90 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">07:00 Бедоршавӣ</span>
+<span class="text-on-primary-container text-[10px]">Реҷаи пагоҳирӯзӣ</span>
+</div>
+<div class="flex-1 p-2 rounded-lg bg-tertiary-container/20 text-on-surface flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-tertiary-container text-on-tertiary-container font-label-sm text-[10px] font-semibold">08:00 - 13:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-tertiary-container">school</span>
+</div>
+<p class="font-label-md text-label-md font-semibold text-on-surface mt-1">Мактаб ва Омӯзиш</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant line-clamp-2">Ҷамъбасти ҳафта</p>
+</div>
+<span class="font-label-sm text-[10px] text-on-tertiary-container font-mono">Ҳамагӣ: 5 соат 30 дақ</span>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-secondary">13:30 - 15:30</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">sports_esports</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти озод</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Фароғат ва бозиҳо</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-error-container/30 text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-error-container">15:30 - 17:30</span>
+<span class="material-symbols-outlined text-[14px] text-error">menu_book</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вазифаи хонагӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Супоришҳои рӯзи душанбе</p>
+</div>
+</div>
+<div class="h-20 p-2 rounded-lg bg-surface-container text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant">17:30 - 20:30</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">diversity_3</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface truncate">Вақти оилавӣ</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant truncate">Филми шомгоҳӣ</p>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:00 Хоб (Қулф)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock</span>
+</div>
+</div>
+<!-- 6. Шанбе (Weekend Expansion) -->
+<div class="bg-surface-container-high/30 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<div class="p-2 rounded bg-primary/80 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">08:00 Хоб ва истироҳат</span>
+<span class="text-on-primary-container text-[10px]">Субҳи озод</span>
+</div>
+<!-- Large Free Time Block + Sports Break -->
+<div class="flex-1 p-2.5 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between shadow-xs">
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-[10px] font-semibold">11:00 - 18:00</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">extension</span>
+</div>
+<p class="font-title-md text-title-md font-semibold text-on-surface leading-snug">Вақти калони озод</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Бозиҳои компютерӣ ва эҷодиёти шахсӣ</p>
+<!-- Sports Pause Highlight inside weekend -->
+<div class="mt-3 p-2 rounded-lg bg-surface-container-lowest flex items-center gap-2 shadow-xs">
+<span class="material-symbols-outlined text-[18px] text-on-tertiary-container">pool</span>
+<div>
+<span class="font-label-sm text-[11px] font-semibold block text-on-surface">14:00 Ҳавзи шиноварӣ</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Танаффуси варзишӣ</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-label-sm text-[10px] text-secondary font-mono">Бозиҳо иҷозат доранд</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">tune</span>
+</div>
+</div>
+<!-- Evening Family Time -->
+<div class="h-24 p-2 rounded-lg bg-surface-container text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-surface-variant">18:00 - 21:00</span>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">theater_comedy</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface">Фароғати ҳафтаина</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant">Тамошои оилавӣ</p>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:30 Хоб (Истисно)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock_clock</span>
+</div>
+</div>
+<!-- 7. Якшанбе (Weekend Mode) -->
+<div class="bg-surface-container-high/30 rounded-lg p-1.5 flex flex-col gap-2 min-h-[560px]">
+<div class="p-2 rounded bg-primary/80 text-inverse-on-surface text-[11px] leading-tight">
+<span class="font-semibold block truncate">08:00 Хоб ва истироҳат</span>
+<span class="text-on-primary-container text-[10px]">Субҳи озод</span>
+</div>
+<div class="flex-1 p-2.5 rounded-lg bg-surface-container-highest text-on-surface flex flex-col justify-between shadow-xs">
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-[10px] font-semibold">11:00 - 18:00</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">nature_people</span>
+</div>
+<p class="font-title-md text-title-md font-semibold text-on-surface leading-snug">Вақти озод ва истироҳат</p>
+<p class="font-body-sm text-[11px] text-on-surface-variant">Сайругашт дар табиат ва боғ</p>
+<div class="mt-3 p-2 rounded-lg bg-surface-container-lowest flex items-center gap-2 shadow-xs">
+<span class="material-symbols-outlined text-[18px] text-secondary">skateboarding</span>
+<div>
+<span class="font-label-sm text-[11px] font-semibold block text-on-surface">15:00 Майдони бозӣ</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Фаъолияти ҷисмонӣ</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="font-label-sm text-[10px] text-secondary font-mono">Муоширати озод</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">drag_indicator</span>
+</div>
+</div>
+<!-- Preparation for Monday -->
+<div class="h-24 p-2 rounded-lg bg-error-container/20 text-on-surface flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[10px] font-semibold text-on-error-container">18:00 - 20:00</span>
+<span class="material-symbols-outlined text-[14px] text-error">checklist</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-semibold text-on-surface">Омодагӣ ба мактаб</p>
+<p class="font-label-sm text-[11px] text-on-surface-variant">Ҷамъ кардани ҷузвдон</p>
+</div>
+</div>
+<div class="p-2 rounded-lg bg-primary text-inverse-on-surface flex items-center justify-between">
+<span class="font-label-sm text-[11px] font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">bedtime</span>
+<span>21:00 Хоб (Қулф)</span>
+</span>
+<span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">lock</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Breakdown Bento Section (Weekly Screen Balance & Transparent Digital Agreement) -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Screen Balance Breakdown Visualizer -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Тавозуни ҳафтаинаи экран</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">donut_large</span>
+</div>
+<p class="font-title-md text-title-md font-semibold text-on-surface">24 соат истифодаи фоиданок</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Таносуби муқарраршуда дар доираи муоҳидаи оилавии Larsson</p>
+</div>
+<div class="py-4 flex items-center justify-center">
+<!-- Inline Lightweight Accessible SVG Chart (Under 2KB) -->
+<svg aria-label="Screen time split chart" class="w-36 h-36" viewbox="0 0 160 160">
+<circle class="text-surface-container-high" cx="80" cy="80" fill="transparent" r="64" stroke="currentColor" stroke-width="16"></circle>
+<!-- Education: 52% (dasharray ~209, offset ~0) -->
+<circle class="text-on-tertiary-container" cx="80" cy="80" fill="transparent" r="64" stroke="currentColor" stroke-dasharray="209 402" stroke-dashoffset="0" stroke-width="16" transform="rotate(-90 80 80)"></circle>
+<!-- Free Time: 28% (dasharray ~112, offset ~-209) -->
+<circle class="text-secondary" cx="80" cy="80" fill="transparent" r="64" stroke="currentColor" stroke-dasharray="112 402" stroke-dashoffset="-209" stroke-width="16" transform="rotate(-90 80 80)"></circle>
+<!-- Homework: 20% (dasharray ~80, offset ~-321) -->
+<circle class="text-error" cx="80" cy="80" fill="transparent" r="64" stroke="currentColor" stroke-dasharray="81 402" stroke-dashoffset="-321" stroke-width="16" transform="rotate(-90 80 80)"></circle>
+<text class="fill-on-surface font-semibold text-[20px] font-sans" text-anchor="middle" x="80" y="76">82%</text>
+<text class="fill-on-surface-variant text-[10px] font-sans" text-anchor="middle" x="80" y="94">Истифодаи солим</text>
+</svg>
+</div>
+<div class="grid grid-cols-3 gap-2 pt-2 border-t-0">
+<div class="text-center p-2 rounded-lg bg-surface-container-low">
+<span class="block font-label-sm text-[10px] text-on-tertiary-container font-semibold">Омӯзиш</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">52%</span>
+</div>
+<div class="text-center p-2 rounded-lg bg-surface-container-low">
+<span class="block font-label-sm text-[10px] text-secondary font-semibold">Бозиҳо</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">28%</span>
+</div>
+<div class="text-center p-2 rounded-lg bg-surface-container-low">
+<span class="block font-label-sm text-[10px] text-error font-semibold">Вазифаҳо</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface">20%</span>
+</div>
+</div>
+</div>
+<!-- Co-Signed Digital Pact Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Аҳдномаи рақамии тарафайн</span>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container/30 text-on-tertiary-container font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+<span>Фаъол</span>
+</span>
+</div>
+<p class="font-title-md text-title-md font-semibold text-on-surface">Муоҳидаи рақамии ҳафта</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">«Дар рӯзҳои таҳсил соати 21:00 планшет хомӯш мешавад. Дар иваз шанбе 2 соат бозии бештар иҷозат дорад.»</p>
+</div>
+<div class="p-3 my-2 rounded-lg bg-surface-container-low space-y-2">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-secondary">draw</span>
+<span>Имзои волидайн: Тасдиқшуда</span>
+</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant font-mono">13.10.2026</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-on-tertiary-container">done_all</span>
+<span>Имзои Фарид: Қабул кард</span>
+</span>
+<span class="font-label-sm text-[10px] text-on-surface-variant font-mono">13.10.2026</span>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+<span>Таҳрири шартҳои аҳднома</span>
+</button>
+</div>
+<!-- Quick Downtime Scheduler Preview -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider font-semibold">Ҳолати таъҷилӣ ва тамдид</span>
+<span class="material-symbols-outlined text-outline text-[20px]">more_time</span>
+</div>
+<p class="font-title-md text-title-md font-semibold text-on-surface">Илова кардани вақти бонуси имрӯз</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Барои иҷрои хуби вазифаи хонагӣ ё кӯмак дар хона</p>
+</div>
+<div class="grid grid-cols-3 gap-2 my-2">
+<button class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-center transition-all">
+<span class="block font-title-md text-title-md font-semibold text-secondary">+15</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">дақиқа</span>
+</button>
+<button class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-center transition-all">
+<span class="block font-title-md text-title-md font-semibold text-secondary">+30</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">дақиқа</span>
+</button>
+<button class="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-center transition-all">
+<span class="block font-title-md text-title-md font-semibold text-secondary">+60</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">дақиқа</span>
+</button>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-lg bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">info</span>
+<span>Тамдид соати 21:00 ба таври худкор хомӯш мешавад</span>
+</div>
+</div>
+</section>
+<!-- Bottom Control Bar & Matrix Inspector -->
+<footer class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md items-center">
+<!-- Drag-and-Drop Indicator Notice -->
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">drag_pan</span>
+</div>
+<div>
+<span class="font-label-md text-label-md font-semibold text-on-surface block">Идоракунии фаврӣ</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Барои тағйир додан блокро кашед ё соатро танзим намоед</span>
+</div>
+</div>
+<!-- Conflict Check Status -->
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-tertiary-container/30 flex items-center justify-center text-on-tertiary-container flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Тафтиши мухолифатҳо (Conflict Check)</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-tertiary-container font-medium">Ҳеҷ мухолифати вақтӣ ошкор нашуд</span>
+</div>
+</div>
+<!-- Exceptions & Holidays -->
+<div class="flex items-center gap-3 md:justify-end">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">event_repeat</span>
+</div>
+<div class="md:text-right">
+<span class="font-label-md text-label-md font-semibold text-on-surface block">Истисноҳо (Exceptions & Holidays)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Рӯзи шанбе реҷаи озод фаъол мешавад</span>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<!-- Micro-interaction logic for Child Profile toggle & Schedule UI feedback -->
+<script>
+    (function() {
+      const btnFarid = document.getElementById('btn-farid');
+      const btnMadina = document.getElementById('btn-madina');
+
+      if (btnFarid && btnMadina) {
+        btnFarid.addEventListener('click', function() {
+          btnFarid.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-label-md text-label-md font-semibold transition-all';
+          btnMadina.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all';
+          btnFarid.querySelector('.material-symbols-outlined').textContent = 'check_circle';
+          btnFarid.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-[16px] text-on-tertiary-container';
+          btnMadina.querySelector('.material-symbols-outlined').textContent = 'radio_button_unchecked';
+          btnMadina.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-[16px] text-outline';
+        });
+
+        btnMadina.addEventListener('click', function() {
+          btnMadina.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface shadow-sm font-label-md text-label-md font-semibold transition-all';
+          btnFarid.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-all';
+          btnMadina.querySelector('.material-symbols-outlined').textContent = 'check_circle';
+          btnMadina.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-[16px] text-on-tertiary-container';
+          btnFarid.querySelector('.material-symbols-outlined').textContent = 'radio_button_unchecked';
+          btnFarid.querySelector('.material-symbols-outlined').className = 'material-symbols-outlined text-[16px] text-outline';
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

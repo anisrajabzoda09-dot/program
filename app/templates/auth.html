@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бақайдгирӣ ва Воридшавӣ — Нигоҳ</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body style="background: linear-gradient(135deg, #f0f4ff, #eef2ff); display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px;">
+
+  <div style="width: 100%; max-width: 440px; padding: 20px;">
+  <div style="width: 100%; max-width: 450px;">
+  <div style="width: 100%; max-width: 440px;">
+    
+    <!-- Brand Logo -->
+    <div style="text-align: center; margin-bottom: 28px;">
+      <a href="/" style="display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--dark); font-weight: 800; font-size: 1.4rem;">
+      <a href="/" style="display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--dark); font-weight: 800; font-size: 1.45rem;">
+      <a href="/" style="display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 1.45rem;">
+        <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <span>НИГОҲ FAMILY</span>
+        <span>НИГОҲ <span class="brand-tag">FAMILY</span></span>
+      </a>
+      <p style="color: var(--slate-500); font-size: 0.95rem; margin-top: 8px;">
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 8px;">
+        Назорати оқилона ва ҳифзи фарзанд
+      </p>
+    </div>
+
+    <div class="card" style="padding: 36px; box-shadow: var(--shadow-xl); border-radius: 20px;">
+    <div class="neu-card" style="padding: 40px 34px;">
+    <!-- Main Card -->
+    <div style="background: white; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 36px 32px; box-shadow: var(--shadow-xl);">
+      
+      <!-- Google Sign In Button -->
+      <button id="googleSignInBtn" class="btn btn-google" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 600;">
+      <button id="googleSignInBtn" class="btn btn-google" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 700;">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        Воридшавӣ тавассути Google
+      </button>
+
+      <!-- Divider -->
+      <div style="display: flex; align-items: center; margin-bottom: 24px;">
+        <div style="flex: 1; height: 1px; background: var(--slate-200);"></div>
+        <span style="padding: 0 12px; color: var(--slate-500); font-size: 0.85rem;">ё бо почтаи электронӣ</span>
+        <div style="flex: 1; height: 1px; background: var(--slate-200);"></div>
+        <div style="flex: 1; height: 1px; background: rgba(0,0,0,0.08); box-shadow: 0 1px 0 #ffffff;"></div>
+        <span style="padding: 0 14px; color: var(--slate-500); font-size: 0.85rem; font-weight: 600;">ё бо почтаи электронӣ</span>
+        <div style="flex: 1; height: 1px; background: rgba(0,0,0,0.08); box-shadow: 0 1px 0 #ffffff;"></div>
+        <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+        <span style="padding: 0 14px; color: var(--text-subtle); font-size: 0.85rem; font-weight: 600;">ё бо почтаи электронӣ</span>
+        <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+      </div>
+
+      <!-- Tabs Switcher -->
+      <!-- Modern Tabs Switcher -->
+      <div style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 24px;">
+        <button id="tabRegister" class="btn" style="flex: 1; padding: 8px; border-radius: 8px; background: white; color: var(--primary); box-shadow: var(--shadow-sm);">Бақайдгирӣ</button>
+        <button id="tabLogin" class="btn" style="flex: 1; padding: 8px; border-radius: 8px; background: transparent; color: var(--slate-500);">Воридшавӣ</button>
+      <!-- Neumorphic Tabs Switcher -->
+      <div style="display: flex; background: var(--bg-neu); box-shadow: var(--neu-inset); padding: 6px; border-radius: 14px; margin-bottom: 26px;">
+        <button id="tabRegister" class="btn" style="flex: 1; padding: 10px; border-radius: 10px; background: var(--bg-neu); color: var(--primary); box-shadow: var(--neu-raised-sm); font-weight: 700;">Бақайдгирӣ</button>
+        <button id="tabLogin" class="btn" style="flex: 1; padding: 10px; border-radius: 10px; background: transparent; color: var(--slate-500); box-shadow: none; font-weight: 600;">Воридшавӣ</button>
+        <button id="tabRegister" class="btn" style="flex: 1; padding: 9px; border-radius: 8px; background: white; color: var(--primary); font-weight: 700; box-shadow: var(--shadow-xs);">Бақайдгирӣ</button>
+        <button id="tabLogin" class="btn" style="flex: 1; padding: 9px; border-radius: 8px; background: transparent; color: var(--text-subtle); font-weight: 600; box-shadow: none;">Воридшавӣ</button>
+      </div>
+
+      <!-- Alert Box -->
+      <div id="alertBox" style="display: none; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 0.9rem;"></div>
+      <div id="alertBox" style="display: none; padding: 12px; border-radius: 12px; margin-bottom: 18px; font-size: 0.9rem; font-weight: 600;"></div>
+      <div id="alertBox" style="display: none; padding: 12px; border-radius: 10px; margin-bottom: 18px; font-size: 0.9rem; font-weight: 600;"></div>
+
+      <!-- Register Form -->
+      <form id="registerForm">
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--dark);">Ному насаб</label>
+          <input type="text" id="regName" required placeholder="Масалан: Ҷамшед Сафаров" style="width: 100%; padding: 12px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-size: 0.95rem; outline: none;">
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--dark);">Ному насаб</label>
+          <input type="text" id="regName" class="neu-input" required placeholder="Масалан: Ҷамшед Сафаров">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Ному насаб</label>
+          <input type="text" id="regName" class="form-input" required placeholder="Масалан: Ҷамшед Сафаров">
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--dark);">Почтаи электронӣ (Email)</label>
+          <input type="email" id="regEmail" required placeholder="nom@example.com" style="width: 100%; padding: 12px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-size: 0.95rem; outline: none;">
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--dark);">Почтаи электронӣ (Email)</label>
+          <input type="email" id="regEmail" class="neu-input" required placeholder="nom@example.com">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Почтаи электронӣ (Email)</label>
+          <input type="email" id="regEmail" class="form-input" required placeholder="nom@example.com">
+        </div>
+        <div style="margin-bottom: 24px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--dark);">Парол</label>
+          <input type="password" id="regPassword" required placeholder="Ҳадди ақал 6 рамз" style="width: 100%; padding: 12px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-size: 0.95rem; outline: none;">
+        <div style="margin-bottom: 26px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--dark);">Парол</label>
+          <input type="password" id="regPassword" class="neu-input" required placeholder="Ҳадди ақал 6 рамз">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Парол</label>
+          <input type="password" id="regPassword" class="form-input" required placeholder="Ҳадди ақал 6 рамз">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+          <i class="fa-solid fa-user-plus"></i> Сабти ном ва идома
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1.05rem; border-radius: 14px;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
+          <i class="fa-solid fa-user-plus"></i> Сабти ном ва насби барнома
+        </button>
+      </form>
+
+      <!-- Login Form -->
+      <form id="loginForm" style="display: none;">
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--dark);">Почтаи электронӣ (Email)</label>
+          <input type="email" id="logEmail" required placeholder="nom@example.com" style="width: 100%; padding: 12px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-size: 0.95rem; outline: none;">
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--dark);">Почтаи электронӣ (Email)</label>
+          <input type="email" id="logEmail" class="neu-input" required placeholder="nom@example.com">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Почтаи электронӣ (Email)</label>
+          <input type="email" id="logEmail" class="form-input" required placeholder="nom@example.com">
+        </div>
+        <div style="margin-bottom: 24px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px; color: var(--dark);">Парол</label>
+          <input type="password" id="logPassword" required placeholder="Пароли худро ворид кунед" style="width: 100%; padding: 12px; border: 1.5px solid var(--slate-200); border-radius: 10px; font-size: 0.95rem; outline: none;">
+        <div style="margin-bottom: 26px;">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--dark);">Парол</label>
+          <input type="password" id="logPassword" class="neu-input" required placeholder="Пароли худро ворид кунед">
+          <label style="display: block; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main);">Парол</label>
+          <input type="password" id="logPassword" class="form-input" required placeholder="Пароли худро ворид кунед">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Ворид шудан
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1.05rem; border-radius: 14px;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Ворид шудан ва насби барнома
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    const tabRegister = document.getElementById('tabRegister');
+    const tabLogin = document.getElementById('tabLogin');
+    const registerForm = document.getElementById('registerForm');
+    const loginForm = document.getElementById('loginForm');
+    const alertBox = document.getElementById('alertBox');
+    const googleSignInBtn = document.getElementById('googleSignInBtn');
+
+    function showAlert(msg, isError = true) {
+      alertBox.style.display = 'block';
+      alertBox.style.background = isError ? '#fef2f2' : '#f0fdf4';
+      alertBox.style.color = isError ? '#ef4444' : '#16a34a';
+      alertBox.style.border = `1px solid ${isError ? '#fecaca' : '#bbf7d0'}`;
+      alertBox.style.background = isError ? '#fee2e2' : '#dcfce7';
+      alertBox.style.color = isError ? '#b91c1c' : '#15803d';
+      alertBox.style.border = `1px solid ${isError ? '#fca5a5' : '#86efac'}`;
+      alertBox.innerText = msg;
+    }
+
+    tabRegister.addEventListener('click', () => {
+      tabRegister.style.background = 'white';
+      tabRegister.style.background = 'var(--bg-neu)';
+      tabRegister.style.boxShadow = 'var(--neu-raised-sm)';
+      tabRegister.style.color = 'var(--primary)';
+      tabRegister.style.boxShadow = 'var(--shadow-xs)';
+      tabLogin.style.background = 'transparent';
+      tabLogin.style.color = 'var(--text-subtle)';
+      tabLogin.style.boxShadow = 'none';
+      tabLogin.style.color = 'var(--slate-500)';
+      registerForm.style.display = 'block';
+      loginForm.style.display = 'none';
+      alertBox.style.display = 'none';
+    });
+
+    tabLogin.addEventListener('click', () => {
+      tabLogin.style.background = 'white';
+      tabLogin.style.background = 'var(--bg-neu)';
+      tabLogin.style.boxShadow = 'var(--neu-raised-sm)';
+      tabLogin.style.color = 'var(--primary)';
+      tabLogin.style.boxShadow = 'var(--shadow-xs)';
+      tabRegister.style.background = 'transparent';
+      tabRegister.style.color = 'var(--text-subtle)';
+      tabRegister.style.boxShadow = 'none';
+      tabRegister.style.color = 'var(--slate-500)';
+      registerForm.style.display = 'none';
+      loginForm.style.display = 'block';
+      alertBox.style.display = 'none';
+    });
+
+    // Google Sign-In
+    googleSignInBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'user_google@gmail.com',
+            full_name: 'Корбари Google (Волидайн)',
+            avatar: 'https://lh3.googleusercontent.com/a/default-user'
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showAlert('Бомуваффақият бо Google ворид шудед!', false);
+          showAlert('Бомуваффақият бо Google ворид шудед! Гузариш ба бахши насб...', false);
+          setTimeout(() => { window.location.href = data.redirect; }, 600);
+        } else {
+          showAlert(data.detail || 'Хатогӣ дар воридшавӣ бо Google');
+        }
+      } catch (err) {
+        showAlert('Хатогии шабака рух дод');
+      }
+    });
+
+    // Register submit
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const full_name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name: document.getElementById('regName').value,
+            email: document.getElementById('regEmail').value,
+            password: document.getElementById('regPassword').value
+          })
+          body: JSON.stringify({ full_name, email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showAlert('Бақайдгирӣ бо муваффақият анҷом ёфт!', false);
+          setTimeout(() => { window.location.href = data.redirect; }, 700);
+          showAlert('Бақайдгирӣ бомуваффақият анҷом ёфт! Гузариш ба бахши насб...', false);
+          setTimeout(() => { window.location.href = data.redirect; }, 600);
+        } else {
+          showAlert(data.detail || 'Хатогии бақайдгирӣ');
+          showAlert(data.detail || 'Хатогӣ ҳангоми бақайдгирӣ');
+        }
+      } catch (err) {
+        showAlert('Хатогии шабака рух дод');
+      }
+    });
+
+    // Login submit
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('logEmail').value;
+      const password = document.getElementById('logPassword').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('logEmail').value,
+            password: document.getElementById('logPassword').value
+          })
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showAlert('Хуш омадед!', false);
+          showAlert('Хуш омадед! Ворид шудед. Гузариш ба бахши насб...', false);
+          setTimeout(() => { window.location.href = data.redirect; }, 600);
+        } else {
+          showAlert(data.detail || 'Почта ё парол нодуруст аст');
+        }
+      } catch (err) {
+        showAlert('Хатогии шабака рух дод');
+      }
+    });
+  </script>
+
+</body>
+</html>
+
