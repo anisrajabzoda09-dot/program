@@ -21,56 +21,48 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
   <!-- NAVBAR -->
-  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+  <header class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
       <!-- Brand Logo -->
-      <a href="/" class="flex items-center gap-3 group">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-emerald-400 flex items-center justify-center text-white text-base shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <div>
-          <span class="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">
-            НИГОҲ <span class="bg-indigo-500/20 text-indigo-400 text-xs px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-indigo-500/30">Family</span>
+        <div class="flex items-center gap-1.5">
+          <span class="font-extrabold text-base sm:text-lg tracking-tight text-white">
+            НИГОҲ <span class="text-indigo-400 text-xs font-black uppercase tracking-wider">FAMILY</span>
           </span>
-          <span class="text-[11px] text-slate-400 block -mt-0.5 font-medium">Насли нави амнияти фарзандон</span>
         </div>
       </a>
 
-      <!-- Desktop Nav Links -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-300">
-        <a href="#about" class="hover:text-white transition">Дар бораи барнома</a>
+      <!-- Centered Sleek Nav Pill -->
+      <nav class="hidden md:flex items-center gap-6 px-5 py-1.5 rounded-full bg-slate-900/60 border border-slate-800/80 text-xs font-semibold text-slate-300 shadow-inner">
         <a href="#features" class="hover:text-white transition">Имкониятҳо</a>
         <a href="#how-it-works" class="hover:text-white transition">Тарзи кор</a>
         <a href="#reviews" class="hover:text-white transition">Отзывҳо</a>
-        <a href="/mobile" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-500/20 transition">
-          <i class="fa-solid fa-mobile-screen"></i>
-          <span>Версияи Мобилӣ</span>
-        </a>
         <a href="#download" class="hover:text-white transition">Боргирии Android</a>
       </nav>
 
-      <!-- User Auth Actions -->
+      <!-- Right Action CTAs -->
       <div class="flex items-center gap-3">
         {% if user %}
-          <div class="flex items-center gap-2 bg-slate-800/90 border border-slate-700 px-3 py-1.5 rounded-xl">
-            <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">
-              {{ user.full_name[0] if user.full_name else 'U' }}
-            </div>
-            <span class="text-xs font-bold text-slate-200 hidden sm:inline max-w-[120px] truncate">{{ user.full_name }}</span>
-            <a href="/logout" title="Баромад" class="text-slate-400 hover:text-rose-400 text-xs ml-1 transition">
+          <div class="flex items-center gap-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="text-slate-200 truncate max-w-[110px]">{{ user.full_name }}</span>
+            <a href="/logout" title="Баромад" class="text-slate-400 hover:text-rose-400 ml-1 transition">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
           </div>
         {% else %}
-          <a href="/auth" class="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white px-3.5 py-2 rounded-xl transition">
+          <a href="/auth" class="text-xs font-bold text-slate-300 hover:text-white px-3 py-1.5 transition">
             Вуруд
           </a>
         {% endif %}
 
-        <a href="/download/android" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/30 flex items-center gap-2 active:scale-95 transition">
-          <i class="fa-brands fa-android text-base"></i>
-          <span class="hidden sm:inline">Боргирии</span> <span>.APK</span>
+        <a href="/mobile" class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 hover:from-indigo-500 hover:to-emerald-400 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-lg shadow-indigo-600/25 flex items-center gap-2 active:scale-95 transition">
+          <i class="fa-solid fa-mobile-screen text-xs"></i>
+          <span>Барномаи Мобилӣ</span>
         </a>
       </div>
 
@@ -335,7 +327,7 @@
       
       <div class="text-center max-w-3xl mx-auto mb-16">
         <span class="bg-indigo-500/20 text-indigo-400 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-indigo-500/30">
-          Имкониятҳо
+          Дар бораи барнома ва Имкониятҳо
         </span>
         <h2 class="text-2xl sm:text-4xl font-black text-white mt-3">
           Ҳама чиз барои назорати боэътимод ва оромии волидайн
@@ -551,7 +543,7 @@
 
           <a href="/download/android" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-750 text-white font-bold text-base px-7 py-4 rounded-2xl border border-slate-700 flex items-center justify-center gap-2 active:scale-95 transition">
             <i class="fa-brands fa-android text-emerald-400"></i>
-            <span>Боргирии бастаи .APK (28 MB)</span>
+            <span>Боргирии бастаи .APK (43 MB)</span>
           </a>
         </div>
 

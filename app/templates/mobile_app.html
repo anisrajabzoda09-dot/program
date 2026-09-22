@@ -99,8 +99,107 @@
     </div>
   </div>
 
+  <!-- GOOGLE ACCOUNT CHOOSER MODAL (Like modern Google Sign-in) -->
+  <div id="googleAccountModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+      <div class="text-center mb-5">
+        <svg class="w-9 h-9 mx-auto mb-2" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <h3 class="text-base font-extrabold text-white">Интихоби ҳисоби Google</h3>
+        <p class="text-xs text-slate-400 mt-0.5">Барои идома ба барномаи «Нигоҳ Family»</p>
+      </div>
+
+      <div class="space-y-2.5 mb-5">
+        <!-- Account 1 -->
+        <button onclick="selectGoogleAccount('Далер Қодиров', 'daler.kodirov@gmail.com', 'https://lh3.googleusercontent.com/a/default-user')" class="w-full bg-slate-800/90 hover:bg-slate-750 border border-slate-700 rounded-2xl p-3 flex items-center gap-3 text-left transition active:scale-98">
+          <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">
+            Д
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-bold text-xs text-white block truncate">Далер Қодиров</span>
+            <span class="text-[11px] text-slate-400 block truncate">daler.kodirov@gmail.com</span>
+          </div>
+          <i class="fa-solid fa-angle-right text-xs text-slate-500"></i>
+        </button>
+
+        <!-- Account 2 -->
+        <button onclick="selectGoogleAccount('Анис Раҷабзода', 'anis.rajabzoda@gmail.com', 'https://lh3.googleusercontent.com/a/default-user')" class="w-full bg-slate-800/90 hover:bg-slate-750 border border-slate-700 rounded-2xl p-3 flex items-center gap-3 text-left transition active:scale-98">
+          <div class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow">
+            А
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="font-bold text-xs text-white block truncate">Анис Раҷабзода</span>
+            <span class="text-[11px] text-slate-400 block truncate">anis.rajabzoda@gmail.com</span>
+          </div>
+          <i class="fa-solid fa-angle-right text-xs text-slate-500"></i>
+        </button>
+
+        <!-- Custom Account form toggle -->
+        <button onclick="toggleCustomGoogleInput()" class="w-full bg-slate-800/40 hover:bg-slate-800 border border-dashed border-slate-700 rounded-2xl p-3 flex items-center gap-3 text-left transition">
+          <div class="w-10 h-10 rounded-full bg-slate-700 text-slate-300 font-bold flex items-center justify-center text-sm">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-300">Истифодаи ҳисоби дигар...</span>
+        </button>
+
+        <div id="customGoogleBox" class="hidden space-y-2 pt-2 border-t border-slate-800">
+          <input type="text" id="customGoogleName" placeholder="Ному насаб" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+          <input type="email" id="customGoogleEmail" placeholder="nom@gmail.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+          <button onclick="submitCustomGoogleAccount()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs active:scale-95">Тасдиқ ва воридшавӣ</button>
+        </div>
+      </div>
+
+      <button onclick="closeGoogleAccountModal()" class="w-full text-slate-400 hover:text-white text-xs py-1.5 transition">
+        Бекор кардан
+      </button>
+    </div>
+  </div>
+
   <!-- MAIN APP CONTAINER -->
   <main class="flex-1 max-w-md w-full mx-auto p-4 flex flex-col justify-start">
+
+    <!-- VIEW PIN LOCK (APP PASSCODE SETUP & ENTRY) -->
+    <div id="viewPinLock" class="hidden flex-1 flex flex-col justify-center items-center py-6 text-center select-none">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-emerald-400 flex items-center justify-center text-white text-2xl shadow-xl shadow-indigo-600/30 mb-4 animate-bounce">
+        <i class="fa-solid fa-lock" id="pinLockIcon"></i>
+      </div>
+      <h2 id="pinTitle" class="text-xl font-black text-white mb-1">Рамзи PIN-и барнома</h2>
+      <p id="pinSubtitle" class="text-slate-400 text-xs max-w-xs mb-6">Барои ҳимояи назорат рамзи 4-рақамаро таъйин намоед</p>
+
+      <!-- 4 PIN Dots -->
+      <div id="pinDotsContainer" class="flex items-center justify-center gap-4 mb-8">
+        <div id="pinDot_0" class="w-4 h-4 rounded-full border-2 border-indigo-500/50 bg-transparent transition-all duration-150"></div>
+        <div id="pinDot_1" class="w-4 h-4 rounded-full border-2 border-indigo-500/50 bg-transparent transition-all duration-150"></div>
+        <div id="pinDot_2" class="w-4 h-4 rounded-full border-2 border-indigo-500/50 bg-transparent transition-all duration-150"></div>
+        <div id="pinDot_3" class="w-4 h-4 rounded-full border-2 border-indigo-500/50 bg-transparent transition-all duration-150"></div>
+      </div>
+
+      <!-- Numeric Keypad -->
+      <div class="grid grid-cols-3 gap-3 max-w-[280px] w-full mx-auto">
+        <button onclick="pressPinKey('1')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">1</button>
+        <button onclick="pressPinKey('2')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">2</button>
+        <button onclick="pressPinKey('3')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">3</button>
+        <button onclick="pressPinKey('4')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">4</button>
+        <button onclick="pressPinKey('5')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">5</button>
+        <button onclick="pressPinKey('6')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">6</button>
+        <button onclick="pressPinKey('7')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">7</button>
+        <button onclick="pressPinKey('8')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">8</button>
+        <button onclick="pressPinKey('9')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">9</button>
+        <button onclick="clearPinKey()" class="h-14 rounded-2xl bg-slate-900/50 text-slate-400 hover:text-white flex items-center justify-center text-xs active:scale-90 transition font-bold">C</button>
+        <button onclick="pressPinKey('0')" class="h-14 rounded-2xl bg-slate-900 border border-slate-800 text-xl font-bold text-white hover:bg-slate-800 active:scale-90 transition shadow">0</button>
+        <button onclick="backspacePinKey()" class="h-14 rounded-2xl bg-slate-900/50 text-slate-400 hover:text-white flex items-center justify-center text-lg active:scale-90 transition">
+          <i class="fa-solid fa-delete-left"></i>
+        </button>
+      </div>
+
+      <button onclick="resetAppPin()" class="mt-6 text-[11px] text-slate-500 hover:text-indigo-400 transition">
+        Рамзро аз нав гузоштан (Тағйири PIN)
+      </button>
+    </div>
 
     <!-- VIEW 0: LOADING SPINNER -->
     <div id="viewLoading" class="flex-1 flex flex-col items-center justify-center py-20 text-center">
@@ -119,7 +218,7 @@
       </div>
 
       <!-- Google Sign In Button -->
-      <button onclick="loginWithGoogle()" class="w-full bg-white text-slate-800 font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-3 shadow-lg hover:bg-slate-50 active:scale-[0.98] transition mb-4">
+      <button onclick="openGoogleAccountModal()" class="w-full bg-white text-slate-800 font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-3 shadow-lg hover:bg-slate-50 active:scale-[0.98] transition mb-4">
         <svg class="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
           <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
@@ -314,6 +413,41 @@
         </button>
       </div>
 
+      <!-- Instant Lockdown & Quick Grant Bar -->
+      <div class="bg-gradient-to-r from-rose-950/40 via-slate-900 to-indigo-950/40 border border-slate-800 rounded-2xl p-3.5 shadow-lg space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div id="lockdownIconBox" class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-xs text-white">⚡ Қулфи фаврии телефон</h4>
+              <p id="lockdownStatusText" class="text-[10px] text-slate-400">Экран фаъол аст • Маҳдудият нест</p>
+            </div>
+          </div>
+          <button id="btnInstantLock" onclick="toggleInstantLockdown()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 shadow transition">
+            <i class="fa-solid fa-power-off"></i>
+            <span id="btnInstantLockText">Қулф кардан</span>
+          </button>
+        </div>
+
+        <!-- Quick Screen Time Bonus -->
+        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-[11px] text-slate-400 font-medium">Вақти иловагӣ:</span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="grantBonusTime(15)" class="bg-slate-800 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
+              +15 дақ
+            </button>
+            <button onclick="grantBonusTime(30)" class="bg-slate-800 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
+              +30 дақ
+            </button>
+            <button onclick="grantBonusTime(60)" class="bg-slate-800 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
+              +1 соат
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB 1: APPS & TIME LIMITS (DEFAULT) -->
       <div id="tabContentApps" class="space-y-4">
         <!-- Quick Control Summary -->
@@ -347,7 +481,7 @@
           </div>
         </div>
 
-        <!-- Android APK Direct Download Widget (28 MB) -->
+        <!-- Android APK Direct Download Widget (43 MB) -->
         <div class="bg-gradient-to-r from-slate-900 via-emerald-950/30 to-slate-900 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-between shadow-xl">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-2xl shadow-inner">
@@ -356,7 +490,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <h4 class="font-bold text-xs text-white">Боргирии расмии .APK</h4>
-                <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-black">28.0 MB</span>
+                <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.2 rounded font-black">43.0 MB</span>
               </div>
               <p class="text-[10px] text-slate-450 mt-0.5">Барои ҳамаи моделҳои Android (v2.4.0)</p>
             </div>
@@ -364,6 +498,149 @@
           <a href="/download/android" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition shadow-lg shadow-emerald-600/30">
             <i class="fa-solid fa-download"></i> Боргирӣ
           </a>
+        </div>
+      </div>
+
+      <!-- TAB: SCREEN TIME ANALYTICS -->
+      <div id="tabContentAnalytics" class="hidden space-y-4">
+        <!-- Weekly Summary Card -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[11px] text-slate-400 block font-medium">Вақти умумии истифодаи ин ҳафта</span>
+              <h3 class="text-xl font-extrabold text-white mt-0.5">17 соату 40 дақ</h3>
+            </div>
+            <span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
+              <i class="fa-solid fa-arrow-trend-down"></i> -12% назар ба ҳафтаи пеш
+            </span>
+          </div>
+
+          <!-- Weekly Bar Chart -->
+          <div class="pt-2">
+            <div class="flex items-end justify-between h-32 pt-4 px-1">
+              <!-- Mon -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-slate-400 font-mono">2h 10m</span>
+                <div class="w-5 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-400" style="height: 55%;"></div>
+                <span class="text-[10px] text-slate-400">Дш</span>
+              </div>
+              <!-- Tue -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-slate-400 font-mono">1h 45m</span>
+                <div class="w-5 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-400" style="height: 45%;"></div>
+                <span class="text-[10px] text-slate-400">Сш</span>
+              </div>
+              <!-- Wed -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-slate-400 font-mono">2h 30m</span>
+                <div class="w-5 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-400" style="height: 62%;"></div>
+                <span class="text-[10px] text-slate-400">Чш</span>
+              </div>
+              <!-- Thu -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-slate-400 font-mono">1h 50m</span>
+                <div class="w-5 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-400" style="height: 48%;"></div>
+                <span class="text-[10px] text-slate-400">Пш</span>
+              </div>
+              <!-- Fri -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-slate-400 font-mono">3h 10m</span>
+                <div class="w-5 bg-indigo-500 rounded-t-lg transition-all hover:bg-indigo-400" style="height: 75%;"></div>
+                <span class="text-[10px] text-slate-400">Ҷм</span>
+              </div>
+              <!-- Sat -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-indigo-300 font-mono font-bold">3h 45m</span>
+                <div class="w-5 bg-gradient-to-t from-indigo-600 to-indigo-400 rounded-t-lg transition-all shadow-lg shadow-indigo-500/30" style="height: 88%;"></div>
+                <span class="text-[10px] text-indigo-300 font-bold">Шн</span>
+              </div>
+              <!-- Sun -->
+              <div class="flex flex-col items-center gap-1.5 flex-1">
+                <span class="text-[9px] text-slate-400 font-mono">2h 30m</span>
+                <div class="w-5 bg-indigo-500/80 rounded-t-lg transition-all" style="height: 60%;"></div>
+                <span class="text-[10px] text-slate-400">Як</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+          <h4 class="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+            Тақсимоти категорияҳо
+          </h4>
+
+          <!-- Progress bar combined -->
+          <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden flex">
+            <div class="bg-emerald-500 h-full" style="width: 40%;" title="Омӯзиш 40%"></div>
+            <div class="bg-indigo-500 h-full" style="width: 35%;" title="Бозиҳо 35%"></div>
+            <div class="bg-amber-500 h-full" style="width: 25%;" title="Шабакаҳо 25%"></div>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span class="text-slate-300">🎓 Таҳсил ва Омӯзиш</span>
+              </div>
+              <span class="font-bold text-white font-mono">40% (7 соат)</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                <span class="text-slate-300">🎮 Бозиҳо (Games)</span>
+              </div>
+              <span class="font-bold text-white font-mono">35% (6.2 соат)</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span class="text-slate-300">📱 Шабакаҳои иҷтимоӣ</span>
+              </div>
+              <span class="font-bold text-white font-mono">25% (4.4 соат)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Apps Ranking -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+          <h4 class="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-ranking-star text-amber-400"></i>
+            Барномаҳои бештар истифодашуда
+          </h4>
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg">📖</span>
+                <div>
+                  <h5 class="text-xs font-bold text-white">Қуръон ва Дуоҳо</h5>
+                  <span class="text-[10px] text-emerald-400 font-medium">Таълимӣ • 1h 20m</span>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Иҷозат</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg">📺</span>
+                <div>
+                  <h5 class="text-xs font-bold text-white">YouTube Kids</h5>
+                  <span class="text-[10px] text-slate-400 font-medium">Видео • 45m</span>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">Лимит 30m</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="flex items-center gap-2.5">
+                <span class="text-lg">🎵</span>
+                <div>
+                  <h5 class="text-xs font-bold text-white">TikTok</h5>
+                  <span class="text-[10px] text-slate-400 font-medium">Кӯтоҳмуддат • 25m</span>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded">Маҳкам</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -544,6 +821,45 @@
           </div>
         </div>
 
+        <!-- Smart Schedules -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <h4 class="font-bold text-sm text-white mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i>
+            Реҷаҳои рӯз (Smart Schedules)
+          </h4>
+          <p class="text-[11px] text-slate-400">Танзими автоматии дарс ва хоби фарзанд</p>
+
+          <div class="space-y-2.5 text-xs">
+            <!-- Bedtime -->
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
+                  <i class="fa-solid fa-moon"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">Реҷаи Хоб (Bedtime)</span>
+                  <span class="text-[10px] text-slate-400">22:00 — 07:00 (Экран хомӯш мешавад)</span>
+                </div>
+              </div>
+              <input type="checkbox" checked onchange="toggleSchedule('bedtime', this.checked)" class="w-4 h-4 accent-indigo-600">
+            </div>
+
+            <!-- Study Mode -->
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+                  <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">Реҷаи Дарс (School Mode)</span>
+                  <span class="text-[10px] text-slate-400">08:00 — 13:00 (Танҳо зангҳо ва дарсӣ)</span>
+                </div>
+              </div>
+              <input type="checkbox" checked onchange="toggleSchedule('study', this.checked)" class="w-4 h-4 accent-indigo-600">
+            </div>
+          </div>
+        </div>
+
         <!-- Role switch & Device Info -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between text-xs">
@@ -552,7 +868,7 @@
           </div>
           <div class="flex items-center justify-between text-xs">
             <span class="text-slate-400">Бастаи APK:</span>
-            <span class="font-bold text-slate-200">v2.4.0 (28.0 MB)</span>
+            <span class="font-bold text-slate-200">v2.4.0 (43.0 MB)</span>
           </div>
           <button onclick="switchRoleView()" class="w-full bg-slate-800 hover:bg-slate-750 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition">
             Гузаштан ба намуди телефони фарзанд 🔄
@@ -594,6 +910,10 @@
     <button onclick="switchTab('apps')" id="tabBtnApps" class="flex-1 flex flex-col items-center gap-1 py-1 text-indigo-400 transition">
       <i class="fa-solid fa-grid-2 text-base"></i>
       <span class="text-[10px] font-bold">Барномаҳо</span>
+    </button>
+    <button onclick="switchTab('analytics')" id="tabBtnAnalytics" class="flex-1 flex flex-col items-center gap-1 py-1 text-slate-400 hover:text-slate-200 transition">
+      <i class="fa-solid fa-chart-pie text-base"></i>
+      <span class="text-[10px] font-bold">Омор</span>
     </button>
     <button onclick="switchTab('chat')" id="tabBtnChat" class="flex-1 flex flex-col items-center gap-1 py-1 text-slate-400 hover:text-slate-200 transition relative">
       <i class="fa-solid fa-comment-dots text-base"></i>
@@ -722,10 +1042,54 @@
       } catch (e) {}
     }
 
+    // Instant Lockdown and Quick Bonus
+    let IS_INSTANT_LOCKED = false;
+    function toggleInstantLockdown() {
+      IS_INSTANT_LOCKED = !IS_INSTANT_LOCKED;
+      const btn = document.getElementById('btnInstantLock');
+      const text = document.getElementById('btnInstantLockText');
+      const sub = document.getElementById('lockdownStatusText');
+      const iconBox = document.getElementById('lockdownIconBox');
+
+      if (IS_INSTANT_LOCKED) {
+        if (btn) {
+          btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 shadow transition";
+        }
+        if (text) text.textContent = "Кушодан 🔓";
+        if (sub) {
+          sub.textContent = "Телефон қулф карда шуд! Ҳамаи барномаҳо баста шуданд.";
+          sub.className = "text-[10px] text-rose-400 font-bold";
+        }
+        if (iconBox) iconBox.className = "w-9 h-9 rounded-xl bg-rose-600 text-white border border-rose-400 flex items-center justify-center text-sm animate-pulse";
+        alert("🔒 Телефони фарзанд фавран қулф карда шуд!");
+      } else {
+        if (btn) {
+          btn.className = "bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 active:scale-95 shadow transition";
+        }
+        if (text) text.textContent = "Қулф кардан";
+        if (sub) {
+          sub.textContent = "Экран фаъол аст • Маҳдудият нест";
+          sub.className = "text-[10px] text-slate-400";
+        }
+        if (iconBox) iconBox.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-sm";
+        alert("🔓 Қулфи телефон кушода шуд.");
+      }
+    }
+
+    function grantBonusTime(mins) {
+      alert(`✅ Ба фарзанд +${mins} дақиқа вақти иловагии истифода дода шуд!`);
+    }
+
+    function toggleSchedule(name, enabled) {
+      const mode = name === 'bedtime' ? 'Реҷаи Хоб (Bedtime)' : 'Реҷаи Дарс (School Mode)';
+      const status = enabled ? 'фаъол карда шуд' : 'хомӯш карда шуд';
+      console.log(`${mode} ${status}`);
+    }
+
     // Tab Switcher
     function switchTab(tab) {
       CURRENT_TAB = tab;
-      const tabs = ['apps', 'chat', 'map', 'settings'];
+      const tabs = ['apps', 'analytics', 'chat', 'map', 'settings'];
       tabs.forEach(t => {
         const content = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
         const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -753,7 +1117,7 @@
     // Initialize App
     document.addEventListener('DOMContentLoaded', () => {
       initServiceWorker();
-      checkAppRoute();
+      initPinState();
       checkOtaUpdate(false);
     });
 
@@ -802,7 +1166,7 @@
     }
 
     function switchView(viewId) {
-      const views = ['viewLoading', 'viewAuth', 'viewRole', 'viewGender', 'viewPairing', 'viewParentDashboard', 'viewChildDashboard'];
+      const views = ['viewPinLock', 'viewLoading', 'viewAuth', 'viewRole', 'viewGender', 'viewPairing', 'viewParentDashboard', 'viewChildDashboard'];
       views.forEach(v => {
         const el = document.getElementById(v);
         if (el) el.classList.add('hidden');
@@ -816,6 +1180,172 @@
       } else {
         if (tabBar) tabBar.classList.add('hidden');
       }
+    }
+
+
+    // ==========================================
+    // 🔐 PIN LOCK / PASSCODE LOGIC
+    // ==========================================
+    let CURRENT_PIN = "";
+    let TEMP_SETUP_PIN = "";
+    let PIN_MODE = "setup_1"; // "setup_1", "setup_2", "check"
+    let IS_PIN_VERIFIED = false;
+
+    function initPinState() {
+      const savedPin = localStorage.getItem('nigoh_app_pin');
+      if (!savedPin) {
+        PIN_MODE = "setup_1";
+        document.getElementById('pinTitle').textContent = "Таъйини пароли барнома";
+        document.getElementById('pinSubtitle').textContent = "Рамзи 4-рақамаро барои воридшавӣ таъйин намоед";
+      } else {
+        PIN_MODE = "check";
+        document.getElementById('pinTitle').textContent = "Воридшавӣ бо рамзи PIN";
+        document.getElementById('pinSubtitle').textContent = "Рамзи 4-рақамаи худро ворид кунед";
+      }
+      CURRENT_PIN = "";
+      updatePinDots();
+      switchView('viewPinLock');
+    }
+
+    function pressPinKey(num) {
+      if (CURRENT_PIN.length >= 4) return;
+      CURRENT_PIN += num;
+      updatePinDots();
+
+      if (CURRENT_PIN.length === 4) {
+        setTimeout(handlePinComplete, 200);
+      }
+    }
+
+    function backspacePinKey() {
+      if (CURRENT_PIN.length > 0) {
+        CURRENT_PIN = CURRENT_PIN.slice(0, -1);
+        updatePinDots();
+      }
+    }
+
+    function clearPinKey() {
+      CURRENT_PIN = "";
+      updatePinDots();
+    }
+
+    function updatePinDots(colorClass = null) {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('pinDot_' + i);
+        if (!dot) continue;
+        dot.className = "w-4 h-4 rounded-full border-2 transition-all duration-150 " + 
+          (colorClass ? colorClass : (i < CURRENT_PIN.length ? "border-indigo-500 bg-indigo-500 scale-110 shadow-md shadow-indigo-500/50" : "border-indigo-500/40 bg-transparent"));
+      }
+    }
+
+    function handlePinComplete() {
+      if (PIN_MODE === "setup_1") {
+        // Step 1: Save first entry, ask for confirmation
+        TEMP_SETUP_PIN = CURRENT_PIN;
+        CURRENT_PIN = "";
+        PIN_MODE = "setup_2";
+        document.getElementById('pinTitle').textContent = "Тасдиқи парол (Қадами 2)";
+        document.getElementById('pinSubtitle').textContent = "Рамзро такроран ворид намоед (2-юм бор)";
+        updatePinDots();
+      } else if (PIN_MODE === "setup_2") {
+        // Step 2: Check match
+        if (CURRENT_PIN === TEMP_SETUP_PIN) {
+          localStorage.setItem('nigoh_app_pin', CURRENT_PIN);
+          updatePinDots("border-emerald-500 bg-emerald-500 scale-110 shadow-emerald-500/50");
+          document.getElementById('pinSubtitle').textContent = "Рамз бомуваффақият сабт шуд! ✅";
+          IS_PIN_VERIFIED = true;
+          setTimeout(() => {
+            checkAppRoute();
+          }, 500);
+        } else {
+          // Mismatch
+          updatePinDots("border-rose-500 bg-rose-500 scale-110 shadow-rose-500/50");
+          document.getElementById('pinSubtitle').textContent = "Рамзҳо якхела нестанд! Аз нав кӯшиш кунед";
+          setTimeout(() => {
+            TEMP_SETUP_PIN = "";
+            CURRENT_PIN = "";
+            PIN_MODE = "setup_1";
+            document.getElementById('pinTitle').textContent = "Таъйини пароли барнома";
+            document.getElementById('pinSubtitle').textContent = "Рамзи 4-рақамаро ворид кунед";
+            updatePinDots();
+          }, 800);
+        }
+      } else if (PIN_MODE === "check") {
+        // Normal check
+        const savedPin = localStorage.getItem('nigoh_app_pin');
+        if (CURRENT_PIN === savedPin) {
+          updatePinDots("border-emerald-500 bg-emerald-500 scale-110 shadow-emerald-500/50");
+          document.getElementById('pinSubtitle').textContent = "Рамз дуруст аст! Хуш омадед ✅";
+          IS_PIN_VERIFIED = true;
+          setTimeout(() => {
+            checkAppRoute();
+          }, 400);
+        } else {
+          updatePinDots("border-rose-500 bg-rose-500 scale-110 shadow-rose-500/50");
+          document.getElementById('pinSubtitle').textContent = "Рамзи нодуруст! Аз нав санҷед";
+          setTimeout(() => {
+            CURRENT_PIN = "";
+            updatePinDots();
+          }, 600);
+        }
+      }
+    }
+
+    function resetAppPin() {
+      if (confirm('Оё мехоҳед рамзи PIN-ро тоза карда, аз нав таъйин кунед?')) {
+        localStorage.removeItem('nigoh_app_pin');
+        initPinState();
+      }
+    }
+
+    // ==========================================
+    // 🌐 GOOGLE AUTH MODAL LOGIC
+    // ==========================================
+    function openGoogleAccountModal() {
+      document.getElementById('googleAccountModal').classList.remove('hidden');
+    }
+
+    function closeGoogleAccountModal() {
+      document.getElementById('googleAccountModal').classList.add('hidden');
+    }
+
+    function toggleCustomGoogleInput() {
+      const box = document.getElementById('customGoogleBox');
+      box.classList.toggle('hidden');
+    }
+
+    async function selectGoogleAccount(fullName, email, avatar) {
+      closeGoogleAccountModal();
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            full_name: fullName,
+            avatar: avatar
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          CURRENT_USER = data.user;
+          checkAppRoute();
+        } else {
+          alert('Хатогӣ дар воридшавӣ бо Google');
+        }
+      } catch (e) {
+        alert('Хатогии шабака');
+      }
+    }
+
+    function submitCustomGoogleAccount() {
+      const name = document.getElementById('customGoogleName').value.trim();
+      const email = document.getElementById('customGoogleEmail').value.trim();
+      if (!name || !email) {
+        alert('Лутфан ном ва почтаи электрониро пурра нависед');
+        return;
+      }
+      selectGoogleAccount(name, email, 'https://lh3.googleusercontent.com/a/default-user');
     }
 
     async function checkAppRoute() {
