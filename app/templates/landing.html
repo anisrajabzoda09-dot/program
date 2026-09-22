@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>НИГОҲ Family — Насли нави назорати оқилонаи оилавӣ</title>
+  <title>НИГОҲ FAMILY — Насли нави назорати оқилонаи оилавӣ</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,15 +16,6 @@
   <link rel="manifest" href="/static/manifest.json">
 
   <style>
-    :root {
-      --bg: #e0e0e0;
-      --shadow-light: #ffffff;
-      --shadow-dark: #bebebe;
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --emerald: #059669;
-    }
-
     * {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
@@ -34,126 +25,94 @@
     }
 
     body {
-      background-color: var(--bg);
-      color: #1e293b;
+      background-color: #ffffff;
+      color: #0f172a;
     }
 
-    /* Authentic Neumorphism from https://neumorphism.io/#e0e0e0 */
-    .neu-card {
-      background: #e0e0e0;
+    /* Ambient Subtle Mesh Background */
+    .hero-mesh {
+      background: radial-gradient(100% 60% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+    }
+
+    /* Modern Bento White Card */
+    .bento-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
       border-radius: 28px;
-      box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .neu-card-sm {
-      background: #e0e0e0;
-      border-radius: 20px;
-      box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    .bento-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 20px 40px -8px rgba(15, 23, 42, 0.08);
+      transform: translateY(-3px);
     }
 
-    .neu-raised {
-      background: #e0e0e0;
-      border-radius: 16px;
-      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    .phone-mockup {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 44px;
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.1);
     }
 
-    .neu-raised:hover {
-      box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-      transform: translateY(-2px);
-    }
-
-    .neu-raised:active {
-      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-      transform: translateY(0);
-    }
-
-    .neu-inset {
-      background: #e0e0e0;
-      border-radius: 16px;
-      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-    }
-
-    .neu-pill {
-      background: #e0e0e0;
-      border-radius: 9999px;
-      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-      transition: all 0.2s ease;
-    }
-
-    .neu-pill:hover {
-      box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
-    }
-
-    .neu-pill:active {
-      box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-    }
-
-    .neu-btn-primary {
-      background: linear-gradient(145deg, #544bf7, #473fd0);
+    .btn-gradient {
+      background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
       color: #ffffff;
-      border-radius: 18px;
-      box-shadow: 7px 7px 15px var(--shadow-dark), -7px -7px 15px var(--shadow-light);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
       transition: all 0.2s ease;
     }
 
-    .neu-btn-primary:hover {
-      background: linear-gradient(145deg, #5e56f8, #4038c7);
-      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #4338ca 0%, #1d4ed8 100%);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.38);
       transform: translateY(-1px);
     }
 
-    .neu-btn-primary:active {
-      box-shadow: inset 3px 3px 6px #3b35a8, inset -3px -3px 6px #675eff;
+    .btn-gradient:active {
       transform: translateY(0);
     }
 
-    .neu-btn-emerald {
-      background: linear-gradient(145deg, #059669, #047857);
-      color: #ffffff;
-      border-radius: 18px;
-      box-shadow: 7px 7px 15px var(--shadow-dark), -7px -7px 15px var(--shadow-light);
+    .btn-white {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.2s ease;
     }
 
-    .neu-btn-emerald:hover {
-      background: linear-gradient(145deg, #10b981, #059669);
-      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    .btn-white:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
       transform: translateY(-1px);
-    }
-
-    .neu-btn-emerald:active {
-      box-shadow: inset 3px 3px 6px #035e44, inset -3px -3px 6px #10b981;
-      transform: translateY(0);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white bg-white">
 
-  <!-- NAVBAR -->
-  <header class="sticky top-0 z-50 bg-[#e0e0e0]/90 backdrop-blur-md border-b border-[#d1d5db]">
+  <!-- NAVBAR (Full Width & Clean) -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
       <!-- Brand Logo -->
-      <a href="/" class="flex items-center gap-3 group">
-        <div class="w-12 h-12 rounded-2xl neu-raised flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform">
+      <a href="/" class="flex items-center gap-3.5 group">
+        <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform">
           <img src="/static/images/nigoh_logo.svg" alt="Нигоҳ Family" class="w-full h-full object-contain">
         </div>
         <div class="flex flex-col">
-          <div class="flex items-center gap-1.5">
-            <span class="font-extrabold text-xl tracking-tight text-slate-800">
-              НИГОҲ
-            </span>
-            <span class="text-indigo-600 text-xs font-black uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
-              FAMILY
+          <div class="flex items-center gap-2">
+            <span class="font-black text-2xl tracking-tight text-slate-900">
+              НИГОҲ FAMILY
             </span>
           </div>
-          <span class="text-[11px] text-slate-500 font-medium">Назорати Оқилонаи Оилавӣ</span>
+          <span class="text-xs text-slate-500 font-semibold tracking-wide">Назорати Оқилонаи Оилавӣ</span>
         </div>
       </a>
 
-      <!-- Centered Sleek Nav Pill -->
-      <nav class="hidden md:flex items-center gap-6 px-6 py-2 rounded-full neu-inset text-xs font-bold text-slate-600">
+      <!-- Centered Navigation Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
         <a href="#features" class="hover:text-indigo-600 transition">Имкониятҳо</a>
         <a href="#how-it-works" class="hover:text-indigo-600 transition">Тарзи кор</a>
         <a href="#reviews" class="hover:text-indigo-600 transition">Отзывҳо</a>
@@ -163,68 +122,69 @@
       <!-- Right Action CTAs -->
       <div class="flex items-center gap-3">
         {% if user %}
-          <div class="flex items-center gap-2 neu-raised px-4 py-2 rounded-xl text-xs font-bold">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="text-slate-800 truncate max-w-[120px]">{{ user.full_name }}</span>
+          <div class="flex items-center gap-2.5 bg-white border border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span class="text-slate-800 truncate max-w-[130px]">{{ user.full_name }}</span>
             <a href="/logout" title="Баромад" class="text-slate-400 hover:text-rose-500 ml-1.5 transition">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
           </div>
         {% else %}
-          <a href="/auth" class="neu-pill px-5 py-2.5 text-xs font-extrabold text-slate-700 hover:text-indigo-600 flex items-center gap-2">
-            <i class="fa-solid fa-user text-indigo-500"></i>
+          <a href="/auth" class="px-5 py-2.5 text-sm font-extrabold text-slate-700 hover:text-indigo-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 flex items-center gap-2 transition">
+            <i class="fa-solid fa-user text-indigo-500 text-xs"></i>
             <span>Вуруд / Сабти ном</span>
           </a>
         {% endif %}
 
-        <a href="/download/android" class="neu-btn-primary px-5 py-2.5 text-xs font-extrabold flex items-center gap-2">
-          <i class="fa-brands fa-android text-sm"></i>
-          <span class="hidden sm:inline">Боргирии</span> <span>APK</span>
+        <a href="/download/android" class="btn-gradient px-5 py-2.5 text-sm font-extrabold flex items-center gap-2">
+          <i class="fa-brands fa-android text-base"></i>
+          <span>Боргирии APK</span>
         </a>
       </div>
 
     </div>
   </header>
 
-  <!-- HERO SECTION -->
-  <section class="pt-10 pb-16 lg:pt-16 lg:pb-24">
+  <!-- HERO SECTION (Spacious, Clean White Mesh, Dynamic Presentation) -->
+  <section class="hero-mesh pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
         
-        <!-- Left: Headline & Calls to Action -->
+        <!-- Left Column: Clear Bold Typography & CTAs -->
         <div class="lg:col-span-7 text-center lg:text-left">
           
-          <!-- Badge -->
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full neu-raised text-indigo-700 text-xs font-extrabold mb-6">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <!-- Top Tag -->
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-lg bg-white border border-slate-200 shadow-sm text-slate-800 text-xs sm:text-sm font-extrabold mb-6">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Насли нави назорати оилавӣ бо кори 100% Офлайн</span>
           </div>
 
-          <!-- Main Title -->
-          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-800 tracking-tight leading-[1.18] mb-6">
-            Фарзанди худро аз <br class="hidden sm:inline">
-            <span class="text-indigo-600 underline decoration-indigo-200 decoration-wavy decoration-4">
+          <!-- Main Title with Gradient Accent -->
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.12] mb-6">
+            Фарзанди худро аз <br>
+            <span class="bg-gradient-to-r from-indigo-600 via-blue-600 to-teal-600 bg-clip-text text-transparent">
               сайтҳои хатарнок муҳофизат
             </span> кунед!
           </h1>
 
           <!-- Lead Paragraph -->
-          <p class="text-base sm:text-lg text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0 font-medium">
+          <p class="text-lg sm:text-xl text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0 font-medium">
             Барномаи «Нигоҳ» ба волидон имкон медиҳад, ки бозиҳо ва барномаҳои нолозимро (TikTok, PUBG) қулф кунанд, интернети бехатар таъмин созанд ва макони кӯдакро бидонанд — ҳатто агар интернет хомӯш бошад ҳам!
           </p>
 
           {% if user %}
-          <div class="mb-8 p-5 rounded-2xl neu-inset flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl neu-raised text-emerald-600 flex items-center justify-center text-lg">
+          <!-- Logged In Success Banner -->
+          <div class="mb-8 p-5 rounded-lg bg-white border border-emerald-300 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-circle-check"></i>
               </div>
               <div class="text-left">
-                <h4 class="font-bold text-sm text-slate-800">Шумо бомуваффақият ворид шудед!</h4>
-                <p class="text-xs text-slate-500">Хуш омадед, {{ user.full_name }}. Акнун метавонед бастаи APK-ро боргирӣ кунед.</p>
+                <h4 class="font-extrabold text-base text-slate-900">Шумо бомуваффақият ворид шудед!</h4>
+                <p class="text-sm text-slate-600">Хуш омадед, {{ user.full_name }}. Акнун метавонед бастаи APK-ро боргирӣ кунед.</p>
               </div>
             </div>
-            <a href="/download/android" class="neu-btn-emerald px-4 py-2 text-xs font-bold">
+            <a href="/download/android" class="btn-gradient bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-lg">
               Боргирии APK
             </a>
           </div>
@@ -232,161 +192,247 @@
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
-            <a href="/qr" class="w-full sm:w-auto neu-btn-primary text-base font-extrabold px-8 py-4 flex items-center justify-center gap-3">
+            <a href="/qr" class="w-full sm:w-auto btn-gradient text-base sm:text-lg font-extrabold px-9 py-4 flex items-center justify-center gap-3 rounded-lg">
               <i class="fa-brands fa-android text-2xl"></i>
               <span>Боргирии расмии APK</span>
             </a>
 
-            <a href="/mobile" class="w-full sm:w-auto neu-raised text-slate-700 font-extrabold text-base px-7 py-4 flex items-center justify-center gap-2.5">
-              <i class="fa-solid fa-mobile-screen text-indigo-600"></i>
+            <a href="/mobile" class="w-full sm:w-auto btn-white font-extrabold text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-lg">
+              <i class="fa-solid fa-mobile-screen text-indigo-600 text-xl"></i>
               <span>Оғози барнома (PWA)</span>
             </a>
           </div>
 
-          <!-- Business Card QR Link Highlight -->
-          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl neu-inset text-xs font-medium text-slate-600">
-            <i class="fa-solid fa-qrcode text-indigo-600"></i>
-            <span>Силкаи расмии визиткаҳо:</span>
+          <!-- Business Card QR Link Notice -->
+          <div class="inline-flex items-center gap-3 px-4 py-2.5 rounded-lg bg-white border border-slate-200 shadow-sm text-xs sm:text-sm font-medium text-slate-600">
+            <i class="fa-solid fa-qrcode text-indigo-600 text-base"></i>
+            <span>Суроғаи расмии визиткаҳо:</span>
             <a href="/qr" class="font-mono font-bold text-indigo-600 hover:underline">/qr</a>
-            <span class="text-slate-400">|</span>
-            <span class="text-emerald-700 font-semibold"><i class="fa-solid fa-bolt text-emerald-500"></i> Боргирии фаврӣ бе таъхир</span>
+            <span class="text-slate-300">|</span>
+            <span class="text-emerald-700 font-semibold"><i class="fa-solid fa-bolt text-emerald-500"></i> Боргирии фаврӣ</span>
           </div>
 
           <!-- Trust Badges -->
-          <div class="grid grid-cols-3 gap-3 max-w-lg mx-auto lg:mx-0 pt-8 mt-6 border-t border-[#d1d5db]">
+          <div class="grid grid-cols-3 gap-4 max-w-xl mx-auto lg:mx-0 pt-8 mt-6 border-t border-slate-100">
             <div class="text-center lg:text-left">
-              <div class="text-lg sm:text-xl font-black text-amber-500 flex items-center justify-center lg:justify-start gap-1">
-                <i class="fa-solid fa-star text-sm"></i> 4.9 / 5
+              <div class="text-xl sm:text-2xl font-black text-amber-500 flex items-center justify-center lg:justify-start gap-1.5">
+                <i class="fa-solid fa-star text-base"></i> 4.9 / 5
               </div>
-              <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-medium">Баҳои волидайн</p>
+              <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Баҳои волидайн</p>
             </div>
             <div class="text-center lg:text-left">
-              <div class="text-lg sm:text-xl font-black text-emerald-600 flex items-center justify-center lg:justify-start gap-1">
-                <i class="fa-solid fa-shield-check text-sm"></i> 100%
+              <div class="text-xl sm:text-2xl font-black text-emerald-600 flex items-center justify-center lg:justify-start gap-1.5">
+                <i class="fa-solid fa-shield-check text-base"></i> 100%
               </div>
-              <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-medium">Кори Офлайн</p>
+              <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Кори Офлайн</p>
             </div>
             <div class="text-center lg:text-left">
-              <div class="text-lg sm:text-xl font-black text-indigo-600 flex items-center justify-center lg:justify-start gap-1">
-                <i class="fa-brands fa-android text-sm"></i> v1.0.0
+              <div class="text-xl sm:text-2xl font-black text-indigo-600 flex items-center justify-center lg:justify-start gap-1.5">
+                <i class="fa-brands fa-android text-base"></i> v1.0.0
               </div>
-              <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5 font-medium">Android 7 — 16+</p>
+              <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Android 7 — 16+</p>
             </div>
           </div>
 
         </div>
 
-        <!-- Right: Neumorphic Phone Mockup -->
+        <!-- Right Column: Realistic Smartphone with Actual Nigoh Family App Screen Inside -->
         <div class="lg:col-span-5 flex justify-center">
-          <div class="relative w-full max-w-sm">
+          <div class="relative w-full max-w-[370px]">
             
-            <!-- Floating Top Micro Badge -->
-            <div class="absolute -top-4 -left-4 z-20 neu-card-sm px-4 py-2.5 flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xs neu-inset">
-                <i class="fa-solid fa-lock"></i>
-              </div>
-              <div>
-                <span class="text-xs font-black text-slate-800 block">TikTok & PUBG</span>
-                <span class="text-[10px] text-rose-600 font-bold uppercase">Маҳкам карда шуд</span>
-              </div>
-            </div>
-
-            <!-- Neumorphic Smartphone Frame -->
-            <div class="neu-card p-5">
+            <!-- Realistic Smartphone Frame -->
+            <div class="relative mx-auto w-[330px] sm:w-[355px] bg-slate-900 rounded-[54px] p-3.5 shadow-[0_30px_90px_-20px_rgba(15,23,42,0.4)] border-4 border-slate-800 ring-2 ring-slate-700/60">
               
-              <!-- Phone Status Header -->
-              <div class="neu-inset p-4 rounded-2xl mb-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-2xl neu-raised flex items-center justify-center text-xl">
-                    👦
-                  </div>
-                  <div>
-                    <h4 class="font-extrabold text-sm text-slate-800">Писарам (Алиҷон)</h4>
-                    <p class="text-[11px] text-slate-500">Samsung A54 • Қувва: 88%</p>
-                  </div>
-                </div>
-                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Офлайн фаъол
-                </span>
-              </div>
+              <!-- Left Side Hardware Buttons (Volume Up/Down) -->
+              <div class="absolute -left-[7px] top-28 w-[3px] h-9 bg-slate-700 rounded-l-md"></div>
+              <div class="absolute -left-[7px] top-40 w-[3px] h-9 bg-slate-700 rounded-l-md"></div>
+              <!-- Right Side Hardware Button (Power Button) -->
+              <div class="absolute -right-[7px] top-32 w-[3px] h-12 bg-slate-700 rounded-r-md"></div>
 
-              <!-- Rules Showcase Rows -->
-              <div class="space-y-3">
+              <!-- Inner Glass Screen (Actual Nigoh Mobile App Dashboard) -->
+              <div class="bg-slate-950 text-white rounded-[44px] overflow-hidden border border-slate-800 shadow-inner flex flex-col p-4">
                 
-                <!-- Safe Web -->
-                <div class="neu-raised p-3.5 flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl neu-inset text-indigo-600 flex items-center justify-center text-base">
-                      <i class="fa-solid fa-shield-virus"></i>
-                    </div>
-                    <div>
-                      <span class="font-bold text-xs text-slate-800 block">Интернети Бехатар</span>
-                      <span class="text-[10px] text-slate-500">Филтри сайтҳои носолим</span>
-                    </div>
+                <!-- Status Bar with Dynamic Island -->
+                <div class="flex items-center justify-between text-[11px] text-slate-300 font-bold px-3 pt-1 pb-2 mb-1">
+                  <span>09:41</span>
+                  
+                  <!-- Dynamic Island (Pill Camera) -->
+                  <div class="w-24 h-5 bg-black rounded-full flex items-center justify-between px-2.5 shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-slate-900 border border-slate-800"></span>
+                    <span class="w-2 h-2 rounded-full bg-indigo-950 border border-indigo-800 flex items-center justify-center">
+                      <span class="w-1 h-1 rounded-full bg-indigo-400"></span>
+                    </span>
                   </div>
-                  <span class="bg-indigo-100 text-indigo-700 text-[10px] font-extrabold px-2.5 py-1 rounded-md">Фаъол</span>
+
+                  <div class="flex items-center gap-1.5 text-[10px]">
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-wifi"></i>
+                    <span class="text-[9px]">88%</span>
+                    <i class="fa-solid fa-battery-three-quarters text-emerald-400 text-xs"></i>
+                  </div>
                 </div>
 
-                <!-- TikTok -->
-                <div class="neu-raised p-3.5 flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl neu-inset text-rose-500 flex items-center justify-center text-base">
-                      <i class="fa-brands fa-tiktok"></i>
+                <!-- App Header Bar -->
+                <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-2.5 mb-3 flex items-center justify-between shadow-md">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white text-xs shadow">
+                      <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
-                      <span class="font-bold text-xs text-slate-800 block">TikTok & Instagram</span>
-                      <span class="text-[10px] text-slate-500">Шабакаҳои иҷтимоӣ</span>
+                      <span class="font-extrabold text-xs text-white block leading-tight">НИГОҲ Family</span>
+                      <span class="text-[9px] text-emerald-400 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Муҳофизат фаъол • 100% Офлайн
+                      </span>
                     </div>
                   </div>
-                  <span class="bg-rose-100 text-rose-600 text-[10px] font-extrabold px-2.5 py-1 rounded-md flex items-center gap-1">
-                    <i class="fa-solid fa-lock text-[9px]"></i> Маҳкам
+                  <span class="bg-indigo-500/20 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-indigo-500/30">
+                    Волидайн
                   </span>
                 </div>
 
-                <!-- PUBG -->
-                <div class="neu-raised p-3.5 flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl neu-inset text-orange-500 flex items-center justify-center text-base">
-                      <i class="fa-solid fa-gamepad"></i>
+                <!-- Child Device Status Card -->
+                <div class="bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-slate-800 rounded-2xl p-3 mb-3 flex items-center justify-between shadow-lg">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-400 flex items-center justify-center text-base">
+                      <i class="fa-solid fa-user-shield"></i>
                     </div>
                     <div>
-                      <span class="font-bold text-xs text-slate-800 block">PUBG Mobile & Roblox</span>
-                      <span class="text-[10px] text-slate-500">Бозиҳои вақтгир</span>
+                      <div class="flex items-center gap-1.5">
+                        <h4 class="font-bold text-xs text-white">Алиҷон</h4>
+                        <span class="bg-blue-500/20 text-blue-400 text-[9px] px-1.5 py-0.2 rounded font-semibold">Писар • 11 с.</span>
+                      </div>
+                      <p class="text-[10px] text-slate-400 mt-0.5">Samsung Galaxy A54 • Дар мактаб</p>
                     </div>
                   </div>
-                  <span class="bg-rose-100 text-rose-600 text-[10px] font-extrabold px-2.5 py-1 rounded-md flex items-center gap-1">
-                    <i class="fa-solid fa-lock text-[9px]"></i> Маҳкам
+                  <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 88%
                   </span>
                 </div>
 
-                <!-- Live GPS -->
-                <div class="neu-raised p-3.5 flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl neu-inset text-emerald-600 flex items-center justify-center text-base">
+                <!-- Instant Lockdown Control Strip -->
+                <div class="bg-rose-950/30 border border-rose-500/30 rounded-xl p-2.5 mb-3 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-[10px]">
+                      <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-white">Қулфи фаврии телефон</span>
+                  </div>
+                  <span class="bg-rose-600 text-white text-[9px] font-bold px-2.5 py-1 rounded-lg shadow">
+                    Қулф кардан
+                  </span>
+                </div>
+
+                <!-- Real App Control Rows -->
+                <div class="space-y-2 mb-3">
+                  
+                  <!-- TikTok (Locked) -->
+                  <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm">
+                        <i class="fa-brands fa-tiktok"></i>
+                      </div>
+                      <div>
+                        <span class="font-bold text-xs text-white block leading-tight">TikTok & Instagram</span>
+                        <span class="text-[9px] text-slate-400">Шабакаҳои иҷтимоӣ</span>
+                      </div>
+                    </div>
+                    <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <i class="fa-solid fa-lock text-[8px]"></i> Маҳкам
+                    </span>
+                  </div>
+
+                  <!-- PUBG Mobile (Locked) -->
+                  <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-gamepad"></i>
+                      </div>
+                      <div>
+                        <span class="font-bold text-xs text-white block leading-tight">PUBG Mobile</span>
+                        <span class="text-[9px] text-slate-400">Бозиҳои вақтгир</span>
+                      </div>
+                    </div>
+                    <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <i class="fa-solid fa-lock text-[8px]"></i> Маҳкам
+                    </span>
+                  </div>
+
+                  <!-- YouTube Kids (Time Limited) -->
+                  <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-sm">
+                        <i class="fa-brands fa-youtube"></i>
+                      </div>
+                      <div>
+                        <span class="font-bold text-xs text-white block leading-tight">YouTube Kids</span>
+                        <span class="text-[9px] text-slate-400">Лимити рӯзона</span>
+                      </div>
+                    </div>
+                    <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[9px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <i class="fa-solid fa-clock text-[8px]"></i> 30 дақиқа
+                    </span>
+                  </div>
+
+                  <!-- Safe Web (Active) -->
+                  <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-shield-virus"></i>
+                      </div>
+                      <div>
+                        <span class="font-bold text-xs text-white block leading-tight">Интернети Бехатар</span>
+                        <span class="text-[9px] text-slate-400">Филтри сайтҳои носолим</span>
+                      </div>
+                    </div>
+                    <span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[9px] font-bold px-2 py-0.5 rounded-md">
+                      Фаъол
+                    </span>
+                  </div>
+
+                </div>
+
+                <!-- GPS Location Live Radar Snippet -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 mb-3 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
                       <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                      <span class="font-bold text-xs text-slate-800 block">Макони GPS: ш. Душанбе</span>
-                      <span class="text-[10px] text-slate-500">Хиёбони Рӯдакӣ, назди мактаб</span>
+                      <span class="text-[10px] font-bold text-white block">ш. Душанбе, Хиёбони Рӯдакӣ</span>
+                      <span class="text-[9px] text-slate-400">Дар мактаби №8 • 2 дақиқа пеш</span>
                     </div>
                   </div>
-                  <span class="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2.5 py-1 rounded-md">Зинда</span>
+                  <span class="bg-emerald-500/20 text-emerald-400 text-[8px] font-bold px-2 py-0.5 rounded-full">
+                    Зинда
+                  </span>
                 </div>
 
+                <!-- App Bottom Navigation Bar -->
+                <div class="bg-slate-900 border-t border-slate-800 rounded-2xl p-2 grid grid-cols-4 gap-1 text-center mt-auto">
+                  <div class="text-indigo-400 flex flex-col items-center">
+                    <i class="fa-solid fa-house text-xs"></i>
+                    <span class="text-[8px] font-bold mt-0.5">Асосӣ</span>
+                  </div>
+                  <div class="text-slate-400 flex flex-col items-center">
+                    <i class="fa-solid fa-shield-halved text-xs"></i>
+                    <span class="text-[8px] font-semibold mt-0.5">Қоидаҳо</span>
+                  </div>
+                  <div class="text-slate-400 flex flex-col items-center">
+                    <i class="fa-solid fa-location-arrow text-xs"></i>
+                    <span class="text-[8px] font-semibold mt-0.5">Макон</span>
+                  </div>
+                  <div class="text-slate-400 flex flex-col items-center">
+                    <i class="fa-solid fa-comments text-xs"></i>
+                    <span class="text-[8px] font-semibold mt-0.5">Чат</span>
+                  </div>
+                </div>
+
+                <!-- Home Indicator Bar -->
+                <div class="w-28 h-1 bg-slate-600/70 rounded-full mx-auto mt-2"></div>
+
               </div>
 
-            </div>
-
-            <!-- Floating Bottom Micro Badge -->
-            <div class="absolute -bottom-4 -right-4 z-20 neu-card-sm px-4 py-2.5 flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs neu-inset">
-                <i class="fa-solid fa-qrcode"></i>
-              </div>
-              <div>
-                <span class="text-xs font-black text-slate-800 block">Пайвастшавии QR</span>
-                <span class="text-[10px] text-emerald-600 font-bold">Дар 5 сония пайваст шуд</span>
-              </div>
             </div>
 
           </div>
@@ -396,100 +442,120 @@
     </div>
   </section>
 
-  <!-- FEATURES SECTION -->
-  <section id="features" class="py-20">
+  <!-- FEATURES BENTO GRID (Wide, Distinctive White Design) -->
+  <section id="features" class="py-20 lg:py-28 bg-white border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
+      <!-- Section Header -->
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="neu-pill px-4 py-1.5 text-xs font-black text-indigo-600 uppercase tracking-wider inline-block mb-3">
+        <span class="px-4 py-1.5 text-xs font-black text-indigo-600 uppercase tracking-wider inline-block bg-indigo-50 border border-indigo-100 rounded-full mb-3">
           Дар бораи барнома ва Имкониятҳо
         </span>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-800 mt-2">
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 tracking-tight">
           Ҳама чиз барои назорати боэътимод ва оромии волидайн
         </h2>
-        <p class="text-sm sm:text-base text-slate-500 mt-3 font-medium">
+        <p class="text-base sm:text-lg text-slate-600 mt-4 font-medium">
           Технологияи содда, муосир ва бе хатари маҳдудияти суръат барои муҳофизати кӯдакон дар ҷаҳони рақамӣ.
         </p>
       </div>
 
+      <!-- Bento Grid (Dynamic Columns) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         
-        <!-- Feature 1 -->
-        <div class="neu-card-sm p-7 flex flex-col justify-between">
+        <!-- Bento 1: 100% Offline (2 cols on large screen) -->
+        <div class="bento-card p-8 lg:col-span-2 flex flex-col justify-between bg-gradient-to-br from-white via-white to-emerald-50/40">
           <div>
-            <div class="w-14 h-14 rounded-2xl neu-raised text-indigo-600 flex items-center justify-center text-2xl mb-5">
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shadow-sm">
+                <i class="fa-solid fa-wifi"></i>
+              </div>
+              <span class="bg-emerald-100/70 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full border border-emerald-200">
+                Технологияи беназир
+              </span>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3">100% Кори Офлайн (Ҳатто бе интернет)</h3>
+            <p class="text-base text-slate-600 leading-relaxed font-medium max-w-xl mb-6">
+              Қоидаҳои басташуда бевосита дар хотираи дохилии телефони фарзанд сабт мешаванд. Агар кӯдак Wi-Fi ё интернети мобилиро хомӯш кунад ҳам, бозиҳо ва барномаҳои маҳдудшуда кушода намешаванд!
+            </p>
+          </div>
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-100 text-xs font-bold text-slate-600">
+            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Бе масрафи трафик</div>
+            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Ҳимояи худкор</div>
+            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Бе таъхири вақт</div>
+          </div>
+        </div>
+
+        <!-- Bento 2: App Blocking -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
               <i class="fa-solid fa-lock"></i>
             </div>
-            <h3 class="text-lg font-extrabold text-slate-800 mb-2">Бастани Барномаҳо ва Бозиҳо</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Бастани Барномаҳо ва Бозиҳо</h3>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
               TikTok, Instagram, PUBG, Roblox ва дигар бозиҳоро бо як тугма қулф намоед ё реҷаи рӯзона таъин кунед.
             </p>
           </div>
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="neu-card-sm p-7 flex flex-col justify-between">
-          <div>
-            <div class="w-14 h-14 rounded-2xl neu-raised text-emerald-600 flex items-center justify-center text-2xl mb-5">
-              <i class="fa-solid fa-wifi"></i>
-            </div>
-            <h3 class="text-lg font-extrabold text-slate-800 mb-2">100% Кори Офлайн (Бе интернет)</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-              Қоидаҳои басташуда дар худи телефон сабт мешаванд. Ҳатто агар интернет хомӯш карда шавад, бозиҳо кушода намешаванд!
-            </p>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
+            <span>Бо як клик фаъол мешавад</span>
+            <i class="fa-solid fa-arrow-right"></i>
           </div>
         </div>
 
-        <!-- Feature 3 -->
-        <div class="neu-card-sm p-7 flex flex-col justify-between">
+        <!-- Bento 3: Safe Web -->
+        <div class="bento-card p-8 flex flex-col justify-between">
           <div>
-            <div class="w-14 h-14 rounded-2xl neu-raised text-sky-600 flex items-center justify-center text-2xl mb-5">
+            <div class="w-16 h-16 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
               <i class="fa-solid fa-shield-virus"></i>
             </div>
-            <h3 class="text-lg font-extrabold text-slate-800 mb-2">Интернети Бехатар (Safe Web)</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Интернети Бехатар (Safe Web)</h3>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
               Филтри худкори миллионҳо сайтҳои номуносиб ва қатъи маводи хатарнок барои саломатии равонии кӯдак.
             </p>
           </div>
         </div>
 
-        <!-- Feature 4 -->
-        <div class="neu-card-sm p-7 flex flex-col justify-between">
+        <!-- Bento 4: Live GPS -->
+        <div class="bento-card p-8 flex flex-col justify-between">
           <div>
-            <div class="w-14 h-14 rounded-2xl neu-raised text-amber-500 flex items-center justify-center text-2xl mb-5">
+            <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
               <i class="fa-solid fa-location-dot"></i>
             </div>
-            <h3 class="text-lg font-extrabold text-slate-800 mb-2">Назорати Зиндаи GPS</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Назорати Зиндаи GPS</h3>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
               Ҳамеша огоҳ бошед, ки фарзанди шумо дар куҷо қарор дорад: дар мактаб, дар курс ё дар роҳи хона.
             </p>
           </div>
         </div>
 
-        <!-- Feature 5 -->
-        <div class="neu-card-sm p-7 flex flex-col justify-between">
+        <!-- Bento 5: QR Instant Pairing -->
+        <div class="bento-card p-8 flex flex-col justify-between">
           <div>
-            <div class="w-14 h-14 rounded-2xl neu-raised text-purple-600 flex items-center justify-center text-2xl mb-5">
+            <div class="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
               <i class="fa-solid fa-qrcode"></i>
             </div>
-            <h3 class="text-lg font-extrabold text-slate-800 mb-2">Пайвастшавӣ бо QR-код</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-              Бидуни ягон танзимоти мураккаб: QR-кодро бо камераи телефон скан кунед ва фавран пайваст шавед.
+            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Пайвастшавӣ бо QR-код</h3>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
+              Бидуни ягон танзимоти мураккаб: QR-кодро бо камераи телефон скан кунед ва фавран дар 5 сония пайваст шавед.
             </p>
           </div>
         </div>
 
-        <!-- Feature 6 -->
-        <div class="neu-card-sm p-7 flex flex-col justify-between">
-          <div>
-            <div class="w-14 h-14 rounded-2xl neu-raised text-teal-600 flex items-center justify-center text-2xl mb-5">
+        <!-- Bento 6: Google Auth -->
+        <div class="bento-card p-8 lg:col-span-3 flex flex-col sm:flex-row items-center justify-between gap-6 bg-slate-50/60">
+          <div class="flex items-center gap-5">
+            <div class="w-16 h-16 rounded-2xl bg-white border border-slate-200 text-teal-600 flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
               <i class="fa-brands fa-google"></i>
             </div>
-            <h3 class="text-lg font-extrabold text-slate-800 mb-2">Вуруд бо Google ва Email</h3>
-            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-              Воридшавии фаврӣ ва бехатар тавассути ҳисоби Google ё почтаи электронӣ бо як клик.
-            </p>
+            <div>
+              <h3 class="text-xl font-extrabold text-slate-900 mb-1">Воридшавии фаврӣ бо ҳисоби Google ва Email</h3>
+              <p class="text-sm text-slate-600 font-medium">Ҳеҷ гуна паролҳои душвор лозим нест. Бо як пахши тугмаи Google ҳисоби оилавии худро оғоз намоед.</p>
+            </div>
           </div>
+          <a href="/auth" class="btn-gradient px-6 py-3 text-sm font-bold flex-shrink-0 flex items-center gap-2">
+            <span>Вуруд бо Google</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
         </div>
 
       </div>
@@ -497,64 +563,64 @@
     </div>
   </section>
 
-  <!-- HOW IT WORKS (4 STEPS) -->
-  <section id="how-it-works" class="py-20">
+  <!-- HOW IT WORKS (4 Numbered Step Cards) -->
+  <section id="how-it-works" class="py-20 lg:py-28 bg-white border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="neu-pill px-4 py-1.5 text-xs font-black text-emerald-700 uppercase tracking-wider inline-block mb-3">
+        <span class="px-4 py-1.5 text-xs font-black text-emerald-700 uppercase tracking-wider inline-block bg-emerald-50 border border-emerald-100 rounded-full mb-3">
           Дастури Осон
         </span>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-800 mt-2">
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 tracking-tight">
           Тарзи оғоз дар 4 қадами содда
         </h2>
-        <p class="text-sm sm:text-base text-slate-500 mt-2 font-medium">
+        <p class="text-base sm:text-lg text-slate-600 mt-3 font-medium">
           Дар камтар аз 1 дақиқа телефони фарзандонро ба низом дароред
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         
         <!-- Step 1 -->
-        <div class="neu-card-sm p-6 text-center">
-          <div class="w-12 h-12 rounded-full neu-raised text-indigo-600 font-black flex items-center justify-center mx-auto mb-4 text-lg">
+        <div class="bento-card p-8 text-center">
+          <div class="w-14 h-14 rounded-full bg-indigo-50 border-2 border-indigo-200 text-indigo-600 font-black flex items-center justify-center mx-auto mb-5 text-xl">
             1
           </div>
-          <h4 class="text-base font-extrabold text-slate-800 mb-2">Вуруд / Бақайдгирӣ</h4>
-          <p class="text-xs text-slate-500 leading-relaxed font-medium">
+          <h4 class="text-lg font-extrabold text-slate-900 mb-2">Вуруд / Бақайдгирӣ</h4>
+          <p class="text-sm text-slate-500 leading-relaxed font-medium">
             Бо ҳисоби Google ё Email дар сонияҳо сабти ном кунед.
           </p>
         </div>
 
         <!-- Step 2 -->
-        <div class="neu-card-sm p-6 text-center">
-          <div class="w-12 h-12 rounded-full neu-raised text-indigo-600 font-black flex items-center justify-center mx-auto mb-4 text-lg">
+        <div class="bento-card p-8 text-center">
+          <div class="w-14 h-14 rounded-full bg-indigo-50 border-2 border-indigo-200 text-indigo-600 font-black flex items-center justify-center mx-auto mb-5 text-xl">
             2
           </div>
-          <h4 class="text-base font-extrabold text-slate-800 mb-2">Интихоби Нақш</h4>
-          <p class="text-xs text-slate-500 leading-relaxed font-medium">
+          <h4 class="text-lg font-extrabold text-slate-900 mb-2">Интихоби Нақш</h4>
+          <p class="text-sm text-slate-500 leading-relaxed font-medium">
             Муайян кунед: «Волидайн» ё «Телефони Фарзанд».
           </p>
         </div>
 
         <!-- Step 3 -->
-        <div class="neu-card-sm p-6 text-center">
-          <div class="w-12 h-12 rounded-full neu-raised text-indigo-600 font-black flex items-center justify-center mx-auto mb-4 text-lg">
+        <div class="bento-card p-8 text-center">
+          <div class="w-14 h-14 rounded-full bg-indigo-50 border-2 border-indigo-200 text-indigo-600 font-black flex items-center justify-center mx-auto mb-5 text-xl">
             3
           </div>
-          <h4 class="text-base font-extrabold text-slate-800 mb-2">Писар 👦 ё Духтар 👧</h4>
-          <p class="text-xs text-slate-500 leading-relaxed font-medium">
+          <h4 class="text-lg font-extrabold text-slate-900 mb-2">Писар ё Духтар</h4>
+          <p class="text-sm text-slate-500 leading-relaxed font-medium">
             Ҷинс, ном ва синну соли фарзандро муайян созед.
           </p>
         </div>
 
         <!-- Step 4 -->
-        <div class="neu-card-sm p-6 text-center">
-          <div class="w-12 h-12 rounded-full neu-raised text-emerald-600 font-black flex items-center justify-center mx-auto mb-4 text-lg">
+        <div class="bento-card p-8 text-center">
+          <div class="w-14 h-14 rounded-full bg-emerald-50 border-2 border-emerald-200 text-emerald-600 font-black flex items-center justify-center mx-auto mb-5 text-xl">
             4
           </div>
-          <h4 class="text-base font-extrabold text-slate-800 mb-2">QR Скан & Ҳимоя</h4>
-          <p class="text-xs text-slate-500 leading-relaxed font-medium">
+          <h4 class="text-lg font-extrabold text-slate-900 mb-2">QR Скан ва Ҳимоя</h4>
+          <p class="text-sm text-slate-500 leading-relaxed font-medium">
             QR-кодро скан кунед ва назорати комилро оғоз намоед.
           </p>
         </div>
@@ -565,38 +631,38 @@
   </section>
 
   <!-- REVIEWS SECTION -->
-  <section id="reviews" class="py-20">
+  <section id="reviews" class="py-20 lg:py-28 bg-white border-b border-slate-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="neu-pill px-4 py-1.5 text-xs font-black text-amber-600 uppercase tracking-wider inline-block mb-3">
+        <span class="px-4 py-1.5 text-xs font-black text-amber-600 uppercase tracking-wider inline-block bg-amber-50 border border-amber-100 rounded-full mb-3">
           Отзывҳо
         </span>
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-800 mt-2">
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 tracking-tight">
           Фикру мулоҳизаҳои волидайни тоҷик
         </h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {% for rev in reviews %}
-        <div class="neu-card-sm p-6 flex flex-col justify-between">
+        <div class="bento-card p-7 flex flex-col justify-between">
           <div>
-            <div class="flex text-amber-500 text-xs mb-3">
+            <div class="flex text-amber-500 text-sm mb-4">
               {% for i in range(rev.rating) %}
                 <i class="fa-solid fa-star mr-1"></i>
               {% endfor %}
             </div>
-            <p class="text-xs text-slate-600 leading-relaxed italic mb-4 font-medium">
+            <p class="text-sm text-slate-600 leading-relaxed italic mb-6 font-medium">
               «{{ rev.comment }}»
             </p>
           </div>
-          <div class="flex items-center gap-3 pt-3 border-t border-[#d1d5db]">
-            <div class="w-9 h-9 rounded-full neu-raised text-indigo-600 font-black flex items-center justify-center text-xs">
+          <div class="flex items-center gap-3.5 pt-4 border-t border-slate-100">
+            <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 font-black flex items-center justify-center text-sm shadow-sm">
               {{ rev.author_name[0] }}
             </div>
             <div>
-              <div class="text-xs font-extrabold text-slate-800">{{ rev.author_name }}</div>
-              <div class="text-[10px] text-slate-500 font-semibold">{{ rev.role_title }}</div>
+              <div class="text-sm font-extrabold text-slate-900">{{ rev.author_name }}</div>
+              <div class="text-xs text-slate-500 font-semibold">{{ rev.role_title }}</div>
             </div>
           </div>
         </div>
@@ -606,106 +672,253 @@
     </div>
   </section>
 
-  <!-- DOWNLOAD APK SECTION -->
-  <section id="download" class="py-20">
+  <!-- DOWNLOAD APK SECTION (Large, Clean White Hub) -->
+  <section id="download" class="py-20 lg:py-28 bg-white">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="neu-card p-8 sm:p-14 text-center">
+      <div class="bento-card p-8 sm:p-16 text-center border-2 border-slate-200">
         
-        <div class="w-20 h-20 rounded-3xl neu-raised flex items-center justify-center p-3 mx-auto mb-6">
+        <div class="w-24 h-24 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center p-3.5 mx-auto mb-6">
           <img src="/static/images/nigoh_logo.svg" alt="Нигоҳ Logo" class="w-full h-full object-contain">
         </div>
 
-        <h2 class="text-2xl sm:text-4xl font-black text-slate-800 mb-4">
+        <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mb-4 tracking-tight">
           Ҷойи насб ва боргирии расмии барнома
         </h2>
-        <p class="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
-          Барномаи расмии «Нигоҳ»-ро бевосита дар формати <strong class="text-slate-800">.APK</strong> боргирӣ намуда, дар ҳамаи смартфонҳои Android насб кунед.
+        <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+          Барномаи расмии «Нигоҳ»-ро бевосита дар формати <strong class="text-slate-900 font-extrabold">.APK</strong> боргирӣ намуда, дар ҳамаи смартфонҳои Android насб кунед.
         </p>
 
         <!-- QR Code and Direct Download Card -->
-        <div class="max-w-md mx-auto neu-inset p-6 rounded-3xl mb-8 flex flex-col items-center">
-          <div class="w-40 h-40 rounded-2xl neu-raised p-3 flex items-center justify-center mb-4 bg-white">
-            <!-- Simulated Crisp SVG QR Code pointing to /qr -->
+        <div class="max-w-md mx-auto bg-slate-50 border border-slate-200/80 p-8 rounded-2xl mb-10 flex flex-col items-center shadow-sm">
+          <div class="w-48 h-48 rounded-xl bg-white border border-slate-200 p-4 flex items-center justify-center mb-5 shadow-sm">
+            <!-- Crisp SVG QR Code pointing to /qr -->
             <svg class="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="currentColor">
               <!-- Corner TL -->
-              <rect x="10" y="10" width="24" height="24" rx="3" fill="#1e293b"/>
+              <rect x="10" y="10" width="24" height="24" rx="3" fill="#0f172a"/>
               <rect x="15" y="15" width="14" height="14" fill="#ffffff"/>
-              <rect x="19" y="19" width="6" height="6" fill="#1e293b"/>
+              <rect x="19" y="19" width="6" height="6" fill="#0f172a"/>
               <!-- Corner TR -->
-              <rect x="66" y="10" width="24" height="24" rx="3" fill="#1e293b"/>
+              <rect x="66" y="10" width="24" height="24" rx="3" fill="#0f172a"/>
               <rect x="71" y="15" width="14" height="14" fill="#ffffff"/>
-              <rect x="75" y="19" width="6" height="6" fill="#1e293b"/>
+              <rect x="75" y="19" width="6" height="6" fill="#0f172a"/>
               <!-- Corner BL -->
-              <rect x="10" y="66" width="24" height="24" rx="3" fill="#1e293b"/>
+              <rect x="10" y="66" width="24" height="24" rx="3" fill="#0f172a"/>
               <rect x="15" y="71" width="14" height="14" fill="#ffffff"/>
-              <rect x="19" y="75" width="6" height="6" fill="#1e293b"/>
+              <rect x="19" y="75" width="6" height="6" fill="#0f172a"/>
               <!-- Data Dots -->
               <rect x="42" y="14" width="6" height="6" rx="1" fill="#4f46e5"/>
-              <rect x="52" y="14" width="6" height="6" rx="1" fill="#1e293b"/>
-              <rect x="42" y="24" width="6" height="6" rx="1" fill="#1e293b"/>
+              <rect x="52" y="14" width="6" height="6" rx="1" fill="#0f172a"/>
+              <rect x="42" y="24" width="6" height="6" rx="1" fill="#0f172a"/>
               <rect x="52" y="28" width="6" height="6" rx="1" fill="#4f46e5"/>
               <rect x="42" y="44" width="8" height="8" rx="2" fill="#059669"/>
-              <rect x="54" y="44" width="6" height="6" rx="1" fill="#1e293b"/>
-              <rect x="14" y="44" width="6" height="6" rx="1" fill="#1e293b"/>
+              <rect x="54" y="44" width="6" height="6" rx="1" fill="#0f172a"/>
+              <rect x="14" y="44" width="6" height="6" rx="1" fill="#0f172a"/>
               <rect x="24" y="44" width="6" height="6" rx="1" fill="#4f46e5"/>
-              <rect x="70" y="44" width="6" height="6" rx="1" fill="#1e293b"/>
+              <rect x="70" y="44" width="6" height="6" rx="1" fill="#0f172a"/>
               <rect x="80" y="44" width="6" height="6" rx="1" fill="#4f46e5"/>
-              <rect x="42" y="66" width="6" height="6" rx="1" fill="#1e293b"/>
+              <rect x="42" y="66" width="6" height="6" rx="1" fill="#0f172a"/>
               <rect x="52" y="66" width="6" height="6" rx="1" fill="#4f46e5"/>
               <rect x="42" y="78" width="6" height="6" rx="1" fill="#4f46e5"/>
-              <rect x="52" y="78" width="6" height="6" rx="1" fill="#1e293b"/>
-              <rect x="70" y="70" width="8" height="8" rx="2" fill="#1e293b"/>
+              <rect x="52" y="78" width="6" height="6" rx="1" fill="#0f172a"/>
+              <rect x="70" y="70" width="8" height="8" rx="2" fill="#0f172a"/>
               <rect x="82" y="78" width="6" height="6" rx="1" fill="#059669"/>
             </svg>
           </div>
           <div class="text-center">
-            <span class="text-xs font-black text-slate-800 block">Суроғаи расмии QR барои визиткаҳо:</span>
-            <code class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded border border-indigo-200 block mt-1">
+            <span class="text-sm font-black text-slate-900 block">Суроғаи расмии QR барои визиткаҳо:</span>
+            <code class="text-sm font-bold text-indigo-700 bg-white px-3 py-1.5 rounded-md border border-indigo-200 block mt-2 shadow-sm">
               http://37.27.245.216:8080/qr
             </code>
-            <p class="text-[11px] text-slate-500 mt-1">Ҳар касе ин рамзро бо камера скан кунад, барнома бевосита боргирӣ мешавад.</p>
+            <p class="text-xs text-slate-500 mt-2 font-medium">Ҳар касе ин рамзро бо камера скан кунад, барнома бевосита боргирӣ мешавад.</p>
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="/qr" class="w-full sm:w-auto neu-btn-primary font-extrabold text-base px-8 py-4 flex items-center justify-center gap-3">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
+          <a href="/qr" class="w-full sm:w-auto btn-gradient font-extrabold text-base sm:text-lg px-9 py-4 flex items-center justify-center gap-3 rounded-lg">
             <i class="fa-brands fa-android text-2xl"></i>
             <span>Боргирии расмии APK (48 MB)</span>
           </a>
 
-          <a href="/mobile" class="w-full sm:w-auto neu-raised text-slate-800 font-extrabold text-base px-7 py-4 flex items-center justify-center gap-2.5">
-            <i class="fa-solid fa-mobile-screen text-indigo-600"></i>
+          <a href="/mobile" class="w-full sm:w-auto btn-white text-slate-900 font-extrabold text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-lg">
+            <i class="fa-solid fa-mobile-screen text-indigo-600 text-xl"></i>
             <span>Истифодаи Веб-барнома (PWA)</span>
           </a>
         </div>
 
-        <div class="flex items-center justify-center gap-6 mt-8 text-xs text-slate-500 font-semibold flex-wrap">
-          <span><i class="fa-solid fa-code-fork mr-1 text-emerald-600"></i> Ҳамаи моделҳои Android</span>
-          <span><i class="fa-solid fa-shield-check mr-1 text-emerald-600"></i> 100% Амн ва тасдиқшуда</span>
-          <span><i class="fa-solid fa-bolt mr-1 text-emerald-600"></i> Офлайн кор мекунад</span>
+        <div class="flex items-center justify-center gap-8 mt-10 text-xs sm:text-sm text-slate-500 font-semibold flex-wrap">
+          <span><i class="fa-solid fa-code-fork mr-1.5 text-emerald-600"></i> Ҳамаи моделҳои Android</span>
+          <span><i class="fa-solid fa-shield-check mr-1.5 text-emerald-600"></i> 100% Амн ва тасдиқшуда</span>
+          <span><i class="fa-solid fa-bolt mr-1.5 text-emerald-600"></i> Офлайн кор мекунад</span>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="mt-auto border-t border-[#d1d5db] py-8 bg-[#e0e0e0]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl neu-raised flex items-center justify-center p-1">
-          <img src="/static/images/nigoh_logo.svg" alt="Нигоҳ" class="w-full h-full object-contain">
+  <!-- BIG MEGA FOOTER -->
+  <footer class="mt-auto bg-white border-t border-slate-200 pt-16 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Top Grid: 4 Columns -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-14 border-b border-slate-200">
+        
+        <!-- Column 1: Brand & Status (4 cols) -->
+        <div class="lg:col-span-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-3.5 mb-4">
+              <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-1.5 shadow-sm">
+                <img src="/static/images/nigoh_logo.svg" alt="Нигоҳ" class="w-full h-full object-contain">
+              </div>
+              <div class="flex flex-col">
+                <span class="font-black text-xl text-slate-900 tracking-tight">НИГОҲ FAMILY</span>
+                <span class="text-xs text-slate-500 font-semibold">Назорати Оқилонаи Оилавӣ</span>
+              </div>
+            </div>
+            
+            <p class="text-sm text-slate-600 leading-relaxed font-medium mb-6">
+              Аввалин платформаи мукаммали назорати оқилона ва ҳифзи амнияти оила дар Тоҷикистон. Бо дастгирии 100% кори офлайн, интернети бехатар ва оромии комили волидайн.
+            </p>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-800 text-xs font-extrabold shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Серверҳои расмӣ 100% фаъоланд</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+              <i class="fa-solid fa-shield-halved text-indigo-600"></i>
+              <span>Ҳифзи пурраи маълумот ва бидуни сабти махфӣ</span>
+            </div>
+          </div>
         </div>
-        <span class="font-extrabold text-slate-800">НИГОҲ FAMILY</span>
-        <span>— Ҳамаи ҳуқуқҳо маҳфузанд © 2026</span>
+
+        <!-- Column 2: Имкониятҳо (3 cols) -->
+        <div class="lg:col-span-3">
+          <h4 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-5">
+            Имкониятҳо
+          </h4>
+          <ul class="space-y-3 text-sm text-slate-600 font-medium">
+            <li>
+              <a href="#features" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                <span>Бастани TikTok ва Instagram</span>
+              </a>
+            </li>
+            <li>
+              <a href="#features" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                <span>Маҳдудияти бозиҳои PUBG ва Roblox</span>
+              </a>
+            </li>
+            <li>
+              <a href="#features" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                <span>Интернети Бехатар (Safe Web)</span>
+              </a>
+            </li>
+            <li>
+              <a href="#features" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                <span>Назорати зиндаи GPS макон</span>
+              </a>
+            </li>
+            <li>
+              <a href="#features" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                <span>100% Кори Офлайн (Бе интернет)</span>
+              </a>
+            </li>
+            <li>
+              <a href="#features" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                <span>Пайвастшавӣ бо рамзи QR</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Барнома ва Боргирӣ (3 cols) -->
+        <div class="lg:col-span-3">
+          <h4 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-5">
+            Барнома ва Боргирӣ
+          </h4>
+          <ul class="space-y-3 text-sm text-slate-600 font-medium">
+            <li>
+              <a href="/download/android" class="text-emerald-700 font-bold hover:underline transition flex items-center gap-2">
+                <i class="fa-brands fa-android text-base"></i>
+                <span>Боргирии расмии APK</span>
+              </a>
+            </li>
+            <li>
+              <a href="/qr" class="text-indigo-600 font-bold hover:underline transition flex items-center gap-2">
+                <i class="fa-solid fa-qrcode text-sm"></i>
+                <span>Силкаи визиткаҳо (/qr)</span>
+              </a>
+            </li>
+            <li>
+              <a href="/mobile" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-mobile-screen text-slate-400 text-xs"></i>
+                <span>Версияи Мобилӣ (PWA)</span>
+              </a>
+            </li>
+            <li>
+              <a href="/auth" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-brands fa-google text-slate-400 text-xs"></i>
+                <span>Вуруд бо ҳисоби Google</span>
+              </a>
+            </li>
+            <li>
+              <a href="#how-it-works" class="hover:text-indigo-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-slate-400 text-xs"></i>
+                <span>Тарзи кор дар 4 қадам</span>
+              </a>
+            </li>
+            <li>
+              <span class="text-xs text-slate-400 flex items-center gap-1.5 pt-1">
+                <i class="fa-solid fa-check text-emerald-500"></i>
+                <span>Android 7.0 — 16+ дастгирӣ мешавад</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Маълумот (2 cols) -->
+        <div class="lg:col-span-2">
+          <h4 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-5">
+            Маълумот
+          </h4>
+          <ul class="space-y-3 text-sm text-slate-600 font-medium">
+            <li>
+              <a href="#about" class="hover:text-indigo-600 transition">Дар бораи лоиҳа</a>
+            </li>
+            <li>
+              <a href="#reviews" class="hover:text-indigo-600 transition">Отзывҳои волидайн</a>
+            </li>
+            <li>
+              <a href="/auth" class="hover:text-indigo-600 transition">Амният ва Махфият</a>
+            </li>
+            <li>
+              <span class="text-xs text-slate-400 block pt-2">
+                Ҷумҳурии Тоҷикистон,<br>
+                ш. Душанбе
+              </span>
+            </li>
+          </ul>
+        </div>
+
       </div>
-      <div class="flex items-center gap-6">
-        <a href="#features" class="hover:text-indigo-600 transition">Имкониятҳо</a>
-        <a href="#how-it-works" class="hover:text-indigo-600 transition">Тарзи кор</a>
-        <a href="#reviews" class="hover:text-indigo-600 transition">Отзывҳо</a>
-        <a href="/mobile" class="text-indigo-600 font-bold hover:underline transition">Версияи Мобилӣ</a>
-        <a href="/qr" class="text-emerald-700 font-bold hover:underline transition">Боргирии APK (/qr)</a>
+
+      <!-- Bottom Copyright -->
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-semibold">
+        <div class="flex items-center gap-2">
+          <span>© 2026 НИГОҲ Family. Ҳамаи ҳуқуқҳо маҳфузанд.</span>
+        </div>
+        <div class="flex items-center gap-6">
+          <span>Сохта шудааст бо сифати баланд барои оилаҳо</span>
+          <a href="/qr" class="text-indigo-600 font-bold hover:underline">/qr</a>
+        </div>
       </div>
+
     </div>
   </footer>
 

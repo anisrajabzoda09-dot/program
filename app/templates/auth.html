@@ -15,81 +15,61 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
-    :root {
-      --bg: #e0e0e0;
-      --shadow-light: #ffffff;
-      --shadow-dark: #bebebe;
-      --primary: #4f46e5;
+    * {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg);
-      color: #1e293b;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
     
-    /* Authentic neumorphism.io/#e0e0e0 shadows */
-    .neu-card {
-      background: #e0e0e0;
-      border-radius: 30px;
-      box-shadow: 14px 14px 28px var(--shadow-dark), -14px -14px 28px var(--shadow-light);
+    .white-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
     }
-    .neu-raised {
-      background: #e0e0e0;
-      border-radius: 16px;
-      box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    .white-input {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
       transition: all 0.2s ease;
     }
-    .neu-raised:hover {
-      box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    .white-input:focus-within {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
     }
-    .neu-raised:active {
-      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-    }
-    .neu-inset {
-      background: #e0e0e0;
-      border-radius: 16px;
-      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-      transition: all 0.2s ease;
-    }
-    .neu-inset:focus-within {
-      box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
-    }
-    .neu-tab-active {
-      background: #e0e0e0;
-      box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-      color: var(--primary);
-    }
-    .neu-btn-primary {
-      background: linear-gradient(145deg, #544bf7, #473fd0);
+    .btn-primary {
+      background: #4f46e5;
       color: #ffffff;
-      border-radius: 16px;
-      box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.3);
       transition: all 0.2s ease;
     }
-    .neu-btn-primary:hover {
-      background: linear-gradient(145deg, #5b53ff, #433bc3);
-      box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    .btn-primary:hover {
+      background: #4338ca;
+      box-shadow: 0 6px 18px -2px rgba(79, 70, 229, 0.4);
+      transform: translateY(-1px);
     }
-    .neu-btn-primary:active {
-      box-shadow: inset 3px 3px 6px #3b35a8, inset -3px -3px 6px #675eff;
-      transform: scale(0.99);
+    .btn-primary:active {
+      transform: translateY(0);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-center items-center p-4 selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col justify-center items-center p-4 selection:bg-indigo-600 selection:text-white">
 
   <!-- Main Container -->
-  <div class="w-full max-w-[430px] my-auto py-6">
+  <div class="w-full max-w-[420px] my-auto py-6">
     
-    <!-- Neumorphic Logo & Brand Header -->
-    <div class="text-center mb-7">
+    <!-- Brand Header -->
+    <div class="text-center mb-6">
       <a href="/" class="inline-flex flex-col items-center group">
-        <!-- Tactile Logo Badge -->
-        <div class="w-20 h-20 rounded-3xl neu-raised flex items-center justify-center p-2 mb-3 group-hover:scale-105 transition-transform">
+        <!-- Logo Badge -->
+        <div class="w-20 h-20 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center p-2 mb-3 group-hover:scale-105 transition-transform">
           <img src="/static/images/nigoh_logo.svg" alt="Нигоҳ Family" class="w-full h-full object-contain">
         </div>
         <div class="flex items-center gap-2">
-          <h1 class="text-2xl font-black tracking-tight text-slate-800">
+          <h1 class="text-2xl font-black tracking-tight text-slate-900">
             НИГОҲ <span class="text-indigo-600 font-extrabold">FAMILY</span>
           </h1>
         </div>
@@ -99,11 +79,11 @@
       </p>
     </div>
 
-    <!-- Main Neumorphic Card (#e0e0e0) -->
-    <div class="neu-card p-7 sm:p-8">
+    <!-- Main White Card -->
+    <div class="white-card p-6 sm:p-8">
       
-      <!-- Tactile Google Sign-In Button -->
-      <button type="button" id="googleSignInBtn" class="w-full neu-raised py-3.5 px-4 flex items-center justify-center gap-3 text-slate-700 font-bold text-sm mb-6 border-none cursor-pointer">
+      <!-- Google Sign-In Button -->
+      <button type="button" id="googleSignInBtn" class="w-full bg-white hover:bg-slate-50 border border-slate-300 py-3.5 px-4 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-bold text-sm mb-6 shadow-sm transition cursor-pointer">
         <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
           <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
@@ -113,93 +93,77 @@
         <span>Воридшавӣ тавассути Google</span>
       </button>
 
-      <!-- Soft Neumorphic Inset Divider -->
+      <!-- Divider -->
       <div class="flex items-center gap-3 my-6">
-        <div class="h-[2px] flex-1 neu-inset"></div>
-        <span class="text-slate-500 text-[11px] uppercase tracking-wider font-bold">ё бо почтаи электронӣ</span>
-        <div class="h-[2px] flex-1 neu-inset"></div>
+        <div class="h-px flex-1 bg-slate-200"></div>
+        <span class="text-slate-400 text-[11px] uppercase tracking-wider font-bold">ё бо почтаи электронӣ</span>
+        <div class="h-px flex-1 bg-slate-200"></div>
       </div>
 
-      <!-- Neumorphic Segmented Tab Switcher -->
-      <div class="neu-inset p-1.5 rounded-2xl flex items-center mb-6">
-        <button type="button" id="tabRegister" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 neu-tab-active">
+      <!-- Tab Switcher -->
+      <div class="bg-slate-100 p-1 rounded-lg flex mb-6">
+        <button id="tabRegister" class="flex-1 py-2 rounded-md text-xs font-bold transition duration-200 bg-white shadow-sm text-indigo-600">
           Бақайдгирӣ
         </button>
-        <button type="button" id="tabLogin" class="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-500 hover:text-slate-800">
+        <button id="tabLogin" class="flex-1 py-2 rounded-md text-xs font-bold transition duration-200 text-slate-500 hover:text-slate-900">
           Воридшавӣ
         </button>
       </div>
 
-      <!-- Alert Notification Box -->
-      <div id="alertBox" class="hidden mb-5 p-3.5 rounded-2xl text-xs font-semibold flex items-center gap-2.5 neu-inset"></div>
+      <!-- Alert Message Box -->
+      <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium border"></div>
 
-      <!-- FORM 1: REGISTRATION -->
+      <!-- REGISTER FORM -->
       <form id="registerForm" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-            Ному насаб
-          </label>
-          <div class="neu-inset px-3.5 py-2.5 rounded-2xl flex items-center gap-2.5">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Ному насаб</label>
+          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
             <i class="fa-solid fa-user text-slate-400 text-xs"></i>
-            <input type="text" id="regName" required placeholder="Масалан: Ҷамшед Сафаров" class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none">
+            <input type="text" id="regName" required placeholder="Муҳаммадҷон Раҳимов" class="w-full bg-transparent text-sm text-slate-900 outline-none">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-            Почтаи электронӣ (Email)
-          </label>
-          <div class="neu-inset px-3.5 py-2.5 rounded-2xl flex items-center gap-2.5">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Почтаи электронӣ (Email)</label>
+          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
             <i class="fa-solid fa-envelope text-slate-400 text-xs"></i>
-            <input type="email" id="regEmail" required placeholder="nom@example.com" class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none">
+            <input type="email" id="regEmail" required placeholder="example@mail.tj" class="w-full bg-transparent text-sm text-slate-900 outline-none">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-            Парол
-          </label>
-          <div class="neu-inset px-3.5 py-2.5 rounded-2xl flex items-center gap-2.5">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Парол</label>
+          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
             <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
-            <input type="password" id="regPassword" required placeholder="Ҳадди ақал 6 рамз" minlength="6" class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none">
-            <button type="button" onclick="togglePass('regPassword', this)" class="text-slate-400 hover:text-slate-600 p-1 text-xs">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <input type="password" id="regPassword" required placeholder="Ҳадди ақал 6 рамз" minlength="6" class="w-full bg-transparent text-sm text-slate-900 outline-none">
           </div>
         </div>
 
-        <button type="submit" id="regSubmitBtn" class="w-full neu-btn-primary font-bold py-3.5 px-4 flex items-center justify-center gap-2 mt-4 text-sm">
-          <span>Сабти ном ва насби барнома</span>
+        <button type="submit" id="regSubmitBtn" class="w-full btn-primary font-bold py-3.5 px-4 flex items-center justify-center gap-2 mt-4 text-sm">
+          <span>Сабти ном кардан</span>
           <i class="fa-solid fa-arrow-right text-xs"></i>
         </button>
       </form>
 
-      <!-- FORM 2: LOGIN -->
-      <form id="loginForm" class="hidden space-y-4">
+      <!-- LOGIN FORM -->
+      <form id="loginForm" class="space-y-4 hidden">
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-            Почтаи электронӣ (Email)
-          </label>
-          <div class="neu-inset px-3.5 py-2.5 rounded-2xl flex items-center gap-2.5">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Почтаи электронӣ (Email)</label>
+          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
             <i class="fa-solid fa-envelope text-slate-400 text-xs"></i>
-            <input type="email" id="logEmail" required placeholder="nom@example.com" class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none">
+            <input type="email" id="logEmail" required placeholder="example@mail.tj" class="w-full bg-transparent text-sm text-slate-900 outline-none">
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-            Парол
-          </label>
-          <div class="neu-inset px-3.5 py-2.5 rounded-2xl flex items-center gap-2.5">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Парол</label>
+          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
             <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
-            <input type="password" id="logPassword" required placeholder="Пароли худро нависед" class="w-full bg-transparent text-sm text-slate-800 placeholder-slate-400 outline-none">
-            <button type="button" onclick="togglePass('logPassword', this)" class="text-slate-400 hover:text-slate-600 p-1 text-xs">
-              <i class="fa-solid fa-eye"></i>
-            </button>
+            <input type="password" id="logPassword" required placeholder="Пароли шумо" class="w-full bg-transparent text-sm text-slate-900 outline-none">
           </div>
         </div>
 
-        <button type="submit" id="logSubmitBtn" class="w-full neu-btn-primary font-bold py-3.5 px-4 flex items-center justify-center gap-2 mt-4 text-sm">
+        <button type="submit" id="logSubmitBtn" class="w-full btn-primary font-bold py-3.5 px-4 flex items-center justify-center gap-2 mt-4 text-sm">
           <span>Ворид шудан ба система</span>
           <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
         </button>
@@ -207,26 +171,27 @@
 
     </div>
 
-    <!-- Soft Neumorphic Navigation Footers -->
+    <!-- Navigation Footers -->
     <div class="flex items-center justify-between text-xs text-slate-500 mt-6 px-3 font-semibold">
       <a href="/" class="hover:text-indigo-600 transition flex items-center gap-1.5">
         <i class="fa-solid fa-arrow-left"></i>
         <span>Саҳифаи асосӣ</span>
       </a>
       <a href="/mobile" class="hover:text-indigo-600 transition flex items-center gap-1.5">
-        <span>📲 Барномаи мобилӣ</span>
+        <i class="fa-solid fa-mobile-screen"></i>
+        <span>Барномаи мобилӣ</span>
         <i class="fa-solid fa-arrow-right"></i>
       </a>
     </div>
 
   </div>
 
-  <!-- NEUMORPHIC GOOGLE ACCOUNT CHOOSER MODAL -->
+  <!-- GOOGLE ACCOUNT CHOOSER MODAL -->
   <div id="googleAccountModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-    <div class="neu-card p-6 sm:p-7 max-w-sm w-full animate-in fade-in zoom-in duration-200">
+    <div class="white-card p-6 sm:p-7 max-w-sm w-full animate-in fade-in zoom-in duration-200">
       
       <!-- Google Modal Header -->
-      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-300/60">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200">
         <div class="flex items-center gap-2.5">
           <svg class="w-6 h-6" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
@@ -235,11 +200,11 @@
             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
           </svg>
           <div>
-            <h4 class="font-bold text-sm text-slate-800 leading-tight">Интихоби ҳисоб</h4>
+            <h4 class="font-bold text-sm text-slate-900 leading-tight">Интихоби ҳисоб</h4>
             <p class="text-[11px] text-slate-500">барои воридшавӣ ба «Нигоҳ Family»</p>
           </div>
         </div>
-        <button onclick="closeGoogleModal()" class="w-8 h-8 rounded-full neu-raised flex items-center justify-center text-slate-500 hover:text-slate-800">
+        <button onclick="closeGoogleModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800">
           <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
@@ -247,24 +212,24 @@
       <!-- Account List -->
       <div class="py-2 space-y-3">
         <!-- Account 1 -->
-        <button onclick="executeGoogleAuth('Далер Қодиров', 'daler.qodirov@gmail.com', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80')" class="w-full text-left p-3 rounded-2xl neu-raised flex items-center gap-3 transition cursor-pointer">
+        <button onclick="executeGoogleAuth('Далер Қодиров', 'daler.qodirov@gmail.com', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80')" class="w-full text-left p-3 rounded-lg bg-slate-50 hover:bg-indigo-50/60 border border-slate-200 flex items-center gap-3 transition cursor-pointer">
           <div class="w-9 h-9 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow">
             ДҚ
           </div>
           <div class="flex-1 min-w-0">
-            <h5 class="text-xs font-bold text-slate-800 truncate">Далер Қодиров</h5>
+            <h5 class="text-xs font-bold text-slate-900 truncate">Далер Қодиров</h5>
             <p class="text-[11px] text-slate-500 truncate">daler.qodirov@gmail.com</p>
           </div>
           <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
         </button>
 
         <!-- Account 2 -->
-        <button onclick="executeGoogleAuth('Анис Раҷабзода', 'anis.rajabzoda@gmail.com', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80')" class="w-full text-left p-3 rounded-2xl neu-raised flex items-center gap-3 transition cursor-pointer">
+        <button onclick="executeGoogleAuth('Анис Раҷабзода', 'anis.rajabzoda@gmail.com', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80')" class="w-full text-left p-3 rounded-lg bg-slate-50 hover:bg-emerald-50/60 border border-slate-200 flex items-center gap-3 transition cursor-pointer">
           <div class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow">
             АР
           </div>
           <div class="flex-1 min-w-0">
-            <h5 class="text-xs font-bold text-slate-800 truncate">Анис Раҷабзода</h5>
+            <h5 class="text-xs font-bold text-slate-900 truncate">Анис Раҷабзода</h5>
             <p class="text-[11px] text-slate-500 truncate">anis.rajabzoda@gmail.com</p>
           </div>
           <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
@@ -274,13 +239,13 @@
         <div class="pt-2">
           <p class="text-[11px] font-bold text-slate-600 mb-2">Ё почтаи Google-и худро нависед:</p>
           <div class="space-y-2">
-            <div class="neu-inset px-3 py-2 rounded-xl">
-              <input type="text" id="customGoogleName" placeholder="Номи шумо" class="w-full bg-transparent text-xs text-slate-800 outline-none">
+            <div class="white-input px-3 py-2">
+              <input type="text" id="customGoogleName" placeholder="Номи шумо" class="w-full bg-transparent text-xs text-slate-900 outline-none">
             </div>
-            <div class="neu-inset px-3 py-2 rounded-xl">
-              <input type="email" id="customGoogleEmail" placeholder="your.email@gmail.com" class="w-full bg-transparent text-xs text-slate-800 outline-none">
+            <div class="white-input px-3 py-2">
+              <input type="email" id="customGoogleEmail" placeholder="your.email@gmail.com" class="w-full bg-transparent text-xs text-slate-900 outline-none">
             </div>
-            <button onclick="submitCustomGoogle()" class="w-full neu-btn-primary text-xs font-bold py-2.5 rounded-xl cursor-pointer">
+            <button onclick="submitCustomGoogle()" class="w-full btn-primary text-xs font-bold py-2.5 rounded-lg cursor-pointer">
               Воридшавӣ бо ин аккаунт ➔
             </button>
           </div>
@@ -298,63 +263,58 @@
     const loginForm = document.getElementById('loginForm');
     const alertBox = document.getElementById('alertBox');
     const googleSignInBtn = document.getElementById('googleSignInBtn');
+    const googleAccountModal = document.getElementById('googleAccountModal');
 
-    function showAlert(msg, isError = true) {
-      alertBox.classList.remove('hidden');
-      if (isError) {
-        alertBox.style.color = '#dc2626';
-        alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation text-sm"></i> <span>${msg}</span>`;
-      } else {
-        alertBox.style.color = '#16a34a';
-        alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-sm"></i> <span>${msg}</span>`;
-      }
-    }
-
+    // Switch Tabs
     tabRegister.addEventListener('click', () => {
-      tabRegister.classList.add('neu-tab-active');
-      tabRegister.classList.remove('text-slate-500');
-      tabLogin.classList.remove('neu-tab-active');
-      tabLogin.classList.add('text-slate-500');
+      tabRegister.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition duration-200 bg-white shadow-sm text-indigo-600';
+      tabLogin.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition duration-200 text-slate-500 hover:text-slate-900';
       registerForm.classList.remove('hidden');
       loginForm.classList.add('hidden');
-      alertBox.classList.add('hidden');
+      hideAlert();
     });
 
     tabLogin.addEventListener('click', () => {
-      tabLogin.classList.add('neu-tab-active');
-      tabLogin.classList.remove('text-slate-500');
-      tabRegister.classList.remove('neu-tab-active');
-      tabRegister.classList.add('text-slate-500');
+      tabLogin.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition duration-200 bg-white shadow-sm text-indigo-600';
+      tabRegister.className = 'flex-1 py-2 rounded-xl text-xs font-bold transition duration-200 text-slate-500 hover:text-slate-900';
       loginForm.classList.remove('hidden');
       registerForm.classList.add('hidden');
-      alertBox.classList.add('hidden');
+      hideAlert();
     });
 
-    // Password visibility toggle
-    function togglePass(inputId, btn) {
-      const input = document.getElementById(inputId);
-      const icon = btn.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'fa-solid fa-eye-slash';
-      } else {
-        input.type = 'password';
-        icon.className = 'fa-solid fa-eye';
-      }
+    function showAlert(msg, isError = false) {
+      alertBox.textContent = msg;
+      alertBox.className = `mb-4 p-3 rounded-xl text-xs font-medium border ${
+        isError 
+          ? 'bg-rose-50 text-rose-700 border-rose-200' 
+          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      }`;
+      alertBox.classList.remove('hidden');
+    }
+
+    function hideAlert() {
+      alertBox.classList.add('hidden');
     }
 
     // Google Modal Controls
     googleSignInBtn.addEventListener('click', () => {
-      document.getElementById('googleAccountModal').classList.remove('hidden');
+      googleAccountModal.classList.remove('hidden');
     });
 
     function closeGoogleModal() {
-      document.getElementById('googleAccountModal').classList.add('hidden');
+      googleAccountModal.classList.add('hidden');
     }
 
+    window.addEventListener('click', (e) => {
+      if (e.target === googleAccountModal) {
+        closeGoogleModal();
+      }
+    });
+
+    // Execute Google Authentication
     async function executeGoogleAuth(fullName, email, avatar) {
       closeGoogleModal();
-      showAlert('Ҳисоби Google санҷида шуда истодааст...', false);
+      showAlert("Дар ҳоли пайвастшавӣ бо Google...", false);
       try {
         const res = await fetch('/api/auth/google', {
           method: 'POST',
@@ -362,20 +322,20 @@
           body: JSON.stringify({
             full_name: fullName,
             email: email,
-            avatar: avatar || 'https://lh3.googleusercontent.com/a/default-user'
+            avatar: avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'
           })
         });
         const data = await res.json();
-        if (res.ok) {
-          showAlert(`Хуш омадед, ${fullName}! Воридшавӣ тасдиқ шуд. Гузариш...`, false);
+        if (res.ok && data.status === 'success') {
+          showAlert("Бомуваффақият ворид шудед! Ба бахши насб гузашта истодаед...", false);
           setTimeout(() => {
             window.location.href = data.redirect || '/#download';
           }, 600);
         } else {
-          showAlert(data.detail || 'Хатогӣ дар воридшавӣ бо Google');
+          showAlert(data.detail || "Хатогӣ ҳангоми воридшавӣ бо Google", true);
         }
       } catch (err) {
-        showAlert('Хатогии шабака рух дод. Лутфан дубора санҷед.');
+        showAlert("Хатогии шабака. Лутфан дубора санҷед.", true);
       }
     }
 
@@ -383,62 +343,79 @@
       const name = document.getElementById('customGoogleName').value.trim() || 'Корбари Google';
       const email = document.getElementById('customGoogleEmail').value.trim();
       if (!email || !email.includes('@')) {
-        alert('Лутфан суроғаи дурусти почтаи Google-ро ворид кунед!');
+        alert("Лутфан почтаи дурусти электронӣ нависед");
         return;
       }
-      executeGoogleAuth(name, email, 'https://lh3.googleusercontent.com/a/default-user');
+      executeGoogleAuth(name, email, 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100');
     }
 
-    // Register Submit
+    // Form Submissions
     registerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const full_name = document.getElementById('regName').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const password = document.getElementById('regPassword').value;
+      const btn = document.getElementById('regSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Интизор шавед...</span>';
+      hideAlert();
 
       try {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ full_name, email, password })
+          body: JSON.stringify({
+            full_name: document.getElementById('regName').value,
+            email: document.getElementById('regEmail').value,
+            password: document.getElementById('regPassword').value
+          })
         });
         const data = await res.json();
-        if (res.ok) {
-          showAlert('Бақайдгирӣ бомуваффақият анҷом ёфт! Гузариш...', false);
+        if (res.ok && data.status === 'success') {
+          showAlert("Шумо бомуваффақият сабти ном шудед! Ба сомона гузашта истодаед...", false);
           setTimeout(() => {
             window.location.href = data.redirect || '/#download';
-          }, 600);
+          }, 800);
         } else {
-          showAlert(data.detail || 'Хатогӣ ҳангоми бақайдгирӣ');
+          showAlert(data.detail || "Хатогӣ ҳангоми сабти ном", true);
+          btn.disabled = false;
+          btn.innerHTML = '<span>Сабти ном кардан</span><i class="fa-solid fa-arrow-right text-xs"></i>';
         }
       } catch (err) {
-        showAlert('Хатогии шабака рух дод');
+        showAlert("Хатогии пайвастшавӣ ба сервер", true);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Сабти ном кардан</span><i class="fa-solid fa-arrow-right text-xs"></i>';
       }
     });
 
-    // Login Submit
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('logEmail').value.trim();
-      const password = document.getElementById('logPassword').value;
+      const btn = document.getElementById('logSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Интизор шавед...</span>';
+      hideAlert();
 
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({
+            email: document.getElementById('logEmail').value,
+            password: document.getElementById('logPassword').value
+          })
         });
         const data = await res.json();
-        if (res.ok) {
-          showAlert('Хуш омадед! Ворид шудед. Гузариш...', false);
+        if (res.ok && data.status === 'success') {
+          showAlert("Хуш омадед! Ворид шуда истодаед...", false);
           setTimeout(() => {
             window.location.href = data.redirect || '/#download';
-          }, 600);
+          }, 800);
         } else {
-          showAlert(data.detail || 'Почта ё парол нодуруст аст');
+          showAlert(data.detail || "Почта ё пароли нодуруст", true);
+          btn.disabled = false;
+          btn.innerHTML = '<span>Ворид шудан ба система</span><i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>';
         }
       } catch (err) {
-        showAlert('Хатогии шабака рух дод');
+        showAlert("Хатогии пайвастшавӣ ба сервер", true);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Ворид шудан ба система</span><i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>';
       }
     });
   </script>

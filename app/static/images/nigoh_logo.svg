@@ -1,55 +1,87 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Neumorphic Drop Shadow Filters -->
-    <filter id="neu-raised" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="4" dy="4" stdDeviation="5" flood-color="#bebebe" flood-opacity="0.9"/>
-      <feDropShadow dx="-4" dy="-4" stdDeviation="5" flood-color="#ffffff" flood-opacity="1"/>
-    </filter>
-    
-    <filter id="neu-inset" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
-      <feOffset dx="3" dy="3"/>
-      <feGaussianBlur stdDeviation="3" result="offset-blur"/>
-      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
-      <feFlood flood-color="#bebebe" flood-opacity="0.8" result="color"/>
-      <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
-      <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+    <!-- Background Glow -->
+    <filter id="shieldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#3b82f6" flood-opacity="0.25"/>
     </filter>
 
-    <!-- Vibrant Modern Gradients -->
-    <linearGradient id="shieldGrad" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#4f46e5"/>
-      <stop offset="50%" stop-color="#3b82f6"/>
-      <stop offset="100%" stop-color="#10b981"/>
+    <filter id="innerDepth" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+
+    <!-- Royal Shield Gradients -->
+    <linearGradient id="shieldBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
     </linearGradient>
 
-    <linearGradient id="innerEyeGrad" x1="45" y1="45" x2="75" y2="75" gradientUnits="userSpaceOnUse">
+    <linearGradient id="shieldBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="45%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#090d1f"/>
+    </linearGradient>
+
+    <!-- Monogram N Gradients -->
+    <linearGradient id="nLeftCol" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+
+    <linearGradient id="nCenterSlash" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#e0e7ff"/>
+      <stop offset="30%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <linearGradient id="nRightCol" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+
+    <linearGradient id="goldStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#ffffff"/>
     </linearGradient>
   </defs>
 
-  <!-- Neumorphic Base Extruded Circle/Squircle (#e0e0e0) -->
-  <rect x="10" y="10" width="100" height="100" rx="30" fill="#e0e0e0" filter="url(#neu-raised)"/>
+  <!-- Clean Crisp Base Container -->
+  <rect x="28" y="28" width="456" height="456" rx="32" fill="#ffffff" stroke="#e2e8f0" stroke-width="3" filter="url(#shieldGlow)"/>
 
-  <!-- Outer Protective Shield Contour -->
-  <path d="M60 26C78 26 92 37 92 53C92 76 60 95 60 95C60 95 28 76 28 53C28 37 42 26 60 26Z" 
-        fill="url(#shieldGrad)" 
-        fill-opacity="0.12" 
-        stroke="url(#shieldGrad)" 
-        stroke-width="3.5" 
-        stroke-linejoin="round"/>
+  <!-- Outer Cyber Shield Rim -->
+  <path d="M 256, 60 C 372, 60 424, 108 424, 222 C 424, 334 330, 420 256, 452 C 182, 420 88, 334 88, 222 C 88, 108 140, 60 256, 60 Z" 
+        fill="url(#shieldBorderGrad)" opacity="0.95"/>
 
-  <!-- Central "Нигоҳ" Eye of Protection (Stylized Guardian Arc) -->
-  <path d="M38 56C44 46 52 41 60 41C68 41 76 46 82 56C76 66 68 71 60 71C52 71 44 66 38 56Z" 
-        fill="#e0e0e0" 
-        stroke="url(#shieldGrad)" 
-        stroke-width="3" 
-        stroke-linejoin="round"/>
+  <!-- Inner Protective Shield Core -->
+  <path d="M 256, 68 C 364, 68 414, 114 414, 222 C 414, 328 324, 410 256, 442 C 188, 410 98, 328 98, 222 C 98, 114 148, 68 256, 68 Z" 
+        fill="url(#shieldBodyGrad)"/>
 
-  <!-- Guardian Core Iris with Heart/Child Sparkle -->
-  <circle cx="60" cy="56" r="8.5" fill="url(#shieldGrad)"/>
-  <circle cx="62" cy="54" r="2.8" fill="#ffffff"/>
-  
-  <!-- Gentle protective child dot beneath -->
-  <circle cx="60" cy="79" r="3.2" fill="#10b981"/>
+  <!-- Shield Facet Accent Lines -->
+  <path d="M 256, 76 L 256, 436" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.12" stroke-dasharray="6,6"/>
+  <path d="M 120, 222 C 120, 316 200, 390 256, 420" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.25" fill="none"/>
+  <path d="M 392, 222 C 392, 316 312, 390 256, 420" stroke="#818cf8" stroke-width="2" stroke-opacity="0.25" fill="none"/>
+
+  <!-- HIGH-TECH EMBODIED LETTER 'N' (НИГОҲ) -->
+  <g filter="url(#innerDepth)">
+    <!-- Left Vertical Wing -->
+    <path d="M 162, 168 L 212, 168 L 212, 344 L 162, 316 Z" 
+          fill="url(#nLeftCol)" rx="4"/>
+
+    <!-- Right Vertical Wing -->
+    <path d="M 300, 196 L 350, 168 L 350, 344 L 300, 344 Z" 
+          fill="url(#nRightCol)" rx="4"/>
+
+    <!-- Dynamic Central Diagonal Blade of 'N' -->
+    <path d="M 162, 168 L 226, 168 L 350, 320 L 350, 344 L 286, 344 L 162, 192 Z" 
+          fill="url(#nCenterSlash)"/>
+  </g>
+
+  <!-- Vigilance Guardian Star / Apex Crest (Нигоҳ - Муҳофизати оилавӣ) -->
+  <g transform="translate(256, 118)">
+    <circle cx="0" cy="0" r="16" fill="#0284c7" opacity="0.4"/>
+    <circle cx="0" cy="0" r="11" fill="#ffffff" opacity="0.95"/>
+    <circle cx="0" cy="0" r="5" fill="#2563eb"/>
+    <!-- Radar ring pulse -->
+    <circle cx="0" cy="0" r="22" stroke="#38bdf8" stroke-width="1.5" fill="none" opacity="0.35" stroke-dasharray="3,3"/>
+  </g>
 </svg>
