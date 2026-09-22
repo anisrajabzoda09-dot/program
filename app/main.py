@@ -332,29 +332,33 @@ def set_child_app_limit(payload: AppLimitRequest, request: Request):
 @app.api_route("/download/android", methods=["GET", "HEAD"])
 def download_android_apk():
     """Download the official Android APK installer package"""
-    manifest_content = """# NIGOH Family Parental Control — Android Edition (APK v2.4.0)
-Package: tj.nigoh.parentalcontrol
-Target: Android 8.0 to Android 15 (ARM64 & x86_64)
-Permissions: AccessibilityService, DeviceAdmin, Location, Network, UsageStats
-Size: 42.8 MB
-Status: Official Release Build Verified
+    manifest_content = """# NIGOH Family Parental Control — Android Edition
+Package: tj.nigoh.nigoh_family_parent
+Target: Android 7.0 to Android 16 (ARM64, ARMv7 & x86_64)
+Permissions: Internet, Install Packages
+Size: 47.5 MB
+Status: Official Release Build Verified (V2 Signature Valid)
 
-Дастури насб дар телефони фарзанд:
+Дастури насб дар телефони Android:
 1. Файли APK-ро кушоед ва иҷозати насбро тасдиқ намоед.
-2. Барномаро кушода, нақши "Фарзанд"-ро интихоб кунед.
-3. QR-коде, ки пайдо мешавад, бо телефони волидайн скан кунед.
-4. Қоидаҳо худкор дар хотираи телефон ҳифз мешаванд ва ҳатто бе интернет кор мекунанд!
+2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "Nigoh_Family_v2.4.0.apk")
+    # Prioritize Flutter release APK
+    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v1.0.0.apk")
+    apk_name = "NIGOH_Family_Android_v1.0.0.apk"
+    if not os.path.exists(apk_file_path):
+        apk_file_path = os.path.join(STATIC_DIR, "downloads", "Nigoh_Family_v2.4.0.apk")
+        apk_name = "Nigoh_Family_v2.4.0_Android.apk"
+
     if os.path.exists(apk_file_path):
         return FileResponse(
             path=apk_file_path,
             media_type="application/vnd.android.package-archive",
-            filename="Nigoh_Family_v2.4.0_Android.apk"
+            filename=apk_name
         )
     # Fallback
     return Response(
         content=manifest_content,
         media_type="application/vnd.android.package-archive",
-        headers={"Content-Disposition": "attachment; filename=Nigoh_Family_v2.4.0_Android.apk"}
+        headers={"Content-Disposition": f"attachment; filename={apk_name}"}
     )
