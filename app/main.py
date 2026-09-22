@@ -216,7 +216,6 @@ def get_mobile_status(request: Request):
         messages = [dict(r) for r in cursor.fetchall()]
         
     conn.close()
-    return {"status": "success", "user": user, "child": child, "apps": apps}
     return {"status": "success", "user": user, "child": child, "apps": apps, "messages": messages}
 
 @app.post("/api/mobile/chat/send")
@@ -322,7 +321,12 @@ def set_child_app_limit(payload: AppLimitRequest, request: Request):
     return {"status": "success", "package_name": payload.package_name, "daily_limit_minutes": payload.daily_limit_minutes}
 
 # --- Android APK Download (Real APK Binary file) ---
+# --- Android APK Download (Real APK Binary file & Direct Links) ---
 
+@app.get("/apk")
+@app.get("/nigoh.apk")
+@app.get("/app.apk")
+@app.get("/download")
 @app.get("/download/android")
 def download_android_apk():
     """Download the official Android APK installer package"""

@@ -100,6 +100,15 @@ def run_tests():
         assert content_bytes[:2] == b'PK'
     print("   Боргирии APK санҷида шуд (OK)!")
 
+    print("9. Санҷиши пайванди мустақими прамой силка (GET /apk ва GET /nigoh.apk)...")
+    for direct_url in [f"{base}/apk", f"{base}/nigoh.apk"]:
+        req = urllib.request.Request(direct_url)
+        with urllib.request.urlopen(req) as resp:
+            assert resp.status == 200
+            assert "application/vnd.android.package-archive" in resp.headers.get("Content-Type")
+            assert resp.headers.get("Content-Disposition") is not None
+    print("   Пайвандҳои мустақим (/apk ва /nigoh.apk) автоматии APK медиҳанд (OK)!")
+
     print("\n=======================================================")
     print(" 🎉 ТАМОМИ САНҶИШҲОИ test_app.py БО МУВАФФАҚИЯТ ГУЗАШТАНД! (ALL PASSED)")
     print("=======================================================")
