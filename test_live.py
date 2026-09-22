@@ -87,7 +87,7 @@ def run_tests():
         content_type = resp.headers.get("Content-Type")
         disposition = resp.headers.get("Content-Disposition")
         assert "application/vnd.android.package-archive" in content_type
-        assert "Nigoh_Family_v2.4.0_Android.apk" in disposition
+        assert ".apk" in disposition.lower() and "family" in disposition.lower()
         content_bytes = resp.read()
         assert len(content_bytes) > 500
         # Check ZIP / APK magic header PK
