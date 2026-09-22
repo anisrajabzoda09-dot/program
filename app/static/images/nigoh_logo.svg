@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+  <defs>
+    <!-- Neumorphic Drop Shadow Filters -->
+    <filter id="neu-raised" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="4" dy="4" stdDeviation="5" flood-color="#bebebe" flood-opacity="0.9"/>
+      <feDropShadow dx="-4" dy="-4" stdDeviation="5" flood-color="#ffffff" flood-opacity="1"/>
+    </filter>
+    
+    <filter id="neu-inset" x="-20%" y="-20%" width="140%" height="140%" filterUnits="userSpaceOnUse">
+      <feOffset dx="3" dy="3"/>
+      <feGaussianBlur stdDeviation="3" result="offset-blur"/>
+      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+      <feFlood flood-color="#bebebe" flood-opacity="0.8" result="color"/>
+      <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+      <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+    </filter>
+
+    <!-- Vibrant Modern Gradients -->
+    <linearGradient id="shieldGrad" x1="20" y1="20" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+
+    <linearGradient id="innerEyeGrad" x1="45" y1="45" x2="75" y2="75" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e7ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Neumorphic Base Extruded Circle/Squircle (#e0e0e0) -->
+  <rect x="10" y="10" width="100" height="100" rx="30" fill="#e0e0e0" filter="url(#neu-raised)"/>
+
+  <!-- Outer Protective Shield Contour -->
+  <path d="M60 26C78 26 92 37 92 53C92 76 60 95 60 95C60 95 28 76 28 53C28 37 42 26 60 26Z" 
+        fill="url(#shieldGrad)" 
+        fill-opacity="0.12" 
+        stroke="url(#shieldGrad)" 
+        stroke-width="3.5" 
+        stroke-linejoin="round"/>
+
+  <!-- Central "Нигоҳ" Eye of Protection (Stylized Guardian Arc) -->
+  <path d="M38 56C44 46 52 41 60 41C68 41 76 46 82 56C76 66 68 71 60 71C52 71 44 66 38 56Z" 
+        fill="#e0e0e0" 
+        stroke="url(#shieldGrad)" 
+        stroke-width="3" 
+        stroke-linejoin="round"/>
+
+  <!-- Guardian Core Iris with Heart/Child Sparkle -->
+  <circle cx="60" cy="56" r="8.5" fill="url(#shieldGrad)"/>
+  <circle cx="62" cy="54" r="2.8" fill="#ffffff"/>
+  
+  <!-- Gentle protective child dot beneath -->
+  <circle cx="60" cy="79" r="3.2" fill="#10b981"/>
+</svg>
