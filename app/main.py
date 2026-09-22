@@ -323,13 +323,13 @@ def set_child_app_limit(payload: AppLimitRequest, request: Request):
 # --- Android APK Download (Real APK Binary file) ---
 # --- Android APK Download (Real APK Binary file & Direct Links) ---
 
-@app.get("/qr")
-@app.get("/install")
-@app.get("/apk")
-@app.get("/nigoh.apk")
-@app.get("/app.apk")
-@app.get("/download")
-@app.get("/download/android")
+@app.api_route("/qr", methods=["GET", "HEAD"])
+@app.api_route("/install", methods=["GET", "HEAD"])
+@app.api_route("/apk", methods=["GET", "HEAD"])
+@app.api_route("/nigoh.apk", methods=["GET", "HEAD"])
+@app.api_route("/app.apk", methods=["GET", "HEAD"])
+@app.api_route("/download", methods=["GET", "HEAD"])
+@app.api_route("/download/android", methods=["GET", "HEAD"])
 def download_android_apk():
     """Download the official Android APK installer package"""
     manifest_content = """# NIGOH Family Parental Control — Android Edition (APK v2.4.0)
