@@ -323,6 +323,8 @@ def set_child_app_limit(payload: AppLimitRequest, request: Request):
 # --- Android APK Download (Real APK Binary file) ---
 # --- Android APK Download (Real APK Binary file & Direct Links) ---
 
+@app.get("/qr")
+@app.get("/install")
 @app.get("/apk")
 @app.get("/nigoh.apk")
 @app.get("/app.apk")
