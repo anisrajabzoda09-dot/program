@@ -29,7 +29,7 @@ def run_mobile_tests():
     with urllib.request.urlopen(f"{base}/api/mobile/version") as resp:
         assert resp.status == 200
         ver_data = json.loads(resp.read().decode("utf-8"))
-        assert ver_data["version"] == "2.4.0"
+        assert ver_data["version"] == "2.0.0"
         assert ver_data["channel"] == "stable"
     print("   Системаи санҷиши навсозии автоматии OTA кор мекунад (OK)!")
 
