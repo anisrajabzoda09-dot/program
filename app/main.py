@@ -142,11 +142,10 @@ from fastapi.responses import FileResponse, JSONResponse
 
 # --- Mobile Application & OTA System Endpoints ---
 
-@app.get("/mobile", response_class=HTMLResponse)
-def mobile_app_page(request: Request):
-    """Mobile Native PWA Screen for both Parent and Child with live OTA update engine"""
-    user = get_current_user(request)
-    return templates.TemplateResponse(request=request, name="mobile_app.html", context={"user": user})
+@app.get("/mobile")
+def mobile_app_page():
+    """Redirect to official APK download section"""
+    return RedirectResponse(url="/#download", status_code=302)
 
 @app.get("/api/mobile/version")
 def get_app_version():
