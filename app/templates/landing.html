@@ -55,6 +55,14 @@
       box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.1);
     }
 
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+    .animate-float {
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+
     .btn-gradient {
       background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
       color: #ffffff;
@@ -235,24 +243,53 @@
 
         </div>
 
-        <!-- Phone Mockup Column (White Titanium Phone matching the site) -->
+        <!-- Phone Mockup Column (NIGOH Family Official Showcase with Floating Badges) -->
         <div class="lg:col-span-5 flex justify-center items-center">
-          <div class="relative w-full max-w-[360px]">
+          <div class="relative w-full max-w-[390px] mx-auto">
             
-            <!-- Realistic White Titanium / Ceramic Smartphone Frame -->
-            <div class="relative mx-auto w-[320px] sm:w-[350px] bg-slate-100 rounded-[50px] p-3.5 shadow-[0_25px_60px_-15px_rgba(79,70,229,0.18),0_15px_35px_-5px_rgba(0,0,0,0.08)] border-4 border-slate-200 ring-2 ring-slate-100">
+            <!-- Floating Badge 1: Protection Status (Top Left) -->
+            <div class="hidden sm:flex absolute -left-12 top-10 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3.5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.1)] items-center gap-3 animate-float transition-transform hover:scale-105">
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-xl shadow-sm">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 font-bold block">Ҳолати муҳофизат</span>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-sm font-black text-slate-900 leading-none">Фаъол</span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                </div>
+                <span class="text-[10px] text-emerald-600 font-extrabold block mt-1">Ҳама чиз таҳти назорат</span>
+              </div>
+            </div>
+
+            <!-- Floating Badge 2: Live Location (Bottom Left) -->
+            <div class="hidden sm:flex absolute -left-10 bottom-28 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3.5 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.1)] items-center gap-3 transition-transform hover:scale-105">
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 text-xl shadow-sm">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 font-bold block">Ҷойгиршавӣ</span>
+                <span class="text-sm font-black text-slate-900 block leading-tight mt-0.5">Мактаби №24</span>
+                <span class="text-[10px] text-emerald-600 font-bold flex items-center gap-1.5 mt-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Ҳозир онлайн
+                </span>
+              </div>
+            </div>
+
+            <!-- Realistic Modern Smartphone Frame (Taller / Elongated) -->
+            <div class="relative mx-auto w-[325px] sm:w-[355px] bg-slate-100 rounded-[52px] p-3.5 shadow-[0_30px_70px_-15px_rgba(79,70,229,0.22),0_20px_40px_-10px_rgba(0,0,0,0.08)] border-4 border-slate-200 ring-2 ring-slate-100">
               
-              <!-- Left Side Hardware Buttons (Volume Up/Down) -->
+              <!-- Left Hardware Buttons -->
               <div class="absolute -left-[6px] top-28 w-[3px] h-9 bg-slate-300 rounded-l-md"></div>
               <div class="absolute -left-[6px] top-40 w-[3px] h-9 bg-slate-300 rounded-l-md"></div>
-              <!-- Right Side Hardware Button (Power Button) -->
+              <!-- Right Hardware Button -->
               <div class="absolute -right-[6px] top-32 w-[3px] h-12 bg-slate-300 rounded-r-md"></div>
 
-              <!-- Inner Glass Screen (White Aesthetic matching site) -->
-              <div class="bg-white text-slate-900 rounded-[40px] overflow-hidden border border-slate-200 shadow-inner flex flex-col p-4 min-h-[580px]">
+              <!-- Inner Glass Screen (Taller / Longer min-h-[670px]) -->
+              <div class="bg-white text-slate-900 rounded-[42px] overflow-hidden border border-slate-200 shadow-inner flex flex-col p-4 min-h-[670px] justify-between">
                 
                 <!-- Status Bar with Dynamic Island -->
-                <div class="flex items-center justify-between text-[11px] text-slate-800 font-extrabold px-2 pt-1 pb-2 mb-2">
+                <div class="flex items-center justify-between text-[11px] text-slate-800 font-extrabold px-1 pt-0.5 pb-2 mb-2">
                   <span>09:41</span>
                   
                   <!-- Dynamic Island (Pill Camera) -->
@@ -266,166 +303,122 @@
                   <div class="flex items-center gap-1.5 text-[10px] text-slate-700">
                     <i class="fa-solid fa-signal text-[9px]"></i>
                     <i class="fa-solid fa-wifi text-[9px]"></i>
-                    <span class="text-[9px] font-black">88%</span>
+                    <span class="text-[9px] font-black text-emerald-600">88%</span>
                     <i class="fa-solid fa-battery-three-quarters text-emerald-500 text-xs"></i>
                   </div>
                 </div>
 
-                <!-- App Header Bar -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-3 flex items-center justify-between shadow-sm">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs shadow-sm">
-                      <i class="fa-solid fa-shield-halved"></i>
-                    <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-1 shadow-sm overflow-hidden">
+                <!-- App Header Bar ("Салом, Мунис!") -->
+                <div class="flex items-center justify-between mb-3 px-1">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200/80 p-1 flex items-center justify-center shadow-sm">
                       <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ" class="w-full h-full object-contain">
                     </div>
                     <div>
-                      <span class="font-black text-xs text-slate-900 block leading-tight">НИГОҲ Family</span>
-                      <span class="text-[9px] text-emerald-600 font-bold flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Муҳофизат фаъол • 100% Офлайн
-                      </span>
+                      <h3 class="font-black text-sm text-slate-900 leading-tight">Салом, Мунис!</h3>
+                      <p class="text-[10px] text-slate-500 font-medium">Оилаи шумо дар амният аст</p>
                     </div>
                   </div>
-                  <span class="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-md border border-indigo-200">
-                    Волидайн
-                  </span>
+                  <button type="button" class="w-7 h-7 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-sm font-black shadow-sm hover:bg-indigo-100 transition">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                  </button>
                 </div>
 
-                <!-- Child Device Status Card -->
-                <div class="bg-gradient-to-r from-indigo-50/60 via-white to-indigo-50/40 border border-indigo-100 rounded-xl p-3 mb-3 flex items-center justify-between shadow-sm">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-lg bg-indigo-100/70 border border-indigo-200 text-indigo-600 flex items-center justify-center text-base shadow-sm">
-                      <i class="fa-solid fa-user-shield"></i>
+                <!-- Child Device Status Card ("Алиҷон") -->
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-3 mb-3 shadow-sm flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-lg shadow-sm">
+                      <i class="fa-solid fa-user"></i>
                     </div>
                     <div>
                       <div class="flex items-center gap-1.5">
-                        <h4 class="font-black text-xs text-slate-900">Алиҷон</h4>
-                        <span class="bg-indigo-100 text-indigo-800 text-[9px] px-1.5 py-0.5 rounded font-extrabold">Писар • 11 с.</span>
+                        <span class="font-black text-sm text-slate-900">Алиҷон</span>
                       </div>
-                      <p class="text-[10px] text-slate-500 mt-0.5 font-medium">Samsung Galaxy A54 • Дар мактаб</p>
+                      <p class="text-[10px] text-slate-500 font-medium mt-0.5">Samsung Galaxy A54 • Дар мактаб</p>
                     </div>
                   </div>
-                  <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 88%
-                  </span>
+                  <div class="text-right flex flex-col items-end">
+                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1.5 shadow-xs">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Онлайн
+                    </span>
+                    <span class="text-[9px] text-slate-400 font-bold mt-1">Батарея 88%</span>
+                  </div>
                 </div>
 
-                <!-- Instant Lockdown Control Strip -->
-                <div class="bg-rose-50 border border-rose-200 rounded-xl p-2.5 mb-3 flex items-center justify-between shadow-sm">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-md bg-rose-100 text-rose-600 flex items-center justify-center text-[10px]">
-                      <i class="fa-solid fa-bolt"></i>
+                <!-- Live GPS Map Card ("Ҷойгиршавии зинда") -->
+                <div class="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-3 mb-3 shadow-sm">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span class="text-xs font-black text-slate-800">Ҷойгиршавии зинда</span>
                     </div>
-                    <span class="text-[11px] font-extrabold text-slate-800">Қулфи фаврии телефон</span>
                   </div>
-                  <span class="bg-rose-600 hover:bg-rose-700 text-white text-[9px] font-black px-2.5 py-1 rounded-md shadow-sm">
-                    Қулф кардан
-                  </span>
+                  <div class="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
+                    <img src="/static/images/hero_map_inner.png" alt="Харитаи ҷойгиршавии Алиҷон" class="w-full h-full object-cover">
+                  </div>
                 </div>
 
-                <!-- Real App Control Rows -->
-                <div class="space-y-2 mb-3">
-                  
-                  <!-- TikTok (Locked) -->
-                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center text-sm shadow-sm">
-                        <i class="fa-brands fa-tiktok"></i>
-                      </div>
-                      <div>
-                        <span class="font-bold text-xs text-slate-900 block leading-tight">TikTok & Instagram</span>
-                        <span class="text-[9px] text-slate-500 font-medium">Шабакаҳои иҷтимоӣ</span>
-                      </div>
-                    </div>
-                    <span class="bg-rose-100 text-rose-700 border border-rose-200 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
-                      <i class="fa-solid fa-lock text-[8px]"></i> Маҳкам
-                    </span>
-                  </div>
-
-                  <!-- PUBG Mobile (Locked) -->
-                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-sm shadow-sm">
-                        <i class="fa-solid fa-gamepad"></i>
-                      </div>
-                      <div>
-                        <span class="font-bold text-xs text-slate-900 block leading-tight">PUBG Mobile</span>
-                        <span class="text-[9px] text-slate-500 font-medium">Бозиҳои вақтгир</span>
-                      </div>
-                    </div>
-                    <span class="bg-rose-100 text-rose-700 border border-rose-200 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
-                      <i class="fa-solid fa-lock text-[8px]"></i> Маҳкам
-                    </span>
-                  </div>
-
-                  <!-- YouTube Kids (Time Limited) -->
-                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-lg bg-red-50 text-red-600 border border-red-100 flex items-center justify-center text-sm shadow-sm">
-                        <i class="fa-brands fa-youtube"></i>
-                      </div>
-                      <div>
-                        <span class="font-bold text-xs text-slate-900 block leading-tight">YouTube Kids</span>
-                        <span class="text-[9px] text-slate-500 font-medium">Лимити рӯзона</span>
-                      </div>
-                    </div>
-                    <span class="bg-amber-100 text-amber-800 border border-amber-200 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
-                      <i class="fa-solid fa-clock text-[8px]"></i> 30 дақиқа
-                    </span>
-                  </div>
-
-                  <!-- Safe Web (Active) -->
-                  <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center justify-between shadow-sm">
-                    <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-sm shadow-sm">
-                        <i class="fa-solid fa-shield-virus"></i>
-                      </div>
-                      <div>
-                        <span class="font-bold text-xs text-slate-900 block leading-tight">Интернети Бехатар</span>
-                        <span class="text-[9px] text-slate-500 font-medium">Филтри сайтҳои носолим</span>
-                      </div>
-                    </div>
-                    <span class="bg-indigo-100 text-indigo-800 border border-indigo-200 text-[9px] font-black px-2 py-0.5 rounded-md">
-                      Фаъол
-                    </span>
-                  </div>
-
-                </div>
-
-                <!-- GPS Location Live Radar Snippet -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 mb-3 flex items-center justify-between shadow-sm">
-                  <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xs shadow-sm">
+                <!-- Three Stat Cards Grid (Ҷойгиршавӣ, Вақти экран, Барномаҳо) -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                  <!-- Ҷойгиршавӣ -->
+                  <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-2.5 flex flex-col justify-between shadow-xs">
+                    <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px] mb-2 shadow-sm">
                       <i class="fa-solid fa-location-dot"></i>
                     </div>
                     <div>
-                      <span class="text-[10px] font-bold text-slate-900 block">ш. Душанбе, Хиёбони Рӯдакӣ</span>
-                      <span class="text-[9px] text-slate-500 font-medium">Дар мактаби №8 • 2 дақиқа пеш</span>
+                      <span class="text-[9px] text-slate-500 font-bold block">Ҷойгиршавӣ</span>
+                      <span class="text-xs font-black text-slate-900 block leading-tight mt-0.5">Дар мактаб</span>
                     </div>
                   </div>
-                  <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[8px] font-black px-2 py-0.5 rounded-full">
-                    Зинда
-                  </span>
+
+                  <!-- Вақти экран -->
+                  <div class="bg-emerald-50/70 border border-emerald-100 rounded-xl p-2.5 flex flex-col justify-between shadow-xs">
+                    <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] mb-2 shadow-sm">
+                      <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                      <span class="text-[9px] text-slate-500 font-bold block">Вақти экран</span>
+                      <span class="text-xs font-black text-slate-900 block leading-tight mt-0.5">2с 14д</span>
+                    </div>
+                  </div>
+
+                  <!-- Барномаҳо -->
+                  <div class="bg-purple-50/70 border border-purple-100 rounded-xl p-2.5 flex flex-col justify-between shadow-xs">
+                    <div class="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] mb-2 shadow-sm">
+                      <i class="fa-solid fa-circle-pause"></i>
+                    </div>
+                    <div>
+                      <span class="text-[9px] text-slate-500 font-bold block">Барномаҳо</span>
+                      <span class="text-xs font-black text-slate-900 block leading-tight mt-0.5">3 маҳкам</span>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- App Bottom Navigation Bar -->
-                <div class="bg-slate-50 border-t border-slate-200 rounded-xl p-2 grid grid-cols-4 gap-1 text-center mt-auto shadow-sm">
+                <!-- Bottom Navigation Bar (Асосӣ, Чат, Харита, Профил) -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-2 grid grid-cols-4 gap-1 text-center shadow-sm">
                   <div class="text-indigo-600 flex flex-col items-center">
-                    <i class="fa-solid fa-house text-xs"></i>
-                    <span class="text-[8px] font-black mt-0.5">Асосӣ</span>
+                    <div class="w-7 h-7 rounded-xl bg-indigo-50 flex items-center justify-center mb-0.5">
+                      <i class="fa-solid fa-house text-xs"></i>
+                    </div>
+                    <span class="text-[8px] font-black">Асосӣ</span>
                   </div>
-                  <div class="text-slate-500 hover:text-slate-800 flex flex-col items-center">
-                    <i class="fa-solid fa-shield-halved text-xs"></i>
-                    <span class="text-[8px] font-semibold mt-0.5">Қоидаҳо</span>
+                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center">
+                    <div class="w-7 h-7 rounded-xl flex items-center justify-center mb-0.5">
+                      <i class="fa-solid fa-comment-dots text-xs"></i>
+                    </div>
+                    <span class="text-[8px] font-semibold">Чат</span>
                   </div>
-                  <div class="text-slate-500 hover:text-slate-800 flex flex-col items-center">
-                    <i class="fa-solid fa-location-arrow text-xs"></i>
-                    <span class="text-[8px] font-semibold mt-0.5">Макон</span>
+                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center">
+                    <div class="w-7 h-7 rounded-xl flex items-center justify-center mb-0.5">
+                      <i class="fa-solid fa-location-dot text-xs"></i>
+                    </div>
+                    <span class="text-[8px] font-semibold">Харита</span>
                   </div>
-                  <div class="text-slate-500 hover:text-slate-800 flex flex-col items-center">
-                    <i class="fa-solid fa-comments text-xs"></i>
-                    <span class="text-[8px] font-semibold mt-0.5">Чат</span>
+                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center">
+                    <div class="w-7 h-7 rounded-xl flex items-center justify-center mb-0.5">
+                      <i class="fa-solid fa-user text-xs"></i>
+                    </div>
+                    <span class="text-[8px] font-semibold">Профил</span>
                   </div>
                 </div>
 
@@ -434,6 +427,17 @@
 
               </div>
 
+            </div>
+
+            <!-- Bottom Slogan Bar (Matching the official design banner) -->
+            <div class="mt-4 mx-auto max-w-[355px] bg-[#0a192f] text-white rounded-xl py-2.5 px-4 flex items-center justify-between text-xs font-bold shadow-md">
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+                <span>Амнияти фарзанд. Оромии волидайн.</span>
+              </div>
+              <span class="text-[10px] text-indigo-300 font-black tracking-wide">NIGOH FAMILY</span>
             </div>
 
           </div>
