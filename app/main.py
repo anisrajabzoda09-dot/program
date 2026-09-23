@@ -152,11 +152,11 @@ def mobile_app_page(request: Request):
 def get_app_version():
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
     return {
-        "version": "2.4.0",
-        "version_code": 240,
+        "version": "2.0.0",
+        "version_code": 2,
         "channel": "stable",
         "update_available": False,
-        "release_notes": "Дастгирии назорати оқилона, интихоби нақш (волидайн/фарзанд), интихоби писар/духтар, бастани барномаҳо ва ҳолати офлайн.",
+        "release_notes": "Firebase Authentication, Google Login, нақшҳои волидайн ва фарзанд, QR-пайвастшавӣ, чат, харита ва ҷойгиршавии зинда.",
         "download_url": "/download/android"
     }
 
@@ -336,7 +336,7 @@ def download_android_apk():
 Package: tj.nigoh.nigoh_family_parent
 Target: Android 7.0 to Android 16 (ARM64, ARMv7 & x86_64)
 Permissions: Internet, Install Packages
-Size: 47.5 MB
+Size: 71.1 MB
 Status: Official Release Build Verified (V2 Signature Valid)
 
 Дастури насб дар телефони Android:
@@ -344,11 +344,8 @@ Status: Official Release Build Verified (V2 Signature Valid)
 2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
     # Prioritize Flutter release APK
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v1.0.0.apk")
-    apk_name = "NIGOH_Family_Android_v1.0.0.apk"
-    if not os.path.exists(apk_file_path):
-        apk_file_path = os.path.join(STATIC_DIR, "downloads", "Nigoh_Family_v2.4.0.apk")
-        apk_name = "Nigoh_Family_v2.4.0_Android.apk"
+    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.0.0.apk")
+    apk_name = "NIGOH_Family_Android_v2.0.0.apk"
 
     if os.path.exists(apk_file_path):
         return FileResponse(

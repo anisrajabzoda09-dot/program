@@ -1,6 +1,6 @@
 // Service Worker for Nigoh Family App
 // Handles caching for full offline capability and instant background OTA updates
-const CACHE_NAME = 'nigoh-family-v2.4.0';
+const CACHE_NAME = 'nigoh-family-v2.0.0';
 const ASSETS_TO_CACHE = [
   '/mobile',
   '/static/manifest.json',
@@ -50,4 +50,3 @@ self.addEventListener('fetch', (event) => {
       })
   );
 });
-
