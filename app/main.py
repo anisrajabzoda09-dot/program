@@ -151,11 +151,11 @@ def mobile_app_page():
 def get_app_version():
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
     return {
-        "version": "2.1.1",
-        "version_code": 4,
+        "version": "2.2.0",
+        "version_code": 5,
         "channel": "stable",
         "update_available": False,
-        "release_notes": "Иҷозати дидани ҳамаи барномаҳо хориҷ шуд; амният ва устувории насб беҳтар гардид.",
+        "release_notes": "Google Play Protect ислоҳ шуд: Accessibility ва насбкунандаи дохилӣ хориҷ шуданд; муҳофизат бо Usage access ва Display over apps кор мекунад.",
         "download_url": "/download/android"
     }
 
@@ -343,8 +343,8 @@ Status: Official Release Build Verified (V2 Signature Valid)
 2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
     # Prioritize Flutter release APK
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.1.1.apk")
-    apk_name = "NIGOH_Family_Android_v2.1.1.apk"
+    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.2.0.apk")
+    apk_name = "NIGOH_Family_Android_v2.2.0.apk"
 
     if os.path.exists(apk_file_path):
         return FileResponse(
