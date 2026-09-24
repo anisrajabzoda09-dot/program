@@ -132,7 +132,7 @@
               НИГОҲ FAMILY
             </span>
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> v2.6.1
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> v2.6.2
             </span>
           </div>
           <span class="text-xs text-slate-500 font-semibold tracking-wide">Назорати Оқилонаи Оилавӣ</span>
@@ -277,7 +277,7 @@
             </div>
             <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-xs text-center lg:text-left hover:border-slate-300 transition">
               <div class="text-lg sm:text-xl font-black text-indigo-600 flex items-center justify-center lg:justify-start gap-1.5">
-                <i class="fa-brands fa-android text-sm"></i> v2.6.1
+                <i class="fa-brands fa-android text-sm"></i> v2.6.2
               </div>
               <p class="text-[11px] sm:text-xs text-slate-500 mt-1 font-bold">Android 7 — 16+</p>
             </div>
@@ -912,7 +912,7 @@
 
         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-wider mb-3">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Версияи Расмии Android v2.6.1</span>
+          <span>Версияи Расмии Android v2.6.2</span>
         </div>
 
         <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mb-4 tracking-tight">
@@ -927,22 +927,22 @@
           <div class="relative group">
             <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-2xl blur-xs opacity-30 group-hover:opacity-60 transition duration-500"></div>
             <div class="relative w-56 h-56 rounded-xl bg-white border border-slate-200 p-3.5 flex items-center justify-center mb-5 shadow-inner">
-              <img src="/static/images/official_qr.png" alt="Рамзи расмии QR барои боргирии NIGOH" class="w-full h-full object-contain rounded-lg">
+              <img src="/api/qr/download" alt="Рамзи расмии QR барои боргирии NIGOH" class="w-full h-full object-contain rounded-lg">
             </div>
           </div>
           
           <div class="w-full text-center">
-            <span class="text-xs font-black text-slate-500 uppercase tracking-wider block mb-2">Домени расмӣ ва суроғаи амни QR (HTTPS):</span>
+            <span class="text-xs font-black text-slate-500 uppercase tracking-wider block mb-2">QR-и динамикӣ барои APK:</span>
             <div class="flex items-center gap-2 justify-center bg-white border border-indigo-200/80 px-3.5 py-2 rounded-xl shadow-2xs">
               <i class="fa-solid fa-lock text-emerald-600 text-xs"></i>
               <code id="qr-link-text" class="text-xs sm:text-sm font-bold text-indigo-700 tracking-tight">
-                https://nigohfamily.qobus.tj/qr
+                Суроға мувофиқи шабака худкор муайян мешавад
               </code>
-              <button type="button" onclick="navigator.clipboard.writeText('https://nigohfamily.qobus.tj/qr'); const el = document.getElementById('copy-status'); el.innerText='Нусха шуд!'; setTimeout(() => el.innerText='Нусхабардорӣ', 2000);" class="text-[11px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100 transition cursor-pointer">
+              <button type="button" onclick="navigator.clipboard.writeText(window.location.origin + '/download/android'); const el = document.getElementById('copy-status'); el.innerText='Нусха шуд!'; setTimeout(() => el.innerText='Нусхабардорӣ', 2000);" class="text-[11px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100 transition cursor-pointer">
                 <i class="fa-regular fa-copy mr-1"></i><span id="copy-status">Нусхабардорӣ</span>
               </button>
             </div>
-            <p class="text-xs text-slate-500 mt-2.5 font-medium">Бо камера скан кунед — барнома мустақиман ва амн (HTTPS) боргирӣ мешавад.</p>
+            <p class="text-xs text-slate-500 mt-2.5 font-medium">Телефон ва компютер бояд дар як Wi‑Fi бошанд. QR файли пурраи APK-ро мустақим мегирад.</p>
           </div>
         </div>
 
@@ -1147,7 +1147,7 @@
       <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-semibold">
         <div class="flex items-center gap-3">
           <span>© 2026 НИГОҲ Family. Ҳамаи ҳуқуқҳо маҳфузанд.</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">v2.6.1</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">v2.6.2</span>
         </div>
         <div class="flex items-center gap-6">
           <span class="text-slate-400">Сохта шудааст барои амнияти кӯдакони тоҷик</span>
