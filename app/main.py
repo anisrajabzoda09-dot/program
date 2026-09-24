@@ -109,6 +109,11 @@ def landing_page(request: Request):
     conn.close()
     return templates.TemplateResponse(request=request, name="landing.html", context={"user": user, "reviews": reviews})
 
+@app.get("/weevolve", response_class=HTMLResponse)
+@app.get("/evolve", response_class=HTMLResponse)
+def weevolve_showcase_page(request: Request):
+    return templates.TemplateResponse(request=request, name="weevolve.html", context={})
+
 @app.get("/auth", response_class=HTMLResponse)
 def auth_page(request: Request):
     user = get_current_user(request)
