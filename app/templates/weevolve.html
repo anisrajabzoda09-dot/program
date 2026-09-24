@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth antialiased dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeEvolveIT — your tech partner. evolved.</title>
+  <meta name="description" content="AI specialists. A five-phase method — Discover, Diagnose, Design, Deliver, Evolve — that transforms how your business runs on technology. HQ Monterrey, presence in Dubai, 17 countries served." />
+  <meta name="theme-color" content="#0e0e10" />
+
+  <!-- Fonts: JetBrains Mono & Plus Jakarta Sans / Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN with custom config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0e0e10',
+            card: '#161619',
+            cardHover: '#1d1d22',
+            borderHairline: 'rgba(255, 255, 255, 0.08)',
+            accent: '#E4007C',
+            accentGlow: 'rgba(228, 0, 124, 0.25)',
+            accentPurple: '#8A2BE2',
+            waGreen: '#25D366'
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          keyframes: {
+            pulseSlow: {
+              '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+              '50%': { opacity: '0.8', transform: 'scale(1.05)' }
+            },
+            radarSweep: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' }
+            },
+            marquee: {
+              '0%': { transform: 'translateX(0%)' },
+              '100%': { transform: 'translateX(-50%)' }
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulseSlow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'radar': 'radarSweep 6s linear infinite',
+            'marquee': 'marquee 35s linear infinite'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0e0e10;
+      color: #ededf0;
+      font-family: 'JetBrains Mono', monospace;
+      overflow-x: hidden;
+    }
+    ::selection {
+      background: #E4007C;
+      color: #ffffff;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0e0e10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272e;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #E4007C;
+    }
+    /* Glow borders */
+    .candle-glow {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .candle-glow:hover {
+      border-color: rgba(228, 0, 124, 0.45);
+      box-shadow: 0 0 25px rgba(228, 0, 124, 0.15), inset 0 0 15px rgba(228, 0, 124, 0.05);
+    }
+    .text-glow {
+      text-shadow: 0 0 20px rgba(228, 0, 124, 0.6);
+    }
+    .badge-pink {
+      background: rgba(228, 0, 124, 0.12);
+      border: 1px solid rgba(228, 0, 124, 0.35);
+      color: #ff3da6;
+    }
+    .glass-pill {
+      background: rgba(18, 18, 22, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col bg-bg text-[#ededf0] antialiased selection:bg-accent selection:text-white">
+
+  <!-- Background Interactive Canvas (Subtle Starfield / Constellation Effect) -->
+  <div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden" aria-hidden="true">
+    <canvas id="matrix-canvas" class="w-full h-full opacity-35"></canvas>
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-[#E4007C]/15 via-[#8A2BE2]/10 to-transparent blur-[120px] rounded-full pointer-events-none"></div>
+  </div>
+
+  <!-- Top Floating Pill Navigation -->
+  <header class="fixed inset-x-0 top-3 z-50 px-3 sm:px-6">
+    <div class="mx-auto max-w-[1240px] rounded-full glass-pill shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300">
+      <nav class="flex h-16 items-center justify-between px-5 sm:px-7">
+        
+        <!-- Logo -->
+        <a href="#hero" class="flex items-center gap-2 group outline-none">
+          <div class="flex items-center font-bold tracking-tight text-[17px] font-mono">
+            <span class="text-white group-hover:text-zinc-200 transition-colors">WeEvolve</span>
+            <span class="text-accent group-hover:drop-shadow-[0_0_8px_#E4007C] transition-all">IT</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-accent ml-1.5 animate-pulse"></span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <ul class="hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+          <li class="relative group">
+            <a href="#services" class="inline-flex items-center gap-1.5 py-2 hover:text-white transition-colors">
+              Services <span class="text-[9px] transition-transform duration-200 group-hover:rotate-180">▾</span>
+            </a>
+            <!-- Services Mega Menu Dropdown -->
+            <div class="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-[640px]">
+              <div class="rounded-2xl border border-white/10 bg-[#141418]/95 p-6 backdrop-blur-2xl shadow-2xl grid grid-cols-2 gap-4">
+                <a href="#services" class="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] transition-colors group/item block">
+                  <div class="flex items-center justify-between text-white font-medium text-xs">
+                    <span>AI Agent Development</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-mono">✦ HOT</span>
+                  </div>
+                  <p class="text-[11px] text-zinc-400 mt-1 line-clamp-1">Production AI agents that execute complex workflows.</p>
+                </a>
+                <a href="#services" class="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] transition-colors group/item block">
+                  <div class="text-white font-medium text-xs">Web Development</div>
+                  <p class="text-[11px] text-zinc-400 mt-1 line-clamp-1">Fast, high-converting platforms built to be indexed by AI.</p>
+                </a>
+                <a href="#services" class="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] transition-colors group/item block">
+                  <div class="text-white font-medium text-xs">Nearshore Engineering</div>
+                  <p class="text-[11px] text-zinc-400 mt-1 line-clamp-1">Senior dedicated engineers aligned to your exact timezone.</p>
+                </a>
+                <a href="#services" class="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] transition-colors group/item block">
+                  <div class="text-white font-medium text-xs">Cloud & Modernization</div>
+                  <p class="text-[11px] text-zinc-400 mt-1 line-clamp-1">Migrate and scale on AWS, GCP, Azure with zero downtime.</p>
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <a href="#method" class="hover:text-white transition-colors relative py-2 group/link">
+              Method
+              <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-accent group-hover/link:w-full transition-all duration-200"></span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#cases" class="hover:text-white transition-colors relative py-2 group/link">
+              Case Studies
+              <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-accent group-hover/link:w-full transition-all duration-200"></span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#friction-tool" class="hover:text-white transition-colors inline-flex items-center gap-1.5 py-2">
+              Diagnostics
+              <span class="text-[8px] px-1.5 py-0.5 rounded-full bg-accent/20 text-accent font-bold">FREE</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#contact" class="hover:text-white transition-colors relative py-2 group/link">
+              Contact
+              <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-accent group-hover/link:w-full transition-all duration-200"></span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Action CTA Buttons -->
+        <div class="flex items-center gap-3">
+          <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20vi%20su%20sitio%20y%20me%20interesa%20su%20servicio" 
+             target="_blank" 
+             rel="noopener noreferrer"
+             class="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-mono font-medium text-white backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:border-waGreen/60 hover:bg-waGreen/10">
+            <svg class="w-4 h-4 text-waGreen transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.49-.9-.8-1.5-1.79-1.68-2.09-.17-.3-.02-.46.13-.61.13-.13.3-.34.45-.51.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.47 1.06 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.27.49 1.7.63.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"></path>
+              <path d="M20.52 3.45A11.85 11.85 0 0012.05.05C5.5.05.16 5.39.16 11.94c0 2.09.55 4.14 1.59 5.94L.05 23.94l6.21-1.63a11.88 11.88 0 005.78 1.47h.01c6.55 0 11.89-5.34 11.89-11.89A11.81 11.81 0 0020.52 3.45zm-8.47 18.3h-.01a9.86 9.86 0 01-5.03-1.38l-.36-.21-3.69.97.98-3.59-.24-.37a9.85 9.85 0 01-1.51-5.23c0-5.45 4.43-9.88 9.88-9.88 2.64 0 5.12 1.03 6.98 2.9a9.81 9.81 0 012.89 6.99c0 5.45-4.43 9.88-9.89 9.88z"></path>
+            </svg>
+            <span>Message us</span>
+          </a>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobile-toggle" aria-label="Toggle menu" class="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-full bg-white/5 border border-white/10 text-white">
+            <span class="w-4 h-0.5 bg-white mb-1 transition-all"></span>
+            <span class="w-4 h-0.5 bg-white transition-all"></span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Mobile dropdown panel -->
+      <div id="mobile-menu" class="hidden lg:hidden px-6 pb-6 pt-2 border-t border-white/5 font-mono text-xs uppercase tracking-wider space-y-3">
+        <a href="#services" class="block py-1.5 text-zinc-300 hover:text-white">Services</a>
+        <a href="#method" class="block py-1.5 text-zinc-300 hover:text-white">The 5 Method</a>
+        <a href="#cases" class="block py-1.5 text-zinc-300 hover:text-white">Case Studies</a>
+        <a href="#friction-tool" class="block py-1.5 text-accent">Friction Diagnosis ✦</a>
+        <a href="#contact" class="block py-1.5 text-zinc-300 hover:text-white">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="flex-1 pt-24 sm:pt-28">
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative max-w-[1240px] mx-auto px-4 sm:px-6 pt-10 pb-20 lg:pt-16 lg:pb-28">
+      <div class="flex flex-col items-center text-center">
+        
+        <!-- Top AI Specialist & Location Pill -->
+        <div class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-[#16161c]/90 px-4 py-1.5 text-[11px] font-mono text-zinc-300 shadow-inner mb-8">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-zinc-400">HQ Monterrey · Presence in Dubai</span>
+          <span class="text-white/20">|</span>
+          <span class="text-accent font-semibold flex items-center gap-1">
+            <span>AI Specialists</span>
+            <span class="text-[9px]">✦</span>
+          </span>
+        </div>
+
+        <!-- Main Headline -->
+        <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-black tracking-[-0.04em] leading-[1.05] text-white max-w-5xl font-sans">
+          your tech partner. <br class="hidden sm:inline" />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent via-[#ff4d9d] to-purple-400 text-glow">
+            evolved.
+          </span>
+        </h1>
+
+        <!-- Subheading -->
+        <p class="mt-7 max-w-2xl text-sm sm:text-base md:text-lg text-zinc-400 font-mono leading-relaxed">
+          A five-phase method — <span class="text-zinc-200">Discover, Diagnose, Design, Deliver, Evolve</span> — that transforms how your business runs on technology. An AI-first agency and your end-to-end engineering partner.
+        </p>
+
+        <!-- Metrics Bar -->
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-mono text-zinc-400 border border-white/10 rounded-2xl bg-white/[0.02] px-6 py-3 backdrop-blur-sm">
+          <div class="flex items-center gap-1.5">
+            <span class="text-white font-bold">15+</span>
+            <span>years</span>
+          </div>
+          <span class="text-zinc-700 hidden sm:inline">·</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-white font-bold">1,000+</span>
+            <span>projects</span>
+          </div>
+          <span class="text-zinc-700 hidden sm:inline">·</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-white font-bold">17</span>
+            <span>countries</span>
+          </div>
+          <span class="text-zinc-700 hidden sm:inline">·</span>
+          <div class="flex items-center gap-1 text-amber-400">
+            <span>★ 5.0</span>
+            <span class="text-zinc-300 font-normal">Google Trustindex</span>
+          </div>
+        </div>
+
+        <!-- Call to Actions -->
+        <div class="mt-9 flex flex-col sm:flex-row items-center gap-4">
+          <a href="#friction-tool" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-accent hover:bg-[#c9006d] px-7 py-3.5 text-xs font-mono font-semibold text-white tracking-wider uppercase transition-all duration-300 shadow-[0_0_25px_rgba(228,0,124,0.4)] hover:shadow-[0_0_35px_rgba(228,0,124,0.6)] hover:scale-[1.02]">
+            <span>Diagnose My Business</span>
+            <span class="text-sm">✦</span>
+          </a>
+          <a href="#method" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 px-7 py-3.5 text-xs font-mono font-medium text-zinc-200 tracking-wider uppercase transition-all duration-200">
+            <span>The 5 Method</span>
+            <span>↓</span>
+          </a>
+        </div>
+
+        <!-- Interactive AI Terminal Showcase -->
+        <div class="mt-14 w-full max-w-4xl rounded-2xl border border-white/10 bg-[#121215]/95 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden text-left font-mono text-xs">
+          <!-- Terminal Header -->
+          <div class="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+              <span class="ml-2 text-zinc-400 text-[11px]">evolve-runtime ~ ai-core-orchestrator</span>
+            </div>
+            <div class="flex items-center gap-3 text-[10px] text-zinc-500">
+              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> LATENCY: 12ms</span>
+              <span>NODE: Monterrey-MX-01</span>
+            </div>
+          </div>
+
+          <!-- Terminal Body -->
+          <div class="p-5 space-y-3.5 text-zinc-300 bg-black/40">
+            <div class="text-zinc-500 flex items-center justify-between">
+              <span>// Autonomous Enterprise Diagnostic & AI Workflow Deployment</span>
+              <span class="text-accent text-[10px]">v2.6.2-PROD</span>
+            </div>
+
+            <div class="flex items-center gap-2 text-zinc-400">
+              <span class="text-accent font-bold">&gt;</span>
+              <span>evolve --analyze --stack --friction</span>
+            </div>
+
+            <div class="rounded-lg bg-white/[0.02] border border-white/5 p-3.5 space-y-2 text-[11px]">
+              <div class="flex items-center gap-2 text-emerald-400">
+                <span>[✓]</span>
+                <span>SYSTEM SCAN COMPLETE: 183 friction metrics mapped across data silos</span>
+              </div>
+              <div class="flex items-center gap-2 text-zinc-300">
+                <span class="text-accent">●</span>
+                <span>Identified Bottleneck: 38 hrs/week manual operations in legacy ERP</span>
+              </div>
+              <div class="flex items-center gap-2 text-zinc-300">
+                <span class="text-purple-400">●</span>
+                <span>Solution Synthesized: 5-Phase Agent Framework (Discover → Deliver)</span>
+              </div>
+              <div class="flex items-center gap-2 text-emerald-400">
+                <span>[✓]</span>
+                <span>ESTIMATED ROI: 4.8x efficiency multiplier · Zero operational downtime</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 text-zinc-500 pt-1">
+              <span class="text-accent font-bold">&gt;</span>
+              <span class="text-zinc-200">deploy_ai_agents --nearshore-mesh</span>
+              <span class="inline-block w-2 h-4 bg-accent animate-pulse"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Social Proof & Google Reviews Section -->
+    <section id="cases" class="border-y border-white/5 bg-[#111114]/60 py-16 backdrop-blur-sm">
+      <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div>
+            <div class="inline-flex items-center gap-2 text-accent font-mono text-xs uppercase tracking-wider mb-2">
+              <span>●</span>
+              <span>VERIFIED CLIENT OUTCOMES</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold font-sans tracking-tight text-white">
+              Trusted by leaders across 17 countries
+            </h2>
+          </div>
+          <div class="flex items-center gap-3 text-xs font-mono text-zinc-400">
+            <span class="text-amber-400 font-bold text-sm">★★★★★</span>
+            <span class="text-white font-semibold">5.0 / 5.0</span>
+            <span class="text-zinc-600">|</span>
+            <span class="text-zinc-400">Google Reviews &amp; Trustindex</span>
+          </div>
+        </div>
+
+        <!-- Reviews Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Review 1 -->
+          <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
+                <span>★★★★★</span>
+                <span class="text-zinc-500 text-[10px]">Google Verified</span>
+              </div>
+              <p class="text-zinc-300 text-xs font-mono leading-relaxed line-clamp-5">
+                “Mientras otras empresas nos presentaban altísimas cotizaciones con servicios genéricos, ellos se destacaron por reorientar una estrategia a la medida de nuestras necesidades. Ampliamente los recomiendo, son excepcionales.”
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/5">
+              <p class="text-white font-semibold text-xs">Paola Constantino</p>
+              <p class="text-zinc-500 text-[11px] font-mono">PM · Solmar Rentals</p>
+            </div>
+          </div>
+
+          <!-- Review 2 -->
+          <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
+                <span>★★★★★</span>
+                <span class="text-zinc-500 text-[10px]">Google Verified</span>
+              </div>
+              <p class="text-zinc-300 text-xs font-mono leading-relaxed line-clamp-5">
+                “Carlos is on top of everything. He is incredibly attentive and always reachable whenever I have questions. He is a hard worker and wants the best results for you. Best website experience I have ever had.”
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/5">
+              <p class="text-white font-semibold text-xs">Raquel Fisk</p>
+              <p class="text-zinc-500 text-[11px] font-mono">Website &amp; Systems Project</p>
+            </div>
+          </div>
+
+          <!-- Review 3 -->
+          <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
+                <span>★★★★★</span>
+                <span class="text-zinc-500 text-[10px]">Google Verified</span>
+              </div>
+              <p class="text-zinc-300 text-xs font-mono leading-relaxed line-clamp-5">
+                “Excelente servicio: te orientan y diseñan la página a tu gusto con las mejores técnicas. Soy abogado y me diseñaron una página increíble, además de excelentes planes para posicionar tu sitio y conseguir más clientes.”
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/5">
+              <p class="text-white font-semibold text-xs">Genaro García</p>
+              <p class="text-zinc-500 text-[11px] font-mono">Despacho Legal</p>
+            </div>
+          </div>
+
+          <!-- Review 4 -->
+          <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
+                <span>★★★★★</span>
+                <span class="text-zinc-500 text-[10px]">Google Verified</span>
+              </div>
+              <p class="text-zinc-300 text-xs font-mono leading-relaxed line-clamp-5">
+                “Hacen excelente trabajo, muy buenos tiempos de entrega y cumplieron con todo. De no aparecer en ninguna búsqueda de Google ni tener visitas, ahora no dejan de llegar clientes a mi página.”
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-white/5">
+              <p class="text-white font-semibold text-xs">José Elías Ancer</p>
+              <p class="text-zinc-500 text-[11px] font-mono">SEO &amp; Inbound Leads</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tech Stack Ticker -->
+        <div class="mt-12 flex flex-wrap items-center justify-center gap-6 text-zinc-500 text-xs font-mono">
+          <span class="text-zinc-600 uppercase text-[10px] tracking-wider">Enterprise Tech Stack:</span>
+          <span class="hover:text-zinc-300 transition-colors">Python / FastAPI</span>
+          <span>·</span>
+          <span class="hover:text-zinc-300 transition-colors">Next.js &amp; React</span>
+          <span>·</span>
+          <span class="hover:text-zinc-300 transition-colors">OpenAI &amp; Claude AI Agents</span>
+          <span>·</span>
+          <span class="hover:text-zinc-300 transition-colors">AWS &amp; GCP Cloud</span>
+          <span>·</span>
+          <span class="hover:text-zinc-300 transition-colors">Docker &amp; K8s</span>
+          <span>·</span>
+          <span class="hover:text-zinc-300 transition-colors">PostgreSQL / Redis</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- The 5 Method Section -->
+    <section id="method" class="py-24 max-w-[1240px] mx-auto px-4 sm:px-6 relative">
+      
+      <!-- Section Header -->
+      <div class="max-w-3xl mb-16">
+        <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
+          <span>THE BLUEPRINT</span>
+          <span>✦</span>
+        </div>
+        <h2 class="text-3xl sm:text-5xl font-black font-sans tracking-tight text-white leading-tight">
+          The 5 Method. <br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent via-rose-400 to-purple-400">
+            No limits. No legacy. No excuses.
+          </span>
+        </h2>
+        <p class="mt-4 text-zinc-400 font-mono text-xs sm:text-sm leading-relaxed">
+          Technology accelerates faster every day. Most businesses fall behind. We're the AI specialists who close that gap — a five-phase method that doesn't follow the curve, it bends it.
+        </p>
+
+        <!-- Phase Navigation Tabs -->
+        <div class="mt-8 flex flex-wrap gap-2 text-xs font-mono">
+          <button onclick="scrollToPhase('phase-01')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">01 Discover</button>
+          <button onclick="scrollToPhase('phase-02')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">02 Diagnose</button>
+          <button onclick="scrollToPhase('phase-03')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">03 Design</button>
+          <button onclick="scrollToPhase('phase-04')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">04 Deliver</button>
+          <button onclick="scrollToPhase('phase-05')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">05 Evolve</button>
+        </div>
+      </div>
+
+      <!-- Phase Cards Grid / Stack -->
+      <div class="space-y-6">
+
+        <!-- 01 Discover -->
+        <div id="phase-01" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
+          <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">01</span>
+          <div class="relative z-10 max-w-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="px-2.5 py-1 rounded bg-accent/20 text-accent font-mono text-xs font-bold">PHASE 01</span>
+              <span class="text-zinc-500 font-mono text-xs">DISCOVER</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white font-sans">
+              “80% of tech projects fail because no one asked the right question.”
+            </h3>
+            <ul class="mt-6 space-y-3 font-mono text-xs sm:text-sm text-zinc-400">
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>We don't start at the solution. We start at the uncomfortable truth.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>How your business actually runs — not the org-chart version.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span class="text-zinc-200">Clarity before code.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 02 Diagnose -->
+        <div id="phase-02" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
+          <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">02</span>
+          <div class="relative z-10 max-w-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="px-2.5 py-1 rounded bg-accent/20 text-accent font-mono text-xs font-bold">PHASE 02</span>
+              <span class="text-zinc-500 font-mono text-xs">DIAGNOSE</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white font-sans">
+              “If it can't be measured, it doesn't exist.”
+            </h3>
+            <ul class="mt-6 space-y-3 font-mono text-xs sm:text-sm text-zinc-400">
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>Every friction, bottleneck, and silent leak — mapped with precision telemetry.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>An executive diagnosis few consultants will sign their name to.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span class="text-zinc-200">Quantified truth. Zero opinions.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 03 Design -->
+        <div id="phase-03" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
+          <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">03</span>
+          <div class="relative z-10 max-w-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="px-2.5 py-1 rounded bg-accent/20 text-accent font-mono text-xs font-bold">PHASE 03</span>
+              <span class="text-zinc-500 font-mono text-xs">DESIGN</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white font-sans">
+              “We don't prescribe software. We prescribe outcomes.”
+            </h3>
+            <ul class="mt-6 space-y-3 font-mono text-xs sm:text-sm text-zinc-400">
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>Every architectural decision tied directly to a quantifiable business KPI.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>If it doesn't move the needle, it doesn't make the plan.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span class="text-zinc-200">Blueprint, not buzzwords.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 04 Deliver -->
+        <div id="phase-04" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
+          <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">04</span>
+          <div class="relative z-10 max-w-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="px-2.5 py-1 rounded bg-accent/20 text-accent font-mono text-xs font-bold">PHASE 04</span>
+              <span class="text-zinc-500 font-mono text-xs">DELIVER</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white font-sans">
+              “Code without adoption is debt with ego.”
+            </h3>
+            <ul class="mt-6 space-y-3 font-mono text-xs sm:text-sm text-zinc-400">
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>Victory isn't deploy. It's your internal team running and winning with it.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>Understood without a manual. Improved without waiting for permission.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span class="text-zinc-200">Adoption, not just delivery.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 05 Evolve -->
+        <div id="phase-05" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
+          <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">05</span>
+          <div class="relative z-10 max-w-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="px-2.5 py-1 rounded bg-accent/20 text-accent font-mono text-xs font-bold">PHASE 05</span>
+              <span class="text-zinc-500 font-mono text-xs">EVOLVE</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-white font-sans">
+              “What doesn't evolve is already dying.”
+            </h3>
+            <ul class="mt-6 space-y-3 font-mono text-xs sm:text-sm text-zinc-400">
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>While traditional agencies invoice and disappear, we stay as strategic partners.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span>Your business changes every quarter — your tech architecture has to evolve with it.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-accent mt-0.5">✦</span>
+                <span class="text-zinc-200">Long-term partnership, not single transaction.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Services Bento Grid Section -->
+    <section id="services" class="py-24 border-t border-white/5 bg-[#121216]/50 backdrop-blur-sm">
+      <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+        
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-mono text-zinc-300 mb-3">
+              <span>CAPABILITIES</span>
+              <span class="text-accent">●</span>
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-black font-sans tracking-tight text-white">
+              Engineered for impact.
+            </h2>
+            <p class="mt-3 text-zinc-400 font-mono text-xs sm:text-sm max-w-xl">
+              From autonomous agent ecosystems to resilient cloud foundations — we build technology that performs without friction.
+            </p>
+          </div>
+          <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20me%20interesan%20sus%20servicios" 
+             target="_blank" 
+             class="inline-flex items-center gap-2 text-xs font-mono uppercase text-accent hover:text-white transition-colors">
+            <span>Talk to an Architect</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <!-- Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+          <!-- Card 1: AI Agent Development (Featured Hero Card) -->
+          <div class="lg:col-span-2 rounded-2xl border border-accent/40 bg-gradient-to-br from-[#1b1520] via-[#15151a] to-[#121215] p-8 candle-glow relative overflow-hidden group">
+            <div class="absolute -right-12 -top-12 w-48 h-48 bg-accent/15 blur-3xl rounded-full pointer-events-none group-hover:bg-accent/25 transition-all"></div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="badge-pink font-mono text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                ✦ PRIMARY FOCUS · POPULAR
+              </span>
+              <span class="text-zinc-500 font-mono text-xs">01 / AI AGENTS</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold font-sans text-white group-hover:text-accent transition-colors">
+              AI Agent Development
+            </h3>
+            <p class="mt-3 text-zinc-300 font-mono text-xs sm:text-sm leading-relaxed max-w-xl">
+              Production-grade AI agents that act, not just chat. Autonomous workflows, custom tool integrations, deterministic business logic, and continuous learning systems that replace repetitive operations.
+            </p>
+            <div class="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono text-[11px] text-zinc-400">
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">✓ Autonomous LLM Agents</div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">✓ Tool &amp; API Calling</div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">✓ Multi-Agent Swarms</div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">✓ Retrieval Augmented (RAG)</div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">✓ Custom Fine-tuning</div>
+              <div class="p-2.5 rounded-lg bg-black/40 border border-white/5">✓ Human-in-the-Loop</div>
+            </div>
+          </div>
+
+          <!-- Card 2: Web Development -->
+          <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-2.5 py-1 rounded bg-white/5 text-zinc-300 font-mono text-[10px] uppercase">MODERN STACK</span>
+                <span class="text-zinc-500 font-mono text-xs">02</span>
+              </div>
+              <h3 class="text-xl font-bold font-sans text-white group-hover:text-accent transition-colors">
+                Web Development
+              </h3>
+              <p class="mt-3 text-zinc-400 font-mono text-xs leading-relaxed">
+                Sites built to be read, trusted, and cited by AI. Lightning-fast performance, headless CMS, and ultra-high conversion architecture.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/5 text-[11px] font-mono text-zinc-500 flex items-center justify-between">
+              <span>Next.js · Tailwind · Node</span>
+              <span class="text-accent">99+ Lighthouse</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Nearshore Software Engineering -->
+          <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-2.5 py-1 rounded bg-white/5 text-zinc-300 font-mono text-[10px] uppercase">TIMEZONE ALIGNED</span>
+                <span class="text-zinc-500 font-mono text-xs">03</span>
+              </div>
+              <h3 class="text-xl font-bold font-sans text-white group-hover:text-accent transition-colors">
+                Nearshore Engineering
+              </h3>
+              <p class="mt-3 text-zinc-400 font-mono text-xs leading-relaxed">
+                Senior dedicated software engineers working in your exact timezone. Zero offshore lag, English/Spanish bilingual fluency, and immediate sprint velocity.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/5 text-[11px] font-mono text-zinc-500 flex items-center justify-between">
+              <span>HQ Monterrey · US Aligned</span>
+              <span class="text-emerald-400">Zero Lag</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Cloud Migration & Modernization -->
+          <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-2.5 py-1 rounded bg-white/5 text-zinc-300 font-mono text-[10px] uppercase">INFRASTRUCTURE</span>
+                <span class="text-zinc-500 font-mono text-xs">04</span>
+              </div>
+              <h3 class="text-xl font-bold font-sans text-white group-hover:text-accent transition-colors">
+                Cloud Migration
+              </h3>
+              <p class="mt-3 text-zinc-400 font-mono text-xs leading-relaxed">
+                Move to AWS, Azure, or GCP — scale seamlessly, enhance cyber-security, and slash operational overhead with zero downtime.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/5 text-[11px] font-mono text-zinc-500 flex items-center justify-between">
+              <span>AWS · Azure · GCP · K8s</span>
+              <span class="text-white">-40% Cost</span>
+            </div>
+          </div>
+
+          <!-- Card 5: Data & Analytics -->
+          <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-2.5 py-1 rounded bg-white/5 text-zinc-300 font-mono text-[10px] uppercase">INTELLIGENCE</span>
+                <span class="text-zinc-500 font-mono text-xs">05</span>
+              </div>
+              <h3 class="text-xl font-bold font-sans text-white group-hover:text-accent transition-colors">
+                Data &amp; Analytics
+              </h3>
+              <p class="mt-3 text-zinc-400 font-mono text-xs leading-relaxed">
+                Turn scattered databases into executive decisions you can act on. Clean ELT pipelines, automated business dashboards, and predictive forecasting.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-white/5 text-[11px] font-mono text-zinc-500 flex items-center justify-between">
+              <span>SQL · Snowflake · BigQuery</span>
+              <span class="text-accent">Live Telemetry</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Interactive Friction Diagnostic Tool Section -->
+    <section id="friction-tool" class="py-24 max-w-[1240px] mx-auto px-4 sm:px-6 relative">
+      <div class="rounded-3xl border border-white/10 bg-gradient-to-b from-[#16161d] to-[#101014] p-8 sm:p-14 relative overflow-hidden shadow-2xl">
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="max-w-3xl mb-12">
+          <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
+            <span>DIAGNOSTIC MATRIX</span>
+            <span class="text-white/20">|</span>
+            <span>183+ FRICTIONS CATALOGED</span>
+          </div>
+          <h2 class="text-3xl sm:text-5xl font-black font-sans tracking-tight text-white leading-tight">
+            What's slowing you down? <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-400">
+              You name the friction. We map the fix.
+            </span>
+          </h2>
+          <p class="mt-4 text-zinc-400 font-mono text-xs sm:text-sm">
+            Select the operational friction currently holding your company back to preview the architectural solution:
+          </p>
+        </div>
+
+        <!-- Friction Selector Buttons -->
+        <div class="flex flex-wrap gap-2.5 sm:gap-3 mb-10 font-mono text-xs" id="friction-chips">
+          <button onclick="selectFriction(0)" class="friction-btn active px-4 py-2.5 rounded-xl border border-accent bg-accent/20 text-white transition-all text-left">
+            ⚡ Engineering bottlenecked by manual repetitive tasks
+          </button>
+          <button onclick="selectFriction(1)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            📊 Data trapped in disconnected ERP/CRM silos
+          </button>
+          <button onclick="selectFriction(2)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            ⏱ Offshore team missing quality benchmarks &amp; timezone sync
+          </button>
+          <button onclick="selectFriction(3)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            🤖 Lots of AI hype with zero measurable business ROI
+          </button>
+          <button onclick="selectFriction(4)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            💸 Cloud infrastructure bills spiking without clear justification
+          </button>
+          <button onclick="selectFriction(5)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            🔍 Website invisible to modern AI search (ChatGPT, Perplexity)
+          </button>
+        </div>
+
+        <!-- Dynamic Output Solution Card -->
+        <div id="solution-display" class="rounded-2xl border border-white/15 bg-black/60 p-6 sm:p-8 backdrop-blur-xl">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-widest text-accent mb-1" id="sol-phase">
+                RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER
+              </div>
+              <h3 class="text-xl sm:text-2xl font-bold font-sans text-white" id="sol-title">
+                Autonomous Workflow Multi-Agent Cluster
+              </h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-mono text-zinc-400">ESTIMATED IMPACT:</span>
+              <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono text-xs font-bold" id="sol-impact">
+                85% Task Automation in 30 Days
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs text-zinc-300">
+            <div>
+              <span class="text-zinc-500 text-[10px] uppercase block mb-1">Architecture Fix</span>
+              <p id="sol-fix" class="leading-relaxed text-zinc-300">
+                Deploy specialized worker agents to orchestrate asynchronous tasks, replacing human copy-pasting across disparate dashboards.
+              </p>
+            </div>
+            <div>
+              <span class="text-zinc-500 text-[10px] uppercase block mb-1">Prescribed Deliverables</span>
+              <p id="sol-deliverable" class="leading-relaxed text-zinc-300">
+                Dedicated LLM orchestrator, deterministic Python API workers, fail-safe validation loop, and enterprise monitoring dashboard.
+              </p>
+            </div>
+            <div class="flex flex-col justify-between">
+              <div>
+                <span class="text-zinc-500 text-[10px] uppercase block mb-1">Timeline to Production</span>
+                <p id="sol-timeline" class="font-bold text-white text-sm">2 to 4 Sprints</p>
+              </div>
+              <div class="pt-4">
+                <a id="sol-cta" href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20diagnosticar%20la%20siguiente%20friccion:%20Engineering%20bottlenecked" 
+                   target="_blank" 
+                   class="inline-flex items-center gap-2 text-xs font-bold text-accent hover:text-white transition-colors">
+                  <span>Discuss this diagnosis on WhatsApp</span>
+                  <span>→</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Free Tools Showcase Section -->
+    <section id="tools" class="py-24 border-t border-white/5 bg-[#0f0f13]">
+      <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-14">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-mono text-accent mb-3">
+              <span>NO-COST UTILITIES</span>
+              <span>✦</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold font-sans tracking-tight text-white">
+              Complimentary Enterprise Tools
+            </h2>
+          </div>
+          <p class="text-xs font-mono text-zinc-400 max-w-md">
+            Test and benchmark your current web infrastructure, search visibility, and AI compatibility in seconds.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Tool 1: AI Visibility Check -->
+          <div class="rounded-2xl border border-white/10 bg-[#15151a] p-7 candle-glow flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs px-2.5 py-0.5 rounded bg-accent/20 text-accent font-mono font-bold">AI SCANNER</span>
+                <span class="text-zinc-600 font-mono text-xs">FREE</span>
+              </div>
+              <h3 class="text-lg font-bold font-sans text-white group-hover:text-accent transition-colors">
+                AI Visibility Check
+              </h3>
+              <p class="mt-3 text-xs font-mono text-zinc-400 leading-relaxed">
+                Evaluates whether ChatGPT, Claude, Perplexity, and Google Gemini can find, parse, and accurately cite your services.
+              </p>
+            </div>
+            <div class="mt-8 pt-4 border-t border-white/5">
+              <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20hacer%20el%20AI%20Visibility%20Check%20gratis" 
+                 target="_blank" 
+                 class="inline-flex items-center gap-2 text-xs font-mono text-white group-hover:text-accent font-semibold transition-colors">
+                <span>Run Free Scan</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Tool 2: Free SEO & Core Web Vitals Check -->
+          <div class="rounded-2xl border border-white/10 bg-[#15151a] p-7 candle-glow flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs px-2.5 py-0.5 rounded bg-white/10 text-zinc-300 font-mono font-bold">PERFORMANCE</span>
+                <span class="text-zinc-600 font-mono text-xs">FREE</span>
+              </div>
+              <h3 class="text-lg font-bold font-sans text-white group-hover:text-accent transition-colors">
+                Free SEO &amp; Speed Audit
+              </h3>
+              <p class="mt-3 text-xs font-mono text-zinc-400 leading-relaxed">
+                Full technical assessment of mobile responsiveness, cumulative layout shifts, server latency, and ranking barriers.
+              </p>
+            </div>
+            <div class="mt-8 pt-4 border-t border-white/5">
+              <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20el%20Free%20SEO%20Check" 
+                 target="_blank" 
+                 class="inline-flex items-center gap-2 text-xs font-mono text-white group-hover:text-accent font-semibold transition-colors">
+                <span>Request SEO Audit</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Tool 3: Business Diagnosis Doctor -->
+          <div class="rounded-2xl border border-white/10 bg-[#15151a] p-7 candle-glow flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-400 font-mono font-bold">STRATEGY</span>
+                <span class="text-zinc-600 font-mono text-xs">FREE</span>
+              </div>
+              <h3 class="text-lg font-bold font-sans text-white group-hover:text-accent transition-colors">
+                Business Doctor Diagnosis
+              </h3>
+              <p class="mt-3 text-xs font-mono text-zinc-400 leading-relaxed">
+                30-minute structured technical walkthrough with an executive engineering lead to map your top three operational leaks.
+              </p>
+            </div>
+            <div class="mt-8 pt-4 border-t border-white/5">
+              <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20agendar%20mi%20Business%20Doctor%20Diagnosis" 
+                 target="_blank" 
+                 class="inline-flex items-center gap-2 text-xs font-mono text-white group-hover:text-accent font-semibold transition-colors">
+                <span>Book Diagnosis Call</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Contact & Consultation Section -->
+    <section id="contact" class="py-24 border-t border-white/5 relative">
+      <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          
+          <!-- Left Info Column -->
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
+              <span>GET IN TOUCH</span>
+              <span>✦</span>
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-black font-sans tracking-tight text-white leading-tight">
+              And every business deserves to <br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent via-rose-400 to-purple-400">
+                evolve.
+              </span>
+            </h2>
+            <p class="mt-4 text-zinc-400 font-mono text-xs sm:text-sm leading-relaxed max-w-md">
+              Whether you need senior nearshore engineers, custom AI agents, or an executive diagnosis of your tech bottlenecks — we're ready.
+            </p>
+
+            <div class="mt-8 space-y-4 font-mono text-xs">
+              <a href="mailto:hello@weevolveit.com" class="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group">
+                <span class="w-8 h-8 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold">@</span>
+                <div>
+                  <span class="text-zinc-500 text-[10px] uppercase block">Direct Email</span>
+                  <span class="text-white group-hover:text-accent font-semibold transition-colors">hello@weevolveit.com</span>
+                </div>
+              </a>
+
+              <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20platicar%20sobre%20mi%20proyecto" 
+                 target="_blank" 
+                 class="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group">
+                <span class="w-8 h-8 rounded-full bg-waGreen/20 text-waGreen flex items-center justify-center font-bold">WA</span>
+                <div>
+                  <span class="text-zinc-500 text-[10px] uppercase block">WhatsApp Direct Response</span>
+                  <span class="text-white group-hover:text-waGreen font-semibold transition-colors">+1 956 272 1609</span>
+                </div>
+              </a>
+
+              <div class="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                <span class="text-zinc-500 text-[10px] uppercase block mb-1">Global Headquarters</span>
+                <p class="text-zinc-300 text-[11px] leading-relaxed">
+                  Venustiano Carranza 601, Monterrey, Nuevo León 64710, Mexico <br/>
+                  <span class="text-zinc-500">Presence: Dubai, United Arab Emirates</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Interactive Consultation Form -->
+          <div class="rounded-2xl border border-white/10 bg-[#15151a] p-8 candle-glow shadow-2xl">
+            <h3 class="text-xl font-bold font-sans text-white mb-2">Book a Technical Consultation</h3>
+            <p class="text-xs font-mono text-zinc-400 mb-6">Talk directly with a Solutions Architect within 24 hours.</p>
+
+            <form id="consult-form" onsubmit="handleFormSubmit(event)" class="space-y-4 font-mono text-xs">
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Your Name *</label>
+                <input type="text" required placeholder="Alex Mercer" class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder-zinc-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" />
+              </div>
+
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Work Email *</label>
+                <input type="email" required placeholder="alex@company.com" class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder-zinc-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" />
+              </div>
+
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Primary Interest</label>
+                <select class="w-full rounded-xl border border-white/10 bg-[#121216] px-4 py-2.5 text-white focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors">
+                  <option value="ai-agents">AI Agent Development</option>
+                  <option value="nearshore">Nearshore Engineering Squad</option>
+                  <option value="web-dev">Web &amp; Mobile Platform</option>
+                  <option value="cloud">Cloud Migration &amp; Cost Optimization</option>
+                  <option value="doctor">Business Doctor Diagnosis</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Project Overview / Bottleneck</label>
+                <textarea rows="3" placeholder="Briefly describe what your team is building or what bottleneck needs solving..." class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder-zinc-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors"></textarea>
+              </div>
+
+              <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-accent hover:bg-[#c9006d] text-white font-mono font-semibold uppercase tracking-wider text-xs transition-all shadow-[0_0_20px_rgba(228,0,124,0.3)] hover:scale-[1.01] active:scale-[0.99]">
+                Submit &amp; Connect with Architect ✦
+              </button>
+
+              <div id="form-success" class="hidden p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[11px] text-center font-mono">
+                ✓ Request received! An architect will reach out shortly.
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-white/10 bg-[#0a0a0d] py-16 text-zinc-400 font-mono text-xs">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+        
+        <!-- Col 1: Brand Info -->
+        <div class="col-span-2">
+          <div class="flex items-center font-bold tracking-tight text-[17px] font-mono text-white mb-4">
+            <span>WeEvolve</span>
+            <span class="text-accent">IT</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-accent ml-1.5"></span>
+          </div>
+          <p class="text-zinc-500 text-xs max-w-sm leading-relaxed mb-4">
+            AI specialists. A five-phase method — Discover, Diagnose, Design, Deliver, Evolve — that transforms how your business runs on technology.
+          </p>
+          <div class="flex items-center gap-2 text-[10px] text-zinc-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>SYSTEM HEALTH: 100% OPERATIONAL</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Services -->
+        <div>
+          <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">Services</span>
+          <ul class="space-y-2 text-zinc-500 text-[11px]">
+            <li><a href="#services" class="hover:text-white transition-colors">AI Agent Development ✦</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Web Development</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Nearshore Software</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Cloud Migration</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Data &amp; Analytics</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: The 5 Method -->
+        <div>
+          <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">The Method</span>
+          <ul class="space-y-2 text-zinc-500 text-[11px]">
+            <li><a href="#method" class="hover:text-white transition-colors">01 Discover</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">02 Diagnose</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">03 Design</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">04 Deliver</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">05 Evolve</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Free Tools -->
+        <div>
+          <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">Free Tools</span>
+          <ul class="space-y-2 text-zinc-500 text-[11px]">
+            <li><a href="#tools" class="hover:text-white transition-colors">AI Visibility Check</a></li>
+            <li><a href="#tools" class="hover:text-white transition-colors">Free SEO Audit</a></li>
+            <li><a href="#friction-tool" class="hover:text-white transition-colors">Friction Matrix</a></li>
+            <li><a href="#tools" class="hover:text-white transition-colors">Business Doctor</a></li>
+            <li><a href="/robots.txt" class="hover:text-white transition-colors">llms.txt</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-600 text-[11px]">
+        <div>
+          © 2026 WeEvolveIT. All rights reserved. Monterrey, NL · Dubai, UAE.
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="#hero" class="hover:text-zinc-400 transition-colors">Back to top ↑</a>
+          <span>·</span>
+          <a href="https://weevolveit.com" target="_blank" class="hover:text-zinc-400 transition-colors">weevolveit.com (Official)</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    // Canvas subtle particle effect
+    const canvas = document.getElementById('matrix-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      let width, height, particles;
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        particles = [];
+        const count = Math.floor(width / 24);
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 1.5 + 0.5,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: (Math.random() - 0.5) * 0.25,
+            alpha: Math.random() * 0.5 + 0.2
+          });
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = '#ffffff';
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha * 0.4})`;
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      draw();
+    }
+
+    // Mobile nav toggle
+    const toggleBtn = document.getElementById('mobile-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (toggleBtn && mobileMenu) {
+      toggleBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+
+    // Scroll to phase
+    function scrollToPhase(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-2', 'ring-accent');
+        setTimeout(() => {
+          el.classList.remove('ring-2', 'ring-accent');
+        }, 1500);
+      }
+    }
+
+    // Friction Tool Data & Logic
+    const frictions = [
+      {
+        phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER",
+        title: "Autonomous Workflow Multi-Agent Cluster",
+        impact: "85% Task Automation in 30 Days",
+        fix: "Deploy specialized worker agents to orchestrate asynchronous tasks, replacing human copy-pasting across disparate dashboards.",
+        deliverable: "Dedicated LLM orchestrator, deterministic Python API workers, fail-safe validation loop, and enterprise monitoring dashboard.",
+        timeline: "2 to 4 Sprints",
+        topic: "Engineering bottlenecked by manual repetitive tasks"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 01 DISCOVER → 03 DESIGN",
+        title: "Unified Event-Driven Data Pipeline",
+        impact: "Instant Real-Time Data Sync",
+        fix: "Break down relational barriers between Salesforce/HubSpot and internal ERPs with robust bi-directional sync webhooks and Redis caching.",
+        deliverable: "Automated CDC (Change Data Capture) pipeline, single customer view schema, and auditable error recovery queues.",
+        timeline: "3 to 5 Sprints",
+        topic: "Data trapped in disconnected ERP/CRM silos"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 03 DESIGN → 04 DELIVER",
+        title: "Monterrey-US Nearshore Squad Integration",
+        impact: "100% Timezone Aligned Sprint Cadence",
+        fix: "Replace fragmented offshore handoffs with senior dedicated engineers located in Central/Pacific hours, participating in daily standups.",
+        deliverable: "Senior full-stack team embedded within 10 days, rigorous code review standards, and CI/CD automated gates.",
+        timeline: "Immediate (Under 2 Weeks)",
+        topic: "Offshore team missing quality benchmarks and timezone sync"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 05 EVOLVE",
+        title: "ROI-First AI Architecture Audit",
+        impact: "Clear 4x+ Payback Horizon",
+        fix: "Eliminate generic chatbot subscriptions. Anchor every AI initiative to a hard operational dollar saving or margin expansion KPI.",
+        deliverable: "Executive feasibility matrix, custom fine-tuned model evaluation, and pilot MVP deployed in sandboxed production.",
+        timeline: "1 Sprint (2-Week Sprint)",
+        topic: "AI hype with zero measurable business ROI"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER",
+        title: "FinOps Cloud Architecture Re-engineering",
+        impact: "35% - 50% Cloud Spend Reduction",
+        fix: "Audit idle provisioned AWS/GCP clusters, convert static compute to auto-scaling spot/serverless containers, and optimize egress networks.",
+        deliverable: "Automated Terraform infrastructure-as-code, budget guardrails, and rightsized cluster topology.",
+        timeline: "2 to 3 Sprints",
+        topic: "Cloud infrastructure bills spiking without clear justification"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 01 DISCOVER → 04 DELIVER",
+        title: "Generative Engine Optimization (GEO/AEO)",
+        impact: "Top 3 Citations in LLM Search Engines",
+        fix: "Restructure website DOM, structured JSON-LD schemas, and programmatic technical content to be trusted, indexed, and cited by AI engines.",
+        deliverable: "Comprehensive GEO semantic audit, knowledge-graph integration, and high-authority entity footprint.",
+        timeline: "3 to 4 Weeks",
+        topic: "Website invisible to modern AI search"
+      }
+    ];
+
+    function selectFriction(index) {
+      const data = frictions[index];
+      if (!data) return;
+
+      // Update button active state
+      const buttons = document.querySelectorAll('.friction-btn');
+      buttons.forEach((btn, i) => {
+        if (i === index) {
+          btn.className = 'friction-btn active px-4 py-2.5 rounded-xl border border-accent bg-accent/20 text-white transition-all text-left';
+        } else {
+          btn.className = 'friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left';
+        }
+      });
+
+      // Update solution card
+      document.getElementById('sol-phase').textContent = data.phase;
+      document.getElementById('sol-title').textContent = data.title;
+      document.getElementById('sol-impact').textContent = data.impact;
+      document.getElementById('sol-fix').textContent = data.fix;
+      document.getElementById('sol-deliverable').textContent = data.deliverable;
+      document.getElementById('sol-timeline').textContent = data.timeline;
+      document.getElementById('sol-cta').href = `https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20diagnosticar%20la%20friccion:%20${encodeURIComponent(data.topic)}`;
+    }
+
+    // Form submission simulation
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const form = document.getElementById('consult-form');
+      const success = document.getElementById('form-success');
+      if (form && success) {
+        success.classList.remove('hidden');
+        form.reset();
+        setTimeout(() => {
+          success.classList.add('hidden');
+        }, 5000);
+      }
+    }
+  </script>
+</body>
+</html>
