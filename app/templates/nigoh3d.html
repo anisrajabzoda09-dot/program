@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tg" class="h-full scroll-smooth antialiased dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Нигоҳ 3D — Муаррифии интерактивии барномаи назорати волидайн</title>
+  <meta name="description" content="Муаррифии интерактивии 3D барои барномаи Нигоҳ (NIGOH Family) — Назорати волидайн, харитаи зиндаи GPS, бастани бозиҳо ва тугмаи фаврии SOS." />
+  <meta name="theme-color" content="#0b0b0e" />
+
+  <!-- Fonts: JetBrains Mono & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0b0b0e',
+            panel: '#121217',
+            accent: '#E4007C',
+            accentCyan: '#00F0FF',
+            accentEmerald: '#10B981',
+            accentAmber: '#F59E0B',
+            accentPurple: '#8A2BE2'
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Three.js + OrbitControls + Tween.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background-color: #0b0b0e;
+      color: #ededf2;
+      font-family: 'JetBrains Mono', monospace;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+    }
+    /* Hologram Scanlines */
+    .scanlines {
+      background: linear-gradient(rgba(18, 16, 26, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+    /* Glassmorphism */
+    .glass-hud {
+      background: rgba(14, 14, 18, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .candle-pink {
+      transition: all 0.3s ease;
+    }
+    .candle-pink:hover {
+      border-color: rgba(228, 0, 124, 0.5);
+      box-shadow: 0 0 20px rgba(228, 0, 124, 0.2);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(228, 0, 124, 0.4);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="relative w-full h-full bg-bg overflow-hidden flex flex-col justify-between">
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="webgl-container" class="absolute inset-0 z-0"></div>
+
+  <!-- Scanlines & Ambient Vignette Overlay -->
+  <div class="absolute inset-0 scanlines z-[1] pointer-events-none"></div>
+  <div class="absolute inset-0 bg-radial-vignette pointer-events-none z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.85)]"></div>
+
+  <!-- TOP FLOATING HUD NAVIGATION BAR -->
+  <header class="relative z-20 px-4 sm:px-6 pt-4 pointer-events-auto">
+    <div class="max-w-[1380px] mx-auto flex items-center justify-between gap-4 glass-hud rounded-2xl px-5 py-3 shadow-2xl">
+      
+      <!-- Brand & Mode Title -->
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-accent to-purple-600 flex items-center justify-center font-bold text-white shadow-[0_0_12px_rgba(228,0,124,0.5)]">
+            Н
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5 font-sans font-extrabold text-sm sm:text-base text-white">
+              <span>НИГОҲ</span>
+              <span class="text-accent">3D</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-accent/20 text-accent font-mono border border-accent/30">v2.6.1</span>
+            </div>
+            <p class="text-[10px] font-mono text-zinc-500 hidden sm:block">Интерактивная 3D-визуализация приложения</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Quick Mode Switcher Pills -->
+      <div class="hidden lg:flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5 font-mono text-[11px]">
+        <button onclick="switchMode(0)" class="mode-pill active px-3 py-1.5 rounded-lg text-white bg-accent font-semibold transition-all">01 GPS ЗИНДА</button>
+        <button onclick="switchMode(1)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">02 ГЕО-МИНТАҚА</button>
+        <button onclick="switchMode(2)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">03 БАСТАНИ БОЗИҲО</button>
+        <button onclick="switchMode(3)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">04 ТУГМАИ SOS</button>
+        <button onclick="switchMode(4)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">05 ТЕЛЕМЕТРИЯ</button>
+        <button onclick="switchMode(5)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">06 QR ПАЙВАСТ</button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- 3D Auto Rotate Toggle -->
+        <button id="btn-rotate" onclick="toggleAutoRotate()" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-[11px] font-mono text-zinc-300 hover:text-white hover:border-accent transition-all flex items-center gap-1.5">
+          <span id="rotate-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="rotate-label">3D Давр: ФАЪОЛ</span>
+        </button>
+
+        <!-- Download APK Link -->
+        <a href="/api/download/apk" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-accent hover:bg-[#c9006d] text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(228,0,124,0.4)]">
+          <span>Боргирӣ (APK)</span>
+          <span class="text-sm">↓</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CENTER 3D INTERACTIVE VIEWPORT PLACEHOLDER (WILL BE POPULATED BY THREE.JS) -->
+  <div class="flex-1 relative z-10 pointer-events-none flex items-center justify-between p-4 sm:p-8">
+    
+    <!-- LEFT HUD: FEATURE DEEP DIVE CARD -->
+    <div class="pointer-events-auto max-w-sm sm:max-w-md w-full glass-hud rounded-2xl p-5 sm:p-6 shadow-2xl border border-white/10 space-y-4">
+      
+      <!-- Mode Badge & Title -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span id="card-tag" class="px-2.5 py-0.5 rounded-md bg-accent/20 border border-accent/40 text-accent font-mono text-[10px] uppercase font-bold tracking-wider">
+            ✦ ФУНКСИЯИ 01
+          </span>
+          <span class="text-[10px] font-mono text-zinc-500">РЕҶАИ 3D ЗИНДА</span>
+        </div>
+        <h2 id="card-title" class="font-sans font-bold text-xl sm:text-2xl text-white">
+          Харита ва Радари GPS Зинда
+        </h2>
+        <p id="card-desc" class="mt-2 font-mono text-xs text-zinc-300 leading-relaxed">
+          Муайянсозии дақиқи макони кӯдак дар харитаи Душанбе ва дигар минтақаҳо. Хатогии макон камтар аз 3 метр мебошад.
+        </p>
+      </div>
+
+      <!-- Live Telemetry Data Chips -->
+      <div id="card-telemetry" class="grid grid-cols-2 gap-2 font-mono text-[11px]">
+        <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+          <span class="text-zinc-500 text-[9px] uppercase block">Аниқии Радиус</span>
+          <span class="text-emerald-400 font-bold">~ 2.8 метр</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+          <span class="text-zinc-500 text-[9px] uppercase block">Вақти Пайваст</span>
+          <span class="text-accentCyan font-bold">12 ms (Фаврӣ)</span>
+        </div>
+      </div>
+
+      <!-- Feature Bullet Points -->
+      <div id="card-bullets" class="space-y-1.5 font-mono text-[11px] text-zinc-400 border-t border-white/5 pt-3">
+        <div class="flex items-center gap-2">
+          <span class="text-accent">✓</span>
+          <span>Намоиши траектория ва таърихи ҳаракати 30-рӯза</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-accent">✓</span>
+          <span>Суръати ҳаракат (Пиёда, Мошин, Автобус)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-accent">✓</span>
+          <span>Кор бо харитаҳои моҳворагӣ (Satellite & Street)</span>
+        </div>
+      </div>
+
+      <!-- Camera Action Buttons -->
+      <div class="flex items-center gap-2 pt-2">
+        <button onclick="focusPhone()" class="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-zinc-200 transition-all text-center">
+          Намои Экран [Марказ]
+        </button>
+        <button onclick="spinPhone()" class="py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-zinc-200 transition-all text-center">
+          Даври 360°
+        </button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT HUD: 3D TELEMETRY & SYSTEM STATE -->
+    <div class="pointer-events-auto hidden md:flex flex-col gap-3 glass-hud rounded-2xl p-5 shadow-2xl border border-white/10 max-w-xs w-full text-xs font-mono">
+      <div class="flex items-center justify-between border-b border-white/5 pb-2">
+        <span class="text-zinc-400 font-bold uppercase text-[10px]">3D Сенсорҳо &amp; Статус</span>
+        <span class="flex items-center gap-1.5 text-emerald-400 text-[10px]">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          ONLINE
+        </span>
+      </div>
+
+      <div class="space-y-2 text-[11px] text-zinc-300">
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Батареяи телефон:</span>
+          <span id="hud-battery" class="text-emerald-400 font-bold">88% (Пурқувват)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Шабакаи кӯдак:</span>
+          <span class="text-accentCyan font-bold">4G LTE Tcell</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Реҷаи садо:</span>
+          <span class="text-white">Баландгӯяк фаъол</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-zinc-500">Сервери марказӣ:</span>
+          <span class="text-accent font-mono text-[10px]">nigohfamily.qobus.tj</span>
+        </div>
+      </div>
+
+      <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 text-[10px] text-zinc-400 leading-relaxed mt-2">
+        💡 <strong class="text-white">Маслиҳат:</strong> Шумо метавонед бо муш ё ангушт телефонро озодона тоб диҳед, наздик кунед ва аз ҳама тараф бубинед.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION CAROUSEL (MODE SELECTOR) -->
+  <footer class="relative z-20 px-4 sm:px-6 pb-4 pointer-events-auto">
+    <div class="max-w-[1380px] mx-auto glass-hud rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
+      
+      <div class="flex items-center gap-2 text-xs font-mono text-zinc-400">
+        <span class="text-accent font-bold">НИГОҲ 3D:</span>
+        <span class="hidden sm:inline">Функсияҳои калидӣ барои назорати бехатарии кӯдак</span>
+      </div>
+
+      <!-- Quick mode selector tabs for mobile / desktop -->
+      <div class="flex items-center gap-2 overflow-x-auto py-1 max-w-full font-mono text-xs">
+        <button onclick="switchMode(0)" class="btn-m px-3 py-1.5 rounded-xl bg-accent text-white font-bold whitespace-nowrap text-[11px] transition-all">1. GPS Зинда</button>
+        <button onclick="switchMode(1)" class="btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all">2. Гео-Минтақа</button>
+        <button onclick="switchMode(2)" class="btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all">3. Бастани Барнома</button>
+        <button onclick="switchMode(3)" class="btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all">4. Тугмаи SOS</button>
+        <button onclick="switchMode(4)" class="btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all">5. Телеметрия</button>
+        <button onclick="switchMode(5)" class="btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all">6. QR-Код</button>
+      </div>
+
+      <div class="hidden xl:flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
+        <span>Тугмаҳои тез: 1-6</span>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>
