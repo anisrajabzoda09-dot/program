@@ -477,111 +477,143 @@
       
       <!-- Section Header -->
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="px-4 py-1.5 text-xs font-black text-indigo-600 uppercase tracking-wider inline-block bg-indigo-50 border border-indigo-100 rounded-full mb-3">
-          Дар бораи барнома ва Имкониятҳо
+        <span class="px-4 py-1.5 text-xs font-black text-indigo-600 uppercase tracking-wider inline-block bg-indigo-50 border border-indigo-100 rounded-full mb-3 shadow-2xs">
+          Имкониятҳо ва Барнома
         </span>
         <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mt-2 tracking-tight">
           Ҳама чиз барои назорати боэътимод ва оромии волидайн
         </h2>
-        <p class="text-base sm:text-lg text-slate-600 mt-4 font-medium">
-          Технологияи содда, муосир ва бе хатари маҳдудияти суръат барои муҳофизати кӯдакон дар ҷаҳони рақамӣ.
+        <p class="text-base sm:text-lg text-slate-600 mt-4 font-medium max-w-2xl mx-auto">
+          Технологияи оқилона, содда ва бе хатари суст шудани суръати телефон барои ҳифзи саломатии равонии фарзандон.
         </p>
       </div>
 
       <!-- Bento Grid (Dynamic Columns) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
         
         <!-- Bento 1: 100% Offline (2 cols on large screen) -->
-        <div class="bento-card p-8 lg:col-span-2 flex flex-col justify-between bg-gradient-to-br from-white via-white to-emerald-50/40">
+        <div class="bento-card p-8 lg:col-span-2 flex flex-col justify-between bg-gradient-to-br from-white via-white to-emerald-50/50 hover:shadow-xl transition-all duration-300">
           <div>
             <div class="flex items-center justify-between mb-6">
-              <div class="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shadow-sm">
-                <i class="fa-solid fa-wifi"></i>
+              <div class="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shadow-xs">
+                <i class="fa-solid fa-wifi-slash"></i>
               </div>
-              <span class="bg-emerald-100/70 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full border border-emerald-200">
-                Технологияи беназир
+              <span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3.5 py-1.5 rounded-full border border-emerald-200 shadow-2xs">
+                <i class="fa-solid fa-bolt mr-1 text-emerald-600"></i> Технологияи беназир
               </span>
             </div>
             <h3 class="text-2xl font-black text-slate-900 mb-3">100% Кори Офлайн (Ҳатто бе интернет)</h3>
             <p class="text-base text-slate-600 leading-relaxed font-medium max-w-xl mb-6">
-              Қоидаҳои басташуда бевосита дар хотираи дохилии телефони фарзанд сабт мешаванд. Агар кӯдак Wi-Fi ё интернети мобилиро хомӯш кунад ҳам, бозиҳо ва барномаҳои маҳдудшуда кушода намешаванд!
+              Қоидаҳои волидайн бевосита дар хотираи дохилии телефони фарзанд ҳифз мешаванд. Агар кӯдак Wi-Fi ё интернети мобилиро хомӯш кунад ҳам, бозиҳо ва барномаҳои маҳдудшуда кушода намешаванд!
             </p>
           </div>
-          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-100 text-xs font-bold text-slate-600">
-            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Бе масрафи трафик</div>
-            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Ҳимояи худкор</div>
-            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600"></i> Бе таъхири вақт</div>
+          <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200/80 text-xs font-extrabold text-slate-700">
+            <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Бе масрафи трафик</div>
+            <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Ҳимояи фаврӣ</div>
+            <div class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> 0 сония таъхир</div>
           </div>
         </div>
 
         <!-- Bento 2: App Blocking -->
-        <div class="bento-card p-8 flex flex-col justify-between">
+        <div class="bento-card p-8 flex flex-col justify-between hover:shadow-xl transition-all duration-300">
           <div>
-            <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
-              <i class="fa-solid fa-lock"></i>
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-2xl shadow-xs">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full">
+                1-Клик
+              </span>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Бастани Барномаҳо ва Бозиҳо</h3>
+            <h3 class="text-xl font-black text-slate-900 mb-3">Қулфи Барномаҳо ва Бозиҳо</h3>
             <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
-              TikTok, Instagram, PUBG, Roblox ва дигар бозиҳоро бо як тугма қулф намоед ё реҷаи рӯзона таъин кунед.
+              TikTok, Instagram, PUBG, Roblox ва дигар бозиҳои вақтгирро бо як тугма қулф намоед ё лимити рӯзона муқаррар созед.
             </p>
           </div>
-          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600">
-            <span>Бо як клик фаъол мешавад</span>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-extrabold text-indigo-600">
+            <span>Идоракунии фаврӣ</span>
             <i class="fa-solid fa-arrow-right"></i>
           </div>
         </div>
 
         <!-- Bento 3: Safe Web -->
-        <div class="bento-card p-8 flex flex-col justify-between">
+        <div class="bento-card p-8 flex flex-col justify-between hover:shadow-xl transition-all duration-300">
           <div>
-            <div class="w-16 h-16 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
-              <i class="fa-solid fa-shield-virus"></i>
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-16 h-16 rounded-2xl bg-sky-50 border border-sky-100 text-sky-600 flex items-center justify-center text-2xl shadow-xs">
+                <i class="fa-solid fa-shield-virus"></i>
+              </div>
+              <span class="text-[10px] font-black text-sky-700 bg-sky-50 border border-sky-100 px-2.5 py-1 rounded-full">
+                Safe Search
+              </span>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Интернети Бехатар (Safe Web)</h3>
+            <h3 class="text-xl font-black text-slate-900 mb-3">Интернети Бехатар (Safe Web)</h3>
             <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
-              Филтри худкори миллионҳо сайтҳои номуносиб ва қатъи маводи хатарнок барои саломатии равонии кӯдак.
+              Филтри худкори миллионҳо сайтҳои хатарнок ва бастани маводи зараровар барои саломатии равонии кӯдак.
             </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-extrabold text-sky-600">
+            <span>Филтратсияи 24/7</span>
+            <i class="fa-solid fa-check-double"></i>
           </div>
         </div>
 
         <!-- Bento 4: Live GPS -->
-        <div class="bento-card p-8 flex flex-col justify-between">
+        <div class="bento-card p-8 flex flex-col justify-between hover:shadow-xl transition-all duration-300">
           <div>
-            <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
-              <i class="fa-solid fa-location-dot"></i>
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-2xl shadow-xs">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <span class="text-[10px] font-black text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-full">
+                Дақиқӣ то 5 метр
+              </span>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Назорати Зиндаи GPS</h3>
+            <h3 class="text-xl font-black text-slate-900 mb-3">Назорати Зиндаи GPS</h3>
             <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
-              Ҳамеша огоҳ бошед, ки фарзанди шумо дар куҷо қарор дорад: дар мактаб, дар курс ё дар роҳи хона.
+              Ҳамеша бохабар бошед, ки фарзанди шумо дар куҷост: дар мактаб, дар курсҳои иловагӣ ё дар роҳи бозгашт ба хона.
             </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-extrabold text-amber-600">
+            <span>Харитаи дақиқи Душанбе</span>
+            <i class="fa-solid fa-map-pin"></i>
           </div>
         </div>
 
         <!-- Bento 5: QR Instant Pairing -->
-        <div class="bento-card p-8 flex flex-col justify-between">
+        <div class="bento-card p-8 flex flex-col justify-between hover:shadow-xl transition-all duration-300">
           <div>
-            <div class="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-2xl mb-6 shadow-sm">
-              <i class="fa-solid fa-qrcode"></i>
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-2xl shadow-xs">
+                <i class="fa-solid fa-qrcode"></i>
+              </div>
+              <span class="text-[10px] font-black text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
+                5 сония
+              </span>
             </div>
-            <h3 class="text-xl font-extrabold text-slate-900 mb-3">Пайвастшавӣ бо QR-код</h3>
+            <h3 class="text-xl font-black text-slate-900 mb-3">Пайвастшавии Осон бо QR</h3>
             <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
-              Бидуни ягон танзимоти мураккаб: QR-кодро бо камераи телефон скан кунед ва фавран дар 5 сония пайваст шавед.
+              Бидуни ягон танзими мураккаб: рамзи QR-ро бо камераи телефони фарзанд скан кунед ва фавран дар чанд сония пайваст шавед.
             </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-extrabold text-purple-600">
+            <span>Пайвасти худкор</span>
+            <i class="fa-solid fa-link"></i>
           </div>
         </div>
 
         <!-- Bento 6: Google Auth -->
-        <div class="bento-card p-8 lg:col-span-3 flex flex-col sm:flex-row items-center justify-between gap-6 bg-slate-50/60">
+        <div class="bento-card p-8 lg:col-span-3 flex flex-col sm:flex-row items-center justify-between gap-6 bg-gradient-to-r from-slate-50 via-white to-indigo-50/30 border border-slate-200/90 hover:shadow-xl transition-all duration-300">
           <div class="flex items-center gap-5">
-            <div class="w-16 h-16 rounded-2xl bg-white border border-slate-200 text-teal-600 flex items-center justify-center text-2xl shadow-sm flex-shrink-0">
-              <i class="fa-brands fa-google"></i>
+            <div class="w-16 h-16 rounded-2xl bg-white border border-slate-200 text-indigo-600 flex items-center justify-center text-2xl shadow-xs flex-shrink-0">
+              <i class="fa-brands fa-google text-red-500"></i>
             </div>
             <div>
-              <h3 class="text-xl font-extrabold text-slate-900 mb-1">Воридшавии фаврӣ бо ҳисоби Google ва Email</h3>
-              <p class="text-sm text-slate-600 font-medium">Ҳеҷ гуна паролҳои душвор лозим нест. Бо як пахши тугмаи Google ҳисоби оилавии худро оғоз намоед.</p>
+              <h3 class="text-xl font-black text-slate-900 mb-1">Воридшавии фаврӣ бо ҳисоби Google ва Email</h3>
+              <p class="text-sm text-slate-600 font-medium">Ҳеҷ гуна паролҳои мураккаб лозим нест. Бо як пахши тугмаи Google ҳисоби оилавии худро дарҳол фаъол намоед.</p>
             </div>
           </div>
-          <a href="/auth" class="btn-gradient px-6 py-3 text-sm font-bold flex-shrink-0 flex items-center gap-2">
+          <a href="/auth" class="btn-gradient px-7 py-3.5 text-sm font-extrabold flex-shrink-0 flex items-center gap-2.5 rounded-xl shadow-md hover:shadow-indigo-500/25 transition hover:-translate-y-0.5">
             <span>Вуруд бо Google</span>
             <i class="fa-solid fa-arrow-right text-xs"></i>
           </a>
