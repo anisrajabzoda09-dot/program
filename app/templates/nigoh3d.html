@@ -269,5 +269,760 @@
     </div>
   </footer>
 
+  <!-- THREE.JS 3D ENGINE & PRESENTATION LOGIC -->
+  <script>
+    // --- 1. SCENE, CAMERA, RENDERER SETUP ---
+    const container = document.getElementById('webgl-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0b0b0e, 0.05);
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0.5, 9.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+    container.appendChild(renderer.domElement);
+
+    // OrbitControls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxDistance = 15;
+    controls.minDistance = 4;
+    controls.maxPolarAngle = Math.PI / 1.7;
+    controls.minPolarAngle = Math.PI / 6;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.0;
+
+    // --- 2. LIGHTING RIG ---
+    const ambientLight = new THREE.AmbientLight(0x181824, 2.5);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    keyLight.position.set(5, 8, 7);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.5);
+    fillLight.position.set(-6, -2, 4);
+    scene.add(fillLight);
+
+    const pinkRimLight = new THREE.PointLight(0xE4007C, 5, 20);
+    pinkRimLight.position.set(-4, 3, -3);
+    scene.add(pinkRimLight);
+
+    const cyanPointLight = new THREE.PointLight(0x00F0FF, 4, 18);
+    cyanPointLight.position.set(4, -2, -3);
+    scene.add(cyanPointLight);
+
+    // --- 3. BACKGROUND COSMOS & GRID FLOOR ---
+    // Floating starfield particles
+    const starCount = 1200;
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      starPos[i] = (Math.random() - 0.5) * 40;
+      starPos[i + 1] = (Math.random() - 0.5) * 40;
+      starPos[i + 2] = (Math.random() - 0.5) * 40;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({
+      size: 0.05,
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.45
+    });
+    const starMesh = new THREE.Points(starGeo, starMat);
+    scene.add(starMesh);
+
+    // Cyberpunk grid floor
+    const gridHelper = new THREE.GridHelper(30, 40, 0xE4007C, 0x1e1e2d);
+    gridHelper.position.y = -3.8;
+    scene.add(gridHelper);
+
+    // --- 4. PROCEDURAL 3D SMARTPHONE MODEL ---
+    const phoneGroup = new THREE.Group();
+    scene.add(phoneGroup);
+
+    // Rounded rectangle shape helper
+    function createRoundedRectShape(w, h, r) {
+      const shape = new THREE.Shape();
+      const x = -w / 2;
+      const y = -h / 2;
+      shape.moveTo(x + r, y);
+      shape.lineTo(x + w - r, y);
+      shape.quadraticCurveTo(x + w, y, x + w, y + r);
+      shape.lineTo(x + w, y + h - r);
+      shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      shape.lineTo(x + r, y + h);
+      shape.quadraticCurveTo(x, y + h, x, y + h - r);
+      shape.lineTo(x, y + r);
+      shape.quadraticCurveTo(x, y, x + r, y);
+      return shape;
+    }
+
+    const phoneWidth = 3.2;
+    const phoneHeight = 6.4;
+    const phoneRadius = 0.45;
+    const phoneThickness = 0.28;
+
+    // Body shape & extrude
+    const bodyShape = createRoundedRectShape(phoneWidth, phoneHeight, phoneRadius);
+    const extrudeSettings = {
+      depth: phoneThickness,
+      bevelEnabled: true,
+      bevelSegments: 6,
+      steps: 1,
+      bevelSize: 0.04,
+      bevelThickness: 0.04
+    };
+
+    const phoneGeo = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
+    phoneGeo.center();
+
+    // Dark Titanium frame material
+    const frameMat = new THREE.MeshStandardMaterial({
+      color: 0x17171d,
+      metalness: 0.88,
+      roughness: 0.25
+    });
+
+    const phoneMesh = new THREE.Mesh(phoneGeo, frameMat);
+    phoneGroup.add(phoneMesh);
+
+    // Glass Back Cover
+    const backGeo = new THREE.PlaneGeometry(phoneWidth - 0.1, phoneHeight - 0.1);
+    const backMat = new THREE.MeshStandardMaterial({
+      color: 0x0f0f14,
+      metalness: 0.92,
+      roughness: 0.12,
+      transparent: true,
+      opacity: 0.98
+    });
+    const backMesh = new THREE.Mesh(backGeo, backMat);
+    backMesh.position.z = -phoneThickness / 2 - 0.045;
+    backMesh.rotation.y = Math.PI;
+    phoneGroup.add(backMesh);
+
+    // Back Camera Island (Triple Lens Array)
+    const islandGeo = new THREE.BoxGeometry(1.1, 1.2, 0.08);
+    const islandMat = new THREE.MeshStandardMaterial({ color: 0x141418, metalness: 0.9, roughness: 0.2 });
+    const islandMesh = new THREE.Mesh(islandGeo, islandMat);
+    islandMesh.position.set(-0.8, 2.1, -phoneThickness / 2 - 0.08);
+    phoneGroup.add(islandMesh);
+
+    // Camera lenses
+    for (let c = 0; c < 3; c++) {
+      const lensGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.06, 24);
+      const lensMat = new THREE.MeshStandardMaterial({ color: 0x050508, metalness: 0.95, roughness: 0.05 });
+      const lens = new THREE.Mesh(lensGeo, lensMat);
+      lens.rotation.x = Math.PI / 2;
+      const lx = c === 2 ? -0.8 + 0.26 : -0.8 - 0.26;
+      const ly = c === 1 ? 2.1 - 0.3 : (c === 0 ? 2.1 + 0.3 : 2.1);
+      lens.position.set(lx, ly, -phoneThickness / 2 - 0.12);
+      phoneGroup.add(lens);
+    }
+
+    // --- 5. DYNAMIC OLED CANVAS DISPLAY ---
+    const screenCanvas = document.createElement('canvas');
+    screenCanvas.width = 1080;
+    screenCanvas.height = 2160;
+    const sCtx = screenCanvas.getContext('2d');
+    const screenTexture = new THREE.CanvasTexture(screenCanvas);
+    screenTexture.generateMipmaps = true;
+    screenTexture.minFilter = THREE.LinearMipmapLinearFilter;
+
+    const screenGeo = new THREE.PlaneGeometry(phoneWidth - 0.18, phoneHeight - 0.18);
+    const screenMat = new THREE.MeshBasicMaterial({
+      map: screenTexture,
+      toneMapped: false
+    });
+    const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+    screenMesh.position.z = phoneThickness / 2 + 0.045;
+    phoneGroup.add(screenMesh);
+
+    // Speaker notch / dynamic island
+    const notchGeo = new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.06, 0.35, 8, 16) : new THREE.CylinderGeometry(0.06, 0.06, 0.35, 16);
+    const notchMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const notch = new THREE.Mesh(notchGeo, notchMat);
+    notch.rotation.z = Math.PI / 2;
+    notch.position.set(0, 2.9, phoneThickness / 2 + 0.048);
+    phoneGroup.add(notch);
+
+    // --- 6. HOLOGRAPHIC 3D ACCESSORY MESHES (SHIELD, RADAR, PULSE RINGS) ---
+    // 3D Radar Wave Rings
+    const radarGroup = new THREE.Group();
+    phoneGroup.add(radarGroup);
+    const ringGeo = new THREE.RingGeometry(2.2, 2.25, 64);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x00F0FF, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+    const radarRing = new THREE.Mesh(ringGeo, ringMat);
+    radarRing.rotation.x = Math.PI / 2;
+    radarRing.position.y = -1.2;
+    radarGroup.add(radarRing);
+
+    // 3D Holographic Shield Mesh
+    const shieldShape = new THREE.Shape();
+    shieldShape.moveTo(0, 1.8);
+    shieldShape.lineTo(1.4, 1.0);
+    shieldShape.lineTo(1.1, -0.8);
+    shieldShape.lineTo(0, -1.8);
+    shieldShape.lineTo(-1.1, -0.8);
+    shieldShape.lineTo(-1.4, 1.0);
+    shieldShape.closePath();
+    const shieldGeo = new THREE.ShapeGeometry(shieldShape);
+    const shieldMat = new THREE.MeshBasicMaterial({
+      color: 0x10B981,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.35
+    });
+    const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    shieldMesh.position.set(0, 0, 0.8);
+    shieldMesh.visible = false;
+    phoneGroup.add(shieldMesh);
+
+    // 3D Emergency SOS Radiating Sphere
+    const sosSphereGeo = new THREE.SphereGeometry(2.8, 32, 16);
+    const sosSphereMat = new THREE.MeshBasicMaterial({
+      color: 0xE4007C,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.25
+    });
+    const sosSphere = new THREE.Mesh(sosSphereGeo, sosSphereMat);
+    sosSphere.visible = false;
+    phoneGroup.add(sosSphere);
+
+    // --- 7. PRESENTATION MODES DATA & LOGIC ---
+    let currentMode = 0;
+    let autoRotate = true;
+
+    const modes = [
+      {
+        tag: "✦ ФУНКСИЯИ 01 / GPS ЗИНДА",
+        title: "Харита ва Радари Зиндаи GPS",
+        desc: "Муайянсозии фаврии макони кӯдак дар харитаи шаҳр. Пайвасти мустақим ба моҳвораҳои GPS/ГЛОНАСС бо хатогии камтар аз 3 метр.",
+        telemetry: [
+          { label: "Аниқии Радиус", val: "~ 2.4 метр", col: "text-emerald-400" },
+          { label: "Вақти Пайваст", val: "10 ms (Фаврӣ)", col: "text-accentCyan" }
+        ],
+        bullets: [
+          "Намоиши траектория ва таърихи ҳаракати 30-рӯзаи кӯдак",
+          "Муайянкунии суръат (Пиёда рафтан, нақлиёт, мошин)",
+          "Ҳолати харита: Моҳворагӣ (Satellite), Кӯчаҳо ва 3D Relief"
+        ],
+        cameraPos: { x: 0, y: 0.4, z: 9.2 },
+        targetLook: { x: 0, y: 0, z: 0 }
+      },
+      {
+        tag: "✦ ФУНКСИЯИ 02 / ГЕО-ДЕВОРҲО",
+        title: "Минтақаҳои Амн (Smart Geo-Fencing)",
+        desc: "Муқаррар кардани сарҳади бехатар дар атрофи Хона, Мактаб ва Боғча. Ҳангоми воридшавӣ ё баромадани кӯдак ба волидон фавран бонги огоҳӣ мерасад.",
+        telemetry: [
+          { label: "Минтақаҳои фаъол", val: "3 Минтақа (Хона/Мактаб)", col: "text-emerald-400" },
+          { label: "Суръати бонги хатар", val: "< 1 сония", col: "text-accent" }
+        ],
+        bullets: [
+          "Огоҳиномаи автоматӣ: «Фарзанд ба мактаб расид»",
+          "Ҳушдор ҳангоми тарк кардани минтақаи муқарраршуда",
+          "Радиуси танзимшаванда аз 50 метр то 5 километр"
+        ],
+        cameraPos: { x: 1.8, y: 0.6, z: 8.8 },
+        targetLook: { x: 0, y: 0, z: 0 }
+      },
+      {
+        tag: "✦ ФУНКСИЯИ 03 / БАСТАНИ БОЗИҲО",
+        title: "Маҳдудияти Вақти Экран & Бастани Барномаҳо",
+        desc: "Назорати пурраи бозиҳо ва шабакаҳои иҷтимоӣ (TikTok, Instagram, PUBG, YouTube). Бастани якпахшагии телефон ҳангоми дарс ё хоб.",
+        telemetry: [
+          { label: "Барномаҳои маҳдуд", val: "14 Барнома баста шуд", col: "text-accentAmber" },
+          { label: "Реҷаи дарс", val: "ФАЪОЛ (08:00 - 13:00)", col: "text-emerald-400" }
+        ],
+        bullets: [
+          "Бастани фаврии барномаҳои зараровар бо як клик",
+          "Ҷадвали худкор барои вақти дарсхонӣ ва хоби шабона",
+          "Омори дақиқи истифодаи ҳар як барнома дар давоми рӯз"
+        ],
+        cameraPos: { x: -1.6, y: 0.5, z: 8.9 },
+        targetLook: { x: 0, y: 0, z: 0 }
+      },
+      {
+        tag: "✦ ФУНКСИЯИ 04 / БОНГИ SOS",
+        title: "Тугмаи Фаврии SOS & Сабти Садо",
+        desc: "Дар ҳолати хатар кӯдак танҳо 3 сония тугмаи SOS-ро пахш мекунад: ба телефони волидон бонги баланди хатарнок меояд ва координатаҳо фиристода мешаванд.",
+        telemetry: [
+          { label: "Садои Бонг", val: "Сиренаи баланд (100 dB)", col: "text-accent" },
+          { label: "Сабти фаврии садо", val: "15 сония сабти зинда", col: "text-accentCyan" }
+        ],
+        bullets: [
+          "Садо додани сирена ҳатто агар телефони волидон дар реҷаи хомӯш бошад",
+          "Пайвастшавии мустақими занг ба телефони волидон",
+          "Сабти садои гирду атрофи кӯдак барои фаҳмидани вазъият"
+        ],
+        cameraPos: { x: 0, y: 0.2, z: 8.5 },
+        targetLook: { x: 0, y: 0, z: 0 }
+      },
+      {
+        tag: "✦ ФУНКСИЯИ 05 / ТЕЛЕМЕТРИЯ",
+        title: "Телеметрияи Телефон ва Батарея",
+        desc: "Назорати сатҳи заряди батарея, қувваи мавҷи интернети 4G/Wi-Fi ва ҳолати садои телефони кӯдак аз масофаи дур.",
+        telemetry: [
+          { label: "Заряди кӯдак", val: "88% (Муқаррарӣ)", col: "text-emerald-400" },
+          { label: "Ҳолати садо", val: "Баландгӯяк ФАЪОЛ", col: "text-white" }
+        ],
+        bullets: [
+          "Огоҳӣ ҳангоми кам шудани батареяи кӯдак аз 15%",
+          "Фаъолсозии дурдасти садо ҳангоми гум шудани телефон дар хона",
+          "Ташхиси пайвасти шабака ва интернет"
+        ],
+        cameraPos: { x: 2.2, y: -0.4, z: 9.0 },
+        targetLook: { x: 0, y: 0, z: 0 }
+      },
+      {
+        tag: "✦ ФУНКСИЯИ 06 / ПАЙВАСТИ ОСОН",
+        title: "Пайвастшавии Муҳофизатшуда бо QR-Код",
+        desc: "Телефони кӯдакро дар 30 сония пайваст кунед! Танҳо барномаи NIGOH Family-ро дар телефони кӯдак насб намуда, QR-кодро скан намоед.",
+        telemetry: [
+          { label: "Рамзгузорӣ", val: "AES-256 End-to-End", col: "text-emerald-400" },
+          { label: "Вақти Пайваст", val: "< 30 Сония", col: "text-accentCyan" }
+        ],
+        bullets: [
+          "Пайвастшавӣ бидуни қайди мураккаб ва бе ифшои рақам",
+          "Мувофиқат бо тамоми телефонҳои муосири Android",
+          "Версияи нави расмии v2.6.1 омода барои истифода"
+        ],
+        cameraPos: { x: 0, y: 0.3, z: 8.6 },
+        targetLook: { x: 0, y: 0, z: 0 }
+      }
+    ];
+
+    // --- 8. LIVE CANVAS SCREEN DRAWING ENGINE ---
+    let frameCount = 0;
+    function drawScreenContent() {
+      frameCount++;
+      const w = screenCanvas.width;
+      const h = screenCanvas.height;
+
+      // Dark background
+      sCtx.fillStyle = '#0c0d12';
+      sCtx.fillRect(0, 0, w, h);
+
+      // Top Status Bar
+      sCtx.fillStyle = '#14141d';
+      sCtx.fillRect(0, 0, w, 110);
+      sCtx.fillStyle = '#ffffff';
+      sCtx.font = '600 38px "JetBrains Mono"';
+      sCtx.fillText('17:15', 70, 75);
+      
+      sCtx.font = '500 32px "JetBrains Mono"';
+      sCtx.fillStyle = '#10B981';
+      sCtx.fillText('88% ⚡', w - 210, 75);
+      sCtx.fillStyle = '#00F0FF';
+      sCtx.fillText('4G LTE', w - 380, 75);
+
+      // App Header Bar
+      sCtx.fillStyle = '#181824';
+      sCtx.fillRect(50, 140, w - 100, 140);
+      sCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+      sCtx.lineWidth = 4;
+      sCtx.strokeRect(50, 140, w - 100, 140);
+
+      // Header logo dot & text
+      sCtx.fillStyle = '#E4007C';
+      sCtx.beginPath();
+      sCtx.arc(110, 210, 24, 0, Math.PI * 2);
+      sCtx.fill();
+
+      sCtx.fillStyle = '#ffffff';
+      sCtx.font = '700 52px "Plus Jakarta Sans"';
+      sCtx.fillText('НИГОҲ FAMILY', 160, 226);
+      sCtx.font = '500 30px "JetBrains Mono"';
+      sCtx.fillStyle = '#10B981';
+      sCtx.fillText('● МУҲОФИЗАТ ФАЪОЛ', w - 460, 224);
+
+      // Content based on Mode
+      if (currentMode === 0) {
+        // --- MODE 0: GPS RADAR ---
+        // Map Grid Background
+        sCtx.fillStyle = '#111420';
+        sCtx.fillRect(50, 310, w - 100, 1380);
+
+        sCtx.strokeStyle = 'rgba(0, 240, 255, 0.12)';
+        sCtx.lineWidth = 2;
+        for (let gx = 50; gx < w - 50; gx += 120) {
+          sCtx.beginPath();
+          sCtx.moveTo(gx, 310);
+          sCtx.lineTo(gx, 1690);
+          sCtx.stroke();
+        }
+        for (let gy = 310; gy < 1690; gy += 120) {
+          sCtx.beginPath();
+          sCtx.moveTo(50, gy);
+          sCtx.lineTo(w - 50, gy);
+          sCtx.stroke();
+        }
+
+        // Radar concentric circles
+        const cx = w / 2;
+        const cy = 920;
+        const pulse = (frameCount % 120) / 120;
+
+        sCtx.strokeStyle = 'rgba(0, 240, 255, 0.25)';
+        sCtx.beginPath(); sCtx.arc(cx, cy, 220, 0, Math.PI * 2); sCtx.stroke();
+        sCtx.beginPath(); sCtx.arc(cx, cy, 420, 0, Math.PI * 2); sCtx.stroke();
+
+        // Pulsing radar wave
+        sCtx.strokeStyle = `rgba(0, 240, 255, ${1 - pulse})`;
+        sCtx.lineWidth = 6;
+        sCtx.beginPath();
+        sCtx.arc(cx, cy, pulse * 520, 0, Math.PI * 2);
+        sCtx.stroke();
+
+        // Rotating radar beam
+        const angle = frameCount * 0.03;
+        sCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+        sCtx.lineWidth = 4;
+        sCtx.beginPath();
+        sCtx.moveTo(cx, cy);
+        sCtx.lineTo(cx + Math.cos(angle) * 450, cy + Math.sin(angle) * 450);
+        sCtx.stroke();
+
+        // Child location pin
+        sCtx.fillStyle = '#E4007C';
+        sCtx.beginPath();
+        sCtx.arc(cx, cy, 32, 0, Math.PI * 2);
+        sCtx.fill();
+        sCtx.strokeStyle = '#ffffff';
+        sCtx.lineWidth = 8;
+        sCtx.stroke();
+
+        // Info Banner over map
+        sCtx.fillStyle = 'rgba(20, 20, 28, 0.95)';
+        sCtx.fillRect(90, 1380, w - 180, 260);
+        sCtx.strokeStyle = '#00F0FF';
+        sCtx.strokeRect(90, 1380, w - 180, 260);
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 44px "Plus Jakarta Sans"';
+        sCtx.fillText('Фарзанд: Амирҷон (11 сола)', 130, 1460);
+        sCtx.font = '500 34px "JetBrains Mono"';
+        sCtx.fillStyle = '#10B981';
+        sCtx.fillText('📍 ш. Душанбе, хиёбони Рӯдакӣ', 130, 1530);
+        sCtx.fillStyle = '#00F0FF';
+        sCtx.fillText('Суръат: 3.5 км/с · Пиёдагард', 130, 1595);
+
+      } else if (currentMode === 1) {
+        // --- MODE 1: GEO-FENCING SAFE ZONES ---
+        sCtx.fillStyle = '#10161d';
+        sCtx.fillRect(50, 310, w - 100, 1380);
+
+        // Safe perimeter zone circle
+        const cx = w / 2;
+        const cy = 900;
+        sCtx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+        sCtx.beginPath(); sCtx.arc(cx, cy, 420, 0, Math.PI * 2); sCtx.fill();
+        sCtx.strokeStyle = '#10B981';
+        sCtx.lineWidth = 8;
+        sCtx.setLineDash([20, 12]);
+        sCtx.stroke();
+        sCtx.setLineDash([]);
+
+        // Zone Tag
+        sCtx.fillStyle = '#10B981';
+        sCtx.font = '700 40px "JetBrains Mono"';
+        sCtx.fillText('МИНТАҚАИ АМН: МАКТАБИ №1', cx - 290, cy - 250);
+
+        // Inner status card
+        sCtx.fillStyle = '#161d24';
+        sCtx.fillRect(90, 1400, w - 180, 240);
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 42px "Plus Jakarta Sans"';
+        sCtx.fillText('Ҳолат: Дар дохили минтақа', 140, 1480);
+        sCtx.fillStyle = '#10B981';
+        sCtx.font = '500 32px "JetBrains Mono"';
+        sCtx.fillText('✓ Огоҳинома: «Фарзанд соати 08:15 ба мактаб омад»', 140, 1560);
+
+      } else if (currentMode === 2) {
+        // --- MODE 2: APP BLOCKING ---
+        sCtx.fillStyle = '#14141a';
+        sCtx.fillRect(50, 310, w - 100, 1380);
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 46px "Plus Jakarta Sans"';
+        sCtx.fillText('Бастани Барномаҳо ва Бозиҳо', 90, 390);
+
+        sCtx.font = '500 32px "JetBrains Mono"';
+        sCtx.fillStyle = '#F59E0B';
+        sCtx.fillText('Реҷаи Дарсхонӣ фаъол аст', 90, 450);
+
+        const apps = [
+          { name: 'TikTok', time: 'БАСТА ШУД 🔒', col: '#EF4444' },
+          { name: 'Brawl Stars', time: 'БАСТА ШУД 🔒', col: '#EF4444' },
+          { name: 'Instagram', time: 'БАСТА ШУД 🔒', col: '#EF4444' },
+          { name: 'Китобхона', time: 'Иҷозат дода шуд ✓', col: '#10B981' }
+        ];
+
+        apps.forEach((app, i) => {
+          const ay = 520 + i * 220;
+          sCtx.fillStyle = '#1b1b24';
+          sCtx.fillRect(90, ay, w - 180, 180);
+          sCtx.strokeStyle = 'rgba(255,255,255,0.08)';
+          sCtx.strokeRect(90, ay, w - 180, 180);
+
+          sCtx.fillStyle = '#ffffff';
+          sCtx.font = '700 44px "Plus Jakarta Sans"';
+          sCtx.fillText(app.name, 140, ay + 80);
+
+          sCtx.fillStyle = app.col;
+          sCtx.font = '600 34px "JetBrains Mono"';
+          sCtx.fillText(app.time, 140, ay + 140);
+        });
+
+      } else if (currentMode === 3) {
+        // --- MODE 3: EMERGENCY SOS ---
+        sCtx.fillStyle = '#1c0e14';
+        sCtx.fillRect(50, 310, w - 100, 1380);
+
+        const cx = w / 2;
+        const cy = 760;
+
+        // Big Red SOS Button
+        sCtx.fillStyle = '#E4007C';
+        sCtx.beginPath(); sCtx.arc(cx, cy, 260, 0, Math.PI * 2); sCtx.fill();
+        sCtx.strokeStyle = '#ffffff';
+        sCtx.lineWidth = 14;
+        sCtx.stroke();
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '900 120px "Plus Jakarta Sans"';
+        sCtx.fillText('SOS', cx - 110, cy + 42);
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 48px "Plus Jakarta Sans"';
+        sCtx.fillText('ОГОҲИИ ФАВРИИ ХАТАР', 220, 1220);
+
+        sCtx.fillStyle = '#F43F5E';
+        sCtx.font = '500 34px "JetBrains Mono"';
+        sCtx.fillText('Шумораи занги фаврӣ: +992 90 000 0000', 140, 1320);
+        sCtx.fillText('Координатаҳо: 38.5357° N, 68.7790° E', 140, 1390);
+        sCtx.fillText('Сабти садо: 00:15 сония сабт шуд', 140, 1460);
+
+      } else if (currentMode === 4) {
+        // --- MODE 4: DEVICE TELEMETRY ---
+        sCtx.fillStyle = '#12151c';
+        sCtx.fillRect(50, 310, w - 100, 1380);
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 46px "Plus Jakarta Sans"';
+        sCtx.fillText('Телеметрия ва Ҳолати Телефон', 90, 400);
+
+        const stats = [
+          { title: 'Сатҳи Батарея', val: '88% (Пурқувват)', sub: 'Тахминан 14 соат боқӣ мемонад' },
+          { title: 'Пайвасти Шабака', val: 'Tcell 4G LTE (Баланд)', sub: 'IP: 37.27.245.216 · Садои баланд' },
+          { title: 'Вақти умумии экран', val: '2 соату 15 дақиқа имрӯз', sub: 'Дар ҳудуди меъёри солим' }
+        ];
+
+        stats.forEach((st, idx) => {
+          const sy = 480 + idx * 270;
+          sCtx.fillStyle = '#191d26';
+          sCtx.fillRect(90, sy, w - 180, 220);
+          sCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+          sCtx.strokeRect(90, sy, w - 180, 220);
+
+          sCtx.fillStyle = '#94a3b8';
+          sCtx.font = '500 32px "JetBrains Mono"';
+          sCtx.fillText(st.title, 130, sy + 65);
+
+          sCtx.fillStyle = '#38bdf8';
+          sCtx.font = '700 44px "Plus Jakarta Sans"';
+          sCtx.fillText(st.val, 130, sy + 130);
+
+          sCtx.fillStyle = '#64748b';
+          sCtx.font = '400 28px "JetBrains Mono"';
+          sCtx.fillText(st.sub, 130, sy + 185);
+        });
+
+      } else if (currentMode === 5) {
+        // --- MODE 5: QR PAIRING ---
+        sCtx.fillStyle = '#14141a';
+        sCtx.fillRect(50, 310, w - 100, 1380);
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 46px "Plus Jakarta Sans"';
+        sCtx.fillText('Пайвастшавии Муҳофизатшуда', 120, 410);
+
+        // QR Box simulated
+        const qx = w / 2 - 260;
+        const qy = 500;
+        sCtx.fillStyle = '#ffffff';
+        sCtx.fillRect(qx, qy, 520, 520);
+
+        sCtx.fillStyle = '#000000';
+        // Draw simulated QR matrix pattern
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if ((r + c * 3) % 2 === 0 || (r < 3 && c < 3) || (r > 5 && c < 3) || (r < 3 && c > 5)) {
+              sCtx.fillRect(qx + 40 + c * 50, qy + 40 + r * 50, 42, 42);
+            }
+          }
+        }
+
+        sCtx.fillStyle = '#ffffff';
+        sCtx.font = '700 44px "JetBrains Mono"';
+        sCtx.fillText('РАМЗИ ҶУФТШАВӢ: NIGOH-2026', 150, 1160);
+
+        sCtx.fillStyle = '#10B981';
+        sCtx.font = '500 32px "JetBrains Mono"';
+        sCtx.fillText('Омода барои скани барномаи кӯдак (APK v2.6.1)', 110, 1240);
+      }
+
+      // Bottom Home Navigation Indicator
+      sCtx.fillStyle = '#ffffff';
+      sCtx.fillRect(w / 2 - 160, h - 50, 320, 14);
+
+      screenTexture.needsUpdate = true;
+    }
+
+    // --- 9. SWITCH MODE INTERACTION ---
+    function switchMode(idx) {
+      if (idx < 0 || idx >= modes.length) return;
+      currentMode = idx;
+      const data = modes[idx];
+
+      // Update HUD Left Card
+      document.getElementById('card-tag').textContent = data.tag;
+      document.getElementById('card-title').textContent = data.title;
+      document.getElementById('card-desc').textContent = data.desc;
+
+      // Update telemetry chips
+      const telemDiv = document.getElementById('card-telemetry');
+      telemDiv.innerHTML = `
+        <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+          <span class="text-zinc-500 text-[9px] uppercase block">${data.telemetry[0].label}</span>
+          <span class="${data.telemetry[0].col} font-bold">${data.telemetry[0].val}</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
+          <span class="text-zinc-500 text-[9px] uppercase block">${data.telemetry[1].label}</span>
+          <span class="${data.telemetry[1].col} font-bold">${data.telemetry[1].val}</span>
+        </div>
+      `;
+
+      // Update bullets
+      const bulletsDiv = document.getElementById('card-bullets');
+      bulletsDiv.innerHTML = data.bullets.map(b => `
+        <div class="flex items-center gap-2">
+          <span class="text-accent">✓</span>
+          <span>${b}</span>
+        </div>
+      `).join('');
+
+      // Update pill buttons state
+      document.querySelectorAll('.mode-pill').forEach((pill, i) => {
+        if (i === idx) {
+          pill.className = 'mode-pill active px-3 py-1.5 rounded-lg text-white bg-accent font-semibold transition-all';
+        } else {
+          pill.className = 'mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all';
+        }
+      });
+      document.querySelectorAll('.btn-m').forEach((btn, i) => {
+        if (i === idx) {
+          btn.className = 'btn-m px-3 py-1.5 rounded-xl bg-accent text-white font-bold whitespace-nowrap text-[11px] transition-all';
+        } else {
+          btn.className = 'btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all';
+        }
+      });
+
+      // Show/Hide 3D holographic accessories
+      shieldMesh.visible = (idx === 1);
+      sosSphere.visible = (idx === 3);
+
+      // Smooth camera transition using TWEEN
+      new TWEEN.Tween(camera.position)
+        .to(data.cameraPos, 1000)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+
+      drawScreenContent();
+    }
+
+    // --- 10. CAMERA ACTION HELPERS ---
+    function toggleAutoRotate() {
+      autoRotate = !autoRotate;
+      controls.autoRotate = autoRotate;
+      const dot = document.getElementById('rotate-dot');
+      const label = document.getElementById('rotate-label');
+      if (autoRotate) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        label.textContent = '3D Давр: ФАЪОЛ';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-zinc-600';
+        label.textContent = '3D Давр: ХОМӮШ';
+      }
+    }
+
+    function focusPhone() {
+      new TWEEN.Tween(camera.position)
+        .to({ x: 0, y: 0, z: 8.5 }, 800)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+      new TWEEN.Tween(phoneGroup.rotation)
+        .to({ x: 0, y: 0, z: 0 }, 800)
+        .easing(TWEEN.Easing.Cubic.Out)
+        .start();
+    }
+
+    function spinPhone() {
+      new TWEEN.Tween(phoneGroup.rotation)
+        .to({ y: phoneGroup.rotation.y + Math.PI * 2 }, 1200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+    }
+
+    // Keyboard Shortcuts (1-6)
+    window.addEventListener('keydown', (e) => {
+      if (e.key >= '1' && e.key <= '6') {
+        switchMode(parseInt(e.key) - 1);
+      }
+    });
+
+    // Window Resize Handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- 11. ANIMATION LOOP ---
+    drawScreenContent();
+    setInterval(drawScreenContent, 1000); // Periodic live canvas refresh
+
+    function animate(time) {
+      requestAnimationFrame(animate);
+      TWEEN.update(time);
+      controls.update();
+
+      // Gentle floating oscillation
+      const t = time * 0.0015;
+      phoneGroup.position.y = Math.sin(t) * 0.12;
+
+      // Accessory mesh animations
+      if (shieldMesh.visible) {
+        shieldMesh.rotation.y = Math.sin(t * 1.5) * 0.15;
+      }
+      if (sosSphere.visible) {
+        const sPulse = 1 + Math.sin(t * 4) * 0.08;
+        sosSphere.scale.set(sPulse, sPulse, sPulse);
+      }
+      radarRing.rotation.z += 0.01;
+
+      // Slow galaxy rotation
+      starMesh.rotation.y = time * 0.00005;
+
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(animate);
+  </script>
 </body>
 </html>
