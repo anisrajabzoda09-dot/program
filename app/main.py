@@ -148,15 +148,16 @@ def mobile_app_page():
     return RedirectResponse(url="/#download", status_code=302)
 
 @app.get("/api/mobile/version")
-def get_app_version():
+def get_app_version(request: Request, current_version_code: int = 0):
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
+    latest_version_code = 9
     return {
-        "version": "2.2.0",
-        "version_code": 5,
+        "version": "2.4.1",
+        "version_code": latest_version_code,
         "channel": "stable",
-        "update_available": False,
-        "release_notes": "Google Play Protect ислоҳ шуд: Accessibility ва насбкунандаи дохилӣ хориҷ шуданд; муҳофизат бо Usage access ва Display over apps кор мекунад.",
-        "download_url": "/download/android"
+        "update_available": latest_version_code > current_version_code,
+        "release_notes": "Саҳифаи алоҳидаи навсозӣ, санҷиши худкори версия ва тугмаи якқадамаи навсозӣ илова шуд.",
+        "download_url": str(request.base_url).rstrip("/") + "/download/android"
     }
 
 @app.post("/api/mobile/role-select")
@@ -335,7 +336,7 @@ def download_android_apk():
 Package: tj.nigoh.nigoh_family_parent
 Target: Android 7.0 to Android 16 (ARM64, ARMv7 & x86_64)
 Permissions: Internet, Install Packages
-Size: 73.2 MB
+Size: 74.0 MB
 Status: Official Release Build Verified (V2 Signature Valid)
 
 Дастури насб дар телефони Android:
@@ -343,8 +344,8 @@ Status: Official Release Build Verified (V2 Signature Valid)
 2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
     # Prioritize Flutter release APK
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.2.0.apk")
-    apk_name = "NIGOH_Family_Android_v2.2.0.apk"
+    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.4.1.apk")
+    apk_name = "NIGOH_Family_Android_v2.4.1.apk"
 
     if os.path.exists(apk_file_path):
         return FileResponse(
