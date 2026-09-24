@@ -33,7 +33,36 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 def startup():
     init_db()
 
-# --- HTML Pages ---
+# --- HTML Pages & SEO Endpoints ---
+
+@app.get("/robots.txt", response_class=Response)
+def get_robots_txt():
+    content = "User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://nigohfamily.qobus.tj/sitemap.xml\n"
+    return Response(content=content, media_type="text/plain")
+
+@app.get("/sitemap.xml", response_class=Response)
+def get_sitemap_xml():
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://nigohfamily.qobus.tj/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/auth</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/qr</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/download/android</loc>
+    <priority>0.9</priority>
+  </url>
+</urlset>"""
+    return Response(content=xml, media_type="application/xml")
+
 
 @app.get("/", response_class=HTMLResponse)
 def landing_page(request: Request):
@@ -160,13 +189,13 @@ def mobile_app_page():
 @app.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
-    latest_version_code = 10
+    latest_version_code = 12
     return {
-        "version": "2.5.0",
+        "version": "2.6.1",
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Чати зинда, PIN-и муҳофизатӣ, хориҷ кардани фарзанд, интихоби чанд фарзанд ва ҷойгиршавии заминавӣ илова шуд.",
+        "release_notes": "Дизайни нави минималӣ ва қулай бо услуби Instagram, панели поёнии нав, feed, чат ва профили азнавсозишуда; бе аниматсия.",
         "download_url": "https://nigohfamily.qobus.tj/download/android" if ("qobus.tj" in str(request.base_url) or "nigohfamily" in str(request.base_url)) else str(request.base_url).rstrip("/") + "/download/android"
     }
 
@@ -354,8 +383,8 @@ Status: Official Release Build Verified (V2 Signature Valid)
 2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
     # Prioritize Flutter release APK
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.5.0.apk")
-    apk_name = "NIGOH_Family_Android_v2.5.0.apk"
+    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.6.1.apk")
+    apk_name = "NIGOH_Family_Android_v2.6.1.apk"
 
     if os.path.exists(apk_file_path):
         return FileResponse(
