@@ -20,19 +20,23 @@
     }
     body {
       background-color: #f8fafc;
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+        linear-gradient(to bottom, #ffffff, #f8fafc);
       color: #0f172a;
     }
     
     .white-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+      border-radius: 18px;
+      box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(226, 232, 240, 0.8);
     }
     .white-input {
       background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
       transition: all 0.2s ease;
     }
     .white-input:focus-within {
@@ -40,16 +44,16 @@
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
     }
     .btn-primary {
-      background: #4f46e5;
+      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
       color: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.3);
-      transition: all 0.2s ease;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .btn-primary:hover {
-      background: #4338ca;
-      box-shadow: 0 6px 18px -2px rgba(79, 70, 229, 0.4);
-      transform: translateY(-1px);
+      background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+      box-shadow: 0 12px 25px -4px rgba(79, 70, 229, 0.45);
+      transform: translateY(-1.5px);
     }
     .btn-primary:active {
       transform: translateY(0);
@@ -65,8 +69,11 @@
     <div class="text-center mb-6">
       <a href="/" class="inline-flex flex-col items-center group">
         <!-- Logo Badge -->
-        <div class="w-20 h-20 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center p-2 mb-3 group-hover:scale-105 transition-transform">
+        <div class="w-20 h-20 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center p-2 mb-3 group-hover:scale-105 transition-transform ring-4 ring-indigo-50/50">
           <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ Family" class="w-full h-full object-contain">
+        </div>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-black uppercase tracking-wider mb-1.5 shadow-2xs">
+          <span>🇹🇯 Тоҷикистон</span>
         </div>
         <div class="flex items-center gap-2">
           <h1 class="text-2xl font-black tracking-tight text-slate-900">
@@ -83,14 +90,14 @@
     <div class="white-card p-6 sm:p-8">
       
       <!-- Google Sign-In Button -->
-      <button type="button" id="googleSignInBtn" class="w-full bg-white hover:bg-slate-50 border border-slate-300 py-3.5 px-4 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-bold text-sm mb-6 shadow-sm transition cursor-pointer">
+      <button type="button" id="googleSignInBtn" class="w-full bg-white hover:bg-slate-50 border border-slate-200/90 py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 text-slate-800 font-black text-sm mb-6 shadow-xs hover:shadow-md transition duration-200 cursor-pointer">
         <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
           <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
           <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
           <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
         </svg>
-        <span>Воридшавӣ тавассути Google</span>
+        <span>Воридшавӣ бо ҳисоби Google</span>
       </button>
 
       <!-- Divider -->
@@ -101,11 +108,11 @@
       </div>
 
       <!-- Tab Switcher -->
-      <div class="bg-slate-100 p-1 rounded-lg flex mb-6">
-        <button id="tabRegister" class="flex-1 py-2 rounded-md text-xs font-bold transition duration-200 bg-white shadow-sm text-indigo-600">
+      <div class="bg-slate-100 p-1 rounded-xl flex mb-6">
+        <button id="tabRegister" class="flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 bg-white shadow-xs text-indigo-600">
           Бақайдгирӣ
         </button>
-        <button id="tabLogin" class="flex-1 py-2 rounded-md text-xs font-bold transition duration-200 text-slate-500 hover:text-slate-900">
+        <button id="tabLogin" class="flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 text-slate-500 hover:text-slate-900">
           Воридшавӣ
         </button>
       </div>
@@ -168,6 +175,12 @@
           <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
         </button>
       </form>
+
+      <!-- Security Guarantee inside card -->
+      <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
+        <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+        <span>Ҳифзи пурраи махфият ва амнияти маълумот</span>
+      </div>
 
     </div>
 
