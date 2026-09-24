@@ -966,6 +966,181 @@
       </div>
     </section>
 
+    <!-- Contact & Consultation Section -->
+    <section id="contact" class="py-24 border-t border-white/5 relative">
+      <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          
+          <!-- Left Info Column -->
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
+              <span>GET IN TOUCH</span>
+              <span>✦</span>
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-black font-sans tracking-tight text-white leading-tight">
+              And every business deserves to <br/>
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent via-rose-400 to-purple-400">
+                evolve.
+              </span>
+            </h2>
+            <p class="mt-4 text-zinc-400 font-mono text-xs sm:text-sm leading-relaxed max-w-md">
+              Whether you need senior nearshore engineers, custom AI agents, or an executive diagnosis of your tech bottlenecks — we're ready.
+            </p>
+
+            <div class="mt-8 space-y-4 font-mono text-xs">
+              <a href="mailto:hello@weevolveit.com" class="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group">
+                <span class="w-8 h-8 rounded-full bg-accent/20 text-accent flex items-center justify-center font-bold">@</span>
+                <div>
+                  <span class="text-zinc-500 text-[10px] uppercase block">Direct Email</span>
+                  <span class="text-white group-hover:text-accent font-semibold transition-colors">hello@weevolveit.com</span>
+                </div>
+              </a>
+
+              <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20platicar%20sobre%20mi%20proyecto" 
+                 target="_blank" 
+                 class="flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] transition-colors group">
+                <span class="w-8 h-8 rounded-full bg-waGreen/20 text-waGreen flex items-center justify-center font-bold">WA</span>
+                <div>
+                  <span class="text-zinc-500 text-[10px] uppercase block">WhatsApp Direct Response</span>
+                  <span class="text-white group-hover:text-waGreen font-semibold transition-colors">+1 956 272 1609</span>
+                </div>
+              </a>
+
+              <div class="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+                <span class="text-zinc-500 text-[10px] uppercase block mb-1">Global Headquarters</span>
+                <p class="text-zinc-300 text-[11px] leading-relaxed">
+                  Venustiano Carranza 601, Monterrey, Nuevo León 64710, Mexico <br/>
+                  <span class="text-zinc-500">Presence: Dubai, United Arab Emirates</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Interactive Consultation Form -->
+          <div class="rounded-2xl border border-white/10 bg-[#15151a] p-8 candle-glow shadow-2xl">
+            <h3 class="text-xl font-bold font-sans text-white mb-2">Book a Technical Consultation</h3>
+            <p class="text-xs font-mono text-zinc-400 mb-6">Talk directly with a Solutions Architect within 24 hours.</p>
+
+            <form id="consult-form" onsubmit="handleFormSubmit(event)" class="space-y-4 font-mono text-xs">
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Your Name *</label>
+                <input type="text" required placeholder="Alex Mercer" class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder-zinc-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" />
+              </div>
+
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Work Email *</label>
+                <input type="email" required placeholder="alex@company.com" class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder-zinc-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" />
+              </div>
+
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Primary Interest</label>
+                <select class="w-full rounded-xl border border-white/10 bg-[#121216] px-4 py-2.5 text-white focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors">
+                  <option value="ai-agents">AI Agent Development</option>
+                  <option value="nearshore">Nearshore Engineering Squad</option>
+                  <option value="web-dev">Web &amp; Mobile Platform</option>
+                  <option value="cloud">Cloud Migration &amp; Cost Optimization</option>
+                  <option value="doctor">Business Doctor Diagnosis</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-zinc-400 text-[11px] uppercase mb-1.5">Project Overview / Bottleneck</label>
+                <textarea rows="3" placeholder="Briefly describe what your team is building or what bottleneck needs solving..." class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder-zinc-600 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors"></textarea>
+              </div>
+
+              <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-accent hover:bg-[#c9006d] text-white font-mono font-semibold uppercase tracking-wider text-xs transition-all shadow-[0_0_20px_rgba(228,0,124,0.3)] hover:scale-[1.01] active:scale-[0.99]">
+                Submit &amp; Connect with Architect ✦
+              </button>
+
+              <div id="form-success" class="hidden p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[11px] text-center font-mono">
+                ✓ Request received! An architect will reach out shortly.
+              </div>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-white/10 bg-[#0a0a0d] py-16 text-zinc-400 font-mono text-xs">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+        
+        <!-- Col 1: Brand Info -->
+        <div class="col-span-2">
+          <div class="flex items-center font-bold tracking-tight text-[17px] font-mono text-white mb-4">
+            <span>WeEvolve</span>
+            <span class="text-accent">IT</span>
+            <span class="inline-block w-2 h-2 rounded-full bg-accent ml-1.5"></span>
+          </div>
+          <p class="text-zinc-500 text-xs max-w-sm leading-relaxed mb-4">
+            AI specialists. A five-phase method — Discover, Diagnose, Design, Deliver, Evolve — that transforms how your business runs on technology.
+          </p>
+          <div class="flex items-center gap-2 text-[10px] text-zinc-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>SYSTEM HEALTH: 100% OPERATIONAL</span>
+          </div>
+        </div>
+
+        <!-- Col 2: Services -->
+        <div>
+          <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">Services</span>
+          <ul class="space-y-2 text-zinc-500 text-[11px]">
+            <li><a href="#services" class="hover:text-white transition-colors">AI Agent Development ✦</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Web Development</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Nearshore Software</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Cloud Migration</a></li>
+            <li><a href="#services" class="hover:text-white transition-colors">Data &amp; Analytics</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: The 5 Method -->
+        <div>
+          <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">The Method</span>
+          <ul class="space-y-2 text-zinc-500 text-[11px]">
+            <li><a href="#method" class="hover:text-white transition-colors">01 Discover</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">02 Diagnose</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">03 Design</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">04 Deliver</a></li>
+            <li><a href="#method" class="hover:text-white transition-colors">05 Evolve</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Free Tools -->
+        <div>
+          <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">Free Tools</span>
+          <ul class="space-y-2 text-zinc-500 text-[11px]">
+            <li><a href="#tools" class="hover:text-white transition-colors">AI Visibility Check</a></li>
+            <li><a href="#tools" class="hover:text-white transition-colors">Free SEO Audit</a></li>
+            <li><a href="#friction-tool" class="hover:text-white transition-colors">Friction Matrix</a></li>
+            <li><a href="#tools" class="hover:text-white transition-colors">Business Doctor</a></li>
+            <li><a href="/robots.txt" class="hover:text-white transition-colors">llms.txt</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-600 text-[11px]">
+        <div>
+          © 2026 WeEvolveIT. All rights reserved. Monterrey, NL · Dubai, UAE.
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="#hero" class="hover:text-zinc-400 transition-colors">Back to top ↑</a>
+          <span>·</span>
+          <a href="https://weevolveit.com" target="_blank" class="hover:text-zinc-400 transition-colors">weevolveit.com (Official)</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
   <script>
     // Canvas subtle particle effect
     const canvas = document.getElementById('matrix-canvas');
@@ -1115,6 +1290,20 @@
       document.getElementById('sol-deliverable').textContent = data.deliverable;
       document.getElementById('sol-timeline').textContent = data.timeline;
       document.getElementById('sol-cta').href = `https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20diagnosticar%20la%20friccion:%20${encodeURIComponent(data.topic)}`;
+    }
+
+    // Form submission simulation
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const form = document.getElementById('consult-form');
+      const success = document.getElementById('form-success');
+      if (form && success) {
+        success.classList.remove('hidden');
+        form.reset();
+        setTimeout(() => {
+          success.classList.add('hidden');
+        }, 5000);
+      }
     }
   </script>
 </body>
