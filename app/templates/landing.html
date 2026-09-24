@@ -99,19 +99,22 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white bg-white">
 
-  <!-- NAVBAR (Full Width & Clean) -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+  <!-- NAVBAR (Full Width & Premium Glassmorphism) -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
       <!-- Brand Logo -->
       <a href="/" class="flex items-center gap-3.5 group">
-        <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center p-1.5 group-hover:scale-105 transition-transform">
+        <div class="w-12 h-12 rounded-xl bg-white border border-slate-200/90 shadow-sm flex items-center justify-center p-1.5 group-hover:scale-105 group-hover:shadow-md transition-all">
           <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ Family" class="w-full h-full object-contain">
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <span class="font-black text-2xl tracking-tight text-slate-900">
+            <span class="font-black text-2xl tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
               НИГОҲ FAMILY
+            </span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> v2.4.1
             </span>
           </div>
           <span class="text-xs text-slate-500 font-semibold tracking-wide">Назорати Оқилонаи Оилавӣ</span>
@@ -119,31 +122,43 @@
       </a>
 
       <!-- Centered Navigation Links -->
-      <nav class="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
-        <a href="#features" class="hover:text-indigo-600 transition">Имкониятҳо</a>
-        <a href="#how-it-works" class="hover:text-indigo-600 transition">Тарзи кор</a>
-        <a href="#reviews" class="hover:text-indigo-600 transition">Отзывҳо</a>
-        <a href="#download" class="hover:text-indigo-600 transition">Боргирии Android</a>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-extrabold text-slate-600">
+        <a href="#features" class="hover:text-indigo-600 relative py-1 transition-colors group">
+          <span>Имкониятҳо</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+        </a>
+        <a href="#how-it-works" class="hover:text-indigo-600 relative py-1 transition-colors group">
+          <span>Тарзи кор</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+        </a>
+        <a href="#reviews" class="hover:text-indigo-600 relative py-1 transition-colors group">
+          <span>Отзывҳо</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+        </a>
+        <a href="#download" class="hover:text-indigo-600 relative py-1 transition-colors group">
+          <span>Боргирии Android</span>
+          <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-200"></span>
+        </a>
       </nav>
 
       <!-- Right Action CTAs -->
       <div class="flex items-center gap-3">
         {% if user %}
-          <div class="flex items-center gap-2.5 bg-white border border-slate-200 px-4 py-2.5 rounded-lg text-sm font-bold shadow-sm">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          <div class="flex items-center gap-2.5 bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-sm font-bold shadow-sm">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="text-slate-800 truncate max-w-[130px]">{{ user.full_name }}</span>
             <a href="/logout" title="Баромад" class="text-slate-400 hover:text-rose-500 ml-1.5 transition">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
           </div>
         {% else %}
-          <a href="/auth" class="px-5 py-2.5 text-sm font-extrabold text-slate-700 hover:text-indigo-600 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50 flex items-center gap-2 transition">
+          <a href="/auth" class="hidden sm:flex px-4 py-2.5 text-sm font-extrabold text-slate-700 hover:text-indigo-600 bg-white border border-slate-200/90 rounded-lg shadow-sm hover:bg-slate-50 items-center gap-2 transition hover:-translate-y-0.5">
             <i class="fa-solid fa-user text-indigo-500 text-xs"></i>
-            <span>Вуруд / Сабти ном</span>
+            <span>Вуруд</span>
           </a>
         {% endif %}
 
-        <a href="/download/android" class="btn-gradient px-5 py-2.5 text-sm font-extrabold flex items-center gap-2">
+        <a href="/download/android" class="btn-gradient px-5 py-2.5 text-sm font-extrabold flex items-center gap-2 rounded-lg shadow-md hover:shadow-lg transition">
           <i class="fa-brands fa-android text-base"></i>
           <span>Боргирии APK</span>
         </a>
