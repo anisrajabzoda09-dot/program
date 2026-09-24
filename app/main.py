@@ -168,20 +168,27 @@ def api_login(payload: UserLogin, response: Response):
 @app.post("/api/auth/google")
 def api_google_auth(payload: GoogleAuthRequest, response: Response):
     """Google OAuth Sign-In"""
+    clean_email = payload.email.strip().lower()
+    full_name = payload.full_name.strip() if payload.full_name else clean_email.split("@")[0]
+    avatar = payload.avatar or "https://lh3.googleusercontent.com/a/default-user"
+    google_id = payload.google_id or ("google_" + secrets.token_hex(8))
+
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = ?", (payload.email,))
+    cursor.execute("SELECT * FROM users WHERE email = ?", (clean_email,))
     row = cursor.fetchone()
     
     if row:
         user = dict(row)
-        cursor.execute("UPDATE users SET avatar = ?, full_name = ? WHERE id = ?", (payload.avatar, payload.full_name, user["id"]))
+        cursor.execute("UPDATE users SET avatar = ?, full_name = ?, google_id = COALESCE(google_id, ?) WHERE id = ?", (avatar, full_name, google_id, user["id"]))
         conn.commit()
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user["id"],))
+        user = dict(cursor.fetchone())
     else:
         cursor.execute("""
         INSERT INTO users (email, full_name, avatar, role, google_id)
         VALUES (?, ?, ?, 'parent', ?)
-        """, (payload.email, payload.full_name, payload.avatar, "google_" + secrets.token_hex(8)))
+        """, (clean_email, full_name, avatar, google_id))
         conn.commit()
         user_id = cursor.lastrowid
         cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
