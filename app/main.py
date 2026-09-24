@@ -109,6 +109,11 @@ def landing_page(request: Request):
     conn.close()
     return templates.TemplateResponse(request=request, name="landing.html", context={"user": user, "reviews": reviews})
 
+@app.get("/3d", response_class=HTMLResponse)
+@app.get("/nigoh3d", response_class=HTMLResponse)
+def nigoh_3d_presentation(request: Request):
+    return templates.TemplateResponse(request=request, name="nigoh3d.html", context={})
+
 @app.get("/weevolve", response_class=HTMLResponse)
 @app.get("/evolve", response_class=HTMLResponse)
 def weevolve_showcase_page(request: Request):
