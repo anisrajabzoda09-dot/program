@@ -1,5 +1,8 @@
+import io
 import os
 import secrets
+import socket
+import qrcode
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -36,6 +39,38 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
+
+
+def current_download_url(request: Request) -> str:
+    """Return a phone-reachable URL, even when the page is opened as localhost."""
+    host = request.url.hostname or ""
+    port = request.url.port or 8000
+    if host not in {"127.0.0.1", "localhost", "0.0.0.0"}:
+        return f"{request.url.scheme}://{request.url.netloc}/download/android"
+    detected_ip = "127.0.0.1"
+    probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        probe.connect(("8.8.8.8", 80))
+        detected_ip = probe.getsockname()[0]
+    except OSError:
+        pass
+    finally:
+        probe.close()
+    return f"http://{detected_ip}:{port}/download/android"
+
+
+@app.get("/api/qr/download")
+def download_qr(request: Request):
+    qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=14, border=4)
+    qr.add_data(current_download_url(request))
+    qr.make(fit=True)
+    buffer = io.BytesIO()
+    qr.make_image(fill_color="#0f172a", back_color="white").save(buffer, format="PNG")
+    return Response(
+        content=buffer.getvalue(),
+        media_type="image/png",
+        headers={"Cache-Control": "no-store, max-age=0"},
+    )
 
 # Initialize DB on startup
 @app.on_event("startup")
@@ -86,6 +121,7 @@ def health_check():
         db_ok = False
 
     apk_candidates = [
+        "NIGOH_Family_Android_v2.6.2.apk",
         "NIGOH_Family_Android_v2.6.1.apk",
         "NIGOH_Family_Android_v2.6.0.apk",
         "NIGOH_Family_Android_v2.5.0.apk"
@@ -104,8 +140,8 @@ def health_check():
     return {
         "status": "healthy" if (db_ok and apk_exists) else "degraded",
         "domain": "https://nigohfamily.qobus.tj",
-        "version": "2.6.1",
-        "version_code": 12,
+        "version": "2.6.2",
+        "version_code": 13,
         "database_connected": db_ok,
         "apk_available": apk_exists,
         "apk_bytes": apk_size,
@@ -254,9 +290,9 @@ def mobile_app_page():
 @app.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
-    latest_version_code = 12
+    latest_version_code = 13
     return {
-        "version": "2.6.1",
+        "version": "2.6.2",
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
@@ -449,6 +485,7 @@ Status: Official Release Build Verified (V2 Signature Valid)
 """
     # Prioritize Flutter release APK, then fall back to other available versions
     apk_candidates = [
+        "NIGOH_Family_Android_v2.6.2.apk",
         "NIGOH_Family_Android_v2.6.1.apk",
         "NIGOH_Family_Android_v2.6.0.apk",
         "NIGOH_Family_Android_v2.5.0.apk"
