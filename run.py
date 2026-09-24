@@ -19,6 +19,7 @@ if __name__ == "__main__":
     print(" Оғози сервери «Нигоҳ — Parental Control» (FastAPI)")
     print(f" Сервер дар суроғаи зер дастрас аст:")
     print(f" 👉 http://localhost:{port}")
+    print(f" 🎮 Нигоҳ 3D: http://localhost:{port}/3d")
     print(f" 🌐 WeEvolveIT: http://localhost:{port}/weevolve")
     print(f" 📱 Версияи мобилӣ: http://localhost:{port}/mobile")
     print("==================================================")
