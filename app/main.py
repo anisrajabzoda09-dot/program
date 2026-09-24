@@ -85,15 +85,15 @@ def health_check():
     except Exception:
         db_ok = False
 
-    apk_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.5.0.apk")
+    apk_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.6.1.apk")
     apk_exists = os.path.exists(apk_path)
     apk_size = os.path.getsize(apk_path) if apk_exists else 0
 
     return {
         "status": "healthy" if (db_ok and apk_exists) else "degraded",
         "domain": "https://nigohfamily.qobus.tj",
-        "version": "2.5.0",
-        "version_code": 10,
+        "version": "2.6.1",
+        "version_code": 12,
         "database_connected": db_ok,
         "apk_available": apk_exists,
         "apk_bytes": apk_size
