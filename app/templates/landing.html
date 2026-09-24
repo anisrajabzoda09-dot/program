@@ -1215,5 +1215,24 @@
     </div>
   </div>
 
+  <!-- Offline Network Detector Banner -->
+  <div id="offlineBanner" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white border border-slate-700 px-5 py-2.5 rounded-full shadow-2xl text-xs sm:text-sm font-extrabold flex items-center gap-2.5">
+    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+    <span>Шумо офлайн ҳастед. Барномаи насбшудаи Нигоҳ дар телефони кӯдак бе интернет ҳам 100% фаъол мемонад!</span>
+  </div>
+
+  <script>
+    function checkNetworkState() {
+      const banner = document.getElementById('offlineBanner');
+      if (!navigator.onLine) {
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+    window.addEventListener('offline', checkNetworkState);
+    window.addEventListener('online', checkNetworkState);
+  </script>
+
 </body>
 </html>
