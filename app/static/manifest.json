@@ -2,7 +2,9 @@
   "name": "НИГОҲ Family",
   "short_name": "Нигоҳ",
   "start_url": "https://nigohfamily.qobus.tj/",
+  "scope": "https://nigohfamily.qobus.tj/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
   "description": "Аввалин платформаи мукаммали назорати оқилона ва ҳифзи амнияти оила дар Тоҷикистон бо 100% кори офлайн",
@@ -15,3 +17,4 @@
     }
   ]
 }
+
