@@ -85,9 +85,21 @@ def health_check():
     except Exception:
         db_ok = False
 
-    apk_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.6.1.apk")
-    apk_exists = os.path.exists(apk_path)
-    apk_size = os.path.getsize(apk_path) if apk_exists else 0
+    apk_candidates = [
+        "NIGOH_Family_Android_v2.6.1.apk",
+        "NIGOH_Family_Android_v2.6.0.apk",
+        "NIGOH_Family_Android_v2.5.0.apk"
+    ]
+    apk_exists = False
+    apk_size = 0
+    active_apk_name = apk_candidates[0]
+    for candidate in apk_candidates:
+        cand_path = os.path.join(STATIC_DIR, "downloads", candidate)
+        if os.path.exists(cand_path) and os.path.getsize(cand_path) > 1000000:
+            apk_exists = True
+            apk_size = os.path.getsize(cand_path)
+            active_apk_name = candidate
+            break
 
     return {
         "status": "healthy" if (db_ok and apk_exists) else "degraded",
@@ -96,7 +108,8 @@ def health_check():
         "version_code": 12,
         "database_connected": db_ok,
         "apk_available": apk_exists,
-        "apk_bytes": apk_size
+        "apk_bytes": apk_size,
+        "active_apk": active_apk_name
     }
 
 @app.get("/", response_class=HTMLResponse)
@@ -434,19 +447,24 @@ Status: Official Release Build Verified (V2 Signature Valid)
 1. Файли APK-ро кушоед ва иҷозати насбро тасдиқ намоед.
 2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
-    # Prioritize Flutter release APK
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.6.1.apk")
-    apk_name = "NIGOH_Family_Android_v2.6.1.apk"
+    # Prioritize Flutter release APK, then fall back to other available versions
+    apk_candidates = [
+        "NIGOH_Family_Android_v2.6.1.apk",
+        "NIGOH_Family_Android_v2.6.0.apk",
+        "NIGOH_Family_Android_v2.5.0.apk"
+    ]
+    for candidate in apk_candidates:
+        cand_path = os.path.join(STATIC_DIR, "downloads", candidate)
+        if os.path.exists(cand_path) and os.path.getsize(cand_path) > 1000000:
+            return FileResponse(
+                path=cand_path,
+                media_type="application/vnd.android.package-archive",
+                filename=candidate
+            )
 
-    if os.path.exists(apk_file_path):
-        return FileResponse(
-            path=apk_file_path,
-            media_type="application/vnd.android.package-archive",
-            filename=apk_name
-        )
-    # Fallback
+    # Fallback manifest if no binary found
     return Response(
         content=manifest_content,
         media_type="application/vnd.android.package-archive",
-        headers={"Content-Disposition": f"attachment; filename={apk_name}"}
+        headers={"Content-Disposition": "attachment; filename=NIGOH_Family_Android.apk"}
     )
