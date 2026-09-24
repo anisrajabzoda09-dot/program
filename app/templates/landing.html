@@ -320,14 +320,16 @@
                     <i class="fa-solid fa-signal text-[9px]"></i>
                     <i class="fa-solid fa-wifi text-[9px]"></i>
                     <span class="text-[9px] font-black text-emerald-600">88%</span>
-                    <i class="fa-solid fa-battery-three-quarters text-emerald-500 text-xs"></i>
+                    <div class="w-5 h-2.5 rounded-sm border border-slate-700 p-0.5 flex items-center">
+                      <div class="w-full h-full bg-emerald-500 rounded-2xs"></div>
+                    </div>
                   </div>
                 </div>
 
                 <!-- App Header Bar ("Салом, Мунис!") -->
                 <div class="flex items-center justify-between mb-3 px-1">
                   <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200/80 p-1 flex items-center justify-center shadow-sm">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-50 to-blue-50 border border-indigo-200/80 p-1.5 flex items-center justify-center shadow-xs">
                       <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ" class="w-full h-full object-contain">
                     </div>
                     <div>
@@ -335,15 +337,15 @@
                       <p class="text-[10px] text-slate-500 font-medium">Оилаи шумо дар амният аст</p>
                     </div>
                   </div>
-                  <button type="button" class="w-7 h-7 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-sm font-black shadow-sm hover:bg-indigo-100 transition">
+                  <button type="button" class="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-sm font-black shadow-xs hover:bg-indigo-100 hover:scale-105 transition">
                     <i class="fa-solid fa-plus text-xs"></i>
                   </button>
                 </div>
 
                 <!-- Child Device Status Card ("Алиҷон") -->
-                <div class="bg-white border border-slate-200/90 rounded-2xl p-3 mb-3 shadow-sm flex items-center justify-between">
+                <div class="bg-gradient-to-r from-slate-50 via-white to-slate-50 border border-slate-200/90 rounded-2xl p-3 mb-3 shadow-xs flex items-center justify-between hover:border-indigo-200 transition">
                   <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-lg shadow-sm">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-100 to-blue-100 border border-indigo-200 text-indigo-600 flex items-center justify-center text-lg shadow-xs">
                       <i class="fa-solid fa-user"></i>
                     </div>
                     <div>
@@ -361,23 +363,29 @@
                   </div>
                 </div>
 
-                <!-- Live GPS Map Card ("Ҷойгиршавии зинда") -->
-                <div class="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-3 mb-3 shadow-sm">
+                <!-- Live GPS Map Card ("Ҷойгиршавии зинда") with Radar Highlight -->
+                <div class="bg-slate-50/60 border border-slate-200/90 rounded-2xl p-3 mb-3 shadow-xs relative group overflow-hidden">
                   <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
                       <span class="text-xs font-black text-slate-800">Ҷойгиршавии зинда</span>
                     </div>
+                    <span class="text-[9px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
+                      GPS Фаъол
+                    </span>
                   </div>
                   <div class="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
-                    <img src="/static/images/hero_map_inner.png" alt="Харитаи ҷойгиршавии Алиҷон" class="w-full h-full object-cover">
+                    <img src="/static/images/hero_map_inner.png" alt="Харитаи ҷойгиршавии Алиҷон" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                   </div>
                 </div>
 
                 <!-- Three Stat Cards Grid (Ҷойгиршавӣ, Вақти экран, Барномаҳо) -->
                 <div class="grid grid-cols-3 gap-2 mb-3">
                   <!-- Ҷойгиршавӣ -->
-                  <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-2.5 flex flex-col justify-between shadow-xs">
+                  <div class="bg-indigo-50/70 border border-indigo-100 hover:border-indigo-200 rounded-xl p-2.5 flex flex-col justify-between shadow-xs transition hover:-translate-y-0.5">
                     <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px] mb-2 shadow-sm">
                       <i class="fa-solid fa-location-dot"></i>
                     </div>
@@ -388,7 +396,7 @@
                   </div>
 
                   <!-- Вақти экран -->
-                  <div class="bg-emerald-50/70 border border-emerald-100 rounded-xl p-2.5 flex flex-col justify-between shadow-xs">
+                  <div class="bg-emerald-50/70 border border-emerald-100 hover:border-emerald-200 rounded-xl p-2.5 flex flex-col justify-between shadow-xs transition hover:-translate-y-0.5">
                     <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[11px] mb-2 shadow-sm">
                       <i class="fa-solid fa-clock"></i>
                     </div>
@@ -399,7 +407,7 @@
                   </div>
 
                   <!-- Барномаҳо -->
-                  <div class="bg-purple-50/70 border border-purple-100 rounded-xl p-2.5 flex flex-col justify-between shadow-xs">
+                  <div class="bg-purple-50/70 border border-purple-100 hover:border-purple-200 rounded-xl p-2.5 flex flex-col justify-between shadow-xs transition hover:-translate-y-0.5">
                     <div class="w-7 h-7 rounded-full bg-purple-600 text-white flex items-center justify-center text-[11px] mb-2 shadow-sm">
                       <i class="fa-solid fa-circle-pause"></i>
                     </div>
@@ -411,26 +419,26 @@
                 </div>
 
                 <!-- Bottom Navigation Bar (Асосӣ, Чат, Харита, Профил) -->
-                <div class="bg-white border border-slate-200/80 rounded-2xl p-2 grid grid-cols-4 gap-1 text-center shadow-sm">
+                <div class="bg-white border border-slate-200/90 rounded-2xl p-2 grid grid-cols-4 gap-1 text-center shadow-xs">
                   <div class="text-indigo-600 flex flex-col items-center">
-                    <div class="w-7 h-7 rounded-xl bg-indigo-50 flex items-center justify-center mb-0.5">
+                    <div class="w-7 h-7 rounded-xl bg-indigo-50 flex items-center justify-center mb-0.5 shadow-2xs">
                       <i class="fa-solid fa-house text-xs"></i>
                     </div>
                     <span class="text-[8px] font-black">Асосӣ</span>
                   </div>
-                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center">
+                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center transition">
                     <div class="w-7 h-7 rounded-xl flex items-center justify-center mb-0.5">
                       <i class="fa-solid fa-comment-dots text-xs"></i>
                     </div>
                     <span class="text-[8px] font-semibold">Чат</span>
                   </div>
-                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center">
+                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center transition">
                     <div class="w-7 h-7 rounded-xl flex items-center justify-center mb-0.5">
                       <i class="fa-solid fa-location-dot text-xs"></i>
                     </div>
                     <span class="text-[8px] font-semibold">Харита</span>
                   </div>
-                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center">
+                  <div class="text-slate-400 hover:text-slate-700 flex flex-col items-center transition">
                     <div class="w-7 h-7 rounded-xl flex items-center justify-center mb-0.5">
                       <i class="fa-solid fa-user text-xs"></i>
                     </div>
@@ -446,9 +454,9 @@
             </div>
 
             <!-- Bottom Slogan Bar (Matching the official design banner) -->
-            <div class="mt-4 mx-auto max-w-[355px] bg-[#0a192f] text-white rounded-xl py-2.5 px-4 flex items-center justify-between text-xs font-bold shadow-md">
+            <div class="mt-4 mx-auto max-w-[355px] bg-[#0a192f] text-white rounded-xl py-2.5 px-4 flex items-center justify-between text-xs font-bold shadow-lg hover:shadow-xl transition">
               <div class="flex items-center gap-2">
-                <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px]">
+                <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] shadow-sm">
                   <i class="fa-solid fa-check"></i>
                 </span>
                 <span>Амнияти фарзанд. Оромии волидайн.</span>
