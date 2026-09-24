@@ -14,6 +14,8 @@ class GoogleAuthRequest(BaseModel):
     email: str
     full_name: str
     avatar: Optional[str] = "https://lh3.googleusercontent.com/a/default-user"
+    token: Optional[str] = None
+    google_id: Optional[str] = None
 
 class RoleSelectRequest(BaseModel):
     role: str # "parent" or "child"
