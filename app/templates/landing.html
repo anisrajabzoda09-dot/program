@@ -175,84 +175,85 @@
         <!-- Left Column: Clear Bold Typography & CTAs -->
         <div class="lg:col-span-7 text-center lg:text-left">
           
-          <!-- Top Tag -->
-          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-lg bg-white border border-slate-200 shadow-sm text-slate-800 text-xs sm:text-sm font-extrabold mb-6">
+          <!-- Top Tag with Shimmer & Verification Badge -->
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-slate-200/90 shadow-sm text-slate-800 text-xs sm:text-sm font-extrabold mb-6 hover:shadow-md transition">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Насли нави назорати оилавӣ бо кори 100% Офлайн</span>
+            <span>Аввалин назорати оқилонаи оилавӣ бо кори 100% Офлайн</span>
+            <span class="hidden sm:inline-block text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full text-[10px] font-black">Тоҷикистон</span>
           </div>
 
           <!-- Main Title with Gradient Accent -->
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.12] mb-6">
             Фарзанди худро аз <br>
-            <span class="bg-gradient-to-r from-indigo-600 via-blue-600 to-teal-600 bg-clip-text text-transparent">
+            <span class="bg-gradient-to-r from-indigo-600 via-blue-600 to-teal-500 bg-clip-text text-transparent">
               сайтҳои хатарнок муҳофизат
             </span> кунед!
           </h1>
 
           <!-- Lead Paragraph -->
           <p class="text-lg sm:text-xl text-slate-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0 font-medium">
-            Барномаи «Нигоҳ» ба волидон имкон медиҳад, ки бозиҳо ва барномаҳои нолозимро (TikTok, PUBG) қулф кунанд, интернети бехатар таъмин созанд ва макони кӯдакро бидонанд — ҳатто агар интернет хомӯш бошад ҳам!
+            Барномаи расмии <strong class="text-slate-900 font-black">«Нигоҳ»</strong> ба волидон имкон медиҳад, ки бозиҳо ва барномаҳои вақтгирро (TikTok, PUBG) маҳкам намоянд, интернети бехатар таъмин кунанд ва макони кӯдакро бидонанд — ҳатто агар интернет хомӯш бошад ҳам!
           </p>
 
           {% if user %}
           <!-- Logged In Success Banner -->
-          <div class="mb-8 p-5 rounded-lg bg-white border border-emerald-300 shadow-sm flex items-center justify-between">
+          <div class="mb-8 p-5 rounded-2xl bg-white border border-emerald-300 shadow-sm flex items-center justify-between">
             <div class="flex items-center gap-3.5">
-              <div class="w-11 h-11 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-xl shadow-sm">
+              <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-xl shadow-sm">
                 <i class="fa-solid fa-circle-check"></i>
               </div>
               <div class="text-left">
-                <h4 class="font-extrabold text-base text-slate-900">Шумо бомуваффақият ворид шудед!</h4>
-                <p class="text-sm text-slate-600">Хуш омадед, {{ user.full_name }}. Акнун метавонед бастаи APK-ро боргирӣ кунед.</p>
+                <h4 class="font-black text-base text-slate-900">Шумо бомуваффақият ворид шудед!</h4>
+                <p class="text-sm text-slate-600">Хуш омадед, {{ user.full_name }}. Акнун метавонед бастаи нави APK-ро зеркашӣ кунед.</p>
               </div>
             </div>
-            <a href="/download/android" class="btn-gradient bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-lg">
+            <a href="/download/android" class="btn-gradient bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-lg shadow-sm">
               Боргирии APK
             </a>
           </div>
           {% endif %}
 
-          <!-- Action Buttons -->
+          <!-- Action Buttons with Elevated Hover States -->
           <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
-            <a href="/qr" class="w-full sm:w-auto btn-gradient text-base sm:text-lg font-extrabold px-9 py-4 flex items-center justify-center gap-3 rounded-lg">
+            <a href="/qr" class="w-full sm:w-auto btn-gradient text-base sm:text-lg font-extrabold px-9 py-4 flex items-center justify-center gap-3 rounded-xl shadow-lg hover:shadow-indigo-500/25 transition hover:-translate-y-0.5">
               <i class="fa-brands fa-android text-2xl"></i>
               <span>Боргирии расмии APK</span>
             </a>
 
-            <a href="#download" class="w-full sm:w-auto btn-white font-extrabold text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-lg">
+            <a href="#download" class="w-full sm:w-auto btn-white font-extrabold text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-xl shadow-sm hover:shadow-md transition hover:-translate-y-0.5">
               <i class="fa-solid fa-qrcode text-indigo-600 text-xl"></i>
               <span>Скан кардани QR-код</span>
             </a>
           </div>
 
           <!-- Business Card QR Link Notice -->
-          <div class="inline-flex items-center gap-3 px-4 py-2.5 rounded-lg bg-white border border-slate-200 shadow-sm text-xs sm:text-sm font-medium text-slate-600">
+          <div class="inline-flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-sm text-xs sm:text-sm font-semibold text-slate-700 hover:border-indigo-300 transition">
             <i class="fa-solid fa-qrcode text-indigo-600 text-base"></i>
             <span>Суроғаи расмии визиткаҳо:</span>
-            <a href="/qr" class="font-mono font-bold text-indigo-600 hover:underline">/qr</a>
+            <a href="/qr" class="font-mono font-black text-indigo-600 hover:underline">/qr</a>
             <span class="text-slate-300">|</span>
-            <span class="text-emerald-700 font-semibold"><i class="fa-solid fa-bolt text-emerald-500"></i> Боргирии фаврӣ</span>
+            <span class="text-emerald-700 font-bold flex items-center gap-1.5"><i class="fa-solid fa-bolt text-emerald-500 animate-bounce"></i> Боргирии фаврӣ</span>
           </div>
 
-          <!-- Trust Badges -->
-          <div class="grid grid-cols-3 gap-4 max-w-xl mx-auto lg:mx-0 pt-8 mt-6 border-t border-slate-100">
-            <div class="text-center lg:text-left">
-              <div class="text-xl sm:text-2xl font-black text-amber-500 flex items-center justify-center lg:justify-start gap-1.5">
-                <i class="fa-solid fa-star text-base"></i> 4.9 / 5
+          <!-- Trust Badges with Sleek Container Cards -->
+          <div class="grid grid-cols-3 gap-3.5 max-w-xl mx-auto lg:mx-0 pt-8 mt-6 border-t border-slate-200/70">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-xs text-center lg:text-left hover:border-slate-300 transition">
+              <div class="text-lg sm:text-xl font-black text-amber-500 flex items-center justify-center lg:justify-start gap-1.5">
+                <i class="fa-solid fa-star text-sm"></i> 4.9 / 5
               </div>
-              <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Баҳои волидайн</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-1 font-bold">Баҳои волидайн</p>
             </div>
-            <div class="text-center lg:text-left">
-              <div class="text-xl sm:text-2xl font-black text-emerald-600 flex items-center justify-center lg:justify-start gap-1.5">
-                <i class="fa-solid fa-shield-check text-base"></i> 100%
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-xs text-center lg:text-left hover:border-slate-300 transition">
+              <div class="text-lg sm:text-xl font-black text-emerald-600 flex items-center justify-center lg:justify-start gap-1.5">
+                <i class="fa-solid fa-shield-check text-sm"></i> 100%
               </div>
-              <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Кори Офлайн</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-1 font-bold">Кори Офлайн</p>
             </div>
-            <div class="text-center lg:text-left">
-              <div class="text-xl sm:text-2xl font-black text-indigo-600 flex items-center justify-center lg:justify-start gap-1.5">
-                <i class="fa-brands fa-android text-base"></i> v2.4.1
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-xs text-center lg:text-left hover:border-slate-300 transition">
+              <div class="text-lg sm:text-xl font-black text-indigo-600 flex items-center justify-center lg:justify-start gap-1.5">
+                <i class="fa-brands fa-android text-sm"></i> v2.4.1
               </div>
-              <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Android 7 — 16+</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-1 font-bold">Android 7 — 16+</p>
             </div>
           </div>
 
