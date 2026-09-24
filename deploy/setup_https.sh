@@ -30,3 +30,4 @@ curl -sI https://nigohfamily.qobus.tj | head -n 5
 echo ""
 echo "🎉 Табрик! Сомонаи Нигоҳ дар пайванди амни зерин фаъол шуд:"
 echo "👉 https://nigohfamily.qobus.tj"
+
