@@ -1,0 +1,17 @@
+{
+  "name": "НИГОҲ Family",
+  "short_name": "Нигоҳ",
+  "start_url": "https://nigohfamily.qobus.tj/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "description": "Аввалин платформаи мукаммали назорати оқилона ва ҳифзи амнияти оила дар Тоҷикистон бо 100% кори офлайн",
+  "icons": [
+    {
+      "src": "/static/images/nigoh_family_icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
