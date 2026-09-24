@@ -5,11 +5,21 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import get_db, init_db
 from app.schemas import UserRegister, UserLogin, GoogleAuthRequest
 from app.auth import hash_password, create_session, get_current_user, SESSIONS
 
 app = FastAPI(title="Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -150,14 +160,14 @@ def mobile_app_page():
 @app.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
-    latest_version_code = 9
+    latest_version_code = 10
     return {
-        "version": "2.4.1",
+        "version": "2.5.0",
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Саҳифаи алоҳидаи навсозӣ, санҷиши худкори версия ва тугмаи якқадамаи навсозӣ илова шуд.",
-        "download_url": str(request.base_url).rstrip("/") + "/download/android"
+        "release_notes": "Чати зинда, PIN-и муҳофизатӣ, хориҷ кардани фарзанд, интихоби чанд фарзанд ва ҷойгиршавии заминавӣ илова шуд.",
+        "download_url": "https://nigohfamily.qobus.tj/download/android" if ("qobus.tj" in str(request.base_url) or "nigohfamily" in str(request.base_url)) else str(request.base_url).rstrip("/") + "/download/android"
     }
 
 @app.post("/api/mobile/role-select")
@@ -344,8 +354,8 @@ Status: Official Release Build Verified (V2 Signature Valid)
 2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
     # Prioritize Flutter release APK
-    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.4.1.apk")
-    apk_name = "NIGOH_Family_Android_v2.4.1.apk"
+    apk_file_path = os.path.join(STATIC_DIR, "downloads", "NIGOH_Family_Android_v2.5.0.apk")
+    apk_name = "NIGOH_Family_Android_v2.5.0.apk"
 
     if os.path.exists(apk_file_path):
         return FileResponse(
