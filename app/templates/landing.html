@@ -772,51 +772,79 @@
   </section>
 
   <!-- DOWNLOAD APK SECTION (Large, Clean White Hub) -->
-  <section id="download" class="py-20 lg:py-28 bg-white">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bento-card p-8 sm:p-16 text-center border-2 border-slate-200">
+  <section id="download" class="py-20 lg:py-28 bg-white relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-50/60 to-white pointer-events-none"></div>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="bento-card p-8 sm:p-16 text-center border-2 border-slate-200/90 shadow-xl bg-white/90 backdrop-blur-sm">
         
-        <div class="w-24 h-24 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center p-3.5 mx-auto mb-6">
+        <div class="w-24 h-24 rounded-2xl bg-white border border-slate-200 shadow-lg flex items-center justify-center p-3.5 mx-auto mb-6 ring-4 ring-indigo-50/50">
           <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ Logo" class="w-full h-full object-contain">
         </div>
 
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-wider mb-3">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Версияи Расмии Android v2.4.1</span>
+        </div>
+
         <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mb-4 tracking-tight">
-          Ҷойи насб ва боргирии расмии барнома
+          Маркази расмии насб ва боргирии «Нигоҳ»
         </h2>
         <p class="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-          Барномаи расмии «Нигоҳ»-ро бевосита дар формати <strong class="text-slate-900 font-extrabold">.APK</strong> боргирӣ намуда, дар ҳамаи смартфонҳои Android насб кунед.
+          Барномаи расмии «Нигоҳ»-ро бевосита дар формати <strong class="text-slate-900 font-extrabold">.APK</strong> боргирӣ намуда, дар ҳамаи смартфонҳои Android бе ягон маҳдудият насб кунед.
         </p>
 
         <!-- QR Code and Direct Download Card -->
-        <div class="max-w-md mx-auto bg-slate-50 border border-slate-200/80 p-8 rounded-2xl mb-10 flex flex-col items-center shadow-sm">
-          <div class="w-56 h-56 rounded-xl bg-white border border-slate-200 p-3 flex items-center justify-center mb-5 shadow-sm">
-            <img src="/static/images/official_qr.png" alt="Рамзи расмии QR барои боргирии NIGOH" class="w-full h-full object-contain rounded-lg">
+        <div class="max-w-md mx-auto bg-slate-50/80 border border-slate-200 p-8 rounded-2xl mb-10 flex flex-col items-center shadow-md">
+          <div class="relative group">
+            <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-2xl blur-xs opacity-30 group-hover:opacity-60 transition duration-500"></div>
+            <div class="relative w-56 h-56 rounded-xl bg-white border border-slate-200 p-3.5 flex items-center justify-center mb-5 shadow-inner">
+              <img src="/static/images/official_qr.png" alt="Рамзи расмии QR барои боргирии NIGOH" class="w-full h-full object-contain rounded-lg">
+            </div>
           </div>
-          <div class="text-center">
-            <span class="text-sm font-black text-slate-900 block">Суроғаи расмии QR барои визиткаҳо:</span>
-            <code class="text-sm font-bold text-indigo-700 bg-white px-3 py-1.5 rounded-md border border-indigo-200 block mt-2 shadow-sm">
-              http://37.27.245.216:8080/qr
-            </code>
-            <p class="text-xs text-slate-500 mt-2 font-medium">Ҳар касе ин рамзро бо камера скан кунад, барнома бевосита боргирӣ мешавад.</p>
+          
+          <div class="w-full text-center">
+            <span class="text-xs font-black text-slate-500 uppercase tracking-wider block mb-2">Суроғаи расмии QR (дар визиткаҳо):</span>
+            <div class="flex items-center gap-2 justify-center bg-white border border-indigo-200/80 px-3.5 py-2 rounded-xl shadow-2xs">
+              <code id="qr-link-text" class="text-xs sm:text-sm font-bold text-indigo-700 tracking-tight">
+                http://37.27.245.216:8080/qr
+              </code>
+              <button type="button" onclick="navigator.clipboard.writeText('http://37.27.245.216:8080/qr'); const el = document.getElementById('copy-status'); el.innerText='Нусха шуд!'; setTimeout(() => el.innerText='Нусхабардорӣ', 2000);" class="text-[11px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100 transition cursor-pointer">
+                <i class="fa-regular fa-copy mr-1"></i><span id="copy-status">Нусхабардорӣ</span>
+              </button>
+            </div>
+            <p class="text-xs text-slate-500 mt-2.5 font-medium">Бо камераи дилхоҳ телефон скан кунед — барнома худкор боргирӣ мешавад.</p>
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
-          <a href="/qr" class="w-full sm:w-auto btn-gradient font-extrabold text-base sm:text-lg px-9 py-4 flex items-center justify-center gap-3 rounded-lg">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="/qr" class="w-full sm:w-auto btn-gradient font-black text-base sm:text-lg px-9 py-4 flex items-center justify-center gap-3 rounded-xl shadow-lg hover:shadow-indigo-500/25 transition">
             <i class="fa-brands fa-android text-2xl"></i>
-            <span>Боргирии расмии APK (74.0 MB)</span>
+            <span>Боргирии APK (74.0 MB)</span>
           </a>
 
-          <a href="/download/android" class="w-full sm:w-auto btn-white text-slate-900 font-extrabold text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-lg">
+          <a href="/download/android" class="w-full sm:w-auto btn-white text-slate-900 font-black text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-xl border border-slate-300 hover:bg-slate-50 transition">
             <i class="fa-solid fa-download text-indigo-600 text-xl"></i>
-            <span>Пайванди мустақим (.APK)</span>
+            <span>Пайванди мустақим</span>
           </a>
         </div>
 
-        <div class="flex items-center justify-center gap-8 mt-10 text-xs sm:text-sm text-slate-500 font-semibold flex-wrap">
-          <span><i class="fa-solid fa-code-fork mr-1.5 text-emerald-600"></i> Ҳамаи моделҳои Android</span>
-          <span><i class="fa-solid fa-shield-check mr-1.5 text-emerald-600"></i> 100% Амн ва тасдиқшуда</span>
-          <span><i class="fa-solid fa-bolt mr-1.5 text-emerald-600"></i> Офлайн кор мекунад</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10 pt-8 border-t border-slate-200/80 text-xs font-bold text-slate-600">
+          <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
+            <i class="fa-solid fa-shield-check text-emerald-600 text-sm"></i>
+            <span>100% Тоза ва Бевирус</span>
+          </div>
+          <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
+            <i class="fa-brands fa-android text-emerald-600 text-sm"></i>
+            <span>Android 7.0 — 16+</span>
+          </div>
+          <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
+            <i class="fa-solid fa-bolt text-amber-500 text-sm"></i>
+            <span>Насби Осон (1 дақиқа)</span>
+          </div>
+          <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
+            <i class="fa-solid fa-lock text-indigo-600 text-sm"></i>
+            <span>Ҳифзи пурраи махфият</span>
+          </div>
         </div>
 
       </div>
