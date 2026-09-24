@@ -36,13 +36,14 @@ def deploy():
     run_ssh(f'rsync -avz --delete -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/static/downloads/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/static/downloads/')
 
     # 2. Sync root APK
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.5.0.apk {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
+    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.6.1.apk {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
 
     # 3. Sync templates
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/templates/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/templates/')
 
-    # 4. Sync backend
+    # 4. Sync backend and schemas
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/main.py {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/main.py')
+    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/schemas.py {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/schemas.py')
 
     # 5. Sync deploy configs
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" deploy/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/deploy/')
@@ -54,3 +55,4 @@ def deploy():
 
 if __name__ == "__main__":
     deploy()
+
