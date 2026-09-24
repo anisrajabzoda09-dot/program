@@ -772,6 +772,102 @@
       </div>
     </section>
 
+    <!-- Interactive Friction Diagnostic Tool Section -->
+    <section id="friction-tool" class="py-24 max-w-[1240px] mx-auto px-4 sm:px-6 relative">
+      <div class="rounded-3xl border border-white/10 bg-gradient-to-b from-[#16161d] to-[#101014] p-8 sm:p-14 relative overflow-hidden shadow-2xl">
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="max-w-3xl mb-12">
+          <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
+            <span>DIAGNOSTIC MATRIX</span>
+            <span class="text-white/20">|</span>
+            <span>183+ FRICTIONS CATALOGED</span>
+          </div>
+          <h2 class="text-3xl sm:text-5xl font-black font-sans tracking-tight text-white leading-tight">
+            What's slowing you down? <br/>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-400">
+              You name the friction. We map the fix.
+            </span>
+          </h2>
+          <p class="mt-4 text-zinc-400 font-mono text-xs sm:text-sm">
+            Select the operational friction currently holding your company back to preview the architectural solution:
+          </p>
+        </div>
+
+        <!-- Friction Selector Buttons -->
+        <div class="flex flex-wrap gap-2.5 sm:gap-3 mb-10 font-mono text-xs" id="friction-chips">
+          <button onclick="selectFriction(0)" class="friction-btn active px-4 py-2.5 rounded-xl border border-accent bg-accent/20 text-white transition-all text-left">
+            ⚡ Engineering bottlenecked by manual repetitive tasks
+          </button>
+          <button onclick="selectFriction(1)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            📊 Data trapped in disconnected ERP/CRM silos
+          </button>
+          <button onclick="selectFriction(2)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            ⏱ Offshore team missing quality benchmarks &amp; timezone sync
+          </button>
+          <button onclick="selectFriction(3)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            🤖 Lots of AI hype with zero measurable business ROI
+          </button>
+          <button onclick="selectFriction(4)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            💸 Cloud infrastructure bills spiking without clear justification
+          </button>
+          <button onclick="selectFriction(5)" class="friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left">
+            🔍 Website invisible to modern AI search (ChatGPT, Perplexity)
+          </button>
+        </div>
+
+        <!-- Dynamic Output Solution Card -->
+        <div id="solution-display" class="rounded-2xl border border-white/15 bg-black/60 p-6 sm:p-8 backdrop-blur-xl">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-widest text-accent mb-1" id="sol-phase">
+                RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER
+              </div>
+              <h3 class="text-xl sm:text-2xl font-bold font-sans text-white" id="sol-title">
+                Autonomous Workflow Multi-Agent Cluster
+              </h3>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-mono text-zinc-400">ESTIMATED IMPACT:</span>
+              <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono text-xs font-bold" id="sol-impact">
+                85% Task Automation in 30 Days
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs text-zinc-300">
+            <div>
+              <span class="text-zinc-500 text-[10px] uppercase block mb-1">Architecture Fix</span>
+              <p id="sol-fix" class="leading-relaxed text-zinc-300">
+                Deploy specialized worker agents to orchestrate asynchronous tasks, replacing human copy-pasting across disparate dashboards.
+              </p>
+            </div>
+            <div>
+              <span class="text-zinc-500 text-[10px] uppercase block mb-1">Prescribed Deliverables</span>
+              <p id="sol-deliverable" class="leading-relaxed text-zinc-300">
+                Dedicated LLM orchestrator, deterministic Python API workers, fail-safe validation loop, and enterprise monitoring dashboard.
+              </p>
+            </div>
+            <div class="flex flex-col justify-between">
+              <div>
+                <span class="text-zinc-500 text-[10px] uppercase block mb-1">Timeline to Production</span>
+                <p id="sol-timeline" class="font-bold text-white text-sm">2 to 4 Sprints</p>
+              </div>
+              <div class="pt-4">
+                <a id="sol-cta" href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20diagnosticar%20la%20siguiente%20friccion:%20Engineering%20bottlenecked" 
+                   target="_blank" 
+                   class="inline-flex items-center gap-2 text-xs font-bold text-accent hover:text-white transition-colors">
+                  <span>Discuss this diagnosis on WhatsApp</span>
+                  <span>→</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   <script>
     // Canvas subtle particle effect
     const canvas = document.getElementById('matrix-canvas');
@@ -839,6 +935,88 @@
           el.classList.remove('ring-2', 'ring-accent');
         }, 1500);
       }
+    }
+
+    // Friction Tool Data & Logic
+    const frictions = [
+      {
+        phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER",
+        title: "Autonomous Workflow Multi-Agent Cluster",
+        impact: "85% Task Automation in 30 Days",
+        fix: "Deploy specialized worker agents to orchestrate asynchronous tasks, replacing human copy-pasting across disparate dashboards.",
+        deliverable: "Dedicated LLM orchestrator, deterministic Python API workers, fail-safe validation loop, and enterprise monitoring dashboard.",
+        timeline: "2 to 4 Sprints",
+        topic: "Engineering bottlenecked by manual repetitive tasks"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 01 DISCOVER → 03 DESIGN",
+        title: "Unified Event-Driven Data Pipeline",
+        impact: "Instant Real-Time Data Sync",
+        fix: "Break down relational barriers between Salesforce/HubSpot and internal ERPs with robust bi-directional sync webhooks and Redis caching.",
+        deliverable: "Automated CDC (Change Data Capture) pipeline, single customer view schema, and auditable error recovery queues.",
+        timeline: "3 to 5 Sprints",
+        topic: "Data trapped in disconnected ERP/CRM silos"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 03 DESIGN → 04 DELIVER",
+        title: "Monterrey-US Nearshore Squad Integration",
+        impact: "100% Timezone Aligned Sprint Cadence",
+        fix: "Replace fragmented offshore handoffs with senior dedicated engineers located in Central/Pacific hours, participating in daily standups.",
+        deliverable: "Senior full-stack team embedded within 10 days, rigorous code review standards, and CI/CD automated gates.",
+        timeline: "Immediate (Under 2 Weeks)",
+        topic: "Offshore team missing quality benchmarks and timezone sync"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 05 EVOLVE",
+        title: "ROI-First AI Architecture Audit",
+        impact: "Clear 4x+ Payback Horizon",
+        fix: "Eliminate generic chatbot subscriptions. Anchor every AI initiative to a hard operational dollar saving or margin expansion KPI.",
+        deliverable: "Executive feasibility matrix, custom fine-tuned model evaluation, and pilot MVP deployed in sandboxed production.",
+        timeline: "1 Sprint (2-Week Sprint)",
+        topic: "AI hype with zero measurable business ROI"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER",
+        title: "FinOps Cloud Architecture Re-engineering",
+        impact: "35% - 50% Cloud Spend Reduction",
+        fix: "Audit idle provisioned AWS/GCP clusters, convert static compute to auto-scaling spot/serverless containers, and optimize egress networks.",
+        deliverable: "Automated Terraform infrastructure-as-code, budget guardrails, and rightsized cluster topology.",
+        timeline: "2 to 3 Sprints",
+        topic: "Cloud infrastructure bills spiking without clear justification"
+      },
+      {
+        phase: "RECOMMENDED METHOD PHASE: 01 DISCOVER → 04 DELIVER",
+        title: "Generative Engine Optimization (GEO/AEO)",
+        impact: "Top 3 Citations in LLM Search Engines",
+        fix: "Restructure website DOM, structured JSON-LD schemas, and programmatic technical content to be trusted, indexed, and cited by AI engines.",
+        deliverable: "Comprehensive GEO semantic audit, knowledge-graph integration, and high-authority entity footprint.",
+        timeline: "3 to 4 Weeks",
+        topic: "Website invisible to modern AI search"
+      }
+    ];
+
+    function selectFriction(index) {
+      const data = frictions[index];
+      if (!data) return;
+
+      // Update button active state
+      const buttons = document.querySelectorAll('.friction-btn');
+      buttons.forEach((btn, i) => {
+        if (i === index) {
+          btn.className = 'friction-btn active px-4 py-2.5 rounded-xl border border-accent bg-accent/20 text-white transition-all text-left';
+        } else {
+          btn.className = 'friction-btn px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/20 text-zinc-300 transition-all text-left';
+        }
+      });
+
+      // Update solution card
+      document.getElementById('sol-phase').textContent = data.phase;
+      document.getElementById('sol-title').textContent = data.title;
+      document.getElementById('sol-impact').textContent = data.impact;
+      document.getElementById('sol-fix').textContent = data.fix;
+      document.getElementById('sol-deliverable').textContent = data.deliverable;
+      document.getElementById('sol-timeline').textContent = data.timeline;
+      document.getElementById('sol-cta').href = `https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20diagnosticar%20la%20friccion:%20${encodeURIComponent(data.topic)}`;
     }
   </script>
 </body>
