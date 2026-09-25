@@ -322,7 +322,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Версияи нави расмии v2.8.1: Беҳтаркунии суръат, устувории пайвастшавӣ, ислоҳи хатогиҳо ва мутобиқат бо Android 16.",
+        "release_notes": "Навсозии v2.8.1: Беҳтаркунии иҷозатҳои амниятӣ, танзимоти маҳдудшудаи Android 13/14, пайвастшавии боэътимод ва ислоҳи хатогиҳо.",
         "download_url": "https://nigohfamily.qobus.tj/download/android" if ("qobus.tj" in str(request.base_url) or "nigohfamily" in str(request.base_url)) else str(request.base_url).rstrip("/") + "/download/android"
     }
 
@@ -507,12 +507,13 @@ def download_android_apk(request: Request):
 Package: tj.nigoh.nigoh_family_parent
 Target: Android 7.0 to Android 16 (ARM64, ARMv7 & x86_64)
 Permissions: Internet, Install Packages
-Size: 74.0 MB
+Size: 74.1 MB
 Status: Official Release Build Verified (V2 Signature Valid)
 
 Дастури насб дар телефони Android:
 1. Файли APK-ро кушоед ва иҷозати насбро тасдиқ намоед.
-2. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
+2. Дар Android 13/14: Танзимот -> Барномаҳо -> NIGOH Family -> 3 нуқта -> «Иҷозати танзимоти маҳдудшуда»-ро фаъол созед.
+3. Барномаро кушоед ва аз имкониятҳои оилавии Нигоҳ истифода баред!
 """
     # Prioritize Flutter release APK, then fall back to other available versions
     apk_candidates = [
