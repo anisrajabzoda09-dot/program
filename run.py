@@ -19,7 +19,6 @@ if __name__ == "__main__":
     print(" Оғози сервери «Нигоҳ — Parental Control» (FastAPI)")
     print(f" Сервер дар суроғаи зер дастрас аст:")
     print(f" 👉 http://localhost:{port}")
-    print(f" 👑 Панели Админ: http://localhost:{port}/admin")
     print(f" 📱 Версияи мобилӣ: http://localhost:{port}/mobile")
     print("==================================================")
     uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)
