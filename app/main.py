@@ -30,7 +30,7 @@ async def track_and_secure(request: Request, call_next):
     path = request.url.path
     if path in ["/", "/auth", "/admin"]:
         user_agent = request.headers.get("user-agent", "")
-        log_analytics_event(client_ip, path, user_agent, event_type="page_view", version="v2.8.0")
+        log_analytics_event(client_ip, path, user_agent, event_type="page_view", version="v2.8.1")
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
@@ -126,6 +126,7 @@ def health_check():
         db_ok = False
 
     apk_candidates = [
+        "NIGOH_Family_Android_v2.8.1.apk",
         "NIGOH_Family_Android_v2.8.0.apk",
         "NIGOH_Family_Android_v2.7.0.apk",
         "NIGOH_Family_Android_v2.6.3.apk",
@@ -148,8 +149,8 @@ def health_check():
     return {
         "status": "healthy" if (db_ok and apk_exists) else "degraded",
         "domain": "https://nigohfamily.qobus.tj",
-        "version": "2.8.0",
-        "version_code": 16,
+        "version": "2.8.1",
+        "version_code": 17,
         "database_connected": db_ok,
         "apk_available": apk_exists,
         "apk_bytes": apk_size,
@@ -315,13 +316,13 @@ def mobile_app_page():
 @app.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
-    latest_version_code = 16
+    latest_version_code = 17
     return {
-        "version": "2.8.0",
+        "version": "2.8.1",
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "PIN барои аккаунтҳои пешина ислоҳ шуд, навсозӣ дар дохили барнома зеркашӣ мешавад, иҷозатҳои норасида худкор нишон дода мешаванд ва интерфейс содатар шуд.",
+        "release_notes": "Версияи нави расмии v2.8.1: Беҳтаркунии суръат, устувории пайвастшавӣ, ислоҳи хатогиҳо ва мутобиқат бо Android 16.",
         "download_url": "https://nigohfamily.qobus.tj/download/android" if ("qobus.tj" in str(request.base_url) or "nigohfamily" in str(request.base_url)) else str(request.base_url).rstrip("/") + "/download/android"
     }
 
@@ -500,7 +501,7 @@ def download_android_apk(request: Request):
     client_ip = request.client.host if request.client else "127.0.0.1"
     ua = request.headers.get("user-agent", "")
     event_type = "qr_scan" if "/qr" in request.url.path else "apk_download"
-    log_analytics_event(client_ip, request.url.path, ua, event_type=event_type, version="v2.8.0")
+    log_analytics_event(client_ip, request.url.path, ua, event_type=event_type, version="v2.8.1")
 
     manifest_content = """# NIGOH Family Parental Control — Android Edition
 Package: tj.nigoh.nigoh_family_parent
@@ -515,6 +516,7 @@ Status: Official Release Build Verified (V2 Signature Valid)
 """
     # Prioritize Flutter release APK, then fall back to other available versions
     apk_candidates = [
+        "NIGOH_Family_Android_v2.8.1.apk",
         "NIGOH_Family_Android_v2.8.0.apk",
         "NIGOH_Family_Android_v2.7.0.apk",
         "NIGOH_Family_Android_v2.6.3.apk",
