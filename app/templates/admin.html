@@ -486,58 +486,13 @@
               </div>
             </div>
             <span class="text-[10px] font-mono font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">
-              {{ ev.version or 'v2.8.0' }}
+              {{ ev.version or 'v2.8.1' }}
             </span>
           </div>
         {% else %}
-          <!-- Fallback mock cards if empty -->
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">
-                <i class="fa-solid fa-download"></i>
-              </div>
-              <div>
-                <p class="text-xs font-bold text-slate-900">Боргирии APK (Android)</p>
-                <span class="text-[10px] font-mono text-slate-400">IP: 212.107.xxx.xxx (Душанбе)</span>
-              </div>
-            </div>
-            <span class="text-[10px] font-mono font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-black">
-                <i class="fa-solid fa-qrcode"></i>
-              </div>
-              <div>
-                <p class="text-xs font-bold text-slate-900">Скан бо Камера (QR)</p>
-                <span class="text-[10px] font-mono text-slate-400">IP: 89.232.xxx.xxx (Хуҷанд)</span>
-              </div>
-            </div>
-            <span class="text-[10px] font-mono font-bold text-amber-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">
-                <i class="fa-solid fa-download"></i>
-              </div>
-              <div>
-                <p class="text-xs font-bold text-slate-900">Боргирии APK (Android)</p>
-                <span class="text-[10px] font-mono text-slate-400">IP: 185.120.xxx.xxx (Бохтар)</span>
-              </div>
-            </div>
-            <span class="text-[10px] font-mono font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
-          </div>
-          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-black">
-                <i class="fa-solid fa-qrcode"></i>
-              </div>
-              <div>
-                <p class="text-xs font-bold text-slate-900">Скан бо Камера (QR)</p>
-                <span class="text-[10px] font-mono text-slate-400">IP: 91.246.xxx.xxx (Кӯлоб)</span>
-              </div>
-            </div>
-            <span class="text-[10px] font-mono font-bold text-amber-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
+          <div class="col-span-full py-8 text-center text-slate-400 font-medium text-xs bg-slate-50 rounded-xl border border-slate-200/60">
+            <i class="fa-solid fa-clock-rotate-left text-2xl text-slate-300 mb-2 block"></i>
+            Ҳоло ягон сабти нав нест. Ҳангоми боргирӣ ва скани воқеӣ ин ҷадвал худкор нав мешавад.
           </div>
         {% endfor %}
       </div>
