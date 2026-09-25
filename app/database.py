@@ -130,9 +130,10 @@ def init_db():
             default_reviews
         )
 
-    # Seed Admin User: admin / admin123
+    # Seed Admin User: admin / admin321
     import hashlib
-    admin_pwd_hash = hashlib.sha256("admin123".encode("utf-8")).hexdigest()
+    admin_secret = os.environ.get("ADMIN_PASSWORD", "admin321")
+    admin_pwd_hash = hashlib.sha256(admin_secret.encode("utf-8")).hexdigest()
     cursor.execute("SELECT id FROM users WHERE email = 'admin'")
     if not cursor.fetchone():
         cursor.execute("""
@@ -149,22 +150,8 @@ def init_db():
         INSERT INTO users (email, password_hash, full_name, role, avatar)
         VALUES ('admin@nigohfamily.tj', ?, 'Администратор (Admin)', 'admin', 'https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff')
         """, (admin_pwd_hash,))
-
-    # Seed demo devices/children if empty for realistic analytics
-    cursor.execute("SELECT COUNT(*) FROM children")
-    if cursor.fetchone()[0] == 0:
-        demo_children = [
-            ("Анушервон", "boy", 12, "Samsung Galaxy A54", "NIGOH-7412-X", 1, 1, 88, 38.5601, 68.7885, "ш. Душанбе, хиёбони Рӯдакӣ 45"),
-            ("Малика", "girl", 9, "Xiaomi Redmi Note 12", "NIGOH-3918-X", 1, 1, 94, 38.5420, 68.7750, "ш. Душанбе, кӯчаи Исмоили Сомонӣ"),
-            ("Беҳрӯз", "boy", 14, "iPhone 13 (Android Client)", "NIGOH-8821-X", 1, 0, 42, 38.5710, 68.8010, "ш. Душанбе, маҳаллаи 82"),
-            ("Сабрина", "girl", 11, "Samsung Galaxy A33", "NIGOH-1049-X", 1, 1, 76, 40.2850, 69.6230, "ш. Хуҷанд, маҳаллаи 19"),
-            ("Муҳаммадҷон", "boy", 10, "Honor X8b", "NIGOH-5524-X", 1, 1, 65, 37.8380, 68.7740, "ш. Бохтар, кӯчаи Борбад")
-        ]
-        for name, gender, age, dev, code, is_p, is_o, bat, lat, lon, addr in demo_children:
-            cursor.execute("""
-            INSERT INTO children (name, gender, age, device_name, pairing_code, is_paired, is_online, battery_level, latitude, longitude, address)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (name, gender, age, dev, code, is_p, is_o, bat, lat, lon, addr))
+    else:
+        cursor.execute("UPDATE users SET password_hash = ?, role = 'admin' WHERE email = 'admin@nigohfamily.tj'", (admin_pwd_hash,))
 
     conn.commit()
     conn.close()
@@ -247,40 +234,36 @@ def get_admin_dashboard_data():
     conn = get_db()
     cursor = conn.cursor()
     
-    # 1. Total counts
+    # 1. Total counts (100% real data from database)
     cursor.execute("SELECT COUNT(*) FROM site_analytics WHERE event_type IN ('apk_download', 'qr_scan')")
     real_downloads = cursor.fetchone()[0]
-    total_downloads = 1482 + real_downloads
+    total_downloads = real_downloads
     
     cursor.execute("SELECT COUNT(*) FROM site_analytics WHERE event_type = 'qr_scan'")
     real_qr = cursor.fetchone()[0]
-    total_qr_downloads = 638 + real_qr
+    total_qr_downloads = real_qr
     
-    total_direct_downloads = total_downloads - total_qr_downloads
+    total_direct_downloads = max(0, total_downloads - total_qr_downloads)
     
     cursor.execute("SELECT COUNT(*) FROM site_analytics WHERE event_type = 'page_view'")
     real_views = cursor.fetchone()[0]
-    total_page_views = 4290 + real_views
+    total_page_views = real_views
     
     cursor.execute("SELECT COUNT(DISTINCT ip) FROM site_analytics")
     real_visitors = cursor.fetchone()[0]
-    total_visitors = 1860 + real_visitors
+    total_visitors = real_visitors
 
     cursor.execute("SELECT COUNT(*) FROM users WHERE role != 'admin'")
-    real_users = cursor.fetchone()[0]
-    total_families = max(420, real_users + 415)
+    total_families = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM children")
-    real_children = cursor.fetchone()[0]
-    total_children = max(385, real_children + 380)
+    total_children = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM children WHERE is_paired = 1")
-    real_paired = cursor.fetchone()[0]
-    total_paired = max(348, real_paired + 343)
+    total_paired = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM children WHERE is_online = 1")
-    real_online = cursor.fetchone()[0]
-    total_online = max(294, real_online + 289)
+    total_online = cursor.fetchone()[0]
 
     # 2. Focus Gauge (Matching User Screenshot Image 2)
     # Circular gauge: "ВАҚТИ ТАМАРКУЗ 45:00" with 45 min used / 75 min pause
