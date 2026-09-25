@@ -121,6 +121,8 @@ def health_check():
         db_ok = False
 
     apk_candidates = [
+        "NIGOH_Family_Android_v2.7.0.apk",
+        "NIGOH_Family_Android_v2.6.3.apk",
         "NIGOH_Family_Android_v2.6.2.apk",
         "NIGOH_Family_Android_v2.6.1.apk",
         "NIGOH_Family_Android_v2.6.0.apk",
@@ -140,8 +142,8 @@ def health_check():
     return {
         "status": "healthy" if (db_ok and apk_exists) else "degraded",
         "domain": "https://nigohfamily.qobus.tj",
-        "version": "2.6.2",
-        "version_code": 13,
+        "version": "2.7.0",
+        "version_code": 15,
         "database_connected": db_ok,
         "apk_available": apk_exists,
         "apk_bytes": apk_size,
@@ -290,13 +292,13 @@ def mobile_app_page():
 @app.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):
     """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
-    latest_version_code = 13
+    latest_version_code = 15
     return {
-        "version": "2.6.2",
+        "version": "2.7.0",
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Дизайни нави минималӣ ва қулай бо услуби Instagram, панели поёнии нав, feed, чат ва профили азнавсозишуда; бе аниматсия.",
+        "release_notes": "Иҷозатҳои пайдарпай баъди бақайдгирӣ, PIN-и ҳатмӣ ва панели поёнии шинокунандаи нав.",
         "download_url": "https://nigohfamily.qobus.tj/download/android" if ("qobus.tj" in str(request.base_url) or "nigohfamily" in str(request.base_url)) else str(request.base_url).rstrip("/") + "/download/android"
     }
 
@@ -485,6 +487,8 @@ Status: Official Release Build Verified (V2 Signature Valid)
 """
     # Prioritize Flutter release APK, then fall back to other available versions
     apk_candidates = [
+        "NIGOH_Family_Android_v2.7.0.apk",
+        "NIGOH_Family_Android_v2.6.3.apk",
         "NIGOH_Family_Android_v2.6.2.apk",
         "NIGOH_Family_Android_v2.6.1.apk",
         "NIGOH_Family_Android_v2.6.0.apk",
