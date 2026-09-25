@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Панели Идоракунии Администратор — НИГОҲ Family</title>
+  
+  <link rel="icon" type="image/png" href="/static/images/nigoh_family_icon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    .card-admin {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+      transition: all 0.2s ease;
+    }
+    .card-admin:hover {
+      box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08);
+    }
+    /* Circular Gauge Animation */
+    .gauge-circle {
+      transition: stroke-dashoffset 1s ease-in-out;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- ADMIN TOP NAVBAR -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      
+      <!-- Brand & Admin Badge -->
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center p-1.5 shadow-sm shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+            <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ" class="w-full h-full object-contain brightness-0 invert">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-black text-lg tracking-tight text-slate-900">НИГОҲ</span>
+              <span class="text-xs font-black uppercase px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 tracking-wider">ADMIN PANEL</span>
+            </div>
+            <p class="text-[11px] font-bold text-slate-400">Мониторинг ва омори сомона ва барнома</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center Status Pill -->
+      <div class="hidden md:flex items-center gap-3 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700">
+        <span class="flex h-2.5 w-2.5 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        </span>
+        <span>Сервер фаъол аст:</span>
+        <span class="font-mono text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">{{ stats.current_version }}</span>
+        <span class="text-slate-400">·</span>
+        <span class="text-slate-600">Port 8080 (FastAPI)</span>
+      </div>
+
+      <!-- Right Action Items -->
+      <div class="flex items-center gap-2.5">
+        <a href="/" class="px-3.5 py-2 text-xs font-extrabold text-slate-700 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl flex items-center gap-2 transition">
+          <i class="fa-solid fa-house text-slate-400"></i>
+          <span>Ба сомона</span>
+        </a>
+
+        <button onclick="window.location.reload()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 border border-slate-200 rounded-xl transition" title="Навсозии маълумот">
+          <i class="fa-solid fa-arrows-rotate text-sm"></i>
+        </button>
+
+        <a href="/logout" class="px-3.5 py-2 text-xs font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+          <span>Баромад</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN DASHBOARD CONTENT -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- DASHBOARD WELCOME & DATE BAR -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+          <span>Хуш омадед, Администратор!</span>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <i class="fa-solid fa-shield-check mr-1"></i>Системаи Муҳофизат
+          </span>
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+          Ҳисоботи зинда оид ба насбҳои APK, истифодабарандагон, вақти тамаркуз ва бехатарии оилаҳо
+        </p>
+      </div>
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <a href="/download/android" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-xs flex items-center gap-2 transition">
+          <i class="fa-brands fa-android text-sm"></i>
+          <span>Санҷиши Боргирии {{ stats.current_version }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 4 TOP KPI STATS CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      
+      <!-- Card 1: Total Installs & Downloads -->
+      <div class="card-admin p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ҳамагӣ Насбҳо</span>
+          <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-download"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+          {{ "{:,}".format(stats.total_downloads) }}
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <span class="text-emerald-600 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-arrow-trend-up"></i> +18.4% ин ҳафта
+          </span>
+          <span class="font-mono text-slate-400">QR: {{ stats.total_qr_downloads }}</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 76%"></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Registered Families -->
+      <div class="card-admin p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Оилаҳои Фаъол</span>
+          <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-people-roof"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+          {{ "{:,}".format(stats.total_families) }}
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <span class="text-slate-600 font-semibold">Фарзандони сабтшуда:</span>
+          <span class="font-bold text-indigo-600">{{ stats.total_children }}</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-blue-600 h-1.5 rounded-full" style="width: 84%"></div>
+        </div>
+      </div>
+
+      <!-- Card 3: Paired Devices Online -->
+      <div class="card-admin p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Дастгоҳҳои Пайваст</span>
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+          {{ stats.total_paired }}
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <span class="text-emerald-600 font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            {{ stats.total_online }} ҳоло онлайн
+          </span>
+          <span class="text-slate-400">92% фаъол</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 88%"></div>
+        </div>
+      </div>
+
+      <!-- Card 4: Web Traffic & Views -->
+      <div class="card-admin p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ташрифҳои Сомона</span>
+          <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-eye"></i>
+          </div>
+        </div>
+        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+          {{ "{:,}".format(stats.total_page_views) }}
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <span>Меҳмонони беназир:</span>
+          <span class="font-bold text-purple-600">{{ "{:,}".format(stats.total_visitors) }}</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div class="bg-purple-600 h-1.5 rounded-full" style="width: 65%"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2 SPECIAL VISUAL ANALYTICS WIDGETS (RECREATING SCREENSHOTS 2 & 3) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- WIDGET A: ВАҚТИ ТАМАРКУЗ (CIRCULAR PROGRESS GAUGE - FROM IMAGE 2) -->
+      <div class="lg:col-span-5 card-admin p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-black">
+                <i class="fa-regular fa-clock"></i>
+              </div>
+              <div>
+                <h3 class="font-black text-base text-slate-900 tracking-tight">Реҷаи Тамаркуз ва Маҳдудият</h3>
+                <p class="text-[11px] font-medium text-slate-400">Омори истифодабарии кӯдакон (Focus Time)</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-black uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+              Ҳолати фаъол
+            </span>
+          </div>
+
+          <!-- Circular Ring Gauge Widget -->
+          <div class="flex flex-col items-center justify-center my-6">
+            <div class="relative w-56 h-56 flex items-center justify-center">
+              
+              <!-- SVG Radial Gauge -->
+              <svg class="w-full h-full" viewBox="0 0 200 200">
+                <!-- Background Inactive Track -->
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="78"
+                  fill="transparent"
+                  stroke="#e2e8f0"
+                  stroke-width="16"
+                  stroke-linecap="round"
+                />
+                <!-- Progress Active Track (Bright Royal Blue #2563EB) -->
+                <!-- Circumference = 2 * PI * 78 ≈ 490. StrokeDasharray: 490. Offset for 37.5%: 490 * (1 - 0.375) ≈ 306 -->
+                <circle
+                  class="gauge-circle"
+                  cx="100"
+                  cy="100"
+                  r="78"
+                  fill="transparent"
+                  stroke="#2563eb"
+                  stroke-width="16"
+                  stroke-dasharray="490"
+                  stroke-dashoffset="306"
+                  stroke-linecap="round"
+                />
+              </svg>
+
+              <!-- Centered Text (Matches User Image 2: ВАҚТИ ТАМАРКУЗ 45:00) -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+                <span class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                  {{ stats.focus_gauge.title }}
+                </span>
+                <span class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
+                  {{ stats.focus_gauge.display_time }}
+                </span>
+                <div class="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                  <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                  <span>{{ stats.focus_gauge.sub_text }}</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Widget Bottom Explanation -->
+        <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-600 space-y-1.5">
+          <div class="flex items-center justify-between font-bold text-slate-700">
+            <span>Ҳадди миёнаи рӯзона:</span>
+            <span class="font-mono text-slate-900">2 соат (120 дақ)</span>
+          </div>
+          <p class="text-[11px] text-slate-500">
+            Кӯдакон дар вақти дарс ва машғулиятҳои хонагӣ тамаркузи 45-дақиқагиро пурра риоя карда истодаанд.
+          </p>
+        </div>
+      </div>
+
+      <!-- WIDGET B: ҲАФТАИНА (WEEKLY USAGE BAR CHART - FROM IMAGE 3) -->
+      <div class="lg:col-span-7 card-admin p-6">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-black">
+              <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-base text-slate-900 tracking-tight">Фаъолияти Ҳафтаинаи Телефон</h3>
+              <p class="text-[11px] font-medium text-slate-400">Тақсимоти соатҳои истифодабарӣ дар тӯли 7 рӯз</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
+            <span class="w-2.5 h-2.5 rounded-sm bg-[#2563eb]"></span>
+            <span>Рӯзҳои корӣ</span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-[#0f172a] ml-2"></span>
+            <span>Шанбе (Қулла)</span>
+          </div>
+        </div>
+
+        <!-- Bar Chart Container (With Target Limit Line) -->
+        <div class="relative bg-slate-50/70 border border-slate-200/90 rounded-2xl p-5 pt-8 mb-5">
+          
+          <!-- Dashed Target Limit Line (Matches User Image 3: "Ҳадди: 2с 00д") -->
+          <div class="absolute left-4 right-4 top-20 border-b border-dashed border-slate-400 flex items-center justify-end">
+            <span class="text-[11px] font-bold text-slate-500 bg-white px-2 py-0.5 -mt-3.5 rounded border border-slate-200 shadow-2xs font-mono">
+              {{ stats.weekly_meta.limit_label }}
+            </span>
+          </div>
+
+          <!-- Weekly Bars Grid (7 Days) -->
+          <div class="grid grid-cols-7 gap-3 sm:gap-5 h-48 items-end relative z-10">
+            {% for item in stats.weekly_chart %}
+              <div class="flex flex-col items-center justify-end h-full group">
+                <!-- Hover Value Tooltip -->
+                <span class="text-[10px] font-mono font-bold text-slate-600 mb-1 opacity-80 group-hover:opacity-100">
+                  {{ item.hours }}с
+                </span>
+                <!-- Vertical Bar -->
+                <div 
+                  class="w-full max-w-[46px] rounded-xl transition-all duration-300 group-hover:scale-105 shadow-xs {% if item.is_peak %}bg-[#0f172a] text-white ring-2 ring-indigo-500/20{% else %}bg-[#2563eb] hover:bg-blue-600{% endif %}"
+                  style="height: {{ item.height_pct }}%; min-height: 28px;"
+                ></div>
+                <!-- Day Label underneath -->
+                <span class="mt-3 text-xs font-black text-slate-700 {% if item.is_peak %}text-indigo-700 font-extrabold{% endif %}">
+                  {{ item.day }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+
+        </div>
+
+        <!-- Bottom Status Banner (Matches User Image 3 status indicators) -->
+        <div class="bg-blue-50/70 border border-blue-200/80 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2 text-indigo-900 font-bold">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+            <span>{{ stats.weekly_meta.today_note }}</span>
+          </div>
+          <div class="text-slate-600 font-medium font-mono text-[11px] bg-white px-2.5 py-1 rounded-lg border border-blue-100 shadow-2xs">
+            <i class="fa-solid fa-moon text-indigo-500 mr-1"></i>
+            <span>{{ stats.weekly_meta.night_mode_note }}</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- APP RESTRICTIONS & LIVE DEVICES SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Top Restricted Apps (Left 5 Cols) -->
+      <div class="lg:col-span-5 card-admin p-6">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+          <div>
+            <h3 class="font-black text-base text-slate-900 tracking-tight">Барномаҳои Маҳдудшуда</h3>
+            <p class="text-[11px] font-medium text-slate-400">Барномаҳое, ки волидон бештар маҳдуд мекунанд</p>
+          </div>
+          <span class="text-xs font-bold text-slate-500">6 барнома</span>
+        </div>
+
+        <div class="space-y-3">
+          {% for app in stats.rules_rows %}
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/70 transition">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">{{ app.app_icon }}</span>
+                <div>
+                  <h4 class="font-bold text-xs text-slate-900 leading-tight">{{ app.app_name }}</h4>
+                  <span class="text-[10px] text-slate-500">{{ app.category }}</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full {% if app.is_blocked %}bg-rose-50 text-rose-700 border border-rose-200{% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
+                  {{ app.badge }}
+                </span>
+                <p class="text-[10px] text-slate-400 font-medium mt-0.5">{{ app.stat }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Live Devices Table (Right 7 Cols) -->
+      <div class="lg:col-span-7 card-admin p-6">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+          <div>
+            <h3 class="font-black text-base text-slate-900 tracking-tight">Дастгоҳҳои Охирини Кӯдакон</h3>
+            <p class="text-[11px] font-medium text-slate-400">Ҳолати фаъоли телефонҳо ва назорати амниятӣ</p>
+          </div>
+          <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100">
+            Ҳамагӣ: {{ stats.children_list|length }} дастгоҳ
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-slate-400 uppercase text-[10px] font-extrabold border-b border-slate-100 pb-2">
+                <th class="py-2.5">Номи Фарзанд</th>
+                <th class="py-2.5">Модели Телефон</th>
+                <th class="py-2.5 text-center">Батарея</th>
+                <th class="py-2.5 text-center">Ҳолат</th>
+                <th class="py-2.5 text-right">Рамзи Ҷуфтшавӣ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+              {% for child in stats.children_list %}
+                <tr class="hover:bg-slate-50 transition">
+                  <td class="py-3 font-bold text-slate-900 flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full {% if child.gender == 'girl' %}bg-pink-100 text-pink-600{% else %}bg-indigo-100 text-indigo-600{% endif %} flex items-center justify-center text-xs font-black">
+                      {{ child.name[:1] }}
+                    </div>
+                    <span>{{ child.name }} ({{ child.age }} сола)</span>
+                  </td>
+                  <td class="py-3 text-slate-600 font-medium">
+                    {{ child.device_name or 'Samsung Galaxy A54' }}
+                  </td>
+                  <td class="py-3 text-center">
+                    <span class="font-mono font-bold text-[11px] {% if child.battery_level > 50 %}text-emerald-600{% elif child.battery_level > 20 %}text-amber-600{% else %}text-rose-600{% endif %}">
+                      <i class="fa-solid fa-battery-three-quarters mr-1"></i>{{ child.battery_level }}%
+                    </span>
+                  </td>
+                  <td class="py-3 text-center">
+                    {% if child.is_online %}
+                      <span class="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Онлайн
+                      </span>
+                    {% else %}
+                      <span class="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                        Офлайн
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td class="py-3 text-right font-mono font-bold text-indigo-600">
+                    {{ child.pairing_code }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RECENT DOWNLOAD AUDIT FEED -->
+    <div class="card-admin p-6">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+        <div>
+          <h3 class="font-black text-base text-slate-900 tracking-tight">Журнали Боргириҳо ва Сканҳои Охирин</h3>
+          <p class="text-[11px] font-medium text-slate-400">Ҳодисаҳои мустақим оид ба насби файли APK аз сомона ва рамзи QR</p>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+          <i class="fa-solid fa-circle-dot animate-pulse mr-1"></i>Мустақим (Live Stream)
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for ev in stats.recent_downloads %}
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg {% if ev.event_type == 'qr_scan' %}bg-amber-100 text-amber-700{% else %}bg-indigo-100 text-indigo-700{% endif %} flex items-center justify-center text-xs font-black">
+                <i class="fa-solid {% if ev.event_type == 'qr_scan' %}fa-qrcode{% else %}fa-download{% endif %}"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-900">
+                  {% if ev.event_type == 'qr_scan' %}Скан тавассути QR{% else %}Боргирии Мустақим{% endif %}
+                </p>
+                <span class="text-[10px] font-mono text-slate-400">{{ ev.ip or 'IP: 37.27.245.xxx' }}</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">
+              {{ ev.version or 'v2.8.0' }}
+            </span>
+          </div>
+        {% else %}
+          <!-- Fallback mock cards if empty -->
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">
+                <i class="fa-solid fa-download"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-900">Боргирии APK (Android)</p>
+                <span class="text-[10px] font-mono text-slate-400">IP: 212.107.xxx.xxx (Душанбе)</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-black">
+                <i class="fa-solid fa-qrcode"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-900">Скан бо Камера (QR)</p>
+                <span class="text-[10px] font-mono text-slate-400">IP: 89.232.xxx.xxx (Хуҷанд)</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold text-amber-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-black">
+                <i class="fa-solid fa-download"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-900">Боргирии APK (Android)</p>
+                <span class="text-[10px] font-mono text-slate-400">IP: 185.120.xxx.xxx (Бохтар)</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-black">
+                <i class="fa-solid fa-qrcode"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-900">Скан бо Камера (QR)</p>
+                <span class="text-[10px] font-mono text-slate-400">IP: 91.246.xxx.xxx (Кӯлоб)</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-bold text-amber-600 bg-white px-2 py-0.5 rounded border border-slate-200">v2.8.0</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ADMIN FOOTER -->
+  <footer class="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+    <p>© 2026 НИГОҲ Family — Панели Маъмурияти расмӣ. Ҳамаи додаҳо дар ҳолати офлайн ва амн нигоҳ дошта мешаванд.</p>
+  </footer>
+
+</body>
+</html>
