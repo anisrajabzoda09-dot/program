@@ -228,7 +228,7 @@ def create_or_get_child_for_user(user_id: int, name: str, gender: str = "boy", a
     conn.close()
     return res
 
-def log_analytics_event(ip: str, path: str, user_agent: str, event_type: str = "page_view", version: str = "v2.8.0"):
+def log_analytics_event(ip: str, path: str, user_agent: str, event_type: str = "page_view", version: str = "v2.8.1"):
     """Record visits, APK downloads, QR scans and interactions in SQLite"""
     try:
         conn = get_db()
@@ -349,5 +349,5 @@ def get_admin_dashboard_data():
         "rules_rows": rules_rows,
         "children_list": children_list,
         "recent_downloads": recent_downloads,
-        "current_version": "v2.8.0"
+        "current_version": "v2.8.1"
     }
