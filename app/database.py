@@ -91,18 +91,6 @@ def init_db():
     )
     """)
 
-    # Populate sample messages if empty
-    cursor.execute("SELECT COUNT(*) FROM chat_messages")
-    if cursor.fetchone()[0] == 0:
-        cursor.execute("""
-        INSERT INTO chat_messages (child_id, sender_role, sender_name, message_type, content, duration_sec)
-        VALUES 
-        (1, 'parent', 'Падар', 'text', 'Салом писарам! Дарсат тамом шуд? Вақти бозиятро то соати 19:00 кушодам.', 0),
-        (1, 'child', 'Алиҷон', 'voice', 'audio_voice_note_dushanbe_school_sample', 4),
-        (1, 'child', 'Алиҷон', 'text', 'Салом падарҷон! Бале тамом шуд, ҳозир бо автобус ба хона меравам.', 0),
-        (1, 'parent', 'Падар', 'urgent', 'Хуб, роҳро боэҳтиёт гузар ва расидан ба хона хабар деҳ.', 0)
-        """)
-
     # Reviews table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS reviews (
@@ -190,4 +178,3 @@ def create_or_get_child_for_user(user_id: int, name: str, gender: str = "boy", a
     res = dict(cursor.fetchone())
     conn.close()
     return res
-
