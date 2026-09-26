@@ -25,8 +25,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Google Identity Services (Official OAuth SDK) -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   
   <style>
     * {
@@ -211,6 +209,8 @@
       </a>
     </div>
 
+  </div>
+
   <!-- GOOGLE ACCOUNT CHOOSER MODAL -->
   <div id="googleAccountModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-all">
     <div class="bg-white rounded-3xl max-w-[420px] w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
@@ -287,17 +287,14 @@
       </form>
 
       <!-- Security & Privacy Notice -->
-      <p class="text-[11px] text-slate-400 text-center leading-relaxed">
-        Барои идома додан, Google ном ва нишонии почтаи электрониро бо барномаи НИГОҲ Family мубодила мекунад.
-      </p>
-
-      <!-- Google Cloud Direct Popup (Fallback) -->
-      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-        <span>Равзанаи расмии Google:</span>
-        <button type="button" id="triggerExternalGooglePopup" class="text-indigo-600 hover:underline font-bold flex items-center gap-1 cursor-pointer">
-          <i class="fa-brands fa-google text-[10px]"></i>
-          <span>Оғоз ба тариқи Google OAuth</span>
-        </button>
+      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col items-center gap-1.5 text-center">
+        <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold">
+          <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+          <span>Пайвасти бехатар бо ҳисоби Google</span>
+        </div>
+        <p class="text-[11px] text-slate-400 leading-relaxed max-w-[340px]">
+          Барои идома додани кор, Google маълумоти ном ва почтаро бо <span class="font-bold text-slate-600">НИГОҲ Family</span> мубодила мекунад.
+        </p>
       </div>
 
     </div>
@@ -361,7 +358,6 @@
     const customGoogleForm = document.getElementById('customGoogleForm');
     const customGoogleChevron = document.getElementById('customGoogleChevron');
     const customGoogleSubmitBtn = document.getElementById('customGoogleSubmitBtn');
-    const triggerExternalGooglePopup = document.getElementById('triggerExternalGooglePopup');
 
     function openGoogleModal() {
       if (googleAccountModal) {
@@ -452,69 +448,6 @@
       });
     }
 
-    // Official Google OAuth 2.0 Identity Client (Fallback)
-    const GOOGLE_CLIENT_ID = '1040006931222-39iacj22kk6me8go2vvkrr0bpu845mp4.apps.googleusercontent.com';
-    let googleTokenClient = null;
-
-    function initGoogleClient() {
-      if (window.google && window.google.accounts && window.google.accounts.oauth2) {
-        googleTokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: GOOGLE_CLIENT_ID,
-          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid',
-          prompt: 'select_account',
-          callback: async (tokenResponse) => {
-            if (tokenResponse && tokenResponse.access_token) {
-              showAlert("Дар ҳоли тасдиқи ҳисоби Google ва воридшавӣ...", false);
-              try {
-                const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-                });
-                if (!userInfoRes.ok) {
-                  throw new Error("Маълумоти ҳисоби Google қабул нашуд");
-                }
-                const profile = await userInfoRes.json();
-                await executeGoogleAuth(profile.name || profile.email, profile.email, profile.picture, profile.sub, tokenResponse.access_token);
-              } catch (err) {
-                console.error(err);
-                showAlert("Хатогӣ ҳангоми воридшавӣ бо Google: " + err.message, true);
-              }
-            } else if (tokenResponse && tokenResponse.error) {
-              showAlert("Интихоби ҳисоби Google қатъ карда шуд", true);
-            }
-          },
-          error_callback: (err) => {
-            console.error("Google Auth Error:", err);
-            showAlert("Хатогӣ дар пайвастшавӣ ба хидмати Google", true);
-          }
-        });
-      }
-    }
-
-    if (triggerExternalGooglePopup) {
-      triggerExternalGooglePopup.addEventListener('click', () => {
-        closeGoogleModal();
-        showAlert("Равзанаи расмии Google кушода шуда истодааст...", false);
-        if (!googleTokenClient) {
-          initGoogleClient();
-        }
-        if (googleTokenClient) {
-          googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-        } else {
-          let retries = 0;
-          const interval = setInterval(() => {
-            retries++;
-            initGoogleClient();
-            if (googleTokenClient) {
-              clearInterval(interval);
-              googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-            } else if (retries > 10) {
-              clearInterval(interval);
-              showAlert("Китобхонаи Google бор нашуд. Лутфан интернетро санҷед.", true);
-            }
-          }, 200);
-        }
-      });
-    }
 
     // Execute Google Authentication with backend
     async function executeGoogleAuth(fullName, email, avatar, googleId, accessToken) {
