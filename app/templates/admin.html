@@ -43,51 +43,57 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- ADMIN TOP NAVBAR -->
-  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+  <!-- ADMIN TOP NAVBAR (Executive & Generous Height) -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-2xs transition-all">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-22 sm:h-24 flex items-center justify-between gap-4">
       
       <!-- Brand & Admin Badge -->
-      <div class="flex items-center gap-3">
-        <a href="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center p-1.5 shadow-sm shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+      <div class="flex items-center gap-4">
+        <a href="/" class="flex items-center gap-3.5 group">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center p-2.5 shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform ring-4 ring-indigo-50 flex-shrink-0">
             <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ" class="w-full h-full object-contain brightness-0 invert">
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <span class="font-black text-lg tracking-tight text-slate-900">НИГОҲ</span>
-              <span class="text-xs font-black uppercase px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 tracking-wider">ADMIN PANEL</span>
+            <div class="flex items-center gap-2.5">
+              <span class="font-black text-xl sm:text-2xl tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">НИГОҲ</span>
+              <span class="text-xs sm:text-[13px] font-black uppercase px-3 py-1 rounded-lg bg-indigo-600 text-white shadow-xs tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-crown text-[11px] text-amber-300"></i>
+                <span>ADMIN PANEL</span>
+              </span>
             </div>
-            <p class="text-[11px] font-bold text-slate-400">Мониторинг ва омори сомона ва барнома</p>
+            <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5">Мониторинг ва омори сомона ва барнома</p>
           </div>
         </a>
       </div>
 
-      <!-- Center Status Pill -->
-      <div class="hidden md:flex items-center gap-3 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700">
-        <span class="flex h-2.5 w-2.5 relative">
+      <!-- Center Status Pill (Expanded & Prominent) -->
+      <div class="hidden lg:flex items-center gap-3 bg-slate-50 border border-slate-200/90 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 shadow-2xs">
+        <span class="flex h-3 w-3 relative">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
-        <span>Сервер фаъол аст:</span>
-        <span class="font-mono text-indigo-600 bg-white px-2 py-0.5 rounded border border-slate-200">{{ stats.current_version }}</span>
-        <span class="text-slate-400">·</span>
-        <span class="text-slate-600">Port 8080 (FastAPI)</span>
+        <span class="font-extrabold text-slate-800">Сервер фаъол аст:</span>
+        <span class="font-mono text-indigo-700 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs font-black text-xs sm:text-sm">{{ stats.current_version }}</span>
+        <span class="text-slate-300">|</span>
+        <span class="text-slate-600 flex items-center gap-1.5 font-semibold">
+          <i class="fa-solid fa-server text-indigo-500"></i>
+          <span>FastAPI (Port 8080)</span>
+        </span>
       </div>
 
-      <!-- Right Action Items -->
-      <div class="flex items-center gap-2.5">
-        <a href="/" class="px-3.5 py-2 text-xs font-extrabold text-slate-700 hover:text-indigo-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl flex items-center gap-2 transition">
-          <i class="fa-solid fa-house text-slate-400"></i>
+      <!-- Right Action Items (Larger, Executive Buttons) -->
+      <div class="flex items-center gap-3">
+        <a href="/" class="px-4.5 py-2.5 text-xs sm:text-sm font-extrabold text-slate-700 hover:text-indigo-600 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-xl shadow-xs flex items-center gap-2 transition hover:-translate-y-0.5">
+          <i class="fa-solid fa-house text-indigo-500 text-sm"></i>
           <span>Ба сомона</span>
         </a>
 
-        <button onclick="window.location.reload()" class="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 border border-slate-200 rounded-xl transition" title="Навсозии маълумот">
-          <i class="fa-solid fa-arrows-rotate text-sm"></i>
+        <button onclick="window.location.reload()" class="p-2.5 text-slate-600 hover:text-indigo-600 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-xl shadow-xs transition hover:-translate-y-0.5 cursor-pointer" title="Навсозии маълумот">
+          <i class="fa-solid fa-arrows-rotate text-sm sm:text-base"></i>
         </button>
 
-        <a href="/logout" class="px-3.5 py-2 text-xs font-extrabold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+        <a href="/logout" class="px-4.5 py-2.5 text-xs sm:text-sm font-black text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/90 rounded-xl shadow-xs flex items-center gap-2 transition hover:-translate-y-0.5">
+          <i class="fa-solid fa-arrow-right-from-bracket text-xs sm:text-sm"></i>
           <span>Баромад</span>
         </a>
       </div>
@@ -96,114 +102,115 @@
   </header>
 
   <!-- MAIN DASHBOARD CONTENT -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 sm:space-y-10">
     
     <!-- DASHBOARD WELCOME & DATE BAR -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs">
       <div>
-        <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
           <span>Хуш омадед, Администратор!</span>
-          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <i class="fa-solid fa-shield-check mr-1"></i>Системаи Муҳофизат
+          <span class="text-xs font-black px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-check text-emerald-600"></i>
+            <span>Системаи Муҳофизат</span>
           </span>
         </h1>
-        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+        <p class="text-xs sm:text-sm text-slate-500 font-semibold mt-1">
           Ҳисоботи зинда оид ба насбҳои APK, истифодабарандагон, вақти тамаркуз ва бехатарии оилаҳо
         </p>
       </div>
-      <div class="flex items-center gap-2 self-start sm:self-auto">
-        <a href="/download/android" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-xs flex items-center gap-2 transition">
-          <i class="fa-brands fa-android text-sm"></i>
+      <div class="flex items-center gap-3 self-start sm:self-auto">
+        <a href="/download/android" class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-black rounded-xl shadow-md shadow-indigo-500/25 flex items-center gap-2.5 transition hover:-translate-y-0.5">
+          <i class="fa-brands fa-android text-base"></i>
           <span>Санҷиши Боргирии {{ stats.current_version }}</span>
         </a>
       </div>
     </div>
 
     <!-- 4 TOP KPI STATS CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       
       <!-- Card 1: Total Installs & Downloads -->
-      <div class="card-admin p-5">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ҳамагӣ Насбҳо</span>
-          <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-lg">
+      <div class="card-admin p-6 sm:p-7 rounded-3xl">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider">Ҳамагӣ Насбҳо</span>
+          <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-download"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+        <div class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
           {{ "{:,}".format(stats.total_downloads) }}
         </div>
-        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
-          <span class="text-emerald-600 font-bold flex items-center gap-1">
+        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 font-medium">
+          <span class="text-emerald-600 font-extrabold flex items-center gap-1.5">
             <i class="fa-solid fa-arrow-trend-up"></i> +18.4% ин ҳафта
           </span>
-          <span class="font-mono text-slate-400">QR: {{ stats.total_qr_downloads }}</span>
+          <span class="font-mono text-slate-500 font-bold">QR: {{ stats.total_qr_downloads }}</span>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-          <div class="bg-indigo-600 h-1.5 rounded-full" style="width: 76%"></div>
+        <div class="w-full bg-slate-100 rounded-full h-2 mt-4 overflow-hidden">
+          <div class="bg-indigo-600 h-2 rounded-full" style="width: 76%"></div>
         </div>
       </div>
 
       <!-- Card 2: Registered Families -->
-      <div class="card-admin p-5">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Оилаҳои Фаъол</span>
-          <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-lg">
+      <div class="card-admin p-6 sm:p-7 rounded-3xl">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider">Оилаҳои Фаъол</span>
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-people-roof"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+        <div class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
           {{ "{:,}".format(stats.total_families) }}
         </div>
-        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 font-medium">
           <span class="text-slate-600 font-semibold">Фарзандони сабтшуда:</span>
-          <span class="font-bold text-indigo-600">{{ stats.total_children }}</span>
+          <span class="font-black text-indigo-600">{{ stats.total_children }}</span>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-          <div class="bg-blue-600 h-1.5 rounded-full" style="width: 84%"></div>
+        <div class="w-full bg-slate-100 rounded-full h-2 mt-4 overflow-hidden">
+          <div class="bg-blue-600 h-2 rounded-full" style="width: 84%"></div>
         </div>
       </div>
 
       <!-- Card 3: Paired Devices Online -->
-      <div class="card-admin p-5">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Дастгоҳҳои Пайваст</span>
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-lg">
+      <div class="card-admin p-6 sm:p-7 rounded-3xl">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider">Дастгоҳҳои Пайваст</span>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-mobile-screen-button"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+        <div class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
           {{ stats.total_paired }}
         </div>
-        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
-          <span class="text-emerald-600 font-bold flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 font-medium">
+          <span class="text-emerald-600 font-extrabold flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             {{ stats.total_online }} ҳоло онлайн
           </span>
-          <span class="text-slate-400">92% фаъол</span>
+          <span class="text-slate-400 font-bold">92% фаъол</span>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-          <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 88%"></div>
+        <div class="w-full bg-slate-100 rounded-full h-2 mt-4 overflow-hidden">
+          <div class="bg-emerald-500 h-2 rounded-full" style="width: 88%"></div>
         </div>
       </div>
 
       <!-- Card 4: Web Traffic & Views -->
-      <div class="card-admin p-5">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ташрифҳои Сомона</span>
-          <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-lg">
+      <div class="card-admin p-6 sm:p-7 rounded-3xl">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs sm:text-sm font-black text-slate-500 uppercase tracking-wider">Ташрифҳои Сомона</span>
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-eye"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-slate-900 tracking-tight mb-1">
+        <div class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
           {{ "{:,}".format(stats.total_page_views) }}
         </div>
-        <div class="flex items-center justify-between text-xs text-slate-500 font-medium">
+        <div class="flex items-center justify-between text-xs sm:text-sm text-slate-500 font-medium">
           <span>Меҳмонони беназир:</span>
-          <span class="font-bold text-purple-600">{{ "{:,}".format(stats.total_visitors) }}</span>
+          <span class="font-black text-purple-600">{{ "{:,}".format(stats.total_visitors) }}</span>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
-          <div class="bg-purple-600 h-1.5 rounded-full" style="width: 65%"></div>
+        <div class="w-full bg-slate-100 rounded-full h-2 mt-4 overflow-hidden">
+          <div class="bg-purple-600 h-2 rounded-full" style="width: 65%"></div>
         </div>
       </div>
 

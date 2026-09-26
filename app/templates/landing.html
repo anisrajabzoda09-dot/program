@@ -139,35 +139,37 @@
         </div>
       </a>
 
-      <!-- Centered Navigation Links (3D Model removed, modern universal pills) -->
-      <nav class="hidden lg:flex items-center gap-1.5 text-sm font-bold text-slate-600 bg-slate-100/70 p-1.5 rounded-full border border-slate-200/80">
-        <a href="#features" class="px-4 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all text-xs font-extrabold">
+      <!-- Centered Navigation Links (Modern universal pills, no wrap) -->
+      <nav class="hidden lg:flex items-center gap-1 text-xs font-extrabold text-slate-600 bg-slate-100/80 p-1.5 rounded-full border border-slate-200/80 flex-shrink-0">
+        <a href="#features" class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all whitespace-nowrap">
           Имкониятҳо
         </a>
-        <a href="#how-it-works" class="px-4 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all text-xs font-extrabold">
+        <a href="#how-it-works" class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all whitespace-nowrap">
           Тарзи кор
         </a>
-        <a href="#reviews" class="px-4 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all text-xs font-extrabold">
+        <a href="#reviews" class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all whitespace-nowrap">
           Отзывҳо
         </a>
-        <a href="#faq" class="px-4 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all text-xs font-extrabold">
+        <a href="#faq" class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all whitespace-nowrap">
           Саволҳо
         </a>
-        <a href="#download" class="px-4 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all text-xs font-extrabold text-indigo-600 font-black">
+        <a href="#download" class="px-3.5 py-1.5 rounded-full hover:bg-white hover:text-indigo-600 hover:shadow-2xs transition-all text-indigo-600 font-black whitespace-nowrap">
           Боргирӣ
         </a>
       </nav>
 
       <!-- Right Action CTAs -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5 flex-shrink-0">
         {% if user %}
-          <div class="flex items-center gap-2.5 bg-white border border-slate-200/90 pl-2 pr-3 py-1.5 rounded-xl text-xs font-bold shadow-2xs">
-            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center font-black text-xs shadow-xs">
+          <div class="flex items-center gap-2 bg-white border border-slate-200/90 pl-1.5 pr-2.5 py-1.5 rounded-xl text-xs font-bold shadow-2xs">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0">
               {{ user.full_name[:1] }}
             </div>
-            <span class="text-slate-800 font-extrabold max-w-[130px] truncate">{{ user.full_name }}</span>
+            <span class="text-slate-800 font-extrabold whitespace-nowrap">
+              {% if 'Администратор' in user.full_name %}Администратор{% else %}{{ user.full_name }}{% endif %}
+            </span>
             {% if user.role == 'admin' %}
-              <a href="/admin" class="ml-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[11px] flex items-center gap-1 shadow-2xs transition" title="Панели идоракунӣ">
+              <a href="/admin" class="ml-1 px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[11px] flex items-center gap-1 shadow-2xs transition whitespace-nowrap" title="Панели идоракунӣ">
                 <i class="fa-solid fa-crown text-[10px]"></i>
                 <span>Панел</span>
               </a>
@@ -177,13 +179,13 @@
             </a>
           </div>
         {% else %}
-          <a href="/auth" class="hidden sm:flex px-4 py-2.5 text-xs font-black text-slate-700 hover:text-indigo-600 bg-white border border-slate-200 rounded-xl shadow-2xs hover:bg-slate-50 items-center gap-1.5 transition hover:-translate-y-0.5">
+          <a href="/auth" class="hidden sm:flex px-4 py-2.5 text-xs font-black text-slate-700 hover:text-indigo-600 bg-white border border-slate-200 rounded-xl shadow-2xs hover:bg-slate-50 items-center gap-1.5 transition hover:-translate-y-0.5 whitespace-nowrap">
             <i class="fa-solid fa-user text-indigo-500 text-xs"></i>
             <span>Вуруд</span>
           </a>
         {% endif %}
 
-        <a href="/download/android" class="btn-gradient px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-black flex items-center gap-2 rounded-xl shadow-md hover:shadow-indigo-500/25 transition hover:-translate-y-0.5">
+        <a href="/download/android" class="btn-gradient px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-black inline-flex items-center gap-2 rounded-xl shadow-md hover:shadow-indigo-500/25 transition hover:-translate-y-0.5 whitespace-nowrap flex-shrink-0">
           <i class="fa-brands fa-android text-base"></i>
           <span>Боргирии APK</span>
         </a>
@@ -256,18 +258,19 @@
 
           {% if user %}
           <!-- Logged In Success Banner -->
-          <div class="mb-8 p-5 rounded-2xl bg-white border border-emerald-300 shadow-sm flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-              <div class="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-xl shadow-sm">
-                <i class="fa-solid fa-circle-check"></i>
+          <div class="mb-8 p-4 sm:p-5 rounded-2xl bg-white border-2 border-emerald-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-xl shadow-2xs flex-shrink-0">
+                <i class="fa-solid fa-circle-check text-2xl text-emerald-500"></i>
               </div>
-              <div class="text-left">
+              <div class="text-left min-w-0">
                 <h4 class="font-black text-base text-slate-900">Шумо бомуваффақият ворид шудед!</h4>
-                <p class="text-sm text-slate-600">Хуш омадед, {{ user.full_name }}. Акнун метавонед бастаи нави APK-ро зеркашӣ кунед.</p>
+                <p class="text-xs sm:text-sm text-slate-600 truncate sm:whitespace-normal">Хуш омадед, <span class="font-extrabold text-slate-800">{% if 'Администратор' in user.full_name %}Администратор{% else %}{{ user.full_name }}{% endif %}</span>. Акнун метавонед бастаи нави APK-ро зеркашӣ кунед.</p>
               </div>
             </div>
-            <a href="/download/android" class="btn-gradient bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-lg shadow-sm">
-              Боргирии APK
+            <a href="/download/android" class="btn-gradient px-6 py-3 text-xs sm:text-sm font-black rounded-xl shadow-md flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center gap-2 hover:-translate-y-0.5 transition self-start sm:self-center">
+              <i class="fa-brands fa-android text-base"></i>
+              <span>Боргирии APK</span>
             </a>
           </div>
           {% endif %}
