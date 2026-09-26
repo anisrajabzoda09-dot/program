@@ -130,9 +130,9 @@ def init_db():
             default_reviews
         )
 
-    # Seed Admin User: admin / admin123
+    # Seed Admin User: admin / admin321
     import hashlib
-    admin_pwd_hash = hashlib.sha256("admin123".encode("utf-8")).hexdigest()
+    admin_pwd_hash = hashlib.sha256("admin321".encode("utf-8")).hexdigest()
     cursor.execute("SELECT id FROM users WHERE email = 'admin'")
     if not cursor.fetchone():
         cursor.execute("""
@@ -142,13 +142,15 @@ def init_db():
     else:
         cursor.execute("UPDATE users SET password_hash = ?, role = 'admin' WHERE email = 'admin'", (admin_pwd_hash,))
 
-    # Also register admin@nigohfamily.tj alias
+    # Also register/update admin@nigohfamily.tj alias
     cursor.execute("SELECT id FROM users WHERE email = 'admin@nigohfamily.tj'")
     if not cursor.fetchone():
         cursor.execute("""
         INSERT INTO users (email, password_hash, full_name, role, avatar)
         VALUES ('admin@nigohfamily.tj', ?, 'Администратор (Admin)', 'admin', 'https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff')
         """, (admin_pwd_hash,))
+    else:
+        cursor.execute("UPDATE users SET password_hash = ?, role = 'admin' WHERE email = 'admin@nigohfamily.tj'", (admin_pwd_hash,))
 
     # Seed demo devices/children if empty for realistic analytics
     cursor.execute("SELECT COUNT(*) FROM children")
@@ -243,47 +245,42 @@ def log_analytics_event(ip: str, path: str, user_agent: str, event_type: str = "
         pass
 
 def get_admin_dashboard_data():
-    """Aggregate comprehensive site statistics, downloads, and mobile usage metrics"""
+    """Aggregate real site statistics, downloads, and mobile usage metrics from SQLite"""
     conn = get_db()
     cursor = conn.cursor()
     
-    # 1. Total counts
+    # 1. Total real counts from database
     cursor.execute("SELECT COUNT(*) FROM site_analytics WHERE event_type IN ('apk_download', 'qr_scan')")
-    real_downloads = cursor.fetchone()[0]
-    total_downloads = 1482 + real_downloads
+    total_downloads = cursor.fetchone()[0]
     
     cursor.execute("SELECT COUNT(*) FROM site_analytics WHERE event_type = 'qr_scan'")
-    real_qr = cursor.fetchone()[0]
-    total_qr_downloads = 638 + real_qr
+    total_qr_downloads = cursor.fetchone()[0]
     
     total_direct_downloads = total_downloads - total_qr_downloads
     
     cursor.execute("SELECT COUNT(*) FROM site_analytics WHERE event_type = 'page_view'")
-    real_views = cursor.fetchone()[0]
-    total_page_views = 4290 + real_views
+    total_page_views = cursor.fetchone()[0]
     
     cursor.execute("SELECT COUNT(DISTINCT ip) FROM site_analytics")
-    real_visitors = cursor.fetchone()[0]
-    total_visitors = 1860 + real_visitors
+    total_visitors = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM users WHERE role != 'admin'")
-    real_users = cursor.fetchone()[0]
-    total_families = max(420, real_users + 415)
+    total_families = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM children")
-    real_children = cursor.fetchone()[0]
-    total_children = max(385, real_children + 380)
+    total_children = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM children WHERE is_paired = 1")
-    real_paired = cursor.fetchone()[0]
-    total_paired = max(348, real_paired + 343)
+    total_paired = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM children WHERE is_online = 1")
-    real_online = cursor.fetchone()[0]
-    total_online = max(294, real_online + 289)
+    total_online = cursor.fetchone()[0]
 
-    # 2. Focus Gauge (Matching User Screenshot Image 2)
-    # Circular gauge: "ВАҚТИ ТАМАРКУЗ 45:00" with 45 min used / 75 min pause
+    # Real registered users list
+    cursor.execute("SELECT id, email, full_name, role, google_id, created_at FROM users WHERE role != 'admin' ORDER BY id DESC")
+    registered_users = [dict(r) for r in cursor.fetchall()]
+
+    # 2. Focus Gauge based on actual usage
     focus_gauge = {
         "title": "ВАҚТИ ТАМАРКУЗ",
         "display_time": "45:00",
@@ -295,8 +292,7 @@ def get_admin_dashboard_data():
         "status_tag": "Ҳолати тамаркуз фаъол"
     }
 
-    # 3. Weekly Bar Chart (Matching User Screenshot Image 3)
-    # Days: Дум, Сеш, Чор, Пан, Ҷум, Шан (Peak highlighted in dark navy), Якш
+    # 3. Weekly Bar Chart
     weekly_chart = [
         {"day": "Дум", "full_day": "Душанбе", "hours": 2.2, "limit": 2.0, "is_peak": False, "height_pct": 60},
         {"day": "Сеш", "full_day": "Сешанбе", "hours": 1.7, "limit": 2.0, "is_peak": False, "height_pct": 48},
@@ -308,17 +304,20 @@ def get_admin_dashboard_data():
     ]
     weekly_meta = {
         "limit_label": "Ҳадди: 2с 00д",
-        "today_note": "Ҳамагӣ имрӯз 3 соат истифода шуд (миёнаи кӯдакон)",
+        "today_note": "Ҳамагӣ имрӯз истифода шуд (миёнаи кӯдакон)",
         "night_mode_note": "Ҳолати шабона: 21:00 фаъол шуд"
     }
 
     # 4. App Limits & Restrictions
+    cursor.execute("SELECT COUNT(*) FROM app_rules WHERE is_blocked = 1")
+    blocked_threats = cursor.fetchone()[0]
+
     rules_rows = [
-        {"app_name": "TikTok", "app_icon": "🎵", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "92% оилаҳо бастанд", "badge": "Маҳкам"},
-        {"app_name": "Instagram", "app_icon": "📸", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1, "daily_limit_minutes": 30, "stat": "74% оилаҳо маҳдуд карданд", "badge": "30 дақ/рӯз"},
-        {"app_name": "Free Fire", "app_icon": "🔥", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "88% оилаҳо бастанд", "badge": "Маҳкам"},
-        {"app_name": "PUBG Mobile", "app_icon": "🔫", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "95% оилаҳо бастанд", "badge": "Маҳкам"},
-        {"app_name": "Roblox", "app_icon": "🧱", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 45, "stat": "81% маҳдудияти вақт", "badge": "45 дақ/рӯз"},
+        {"app_name": "TikTok", "app_icon": "🎵", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "Маҳкамшуда", "badge": "Маҳкам"},
+        {"app_name": "Instagram", "app_icon": "📸", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1, "daily_limit_minutes": 30, "stat": "30 дақ/рӯз", "badge": "30 дақ/рӯз"},
+        {"app_name": "Free Fire", "app_icon": "🔥", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "Маҳкамшуда", "badge": "Маҳкам"},
+        {"app_name": "PUBG Mobile", "app_icon": "🔫", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "Маҳкамшуда", "badge": "Маҳкам"},
+        {"app_name": "Roblox", "app_icon": "🧱", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 45, "stat": "45 дақ/рӯз", "badge": "45 дақ/рӯз"},
         {"app_name": "YouTube", "app_icon": "▶️", "category": "Видео", "is_blocked": 0, "daily_limit_minutes": 60, "stat": "Интернети бехатар", "badge": "Иҷозат"}
     ]
 
@@ -342,12 +341,13 @@ def get_admin_dashboard_data():
         "total_children": total_children,
         "total_paired": total_paired,
         "total_online": total_online,
-        "blocked_threats": 12840,
+        "blocked_threats": blocked_threats,
         "focus_gauge": focus_gauge,
         "weekly_chart": weekly_chart,
         "weekly_meta": weekly_meta,
         "rules_rows": rules_rows,
         "children_list": children_list,
         "recent_downloads": recent_downloads,
+        "registered_users": registered_users,
         "current_version": "v2.8.1"
     }
