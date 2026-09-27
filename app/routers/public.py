@@ -13,7 +13,7 @@ from app.models.review import Review
 router = APIRouter(tags=["Public & SEO"])
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
 
-@router.get("/robots.txt", response_class=Response)
+@router.api_route("/robots.txt", methods=["GET", "HEAD"], response_class=Response)
 def get_robots_txt():
     content = """User-agent: *
 Allow: /
@@ -40,7 +40,7 @@ Host: https://nigohfamily.qobus.tj
 """
     return Response(content=content, media_type="text/plain; charset=utf-8")
 
-@router.get("/sitemap.xml", response_class=Response)
+@router.api_route("/sitemap.xml", methods=["GET", "HEAD"], response_class=Response)
 def get_sitemap_xml():
     xml = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -89,7 +89,7 @@ def get_sitemap_xml():
 </urlset>"""
     return Response(content=xml, media_type="application/xml; charset=utf-8")
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 def health_check(db: Session = Depends(get_db)):
     """System health check and diagnostic monitoring endpoint"""
     db_ok = False
@@ -121,7 +121,7 @@ def health_check(db: Session = Depends(get_db)):
         "active_apk": active_apk_name
     }
 
-@router.get("/", response_class=HTMLResponse)
+@router.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 def landing_page(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request)
     reviews = [r.to_dict() for r in db.query(Review).order_by(Review.id.desc()).all()]
@@ -131,12 +131,28 @@ def landing_page(request: Request, db: Session = Depends(get_db)):
         context={"user": user, "reviews": reviews}
     )
 
-@router.get("/3d", response_class=HTMLResponse)
-@router.get("/nigoh3d", response_class=HTMLResponse)
+@router.api_route("/3d", methods=["GET", "HEAD"], response_class=HTMLResponse)
+@router.api_route("/nigoh3d", methods=["GET", "HEAD"], response_class=HTMLResponse)
 def nigoh_3d_presentation(request: Request):
     return templates.TemplateResponse(request=request, name="nigoh3d.html", context={})
 
-@router.get("/weevolve", response_class=HTMLResponse)
-@router.get("/evolve", response_class=HTMLResponse)
+@router.api_route("/weevolve", methods=["GET", "HEAD"], response_class=HTMLResponse)
+@router.api_route("/evolve", methods=["GET", "HEAD"], response_class=HTMLResponse)
 def weevolve_showcase_page(request: Request):
     return templates.TemplateResponse(request=request, name="weevolve.html", context={})
+
+# Google Search Console dynamic verification handler
+@router.api_route("/google{code}.html", methods=["GET", "HEAD"], response_class=Response)
+def google_verification(code: str):
+    return Response(
+        content=f"google-site-verification: google{code}.html\n",
+        media_type="text/plain; charset=utf-8"
+    )
+
+# Yandex Webmaster verification handler
+@router.api_route("/yandex_{code}.html", methods=["GET", "HEAD"], response_class=Response)
+def yandex_verification(code: str):
+    return Response(
+        content=f"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>Verification: {code}</body></html>",
+        media_type="text/html; charset=utf-8"
+    )
