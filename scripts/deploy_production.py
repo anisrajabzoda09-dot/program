@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 NIGOH Family — Production Deployment & Health Verification Automation Script
-Connects to 37.27.245.216, synchronizes APKs, templates, and validates health.
+Connects to 37.27.245.216, synchronizes APKs, modular app directories, templates, and validates health.
 """
 import sys
 import pexpect
@@ -32,30 +32,19 @@ def deploy():
     print("🚀 NIGOH Family — Production Deployment Pipeline")
     print("====================================================")
 
-    # 1. Sync downloads
-    run_ssh(f'rsync -avz --delete -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/static/downloads/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/static/downloads/')
+    # 1. Sync entire app/ directory (core, crud, db, models, routers, schemas, templates, static, etc.)
+    run_ssh(f'rsync -avz --exclude "__pycache__" --exclude "*.pyc" -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/')
 
-    # 2. Sync root APK
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.8.1.apk {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
+    # 2. Sync root APK and documentation
+    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.8.1.apk TECH_STACK.md {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
 
-    # 3. Sync templates
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/templates/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/templates/')
-
-    # 4. Sync backend, schemas, database, auth and DB
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/main.py {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/main.py')
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/schemas.py {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/schemas.py')
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/database.py {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/database.py')
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/auth.py {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/auth.py')
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/nigoh.db {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/nigoh.db')
-
-    # 5. Sync deploy configs
+    # 3. Sync deploy configs
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" deploy/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/deploy/')
 
-    # 6. Restart server
+    # 4. Restart server
     run_ssh(f'ssh -F /dev/null -o StrictHostKeyChecking=no {REMOTE_USER}@{REMOTE_HOST} bash {REMOTE_PATH}/restart.sh')
 
     print("\n✅ Deployment completed successfully!")
 
 if __name__ == "__main__":
     deploy()
-
