@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional, List
+from datetime import datetime, timezone
 
 from app.core.config import settings
 from app.core.security import require_auth, SESSIONS
@@ -13,7 +14,8 @@ from app.schemas.mobile import (
     PairRequest,
     AppRuleToggleRequest,
     AppLimitRequest,
-    SendChatMessageRequest
+    SendChatMessageRequest,
+    LocationUpdateRequest,
 )
 from app.crud.crud_user import update_user_role
 from app.crud.crud_child import (
@@ -95,7 +97,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Навсозии v2.9.0: Беҳтаркунии иҷозатҳои амниятӣ, танзимоти маҳдудшудаи Android 13/14, пайвастшавии боэътимод ва ислоҳи хатогиҳо.",
+        "release_notes": "Навсозии v2.9.0: location танҳо аз дастгоҳи тасдиқшуда қабул мешавад, дастрасии беиҷозат ба оилаҳо баста шуд ва иҷозатҳо боэътимодтар шуданд.",
         "download_url": download_url
     }
 
@@ -166,6 +168,11 @@ def send_mobile_chat_message(payload: SendChatMessageRequest, request: Request, 
 @router.post("/api/mobile/pair")
 def pair_device(payload: PairRequest, request: Request, db: Session = Depends(get_db)):
     user = require_auth(request)
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо ҳисоби волидайн метавонад пайваст кунад")
+    existing = get_child_by_pairing_code(db, payload.pairing_code)
+    if existing and existing.parent_id not in (None, user["id"]):
+        raise HTTPException(status_code=409, detail="Ин дастгоҳ аллакай ба оилаи дигар пайваст аст")
     child = pair_child_with_parent(db, user["id"], payload.pairing_code)
     if not child:
         raise HTTPException(status_code=404, detail="Рамзи пайвастшавӣ ёфт нашуд!")
@@ -197,17 +204,12 @@ def set_child_app_limit_endpoint(payload: AppLimitRequest, request: Request, db:
 def rename_child_profile(payload: ChildRenameRequest, request: Request, db: Session = Depends(get_db)):
     """User request: Allow parents to change the child's name, gender, or age."""
     user = require_auth(request)
-    target_id = None
-    if payload.child_id:
-        target_id = payload.child_id
-    else:
-        child = get_child_for_user(db, user["id"], user.get("role", "parent"))
-        if child:
-            target_id = child["id"]
-        elif user.get("role") == "admin":
-            first_ch = db.query(Child).order_by(Child.id.desc()).first()
-            if first_ch:
-                target_id = first_ch.id
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо волидайн метавонанд профили фарзандро иваз кунанд")
+    owned = db.query(Child).filter(Child.parent_id == user["id"]).all()
+    target_id = payload.child_id or (owned[0].id if owned else None)
+    if target_id and not any(child.id == target_id for child in owned):
+        raise HTTPException(status_code=403, detail="Ин профили фарзанд ба шумо тааллуқ надорад")
 
     if not target_id:
         raise HTTPException(status_code=404, detail="Фарзанд барои ин волидайн ёфт нашуд")
@@ -298,21 +300,45 @@ def set_web_filter(payload: WebFilterRequest, request: Request, db: Session = De
 @router.get("/api/mobile/location/ping")
 def ping_live_location(request: Request, db: Session = Depends(get_db)):
     user = require_auth(request)
-    role = user.get("role", "parent")
-    child = get_child_for_user(db, user["id"], role)
-    lat = child.get("latitude", 38.5598) if child else 38.5598
-    lon = child.get("longitude", 68.7870) if child else 68.7870
-    addr = child.get("address", "ш. Душанбе, хиёбони Рӯдакӣ") if child else "ш. Душанбе"
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо волидайн метавонанд маконро бинанд")
+    child = get_child_for_user(db, user["id"], "parent")
+    if not child or not child.get("location_updated_at"):
+        return {
+            "status": "unavailable",
+            "location": None,
+            "message": "Макон ҳанӯз аз телефони фарзанд гирифта нашудааст",
+        }
     return {
         "status": "success",
         "location": {
-            "latitude": lat,
-            "longitude": lon,
+            "latitude": child["latitude"],
+            "longitude": child["longitude"],
             "accuracy_meters": 12,
-            "address": addr,
-            "timestamp": "Ҳозир"
+            "address": child.get("address"),
+            "timestamp": child["location_updated_at"],
         }
     }
+
+@router.post("/api/mobile/location/update")
+def update_child_location(payload: LocationUpdateRequest, request: Request, db: Session = Depends(get_db)):
+    """Store only a location reported by the authenticated child device."""
+    user = require_auth(request)
+    if user.get("role") != "child":
+        raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад макон фиристад")
+    child_row = db.query(Child).filter(Child.user_id == user["id"]).first()
+    if not child_row:
+        raise HTTPException(status_code=404, detail="Профили фарзанд ёфт нашуд")
+
+    child_row.latitude = payload.latitude
+    child_row.longitude = payload.longitude
+    child_row.address = payload.address.strip() if payload.address else None
+    child_row.is_online = 1 if payload.is_online else 0
+    if payload.battery_level is not None:
+        child_row.battery_level = payload.battery_level
+    child_row.location_updated_at = datetime.now(timezone.utc)
+    db.commit()
+    return {"status": "success", "updated_at": child_row.location_updated_at.isoformat()}
 
 # 7. Screen Time Bonus (+15m, +30m)
 @router.post("/api/mobile/screentime/bonus")

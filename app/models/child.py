@@ -18,6 +18,7 @@ class Child(Base):
     latitude = Column(Float, default=38.5598)
     longitude = Column(Float, default=68.7870)
     address = Column(String, default="ш. Душанбе, хиёбони Рӯдакӣ")
+    location_updated_at = Column(DateTime, nullable=True)
     block_adult_content = Column(Integer, default=1)
     created_at = Column(DateTime, server_default=func.now())
 
@@ -37,6 +38,7 @@ class Child(Base):
             "latitude": self.latitude,
             "longitude": self.longitude,
             "address": self.address,
+            "location_updated_at": str(self.location_updated_at) if self.location_updated_at else None,
             "block_adult_content": self.block_adult_content,
             "created_at": str(self.created_at) if self.created_at else None
         }

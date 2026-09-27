@@ -71,12 +71,12 @@ def download_android_apk(request: Request, db: Session = Depends(get_db)):
             )
 
     # Fallback to root APK if static/downloads is unavailable
-    root_apk = os.path.join(settings.BASE_DIR, "NIGOH_Family_Android_v2.9.0.apk")
+    root_apk = os.path.join(settings.BASE_DIR, "NIGOH_Family_Android_v2.8.1.apk")
     if os.path.exists(root_apk) and os.path.getsize(root_apk) > 1000000:
         return FileResponse(
             path=root_apk,
             media_type="application/vnd.android.package-archive",
-            filename="NIGOH_Family_Android_v2.9.0.apk"
+            filename="NIGOH_Family_Android_v2.8.1.apk"
         )
 
     # Manifest fallback

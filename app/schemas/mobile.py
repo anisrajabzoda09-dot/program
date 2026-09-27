@@ -33,10 +33,10 @@ class AdultFilterToggleRequest(BaseModel):
     block_adult_content: bool
 
 class LocationUpdateRequest(BaseModel):
-    latitude: float
-    longitude: float
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
     address: Optional[str] = None
-    battery_level: Optional[int] = 85
+    battery_level: Optional[int] = Field(default=None, ge=0, le=100)
     is_online: Optional[bool] = True
 
 class SendChatMessageRequest(BaseModel):

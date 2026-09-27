@@ -24,6 +24,9 @@ def init_db():
         if "age" not in cols:
             conn.execute(text("ALTER TABLE children ADD COLUMN age INTEGER DEFAULT 11"))
             conn.commit()
+        if "location_updated_at" not in cols:
+            conn.execute(text("ALTER TABLE children ADD COLUMN location_updated_at DATETIME"))
+            conn.commit()
 
     db = SessionLocal()
     try:
