@@ -141,18 +141,10 @@ def nigoh_3d_presentation(request: Request):
 def weevolve_showcase_page(request: Request):
     return templates.TemplateResponse(request=request, name="weevolve.html", context={})
 
-# Google Search Console dynamic verification handler
-@router.api_route("/google{code}.html", methods=["GET", "HEAD"], response_class=Response)
-def google_verification(code: str):
+# Google Search Console EXACT file verification (strict matching to pass security anti-hacking probe)
+@router.api_route("/googleee0fc42c18bef62a.html", methods=["GET", "HEAD"], response_class=Response)
+def google_verification_exact():
     return Response(
-        content=f"google-site-verification: google{code}.html\n",
+        content="google-site-verification: googleee0fc42c18bef62a.html\n",
         media_type="text/plain; charset=utf-8"
-    )
-
-# Yandex Webmaster verification handler
-@router.api_route("/yandex_{code}.html", methods=["GET", "HEAD"], response_class=Response)
-def yandex_verification(code: str):
-    return Response(
-        content=f"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"></head><body>Verification: {code}</body></html>",
-        media_type="text/html; charset=utf-8"
     )
