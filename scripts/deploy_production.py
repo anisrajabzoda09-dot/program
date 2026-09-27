@@ -36,7 +36,7 @@ def deploy():
     run_ssh(f'rsync -avz --exclude "__pycache__" --exclude "*.pyc" -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/')
 
     # 2. Sync root APK and documentation
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.8.1.apk TECH_STACK.md {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
+    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.9.0.apk NIGOH_Family_Android_v2.8.1.apk TECH_STACK.md {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
 
     # 3. Sync deploy configs
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" deploy/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/deploy/')

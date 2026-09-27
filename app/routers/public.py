@@ -15,31 +15,79 @@ templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
 
 @router.get("/robots.txt", response_class=Response)
 def get_robots_txt():
-    content = "User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: https://nigohfamily.qobus.tj/sitemap.xml\n"
-    return Response(content=content, media_type="text/plain")
+    content = """User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/admin/
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Mobile
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /static/
+
+User-agent: Yandex
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://nigohfamily.qobus.tj/sitemap.xml
+Host: https://nigohfamily.qobus.tj
+"""
+    return Response(content=content, media_type="text/plain; charset=utf-8")
 
 @router.get("/sitemap.xml", response_class=Response)
 def get_sitemap_xml():
     xml = """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://nigohfamily.qobus.tj/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/auth</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/qr</loc>
-    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png</image:loc>
+      <image:title>NIGOH Family Parental Control</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://nigohfamily.qobus.tj/download/android</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/qr</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/auth</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/3d</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/weevolve</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>"""
-    return Response(content=xml, media_type="application/xml")
+    return Response(content=xml, media_type="application/xml; charset=utf-8")
 
 @router.get("/health")
 def health_check(db: Session = Depends(get_db)):

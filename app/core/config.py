@@ -3,8 +3,8 @@ import os
 class Settings:
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
-    APP_VERSION: str = "2.8.1"
-    APP_VERSION_CODE: int = 17
+    APP_VERSION: str = "2.9.0"
+    APP_VERSION_CODE: int = 18
 
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR: str = os.path.join(BASE_DIR, "static")
@@ -30,6 +30,7 @@ class Settings:
     ]
 
     APK_CANDIDATES = [
+        "NIGOH_Family_Android_v2.9.0.apk",
         "NIGOH_Family_Android_v2.8.1.apk",
         "NIGOH_Family_Android_v2.8.0.apk",
         "NIGOH_Family_Android_v2.7.0.apk",
