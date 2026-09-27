@@ -9,7 +9,7 @@ class SiteAnalytics(Base):
     path = Column(String, nullable=True)
     user_agent = Column(String, nullable=True)
     event_type = Column(String, default="page_view", index=True)  # 'page_view', 'apk_download', 'qr_scan', 'auth'
-    version = Column(String, default="v2.8.1")
+    version = Column(String, default="v2.9.0")
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):

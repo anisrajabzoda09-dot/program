@@ -111,7 +111,7 @@ def init_db():
         path TEXT,
         user_agent TEXT,
         event_type TEXT DEFAULT 'page_view', -- 'page_view', 'apk_download', 'qr_scan', 'auth'
-        version TEXT DEFAULT 'v2.8.0',
+        version TEXT DEFAULT 'v2.9.0',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
@@ -230,7 +230,7 @@ def create_or_get_child_for_user(user_id: int, name: str, gender: str = "boy", a
     conn.close()
     return res
 
-def log_analytics_event(ip: str, path: str, user_agent: str, event_type: str = "page_view", version: str = "v2.8.1"):
+def log_analytics_event(ip: str, path: str, user_agent: str, event_type: str = "page_view", version: str = "v2.9.0"):
     """Record visits, APK downloads, QR scans and interactions in SQLite"""
     try:
         conn = get_db()
@@ -349,5 +349,5 @@ def get_admin_dashboard_data():
         "children_list": children_list,
         "recent_downloads": recent_downloads,
         "registered_users": registered_users,
-        "current_version": "v2.8.1"
+        "current_version": "v2.9.0"
     }

@@ -12,7 +12,7 @@ def log_analytics_event(
     path: str,
     user_agent: str,
     event_type: str = "page_view",
-    version: str = "v2.8.1"
+    version: str = "v2.9.0"
 ):
     """Log visit, APK download, or QR scan into site_analytics."""
     try:

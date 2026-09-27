@@ -95,7 +95,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Навсозии v2.8.1: Беҳтаркунии иҷозатҳои амниятӣ, танзимоти маҳдудшудаи Android 13/14, пайвастшавии боэътимод ва ислоҳи хатогиҳо.",
+        "release_notes": "Навсозии v2.9.0: Беҳтаркунии иҷозатҳои амниятӣ, танзимоти маҳдудшудаи Android 13/14, пайвастшавии боэътимод ва ислоҳи хатогиҳо.",
         "download_url": download_url
     }
 
