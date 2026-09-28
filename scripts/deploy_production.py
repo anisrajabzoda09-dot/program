@@ -11,12 +11,12 @@ REMOTE_HOST = "37.27.245.216"
 REMOTE_PASS = "J8Gb-ZMPK-DvMF-EEcJ"
 REMOTE_PATH = "/home/dev/munis"
 
-def run_ssh(cmd, timeout=300):
+def run_ssh(cmd, timeout=3600):
     print(f"-> {cmd}")
     child = pexpect.spawn(cmd, encoding="utf-8", timeout=timeout)
     child.logfile = sys.stdout
     while True:
-        idx = child.expect(["(?i)password:", pexpect.EOF, pexpect.TIMEOUT])
+        idx = child.expect(["(?i)password:", pexpect.EOF, pexpect.TIMEOUT], timeout=timeout)
         if idx == 0:
             child.sendline(REMOTE_PASS)
         elif idx == 1:
@@ -36,7 +36,7 @@ def deploy():
     run_ssh(f'rsync -avz --exclude "__pycache__" --exclude "*.pyc" -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/')
 
     # 2. Sync root APK and documentation
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.9.0.apk NIGOH_Family_Android_v2.8.1.apk TECH_STACK.md {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
+    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" NIGOH_Family_Android_v2.9.0_permissions_fixed.apk TECH_STACK.md {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
 
     # 3. Sync deploy configs
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" deploy/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/deploy/')
