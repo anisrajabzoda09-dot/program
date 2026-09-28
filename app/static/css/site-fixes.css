@@ -7,5 +7,14 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .bento-card, .white-card, .phone-mockup { border-color:var(--nigoh-border)!important; box-shadow:0 16px 40px rgba(15,23,42,.07),0 2px 8px rgba(15,23,42,.04)!important; }
 .bento-card:hover { box-shadow:0 22px 48px rgba(79,70,229,.12)!important; }
 img { max-width:100%; height:auto; }
+#download { background:linear-gradient(180deg,#eef5ff 0%,#f8fbff 42%,#ffffff 100%)!important; }
+#download .bento-card { border-color:rgba(79,70,229,.24)!important; background:rgba(255,255,255,.94)!important; }
+.qr-download-card { background:linear-gradient(145deg,#f1f6ff,#ffffff)!important; border-color:rgba(79,70,229,.22)!important; gap:0; }
+.qr-download-copy { min-width:0; }
+.qr-link-row { width:100%; align-items:center; flex-wrap:wrap; row-gap:8px; }
+.qr-link-row code { min-width:0; flex:1 1 220px; overflow-wrap:anywhere; line-height:1.45; }
+.qr-link-row button { flex:0 0 auto; white-space:nowrap; }
+.qr-download-copy > p { max-width:28rem; margin-left:auto; margin-right:auto; line-height:1.55; }
 @media (max-width:640px) { .container { padding-left:16px!important; padding-right:16px!important; } .bento-card,.white-card { border-radius:20px!important; } }
+@media (max-width:520px) { .qr-download-card { padding:20px!important; } .qr-link-row button { width:100%; } .qr-link-row code { flex-basis:100%; } }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
