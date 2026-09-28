@@ -5,7 +5,7 @@ import json
 import xml.etree.ElementTree as ET
 import uvicorn
 from app.main import app
-from app.database import init_db
+from app.db.init_db import init_db
 
 def start_server():
     uvicorn.run(app, host="127.0.0.1", port=8892, log_level="warning")

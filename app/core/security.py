@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import hmac
 import secrets
@@ -8,6 +9,7 @@ from app.core.config import settings
 
 # In-memory session store (token -> user dict)
 SESSIONS: Dict[str, dict] = {}
+SESSION_EXPIRY: Dict[str, float] = {}
 
 class RateLimiter:
     """
@@ -32,23 +34,55 @@ class RateLimiter:
 rate_limiter = RateLimiter()
 
 def hash_password(password: str) -> str:
-    """Generate SHA-256 hash of password string."""
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
+    """Hash passwords with memory-hard scrypt and a per-password salt.
+
+    The legacy SHA-256 format is still accepted by ``verify_password`` so
+    existing accounts can log in once and be upgraded by the next write.
+    """
+    salt = secrets.token_bytes(16)
+    digest = hashlib.scrypt(
+        password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1, dklen=32
+    )
+    enc = base64.urlsafe_b64encode
+    return "scrypt$16384$8$1${}${}".format(
+        enc(salt).decode("ascii"), enc(digest).decode("ascii")
+    )
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Timing-attack safe password verification using hmac.compare_digest."""
-    candidate_hash = hash_password(plain_password)
-    return hmac.compare_digest(candidate_hash, hashed_password)
+    """Verify scrypt hashes and transparently support old SHA-256 records."""
+    if hashed_password.startswith("scrypt$"):
+        try:
+            _, n, r, p, salt_b64, digest_b64 = hashed_password.split("$", 5)
+            salt = base64.urlsafe_b64decode(salt_b64.encode("ascii"))
+            expected = base64.urlsafe_b64decode(digest_b64.encode("ascii"))
+            actual = hashlib.scrypt(
+                plain_password.encode("utf-8"),
+                salt=salt,
+                n=int(n),
+                r=int(r),
+                p=int(p),
+                dklen=len(expected),
+            )
+            return hmac.compare_digest(actual, expected)
+        except (ValueError, TypeError):
+            return False
+    legacy = hashlib.sha256(plain_password.encode("utf-8")).hexdigest()
+    return hmac.compare_digest(legacy, hashed_password)
 
 def create_session(user: dict) -> str:
     """Generate a cryptographically secure 64-char hex token and store in session map."""
     token = secrets.token_hex(32)
-    SESSIONS[token] = user
+    SESSIONS[token] = dict(user)
+    SESSION_EXPIRY[token] = time.time() + settings.SESSION_MAX_AGE
     return token
 
 def get_current_user(request: Request) -> Optional[dict]:
     """Extract authenticated user from cookies or Authorization Bearer header."""
     token = request.cookies.get(settings.SESSION_COOKIE_NAME)
+    if token and token in SESSION_EXPIRY and SESSION_EXPIRY[token] <= time.time():
+        SESSIONS.pop(token, None)
+        SESSION_EXPIRY.pop(token, None)
+        token = None
     if not token or token not in SESSIONS:
         auth_header = request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):

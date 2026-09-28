@@ -1,0 +1,11 @@
+/* Shared visual layer for a consistent, responsive NIGOH site. */
+:root { --nigoh-primary:#4f46e5; --nigoh-cyan:#06b6d4; --nigoh-border:rgba(148,163,184,.22); }
+body { text-rendering: optimizeLegibility; }
+a, button, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline:3px solid rgba(79,70,229,.35); outline-offset:3px; }
+.navbar { border-color:var(--nigoh-border)!important; }
+.bento-card, .white-card, .phone-mockup { border-color:var(--nigoh-border)!important; box-shadow:0 16px 40px rgba(15,23,42,.07),0 2px 8px rgba(15,23,42,.04)!important; }
+.bento-card:hover { box-shadow:0 22px 48px rgba(79,70,229,.12)!important; }
+img { max-width:100%; height:auto; }
+@media (max-width:640px) { .container { padding-left:16px!important; padding-right:16px!important; } .bento-card,.white-card { border-radius:20px!important; } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }

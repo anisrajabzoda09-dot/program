@@ -52,7 +52,8 @@ def api_register(payload: UserRegister, request: Request, response: Response, db
         value=token,
         httponly=True,
         samesite="lax",
-        max_age=settings.SESSION_MAX_AGE
+        max_age=settings.SESSION_MAX_AGE,
+        secure=request.url.scheme == "https"
     )
     return {"status": "success", "user": user_dict, "redirect": "/#download"}
 
@@ -76,14 +77,15 @@ def api_login(payload: UserLogin, request: Request, response: Response, db: Sess
         value=token,
         httponly=True,
         samesite="lax",
-        max_age=settings.SESSION_MAX_AGE
+        max_age=settings.SESSION_MAX_AGE,
+        secure=request.url.scheme == "https"
     )
 
     redirect_target = "/admin" if user_dict.get("role") == "admin" else "/#download"
     return {"status": "success", "user": user_dict, "redirect": redirect_target}
 
 @router.post("/api/auth/google")
-def api_google_auth(payload: GoogleAuthRequest, response: Response, db: Session = Depends(get_db)):
+def api_google_auth(payload: GoogleAuthRequest, request: Request, response: Response, db: Session = Depends(get_db)):
     """Google OAuth Sign-In"""
     user_obj = upsert_google_user(
         db=db,
@@ -100,7 +102,8 @@ def api_google_auth(payload: GoogleAuthRequest, response: Response, db: Session 
         value=token,
         httponly=True,
         samesite="lax",
-        max_age=settings.SESSION_MAX_AGE
+        max_age=settings.SESSION_MAX_AGE,
+        secure=request.url.scheme == "https"
     )
     return {"status": "success", "user": user_dict, "redirect": "/#download"}
 
@@ -109,6 +112,8 @@ def logout(request: Request, response: Response):
     token = request.cookies.get(settings.SESSION_COOKIE_NAME)
     if token in SESSIONS:
         del SESSIONS[token]
+    from app.core.security import SESSION_EXPIRY
+    SESSION_EXPIRY.pop(token, None)
     response = RedirectResponse("/", status_code=303)
     response.delete_cookie(settings.SESSION_COOKIE_NAME)
     return response

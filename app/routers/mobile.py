@@ -186,6 +186,8 @@ def toggle_child_app(payload: AppRuleToggleRequest, request: Request, db: Sessio
         raise HTTPException(status_code=404, detail="Фарзанд барои ин волидайн пайдо нашуд")
 
     ok = toggle_app_rule(db, child["id"], payload.package_name, payload.is_blocked)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Ин барнома дар рӯйхати фарзанд ёфт нашуд")
     return {"status": "success", "package_name": payload.package_name, "is_blocked": payload.is_blocked}
 
 @router.post("/api/mobile/apps/limit")
@@ -196,6 +198,8 @@ def set_child_app_limit_endpoint(payload: AppLimitRequest, request: Request, db:
         raise HTTPException(status_code=404, detail="Фарзанд пайдо нашуд")
 
     ok = set_app_rule_limit(db, child["id"], payload.package_name, payload.daily_limit_minutes)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Ин барнома дар рӯйхати фарзанд ёфт нашуд")
     return {"status": "success", "package_name": payload.package_name, "daily_limit_minutes": payload.daily_limit_minutes}
 
 # --- 🎯 User Feature Request: Child Rename Endpoint ---

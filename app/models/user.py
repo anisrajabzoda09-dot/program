@@ -17,7 +17,6 @@ class User(Base):
         return {
             "id": self.id,
             "email": self.email,
-            "password_hash": self.password_hash,
             "full_name": self.full_name,
             "role": self.role,
             "google_id": self.google_id,

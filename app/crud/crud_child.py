@@ -3,6 +3,7 @@ from typing import Optional, List, Dict
 from sqlalchemy.orm import Session
 from app.models.child import Child
 from app.models.app_rule import AppRule
+from app.models.chat import ChatMessage
 from app.core.config import settings
 
 def ensure_default_child_apps(db: Session, child_id: int):
@@ -128,7 +129,7 @@ def delete_child(db: Session, child_id: int) -> bool:
         return False
     # delete rules and chat
     db.query(AppRule).filter(AppRule.child_id == child_id).delete()
+    db.query(ChatMessage).filter(ChatMessage.child_id == child_id).delete()
     db.delete(child)
     db.commit()
     return True
-
