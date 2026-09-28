@@ -97,7 +97,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Навсозии v2.9.0: location танҳо аз дастгоҳи тасдиқшуда қабул мешавад, дастрасии беиҷозат ба оилаҳо баста шуд ва иҷозатҳо боэътимодтар шуданд.",
+        "release_notes": "Навсозии v2.9.2: пайвасти QR ва коди 6-рақама, ҷараёни нави волидайну фарзанд, чат, location ва муҳофизати барномаҳо беҳтар шуданд.",
         "download_url": download_url
     }
 

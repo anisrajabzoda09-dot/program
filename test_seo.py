@@ -68,7 +68,7 @@ def test_seo():
         assert resp.status == 200
         health_data = json.loads(resp.read().decode("utf-8"))
         assert health_data["status"] == "healthy", f"Expected healthy, got {health_data['status']}"
-        assert health_data["version"] == "2.9.0", f"Expected 2.9.0, got {health_data['version']}"
+        assert health_data["version"] == "2.9.2", f"Expected 2.9.2, got {health_data['version']}"
         assert health_data["apk_available"] is True, "APK not available"
         print(f"   ✅ Система солим (healthy), версия {health_data['version']}, файли фаъол: {health_data['active_apk']}!")
 
