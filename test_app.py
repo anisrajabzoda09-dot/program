@@ -68,19 +68,12 @@ def run_tests():
         assert data["redirect"] == "/#download"
     print("   Воридшавӣ ба /#download равона мекунад (OK)!")
 
-    print("6. Санҷиши воридшавӣ бо Google (POST /api/auth/google)...")
-    google_data = json.dumps({
-        "full_name": "Волидайни Google",
-        "email": f"google_app_{ts}@gmail.com",
-        "avatar": "https://lh3.googleusercontent.com/a/default-user"
-    }).encode("utf-8")
-    req = urllib.request.Request(f"{base}/api/auth/google", data=google_data, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req) as resp:
+    print("6. Санҷиши тугмаи Google Sign-In дар auth page...")
+    with urllib.request.urlopen(f"{base}/auth") as resp:
         assert resp.status == 200
-        data = json.loads(resp.read().decode("utf-8"))
-        assert data["status"] == "success"
-        assert data["redirect"] == "/#download"
-    print("   Google Sign-In ба /#download равона мекунад (OK)!")
+        html = resp.read().decode("utf-8")
+        assert "/auth/google/login" in html
+    print("   Тугмаи Google ба OAuth endpoint-и воқеӣ пайваст аст (OK)!")
 
     print("7. Санҷиши саҳифаи асосӣ бо Session Cookie...")
     req = urllib.request.Request(f"{base}/", headers={"Cookie": session_cookie})

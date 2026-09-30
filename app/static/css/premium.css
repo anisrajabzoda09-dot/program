@@ -1,0 +1,38 @@
+/* NIGOH public website: scoped presentation, no application state changes. */
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+.landing-page { background: #eff6ff; color: #102448; }
+.landing-page header { background: rgba(246,250,255,.94); border-bottom: 1px solid #c5dafa; box-shadow: 0 8px 32px #17397a0d; }
+.landing-page .hero-mesh { position: relative; background: radial-gradient(ellipse at 85% 15%,#8cdcff55,transparent 48%),radial-gradient(ellipse at 10% 90%,#4384ff30,transparent 52%),linear-gradient(125deg,#eef6ff,#dbeafe 60%,#edfaff); border-bottom: 1px solid #bcd5fb; }
+.landing-page .hero-mesh h1 { color: #102c63; letter-spacing: -.045em; line-height: 1.12; }
+.landing-page .hero-mesh h1 span { color: #1255d9; }
+.landing-page .btn-gradient { background: linear-gradient(120deg,#1556de,#087ebc); border: 1px solid #236beb; border-radius: 16px; box-shadow: 0 8px 22px #1556de30; }
+.landing-page .btn-gradient:hover { background: linear-gradient(120deg,#1243b1,#086da3); box-shadow: 0 12px 30px #1556de40; }
+.landing-page .bento-card { border-color: #ccddf5!important; box-shadow: 0 12px 38px #173c7710!important; border-radius: 28px; }
+.landing-page #features { background: #f6faff; }
+.landing-page #how-it-works { background: linear-gradient(130deg,#e4efff,#eef8ff); }
+.landing-page #reviews { background: #f6faff; }
+.landing-page #faq { background: #edf5ff; }
+.landing-page #faq details { border: 1px solid #ccddf5; box-shadow: 0 5px 18px #163c7607; }
+.landing-page #faq details[open] { border-color: #78a8f5; }
+.landing-page #download { background: linear-gradient(135deg,#102e6b,#1254ba 60%,#087ca6)!important; }
+.landing-page #download > .absolute { display: none; }
+.landing-page #download .bento-card { background: #fafdff!important; border-color: #ffffff80!important; box-shadow: 0 28px 70px #071d6340!important; }
+.landing-page .qr-download-card { background: #eef5ff!important; border: 1px solid #ccddf5!important; padding: 28px!important; border-radius: 24px; gap: 24px; }
+.landing-page .qr-download-card > .group { padding: 12px; background: #fff; border: 1px solid #d5e4fa; border-radius: 20px; box-shadow: 0 8px 24px #194a9412; }
+.landing-page .qr-download-card > .group > .absolute { display: none; }
+.landing-page .qr-download-card > .group > .relative { margin-bottom: 0!important; border: 0; box-shadow: none; width: 210px; height: 210px; padding: 8px; }
+.landing-page .qr-download-copy { min-width: 0; }
+.landing-page .qr-link-row { flex-direction: column; padding: 16px!important; gap: 12px; }
+.landing-page .qr-link-row code { overflow-wrap: anywhere; color: #1649ad; }
+.landing-page .qr-link-row button { min-height: 44px; width: 100%; font-size: 13px; }
+.landing-page .qr-download-copy p { line-height: 1.7; margin-top: 16px; }
+.landing-page footer { background: #eaf2ff; border-top: 1px solid #c8dcfa; }
+.landing-page a:focus-visible,.landing-page button:focus-visible,.landing-page summary:focus-visible { outline: 3px solid #0284c7; outline-offset: 5px; }
+@media(max-width:640px) {
+ .landing-page .hero-mesh { padding-top: 40px; padding-bottom: 48px; }
+ .landing-page #download .bento-card { padding: 28px 16px!important; }
+ .landing-page .qr-download-card { padding: 20px 12px!important; }
+ .landing-page .hero-mesh h1 { font-size: 2.5rem; }
+ .landing-page section { overflow-wrap: break-word; }
+}
+@media(prefers-reduced-motion:reduce) { html { scroll-behavior: auto; } .landing-page *, .landing-page *::before,.landing-page *::after { animation: none!important; transition: none!important; } }

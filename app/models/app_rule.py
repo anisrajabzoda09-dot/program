@@ -12,6 +12,8 @@ class AppRule(Base):
     category = Column(String, nullable=True)
     is_blocked = Column(Integer, default=0)
     daily_limit_minutes = Column(Integer, default=60)
+    schedule_json = Column(String, nullable=True)
+    last_synced_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (
@@ -28,5 +30,7 @@ class AppRule(Base):
             "category": self.category,
             "is_blocked": self.is_blocked,
             "daily_limit_minutes": self.daily_limit_minutes,
+            "schedule": self.schedule_json,
+            "last_synced_at": str(self.last_synced_at) if self.last_synced_at else None,
             "updated_at": str(self.updated_at) if self.updated_at else None
         }

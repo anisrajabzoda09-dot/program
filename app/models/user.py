@@ -10,6 +10,7 @@ class User(Base):
     full_name = Column(String, nullable=False)
     role = Column(String, default="unassigned")
     google_id = Column(String, nullable=True)
+    firebase_uid = Column(String, nullable=True, unique=True, index=True)
     avatar = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
@@ -20,6 +21,7 @@ class User(Base):
             "full_name": self.full_name,
             "role": self.role,
             "google_id": self.google_id,
+            "firebase_uid": self.firebase_uid,
             "avatar": self.avatar,
             "created_at": str(self.created_at) if self.created_at else None
         }

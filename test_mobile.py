@@ -21,30 +21,30 @@ def run_mobile_tests():
         assert resp.status == 200
         html = resp.read().decode("utf-8")
         assert "НИГОҲ" in html
-        assert "OTA Enabled" in html
-        assert "qrcodejs" in html
+        assert "v2.9.10" in html
+        assert "/api/qr/download" in html
     print("   Саҳифаи мобилӣ бомуваффақият кушода шуд (OK)!")
 
     print("2. Санҷиши санҷандаи версияи OTA (/api/mobile/version)...")
     with urllib.request.urlopen(f"{base}/api/mobile/version") as resp:
         assert resp.status == 200
         ver_data = json.loads(resp.read().decode("utf-8"))
-        assert ver_data["version"] == "2.0.0"
+        assert ver_data["version"] == "2.9.10"
         assert ver_data["channel"] == "stable"
     print("   Системаи санҷиши навсозии автоматии OTA кор мекунад (OK)!")
 
-    print("3. Санҷиши бақайдгирии корбар бо Google...")
+    print("3. Санҷиши session-и корбар барои mobile API...")
     g_data = json.dumps({
         "full_name": "Падари Мобилӣ",
-        "email": f"parent_mob_{int(time.time())}@gmail.com",
-        "avatar": "https://lh3.googleusercontent.com/a/default"
+        "email": f"parent_mob_{int(time.time())}@example.com",
+        "password": "securepassword123"
     }).encode("utf-8")
-    req = urllib.request.Request(f"{base}/api/auth/google", data=g_data, headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(f"{base}/api/auth/register", data=g_data, headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req) as resp:
         assert resp.status == 200
         cookie = resp.headers.get("Set-Cookie")
         assert cookie is not None
-    print("   Воридшавӣ бо Google тасдиқ шуд (OK)!")
+    print("   Session барои mobile API тасдиқ шуд (OK)!")
 
     headers = {"Cookie": cookie, "Content-Type": "application/json"}
 
@@ -137,4 +137,3 @@ def run_mobile_tests():
 
 if __name__ == "__main__":
     run_mobile_tests()
-

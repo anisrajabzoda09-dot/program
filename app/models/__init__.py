@@ -4,5 +4,18 @@ from app.models.app_rule import AppRule
 from app.models.review import Review
 from app.models.chat import ChatMessage
 from app.models.analytics import SiteAnalytics
+from app.models.app_usage import AppUsageDaily
+from app.models.extension_request import AppExtensionRequest
+from app.models.app_bundle import AppBundle
 
-__all__ = ["User", "Child", "AppRule", "Review", "ChatMessage", "SiteAnalytics"]
+__all__ = [
+    "User",
+    "Child",
+    "AppRule",
+    "AppUsageDaily",
+    "AppExtensionRequest",
+    "AppBundle",
+    "Review",
+    "ChatMessage",
+    "SiteAnalytics",
+]

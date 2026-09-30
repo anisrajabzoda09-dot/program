@@ -8,7 +8,7 @@
   
   <!-- Canonical & Advanced Google SEO Meta -->
   <link rel="canonical" href="https://nigohfamily.qobus.tj/">
-  <meta name="description" content="NIGOH Family (Нигоҳ Family) — платформаи назорати волидайн бо пайвасти QR, chat, location, бастани барномаҳо ва ҳифзи кӯдакон. Боргирии мустақими Android APK v2.9.2.">
+    <meta name="description" content="NIGOH Family (Нигоҳ Family) — платформаи назорати волидайн бо пайвасти QR, chat, location, бастани барномаҳо ва ҳифзи кӯдакон. Боргирии мустақими Android APK v2.9.18.">
   <meta name="keywords" content="nigoh family, нигоҳ family, нигох фемили, nigoh, родительский контроль таджикистан, барномаи нигох, parental control tajikistan, назорати волидайн, nigoh apk, nigoh family download, барномаи назорати кудакон, амнияти оила, qobus tj nigoh">
   <meta name="author" content="NIGOH Family Team">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -60,8 +60,8 @@
         "operatingSystem": "Android 7.0 and up",
         "applicationCategory": "ParentalControlApplication",
         "downloadUrl": "https://nigohfamily.qobus.tj/download/android",
-        "softwareVersion": "2.9.2",
-        "fileSize": "71.1MB",
+        "softwareVersion": "2.9.18",
+        "fileSize": "71.2MB",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -199,8 +199,9 @@
       transform: translateY(-1px);
     }
   </style>
+  <link rel="stylesheet" href="/static/css/premium.css?v=20260929">
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white bg-white">
+<body class="landing-page min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white bg-white">
 
   <!-- NAVBAR (Full Width & Premium Glassmorphism) -->
   <header class="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-slate-200/80 transition-all duration-300 shadow-2xs">
@@ -217,7 +218,7 @@
               НИГОҲ <span class="text-indigo-600 font-extrabold">FAMILY</span>
             </span>
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> v2.9.2
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> v2.9.18
             </span>
           </div>
           <span class="text-[11px] sm:text-xs text-slate-500 font-semibold tracking-wide">Назорати Оқилонаи Оилавӣ</span>
@@ -398,7 +399,7 @@
             </div>
             <div class="bg-white border border-slate-200/80 rounded-2xl p-3.5 shadow-xs text-center lg:text-left hover:border-slate-300 transition">
               <div class="text-lg sm:text-xl font-black text-indigo-600 flex items-center justify-center lg:justify-start gap-1.5">
-                <i class="fa-brands fa-android text-sm"></i> v2.9.2
+                <i class="fa-brands fa-android text-sm"></i> v2.9.18
               </div>
               <p class="text-[11px] sm:text-xs text-slate-500 mt-1 font-bold">Android 7 — 16+</p>
             </div>
@@ -1033,7 +1034,7 @@
 
         <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-wider mb-3">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Версияи Расмии Android v2.9.2</span>
+          <span>Версияи Расмии Android v2.9.18</span>
         </div>
 
         <h2 class="text-3xl sm:text-5xl font-black text-slate-900 mb-4 tracking-tight">
@@ -1057,20 +1058,20 @@
             <div class="qr-link-row flex items-center gap-2 justify-center bg-white border border-indigo-200/80 px-3.5 py-2 rounded-xl shadow-2xs">
               <i class="fa-solid fa-lock text-emerald-600 text-xs"></i>
               <code id="qr-link-text" class="text-xs sm:text-sm font-bold text-indigo-700 tracking-tight">
-                Суроға мувофиқи шабака худкор муайян мешавад
+                nigohfamily.qobus.tj/download/android
               </code>
-              <button type="button" onclick="navigator.clipboard.writeText(window.location.origin + '/download/android'); const el = document.getElementById('copy-status'); el.innerText='Нусха шуд!'; setTimeout(() => el.innerText='Нусхабардорӣ', 2000);" class="text-[11px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100 transition cursor-pointer">
+              <button type="button" onclick="copyDownloadLink()" class="text-[11px] font-black text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100 transition cursor-pointer">
                 <i class="fa-regular fa-copy mr-1"></i><span id="copy-status">Нусхабардорӣ</span>
               </button>
             </div>
-            <p class="text-xs text-slate-500 mt-2.5 font-medium">Телефон ва компютер бояд дар як Wi‑Fi бошанд. QR файли пурраи APK-ро мустақим мегирад.</p>
+            <p class="text-xs text-slate-500 mt-2.5 font-medium">QR-ро бо камераи телефон хонед. Барои боргирӣ интернет лозим аст; дар як Wi‑Fi будан шарт нест.</p>
           </div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a href="/qr" class="w-full sm:w-auto btn-gradient font-black text-base sm:text-lg px-9 py-4 flex items-center justify-center gap-3 rounded-xl shadow-lg hover:shadow-indigo-500/25 transition">
             <i class="fa-brands fa-android text-2xl"></i>
-            <span>Боргирии APK (71.1 MB)</span>
+            <span>Боргирии APK</span>
           </a>
 
           <a href="/download/android" class="w-full sm:w-auto btn-white text-slate-900 font-black text-base sm:text-lg px-8 py-4 flex items-center justify-center gap-3 rounded-xl border border-slate-300 hover:bg-slate-50 transition">
@@ -1082,7 +1083,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10 pt-8 border-t border-slate-200/80 text-xs font-bold text-slate-600">
           <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
             <i class="fa-solid fa-shield-check text-emerald-600 text-sm"></i>
-            <span>100% Тоза ва Бевирус</span>
+            <span>Боргирии расмӣ</span>
           </div>
           <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
             <i class="fa-brands fa-android text-emerald-600 text-sm"></i>
@@ -1090,7 +1091,7 @@
           </div>
           <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
             <i class="fa-solid fa-bolt text-amber-500 text-sm"></i>
-            <span>Насби Осон (1 дақиқа)</span>
+            <span>Дастури насб</span>
           </div>
           <div class="flex items-center justify-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
             <i class="fa-solid fa-lock text-indigo-600 text-sm"></i>
@@ -1320,7 +1321,7 @@
       <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-semibold">
         <div class="flex items-center gap-3">
           <span>© 2026 НИГОҲ Family. Ҳамаи ҳуқуқҳо маҳфузанд.</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">v2.9.2</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">v2.9.18</span>
         </div>
         <div class="flex items-center gap-6">
           <span class="text-slate-400">Сохта шудааст барои амнияти кӯдакони тоҷик</span>
@@ -1399,6 +1400,16 @@
   </div>
 
   <script>
+    async function copyDownloadLink() {
+      const status = document.getElementById('copy-status');
+      try {
+        await navigator.clipboard.writeText(window.location.origin + '/download/android');
+        status.textContent = 'Нусха шуд!';
+      } catch (_) {
+        status.textContent = 'Пайвандро аз боло нусха гиред';
+      }
+      setTimeout(() => status.textContent = 'Нусхабардорӣ', 3000);
+    }
     function checkNetworkState() {
       const banner = document.getElementById('offlineBanner');
       if (!navigator.onLine) {
@@ -1418,6 +1429,7 @@
     function toggleMobileMenu() {
       if (!mobileMenu) return;
       const isHidden = mobileMenu.classList.contains('hidden');
+      mobileMenuBtn?.setAttribute('aria-expanded', String(isHidden));
       if (isHidden) {
         mobileMenu.classList.remove('hidden');
         if (mobileMenuIcon) {
@@ -1434,8 +1446,14 @@
     }
 
     if (mobileMenuBtn) {
+      mobileMenuBtn.setAttribute('aria-label', 'Менюи сайт');
+      mobileMenuBtn.setAttribute('aria-controls', 'mobileMenu');
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
       mobileMenuBtn.addEventListener('click', toggleMobileMenu);
     }
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && mobileMenu && !mobileMenu.classList.contains('hidden')) toggleMobileMenu();
+    });
   </script>
 
 </body>

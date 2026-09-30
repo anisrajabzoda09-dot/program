@@ -43,13 +43,20 @@ def download_qr(request: Request):
         headers={"Cache-Control": "no-store, max-age=0"}
     )
 
-@router.api_route("/qr", methods=["GET", "HEAD"])
-@router.api_route("/install", methods=["GET", "HEAD"])
-@router.api_route("/apk", methods=["GET", "HEAD"])
-@router.api_route("/nigoh.apk", methods=["GET", "HEAD"])
-@router.api_route("/app.apk", methods=["GET", "HEAD"])
-@router.api_route("/download", methods=["GET", "HEAD"])
-@router.api_route("/download/android", methods=["GET", "HEAD"])
+@router.head("/qr", include_in_schema=False)
+@router.head("/install", include_in_schema=False)
+@router.head("/apk", include_in_schema=False)
+@router.head("/nigoh.apk", include_in_schema=False)
+@router.head("/app.apk", include_in_schema=False)
+@router.head("/download", include_in_schema=False)
+@router.head("/download/android", include_in_schema=False)
+@router.get("/qr")
+@router.get("/install")
+@router.get("/apk")
+@router.get("/nigoh.apk")
+@router.get("/app.apk")
+@router.get("/download")
+@router.get("/download/android")
 def download_android_apk(request: Request, db: Session = Depends(get_db)):
     """Serve official signed Android APK binary with real analytics tracking."""
     forwarded = request.headers.get("X-Forwarded-For")
@@ -71,12 +78,12 @@ def download_android_apk(request: Request, db: Session = Depends(get_db)):
             )
 
     # Fallback to root APK if static/downloads is unavailable
-    root_apk = os.path.join(settings.BASE_DIR, "NIGOH_Family_Android_v2.9.0_permissions_fixed.apk")
+    root_apk = os.path.join(settings.BASE_DIR, settings.APK_CANDIDATES[0])
     if os.path.exists(root_apk) and os.path.getsize(root_apk) > 1000000:
         return FileResponse(
             path=root_apk,
             media_type="application/vnd.android.package-archive",
-            filename="NIGOH_Family_Android_v2.9.0_permissions_fixed.apk"
+            filename=settings.APK_CANDIDATES[0]
         )
 
     # Manifest fallback

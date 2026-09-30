@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Request, Depends, HTTPException, status
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Request, Depends, Header, HTTPException, Query, status
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
+import json
+import secrets
 
 from app.core.config import settings
 from app.core.security import require_auth, SESSIONS
@@ -16,6 +18,16 @@ from app.schemas.mobile import (
     AppLimitRequest,
     SendChatMessageRequest,
     LocationUpdateRequest,
+    AppControlUpdateRequest,
+    UsageReportRequest,
+    TimeExtensionRequest,
+    AppBundleCreateRequest,
+    InstalledAppsSyncRequest,
+    MobilePairCodeRequest,
+    MobilePairRequest,
+    MobileLinkExistingRequest,
+    MobileLocationRequest,
+    MobileChatRequest,
 )
 from app.crud.crud_user import update_user_role
 from app.crud.crud_child import (
@@ -37,6 +49,13 @@ from app.crud.crud_chat import (
 )
 from app.models.child import Child
 from app.models.app_rule import AppRule
+from app.models.app_usage import AppUsageDaily
+from app.models.extension_request import AppExtensionRequest
+from app.models.app_bundle import AppBundle
+from app.models.chat import ChatMessage
+from app.models.user import User
+from app.core.firebase_mobile import require_firebase_user, find_user_by_firebase_uid
+from app.crud.crud_bundle import create_bundle, ensure_initial_bundle, list_after
 
 router = APIRouter(tags=["Mobile API & OTA"])
 
@@ -78,6 +97,98 @@ class ScreenTimeBonusRequest(BaseModel):
     bonus_minutes: int = 15
     reason: Optional[str] = "Барои иҷрои супоришҳои мактабӣ"
 
+
+def _get_owned_child(db: Session, user: dict, child_id: int) -> Child:
+    """Resolve a child without trusting a client-supplied parent/child id."""
+    query = db.query(Child).filter(Child.id == child_id)
+    if user.get("role") == "parent":
+        query = query.filter(Child.parent_id == user["id"])
+    elif user.get("role") == "child":
+        query = query.filter(Child.user_id == user["id"])
+    else:
+        raise HTTPException(status_code=403, detail="Ҳисоб барои назорати оила иҷозат надорад")
+    child = query.first()
+    if not child:
+        raise HTTPException(status_code=404, detail="Фарзанд барои ин ҳисоб ёфт нашуд")
+    return child
+
+
+def _rule_payload(rule: AppRule, usage: Optional[AppUsageDaily] = None) -> dict:
+    minutes = usage.minutes if usage else 0
+    limit = rule.daily_limit_minutes or 0
+    schedule = None
+    if rule.schedule_json:
+        try:
+            schedule = json.loads(rule.schedule_json)
+        except (TypeError, json.JSONDecodeError):
+            schedule = None
+    return {
+        **rule.to_dict(),
+        "schedule": schedule,
+        "usage_minutes_today": minutes,
+        "usage_percent": min(100, round(minutes * 100 / limit)) if limit else 0,
+        "is_limit_exceeded": bool(limit and minutes >= limit),
+    }
+
+
+def _mobile_child(db: Session, user: dict, child_id: Optional[int] = None) -> Child:
+    query = db.query(Child)
+    if user.get("role") == "parent":
+        query = query.filter(Child.parent_id == user["id"])
+    else:
+        query = query.filter(Child.user_id == user["id"])
+    if child_id is not None:
+        query = query.filter(Child.id == child_id)
+    child = query.order_by(Child.id.desc()).first()
+    if not child:
+        raise HTTPException(status_code=404, detail="Профили оила ёфт нашуд")
+    return child
+
+
+def _mobile_child_payload(db: Session, child: Child) -> dict:
+    ensure_default_child_apps(db, child.id)
+    today = date.today()
+    usage_rows = db.query(AppUsageDaily).filter(
+        AppUsageDaily.child_id == child.id,
+        AppUsageDaily.usage_date == today,
+    ).all()
+    usage_by_package = {row.package_name: row for row in usage_rows}
+    rules = db.query(AppRule).filter(AppRule.child_id == child.id).order_by(AppRule.app_name.asc()).all()
+    child_user = db.query(User).filter(User.id == child.user_id).first() if child.user_id else None
+    parent_user = db.query(User).filter(User.id == child.parent_id).first() if child.parent_id else None
+    return {
+        **child.to_dict(),
+        "firebase_uid": child_user.firebase_uid if child_user else None,
+        "parent_firebase_uid": parent_user.firebase_uid if parent_user else None,
+        "location": {
+            "latitude": child.latitude,
+            "longitude": child.longitude,
+            "accuracy": 0,
+            "battery_level": child.battery_level,
+            "online": bool(child.is_online),
+            "updated_at": child.location_updated_at.isoformat() if child.location_updated_at else None,
+        } if child.location_updated_at else None,
+        "apps": [_rule_payload(rule, usage_by_package.get(rule.package_name)) for rule in rules],
+    }
+
+
+def _mobile_snapshot(db: Session, user: dict) -> dict:
+    if user.get("role") == "parent":
+        children = db.query(Child).filter(Child.parent_id == user["id"]).order_by(Child.id.desc()).all()
+        return {
+            "status": "success",
+            "source": "nigoh-api",
+            "user": user,
+            "children": [_mobile_child_payload(db, child) for child in children],
+        }
+    child = _mobile_child(db, user)
+    return {
+        "status": "success",
+        "source": "nigoh-api",
+        "user": user,
+        "child": _mobile_child_payload(db, child),
+    }
+
 # --- Core Mobile Endpoints ---
 
 @router.get("/mobile")
@@ -97,9 +208,75 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "Навсозии v2.9.2: пайвасти QR ва коди 6-рақама, ҷараёни нави волидайну фарзанд, чат, location ва муҳофизати барномаҳо беҳтар шуданд.",
+        "release_notes": "v2.9.18: намуди содаи сафед, матни хонданӣ ва панели равшани оила.",
         "download_url": download_url
     }
+
+
+@router.get("/api/mobile/sync-bundle")
+def sync_dynamic_bundle(
+    request: Request,
+    db: Session = Depends(get_db),
+    client_bundle_version: Optional[int] = Query(default=None, ge=0),
+    native_version_code: Optional[int] = Query(default=None, ge=0),
+    bundle_header: Optional[int] = Header(default=None, alias="X-Client-Bundle-Version"),
+    native_header: Optional[int] = Header(default=None, alias="X-Native-Version-Code"),
+):
+    """Return only dynamic config deltas; native changes still require APK update."""
+    current_bundle = client_bundle_version
+    if current_bundle is None:
+        current_bundle = bundle_header if bundle_header is not None else 0
+    native_code = native_version_code
+    if native_code is None:
+        native_code = native_header if native_header is not None else settings.APP_VERSION_CODE
+
+    latest = ensure_initial_bundle(db)
+    if current_bundle >= latest.bundle_version:
+        return Response(status_code=status.HTTP_304_NOT_MODIFIED)
+
+    bundles = list_after(db, current_bundle)
+    if not bundles:
+        return JSONResponse({"has_update": False, "bundle_version": latest.bundle_version})
+
+    requires_full_reinstall = any(
+        bundle.patch_type == "full_bundle" or bundle.min_native_code > native_code
+        for bundle in bundles
+    )
+    if requires_full_reinstall:
+        return {
+            "has_update": True,
+            "bundle_version": latest.bundle_version,
+            "requires_full_reinstall": True,
+            "apk_url": f"{settings.OFFICIAL_DOMAIN}/download/android",
+            "native_version_code": native_code,
+        }
+
+    return {
+        "has_update": True,
+        "bundle_version": latest.bundle_version,
+        "requires_full_reinstall": False,
+        "patches": [bundle.to_dict() for bundle in bundles],
+        "download_url": f"{settings.OFFICIAL_DOMAIN}/download/android",
+    }
+
+
+@router.post("/api/mobile/bundles", status_code=status.HTTP_201_CREATED)
+def publish_dynamic_bundle(
+    payload: AppBundleCreateRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Publish a dynamic patch. Only an authenticated admin may publish it."""
+    user = require_auth(request)
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Танҳо администратор bundle нашр карда метавонад")
+    bundle = create_bundle(
+        db,
+        min_native_code=payload.min_native_code,
+        patch_type=payload.patch_type,
+        payload=payload.payload,
+    )
+    return bundle.to_dict()
 
 @router.post("/api/mobile/role-select")
 def set_user_role(payload: RoleSelectRequest, request: Request, db: Session = Depends(get_db)):
@@ -177,6 +354,383 @@ def pair_device(payload: PairRequest, request: Request, db: Session = Depends(ge
     if not child:
         raise HTTPException(status_code=404, detail="Рамзи пайвастшавӣ ёфт нашуд!")
     return {"status": "success", "child": child, "message": "Дастгоҳи фарзанд бомуваффақият пайваст карда шуд!"}
+
+
+# --- Firebase-independent mobile data plane ---
+#
+# Firebase Authentication remains the sign-in provider, but these endpoints
+# are the authoritative store for pairing, apps, location and chat. This
+# avoids making every feature depend on Realtime Database rules and listeners.
+
+@router.get("/api/mobile/v2/snapshot")
+def mobile_snapshot_v2(request: Request, db: Session = Depends(get_db)):
+    user = require_firebase_user(request, db)
+    return _mobile_snapshot(db, user)
+
+
+@router.post("/api/mobile/v2/pair/code")
+def create_mobile_pair_code_v2(
+    payload: MobilePairCodeRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_firebase_user(request, db)
+    if user.get("role") != "child":
+        raise HTTPException(status_code=403, detail="Коди пайвастшавиро танҳо телефони фарзанд месозад")
+    child = db.query(Child).filter(Child.user_id == user["id"]).first()
+    if child is None:
+        child = Child(
+            user_id=user["id"],
+            name=payload.child_name.strip(),
+            gender=payload.gender,
+            age=payload.age,
+            pairing_code="000000",
+            is_paired=0,
+            is_online=1,
+        )
+        db.add(child)
+        db.flush()
+    elif child.is_paired:
+        return {"status": "success", "child_id": child.id, "pairing_code": child.pairing_code, "paired": True}
+    existing = {row[0] for row in db.query(Child.pairing_code).all()}
+    for _ in range(20):
+        candidate = str(secrets.randbelow(900000) + 100000)
+        if candidate not in existing:
+            child.pairing_code = candidate
+            break
+    child.name = payload.child_name.strip() or child.name
+    child.gender = payload.gender
+    child.age = payload.age
+    child.is_paired = 0
+    ensure_default_child_apps(db, child.id)
+    db.commit()
+    db.refresh(child)
+    return {"status": "success", "child_id": child.id, "pairing_code": child.pairing_code, "paired": False}
+
+
+@router.post("/api/mobile/v2/pair")
+def pair_mobile_device_v2(
+    payload: MobilePairRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_firebase_user(request, db)
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо волидайн метавонад дастгоҳ пайваст кунад")
+    code = payload.pairing_code.strip().upper()
+    child = db.query(Child).filter(Child.pairing_code == code).first()
+    if child is None:
+        raise HTTPException(status_code=404, detail="Коди фарзанд ёфт нашуд")
+    if child.parent_id not in (None, user["id"]):
+        raise HTTPException(status_code=409, detail="Ин дастгоҳ ба оилаи дигар пайваст аст")
+    child.parent_id = user["id"]
+    child.is_paired = 1
+    ensure_default_child_apps(db, child.id)
+    db.commit()
+    db.refresh(child)
+    return {"status": "success", "child": _mobile_child_payload(db, child), "message": "Фарзанд пайваст шуд"}
+
+
+@router.post("/api/mobile/v2/link-existing")
+def link_existing_mobile_family_v2(
+    payload: MobileLinkExistingRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Bridge a family paired by the previous Firebase-only build."""
+    child_user = require_firebase_user(request, db)
+    if child_user.get("role") != "child":
+        raise HTTPException(status_code=403, detail="Танҳо ҳисоби фарзанд метавонад пайваст шавад")
+    child = _mobile_child(db, child_user)
+    parent = find_user_by_firebase_uid(db, payload.parent_firebase_uid)
+    if parent is None:
+        raise HTTPException(status_code=404, detail="Ҳисоби волидайн ҳоло дар сервер кушода нашудааст")
+    child.parent_id = parent.id
+    child.is_paired = 1
+    ensure_default_child_apps(db, child.id)
+    db.commit()
+    return {"status": "success", "child": _mobile_child_payload(db, child)}
+
+
+@router.post("/api/mobile/v2/children/{child_id}/apps/sync")
+def sync_mobile_apps_v2(
+    child_id: int,
+    payload: InstalledAppsSyncRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_firebase_user(request, db)
+    if user.get("role") != "child":
+        raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад рӯйхати барномаҳоро фиристад")
+    child = _mobile_child(db, user, child_id)
+    ensure_default_child_apps(db, child.id)
+    today = date.today()
+    for item in payload.apps:
+        rule = db.query(AppRule).filter(
+            AppRule.child_id == child.id,
+            AppRule.package_name == item.package_name,
+        ).first()
+        if rule is None:
+            rule = AppRule(
+                child_id=child.id,
+                package_name=item.package_name,
+                app_name=item.app_name or item.package_name,
+                daily_limit_minutes=0,
+            )
+            db.add(rule)
+        rule.app_name = item.app_name or rule.app_name
+        rule.app_icon = item.icon_base64 or rule.app_icon
+        rule.last_synced_at = datetime.now(timezone.utc)
+        usage = db.query(AppUsageDaily).filter(
+            AppUsageDaily.child_id == child.id,
+            AppUsageDaily.package_name == item.package_name,
+            AppUsageDaily.usage_date == today,
+        ).first()
+        if usage is None:
+            usage = AppUsageDaily(
+                child_id=child.id,
+                package_name=item.package_name,
+                usage_date=today,
+            )
+            db.add(usage)
+        usage.minutes = item.usage_minutes
+        usage.last_used_at = item.last_used_at
+    child.is_online = 1
+    db.commit()
+    return {"status": "success", "child": _mobile_child_payload(db, child)}
+
+
+@router.put("/api/mobile/v2/children/{child_id}/apps/{package_name}")
+def update_mobile_app_rule_v2(
+    child_id: int,
+    package_name: str,
+    payload: AppControlUpdateRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_firebase_user(request, db)
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо волидайн қоида гузошта метавонад")
+    child = _mobile_child(db, user, child_id)
+    rule = db.query(AppRule).filter(
+        AppRule.child_id == child.id,
+        AppRule.package_name == package_name,
+    ).first()
+    if rule is None:
+        raise HTTPException(status_code=404, detail="Барнома ҳоло аз телефони фарзанд синхрон нашудааст")
+    if payload.is_blocked is not None:
+        rule.is_blocked = 1 if payload.is_blocked else 0
+    if payload.daily_limit_minutes is not None:
+        rule.daily_limit_minutes = payload.daily_limit_minutes
+    if payload.schedule is not None:
+        rule.schedule_json = payload.schedule.model_dump_json()
+    rule.last_synced_at = datetime.now(timezone.utc)
+    db.commit()
+    return {"status": "success", "child": _mobile_child_payload(db, child)}
+
+
+@router.post("/api/mobile/v2/children/{child_id}/location")
+def update_mobile_location_v2(
+    child_id: int,
+    payload: MobileLocationRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_firebase_user(request, db)
+    if user.get("role") != "child":
+        raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад ҷойгиршавиро фиристад")
+    child = _mobile_child(db, user, child_id)
+    child.latitude = payload.latitude
+    child.longitude = payload.longitude
+    child.address = payload.address.strip() if payload.address else child.address
+    child.is_online = 1 if payload.is_online else 0
+    if payload.battery_level is not None:
+        child.battery_level = payload.battery_level
+    child.location_updated_at = datetime.now(timezone.utc)
+    db.commit()
+    return {"status": "success", "location": _mobile_child_payload(db, child)["location"]}
+
+
+@router.get("/api/mobile/v2/children/{child_id}/chat")
+def get_mobile_chat_v2(
+    child_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    after_id: int = Query(default=0, ge=0),
+):
+    user = require_firebase_user(request, db)
+    child = _mobile_child(db, user, child_id)
+    rows = db.query(ChatMessage).filter(
+        ChatMessage.child_id == child.id,
+        ChatMessage.id > after_id,
+    ).order_by(ChatMessage.id.asc()).limit(200).all()
+    return {"status": "success", "messages": [item.to_dict() for item in rows]}
+
+
+@router.post("/api/mobile/v2/children/{child_id}/chat")
+def send_mobile_chat_v2(
+    child_id: int,
+    payload: MobileChatRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_firebase_user(request, db)
+    child = _mobile_child(db, user, child_id)
+    role = "parent" if user.get("role") == "parent" else "child"
+    message = send_message(
+        db=db,
+        child_id=child.id,
+        sender_role=role,
+        sender_name=user.get("full_name") or role,
+        content=payload.content.strip(),
+        message_type=payload.message_type,
+        duration_sec=payload.duration_sec,
+    )
+    return {"status": "success", "message": message}
+
+
+# --- Application Control v1: parent rules + child telemetry ---
+
+@router.get("/api/v1/children/{child_id}/apps/")
+def list_child_apps_v1(child_id: int, request: Request, db: Session = Depends(get_db)):
+    user = require_auth(request)
+    child = _get_owned_child(db, user, child_id)
+    ensure_default_child_apps(db, child.id)
+    today = date.today()
+    usage_rows = db.query(AppUsageDaily).filter(
+        AppUsageDaily.child_id == child.id,
+        AppUsageDaily.usage_date == today,
+    ).all()
+    usage_by_package = {row.package_name: row for row in usage_rows}
+    rules = db.query(AppRule).filter(AppRule.child_id == child.id).order_by(AppRule.app_name.asc()).all()
+    return {
+        "status": "success",
+        "child": child.to_dict(),
+        "usage_date": today.isoformat(),
+        "apps": [_rule_payload(rule, usage_by_package.get(rule.package_name)) for rule in rules],
+    }
+
+
+@router.put("/api/v1/children/{child_id}/apps/{package_name}/limits")
+def update_child_app_limit_v1(
+    child_id: int,
+    package_name: str,
+    payload: AppControlUpdateRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_auth(request)
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо волидайн метавонанд қоида гузоранд")
+    child = _get_owned_child(db, user, child_id)
+    rule = db.query(AppRule).filter(
+        AppRule.child_id == child.id,
+        AppRule.package_name == package_name,
+    ).first()
+    if not rule:
+        raise HTTPException(status_code=404, detail="Барнома дар рӯйхати фарзанд ёфт нашуд")
+    if payload.is_blocked is not None:
+        rule.is_blocked = 1 if payload.is_blocked else 0
+    if payload.daily_limit_minutes is not None:
+        rule.daily_limit_minutes = payload.daily_limit_minutes
+    if payload.schedule is not None:
+        rule.schedule_json = payload.schedule.model_dump_json()
+    rule.last_synced_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(rule)
+    # This command is deliberately returned as a complete snapshot. An FCM/WebSocket
+    # adapter can forward it, while the existing Firebase listener remains compatible.
+    rules = db.query(AppRule).filter(AppRule.child_id == child.id).all()
+    return {
+        "status": "success",
+        "app": _rule_payload(rule),
+        "command": {
+            "type": "app_control_snapshot",
+            "child_id": child.id,
+            "issued_at": datetime.now(timezone.utc).isoformat(),
+            "rules": [
+                {
+                    "package_name": item.package_name,
+                    "is_blocked": bool(item.is_blocked),
+                    "daily_limit_minutes": item.daily_limit_minutes or 0,
+                    "schedule": json.loads(item.schedule_json) if item.schedule_json else None,
+                }
+                for item in rules
+            ],
+        },
+    }
+
+
+@router.post("/api/v1/children/{child_id}/apps/report-usage")
+def report_child_usage_v1(
+    child_id: int,
+    payload: UsageReportRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_auth(request)
+    if user.get("role") != "child":
+        raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад telemetry фиристад")
+    child = _get_owned_child(db, user, child_id)
+    usage_date = payload.usage_date or date.today()
+    changed = 0
+    for item in payload.apps:
+        row = db.query(AppUsageDaily).filter(
+            AppUsageDaily.child_id == child.id,
+            AppUsageDaily.package_name == item.package_name,
+            AppUsageDaily.usage_date == usage_date,
+        ).first()
+        if row is None:
+            row = AppUsageDaily(
+                child_id=child.id,
+                package_name=item.package_name,
+                usage_date=usage_date,
+            )
+            db.add(row)
+        row.minutes = item.minutes
+        row.last_used_at = item.last_used_at
+        changed += 1
+    db.commit()
+    return {"status": "success", "child_id": child.id, "usage_date": usage_date.isoformat(), "updated": changed}
+
+
+@router.post("/api/v1/children/{child_id}/requests/time-extension")
+def process_time_extension_v1(
+    child_id: int,
+    payload: TimeExtensionRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    user = require_auth(request)
+    child = _get_owned_child(db, user, child_id)
+    if user.get("role") == "child":
+        if payload.request_id is not None or payload.status is not None:
+            raise HTTPException(status_code=400, detail="Фарзанд танҳо дархости нав фиристода метавонад")
+        item = AppExtensionRequest(
+            child_id=child.id,
+            package_name=payload.package_name,
+            requested_minutes=payload.requested_minutes,
+            reason=payload.reason,
+            status="pending",
+        )
+        db.add(item)
+        db.commit()
+        db.refresh(item)
+        return {"status": "success", "request": item.to_dict()}
+    if payload.request_id is None or payload.status is None:
+        raise HTTPException(status_code=400, detail="request_id ва status барои коркарди волидайн лозим аст")
+    item = db.query(AppExtensionRequest).filter(
+        AppExtensionRequest.id == payload.request_id,
+        AppExtensionRequest.child_id == child.id,
+        AppExtensionRequest.status == "pending",
+    ).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Дархости интизорӣ ёфт нашуд")
+    item.status = payload.status
+    item.processed_at = datetime.now(timezone.utc)
+    item.processed_by = user["id"]
+    db.commit()
+    return {"status": "success", "request": item.to_dict()}
 
 @router.post("/api/mobile/apps/toggle")
 def toggle_child_app(payload: AppRuleToggleRequest, request: Request, db: Session = Depends(get_db)):

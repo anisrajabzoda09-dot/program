@@ -8,6 +8,10 @@ from app.models.app_rule import AppRule
 from app.models.review import Review
 from app.models.chat import ChatMessage
 from app.models.analytics import SiteAnalytics
+from app.models.app_usage import AppUsageDaily
+from app.models.extension_request import AppExtensionRequest
+from app.models.app_bundle import AppBundle
+from app.crud.crud_bundle import ensure_initial_bundle
 from app.core.security import hash_password
 
 def init_db():
@@ -26,6 +30,18 @@ def init_db():
             conn.commit()
         if "location_updated_at" not in cols:
             conn.execute(text("ALTER TABLE children ADD COLUMN location_updated_at DATETIME"))
+            conn.commit()
+        user_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(users)")).fetchall()]
+        if "firebase_uid" not in user_cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN firebase_uid TEXT"))
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_firebase_uid ON users (firebase_uid)"))
+            conn.commit()
+        app_rule_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(app_rules)" )).fetchall()]
+        if "schedule_json" not in app_rule_cols:
+            conn.execute(text("ALTER TABLE app_rules ADD COLUMN schedule_json TEXT"))
+            conn.commit()
+        if "last_synced_at" not in app_rule_cols:
+            conn.execute(text("ALTER TABLE app_rules ADD COLUMN last_synced_at DATETIME"))
             conn.commit()
 
     db = SessionLocal()
@@ -70,6 +86,10 @@ def init_db():
             ]
             db.add_all(demo_children)
             db.commit()
+
+        # 4. Seed the first dynamic configuration bundle. Later bundles are
+        # created through the admin-only mobile bundle endpoint.
+        ensure_initial_bundle(db)
 
     finally:
         db.close()

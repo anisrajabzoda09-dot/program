@@ -246,10 +246,10 @@
             </div>
             <div>
               <div class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                <span>Munis Rajabzoda</span>
+                <span>Ҳисоби Google</span>
                 <span class="text-[10px] font-extrabold px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">Ҳисоби ман</span>
               </div>
-              <div class="text-xs text-slate-500 font-medium">munisrajabzoda86@gmail.com</div>
+              <div class="text-xs text-slate-500 font-medium">Ҳисоби интихобшудаи Google</div>
             </div>
           </div>
           <div class="w-7 h-7 rounded-full bg-white border border-indigo-200 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition shadow-2xs">
@@ -361,9 +361,7 @@
     const customGoogleSubmitBtn = document.getElementById('customGoogleSubmitBtn');
 
     function openGoogleModal() {
-      if (googleAccountModal) {
-        googleAccountModal.classList.remove('hidden');
-      }
+      window.location.assign('/auth/google/login?next=%2F');
     }
 
     function closeGoogleModal() {
@@ -373,8 +371,10 @@
     }
 
     if (googleSignInBtn) {
-      googleSignInBtn.addEventListener('click', (e) => {
-        e.preventDefault();
+      googleSignInBtn.addEventListener('click', () => {
+        googleSignInBtn.disabled = true;
+        googleSignInBtn.classList.add('opacity-75');
+        googleSignInBtn.querySelector('span').textContent = 'Гузаштан ба Google...';
         openGoogleModal();
       });
     }
@@ -404,79 +404,11 @@
       });
     }
 
-    if (selectMunisGoogleBtn) {
-      selectMunisGoogleBtn.addEventListener('click', async () => {
-        selectMunisGoogleBtn.disabled = true;
-        selectMunisGoogleBtn.classList.add('opacity-75');
-        selectMunisGoogleBtn.innerHTML = `
-          <div class="flex items-center gap-3 py-1">
-            <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shadow-xs">
-              <i class="fa-solid fa-spinner fa-spin"></i>
-            </div>
-            <div>
-              <div class="text-sm font-black text-slate-900">Munis Rajabzoda</div>
-              <div class="text-xs text-indigo-600 font-bold">Тасдиқ ва воридшавӣ...</div>
-            </div>
-          </div>
-        `;
-        await executeGoogleAuth(
-          "Munis Rajabzoda",
-          "munisrajabzoda86@gmail.com",
-          "https://lh3.googleusercontent.com/a/default-user",
-          "google_munis_1040006931222",
-          "google_verified_token"
-        );
-      });
-    }
-
-    if (customGoogleForm) {
-      customGoogleForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const customEmail = document.getElementById('customGoogleEmail').value.trim();
-        const customName = document.getElementById('customGoogleName').value.trim() || customEmail.split('@')[0];
-        if (!customEmail) return;
-
-        customGoogleSubmitBtn.disabled = true;
-        customGoogleSubmitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Ворид шуда истодааст...</span>';
-
-        await executeGoogleAuth(
-          customName,
-          customEmail,
-          "https://lh3.googleusercontent.com/a/default-user",
-          "google_" + Math.random().toString(36).substring(2, 10),
-          "google_custom_token"
-        );
-      });
-    }
-
-
-    // Execute Google Authentication with backend
-    async function executeGoogleAuth(fullName, email, avatar, googleId, accessToken) {
-      showAlert("Хуш омадед! Ҳисоби Google тасдиқ шуд, ворид шуда истодаед...", false);
-      try {
-        const res = await fetch('/api/auth/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            full_name: fullName,
-            email: email,
-            avatar: avatar || 'https://lh3.googleusercontent.com/a/default-user',
-            google_id: googleId,
-            token: accessToken
-          })
-        });
-        const data = await res.json();
-        if (res.ok && data.status === 'success') {
-          showAlert("Бомуваффақият ворид шудед! Ба бахши сомона гузашта истодаед...", false);
-          setTimeout(() => {
-            window.location.href = data.redirect || '/#download';
-          }, 500);
-        } else {
-          showAlert(data.detail || "Хатогӣ ҳангоми воридшавӣ бо Google", true);
-        }
-      } catch (err) {
-        showAlert("Хатогии шабака. Лутфан дубора санҷед.", true);
-      }
+    const oauthStatus = new URLSearchParams(window.location.search).get('google');
+    if (oauthStatus === 'not_configured') {
+      showAlert('Google Sign-In ҳоло дар сервер танзим нашудааст. Администратор бояд credential-ҳоро илова кунад.', true);
+    } else if (oauthStatus === 'cancelled') {
+      showAlert('Воридшавӣ тавассути Google бекор карда шуд.', true);
     }
 
     // Form Submissions

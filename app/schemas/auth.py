@@ -11,8 +11,4 @@ class UserLogin(BaseModel):
     password: str = Field(..., min_length=1, max_length=128, description="Password")
 
 class GoogleAuthRequest(BaseModel):
-    email: str = Field(..., min_length=3)
-    full_name: Optional[str] = None
-    avatar: Optional[str] = "https://lh3.googleusercontent.com/a/default-user"
-    token: Optional[str] = None
-    google_id: Optional[str] = None
+    token: str = Field(..., min_length=20, description="Google OAuth access token")

@@ -53,19 +53,12 @@ def run_tests():
         assert cookie is not None
     print("   Бақайдгирӣ муваффақона анҷом ёфт ва ба /#download равона кард!")
 
-    print("4. Санҷиши воридшавӣ тавассути Google (POST /api/auth/google)...")
-    data = json.dumps({
-        "full_name": "Падар аз Google",
-        "email": f"padar_google_{ts}@gmail.com",
-        "avatar": "https://lh3.googleusercontent.com/a/default"
-    }).encode("utf-8")
-    req = urllib.request.Request(f"{base}/api/auth/google", data=data, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req) as resp:
+    print("4. Санҷиши тугмаи воқеии Google OAuth...")
+    with urllib.request.urlopen(f"{base}/auth") as resp:
         assert resp.status == 200
-        res_json = json.loads(resp.read().decode("utf-8"))
-        assert res_json["status"] == "success"
-        assert res_json["redirect"] == "/#download"
-    print("   Google Sign-In дуруст кор кард ва ба /#download равона намуд!")
+        html = resp.read().decode("utf-8")
+        assert "/auth/google/login" in html
+    print("   Google Sign-In ба OAuth endpoint пайваст аст!")
 
     print("5. Санҷиши воридшавӣ бо Email ва Parol (POST /api/auth/login)...")
     login_data = json.dumps({
