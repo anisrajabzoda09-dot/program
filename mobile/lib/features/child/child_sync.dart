@@ -256,20 +256,31 @@ class ChildSync extends ChangeNotifier {
     await pushRules(
       paired ? child.apps : const [],
       bedtime: paired ? child.bedtime : const Bedtime(),
+      study: paired ? child.study : const StudyMode(),
     );
   }
 
   /// Sends the parent's rules to the native blocker. Bonus time, «always
-  /// allowed» and an active [bedtime] are folded in by [ChildApp.toNativeRule].
+  /// allowed», an active [bedtime] and active [study] hours are folded in by
+  /// [ChildApp.toNativeRule].
   Future<void> pushRules(
     List<ChildApp> apps, {
     Bedtime bedtime = const Bedtime(),
+    StudyMode study = const StudyMode(),
   }) async {
-    final bedtimeActive = bedtime.activeAt(now());
+    final at = now();
+    final bedtimeActive = bedtime.activeAt(at);
+    final studyActive = study.activeAt(at);
+    _pushedWindows = (bedtimeActive, studyActive);
     try {
       await device.invokeMethod<void>('setAppControlRules', {
         'rules': apps
-            .map((a) => a.toNativeRule(bedtimeActive: bedtimeActive))
+            .map(
+              (a) => a.toNativeRule(
+                bedtimeActive: bedtimeActive,
+                studyActive: studyActive,
+              ),
+            )
             .toList(),
       });
       rulesCount = apps.length;
@@ -280,6 +291,21 @@ class ChildSync extends ChangeNotifier {
     } catch (e) {
       _setError('rules', 'Қоидаҳо дар телефон татбиқ нашуданд: ${_text(e)}');
     }
+  }
+
+  /// (bedtimeActive, studyActive) of the last push.
+  (bool, bool)? _pushedWindows;
+
+  /// Without internet the snapshot fails, but bedtime / study hours must
+  /// still start and end on time: re-push the last known rules when a
+  /// window flipped since the last push.
+  Future<void> _repushIfWindowChanged() async {
+    final c = child;
+    if (c == null || !paired) return;
+    final at = now();
+    final windows = (c.bedtime.activeAt(at), c.study.activeAt(at));
+    if (windows == _pushedWindows) return;
+    await pushRules(c.apps, bedtime: c.bedtime, study: c.study);
   }
 
   // ---------- Periodic step ----------
@@ -308,6 +334,7 @@ class ChildSync extends ChangeNotifier {
         _clearError('child');
       } catch (e) {
         _setError('child', e);
+        await _repushIfWindowChanged();
       }
     }
     await refreshProtection();
@@ -563,9 +590,8 @@ class ChildSync extends ChangeNotifier {
               accuracy: LocationAccuracy.medium,
               timeLimit: locationFixTimeLimit,
             );
-      final p = await Geolocator.getCurrentPosition(
-        locationSettings: settings,
-      ).timeout(locationFixTimeLimit + const Duration(seconds: 5));
+      final p = await Geolocator.getCurrentPosition(locationSettings: settings)
+          .timeout(locationFixTimeLimit + const Duration(seconds: 5));
       _lastPosition = p;
       _lastPositionSent = false;
       await _post(p);
@@ -601,9 +627,8 @@ class ChildSync extends ChangeNotifier {
 
   /// Posts [p] unless another post is running (then waits for that one).
   Future<void> _post(Position p) {
-    return _locationInFlight ??= _postLocation(p).whenComplete(
-      () => _locationInFlight = null,
-    );
+    return _locationInFlight ??= _postLocation(p)
+        .whenComplete(() => _locationInFlight = null);
   }
 
   /// Battery level 0..100 from the phone, or null when unknown.
