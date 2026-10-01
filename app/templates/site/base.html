@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}NIGOH Family{% endblock %}</title>
+  <meta name="description" content="{% block description %}NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.{% endblock %}">
+  <link rel="canonical" href="https://nigohfamily.qobus.tj{{ page_path }}">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="google-site-verification" content="ee0fc42c18bef62a">
+  <meta name="theme-color" content="#ffffff">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NIGOH Family">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.description() }}">
+  <meta property="og:url" content="https://nigohfamily.qobus.tj{{ page_path }}">
+  <meta property="og:image" content="https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png">
+  <meta property="og:locale" content="tg_TJ">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" type="image/png" href="/static/images/nigoh_logo.png">
+  <link rel="apple-touch-icon" href="/static/images/nigoh_family_icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/site.css?v={{ app_version }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="wrap nav" aria-label="Асосӣ">
+      <a class="brand" href="/">
+        <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
+        <span>NIGOH Family</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false"><span></span></button>
+      <ul class="nav-links">
+        {% for href, key, label in [
+          ('/features', 'features', 'Имкониятҳо'),
+          ('/how-it-works', 'how', 'Чӣ тавр кор мекунад'),
+          ('/security', 'security', 'Амният'),
+          ('/faq', 'faq', 'Саволҳо'),
+        ] %}
+        <li><a href="{{ href }}"{% if active == key %} aria-current="page"{% endif %}>{{ label }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="nav-actions">
+        {% if user %}
+          {% if user.role == 'admin' %}<a class="btn btn-ghost btn-sm" href="/admin">Панел</a>{% endif %}
+          <a class="btn btn-ghost btn-sm" href="/logout">Баромад</a>
+        {% else %}
+          <a class="btn btn-ghost btn-sm" href="/auth">Ворид шудан</a>
+        {% endif %}
+        <a class="btn btn-primary btn-sm" href="/get">Боргирӣ</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="/">
+            <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
+            <span>NIGOH Family</span>
+          </a>
+          <p class="muted" style="margin-top:14px;max-width:320px">Барномаи назорати волидайн, ки дар Тоҷикистон сохта шудааст. Барои оилаҳое, ки ба амнияти фарзанд аҳамият медиҳанд.</p>
+        </div>
+        <div>
+          <h4>Маҳсулот</h4>
+          <ul>
+            <li><a href="/features">Имкониятҳо</a></li>
+            <li><a href="/how-it-works">Чӣ тавр кор мекунад</a></li>
+            <li><a href="/get">Боргирии Android</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Дастгирӣ</h4>
+          <ul>
+            <li><a href="/faq">Саволу ҷавоб</a></li>
+            <li><a href="/security">Амният ва махфият</a></li>
+            <li><a href="/auth">Ҳисоби волидайн</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Насб</h4>
+          <ul>
+            <li><a href="/download/android">APK v{{ app_version }}</a></li>
+            <li><a href="/get#qr">Рамзи QR</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 NIGOH Family</span>
+        <span>nigohfamily.qobus.tj</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var header = document.querySelector('.site-header');
+      var toggle = document.querySelector('.nav-toggle');
+      if (!header || !toggle) return;
+      toggle.addEventListener('click', function () {
+        var open = header.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
