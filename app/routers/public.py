@@ -145,6 +145,12 @@ def landing_page(request: Request, db: Session = Depends(get_db)):
     return _site_page(request, "home", "home", reviews=reviews)
 
 
+@router.head("/features", include_in_schema=False)
+@router.get("/features", response_class=HTMLResponse)
+def features_page(request: Request):
+    return _site_page(request, "features", "features")
+
+
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
 @router.get("/3d", response_class=HTMLResponse)

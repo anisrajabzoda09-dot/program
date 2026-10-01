@@ -1,0 +1,214 @@
+{% extends "site/base.html" %}
+
+{% block title %}Имкониятҳо — NIGOH Family{% endblock %}
+{% block description %}Ҳамаи имкониятҳои NIGOH Family: назорати барномаҳо ва вақти экран, ҷойгиршавии фарзанд дар харита, чати оилавӣ, ҳимоя бо PIN ва насби осон бо рамзи QR.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Имкониятҳо</span>
+    <h1>Ҳама чизе, ки барои<br>оромии волидайн лозим аст</h1>
+    <p class="lead">Як барнома барои ду телефон. Шумо мебинед, ки фарзанд кадом барномаҳоро истифода мебарад, дар куҷост ва метавонед бо ӯ дар тамос бошед. Қоидаҳоро худатон мегузоред.</p>
+    <div class="btn-row" style="margin-top:28px;gap:8px">
+      <a class="tag" href="#apps">Назорати барномаҳо</a>
+      <a class="tag" href="#location">Ҷойгиршавӣ</a>
+      <a class="tag" href="#chat">Муошират</a>
+      <a class="tag" href="#protection">Ҳимоя</a>
+      <a class="tag" href="#setup">Насб ва навсозӣ</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="apps" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Назорати барномаҳо</span>
+      <h2>Ҳар барнома зери назари шумо</h2>
+      <p class="lead" style="margin-top:16px">Рӯйхати пурраи барномаҳои телефони фарзанд бо нишона ва вақти истифода барои имрӯз. Барои ҳар кадом қоидаи алоҳида гузоштан мумкин аст.</p>
+      <ul class="feature-list">
+        <li>Ҳар барномаро бо як калид бастан ё кушодан мумкин аст.</li>
+        <li>Маҳдудияти рӯзона: 15 дақиқа, 1 соат, 1,5 соат, 2 соат, 4 соат ё бе маҳдудият.</li>
+        <li>«Вақти дарс»: рӯзҳои ҳафта ва соатҳоро интихоб кунед, масалан аз душанбе то ҷумъа, 16:00–18:00. Дар ин вақт барнома баста мешавад.</li>
+        <li>«Ҳолати танаффус»: ҳамаи барномаҳо якбора баста мешаванд, масалан ҳангоми хӯроки шом ё дарс.</li>
+        <li>Вақти экран дар як нигоҳ: истифодаи умумии имрӯз, вақти боқимонда ва шумораи барномаҳои басташуда.</li>
+        <li>Барномаҳои нав, ки фарзанд насб мекунад, худкор дар рӯйхат пайдо мешаванд.</li>
+      </ul>
+    </div>
+    <div class="screen">
+      <img src="/static/images/hero_phone_clean.png" width="420" height="578" alt="Экрани асосии волидайн: корти фарзанд, харита, вақти экран ва барномаҳои басташуда">
+    </div>
+  </div>
+</section>
+
+<section class="section soft" id="location" style="scroll-margin-top:64px">
+  <div class="wrap split reverse">
+    <div>
+      <span class="eyebrow">Ҷойгиршавӣ</span>
+      <h2>Медонед, ки фарзанд дар куҷост</h2>
+      <p class="lead" style="margin-top:16px">Ҷойгиршавии фарзанд дар харита нишон дода мешавад. Барои дидан ба ӯ занг задан ё паём навиштан лозим нест.</p>
+      <ul class="feature-list">
+        <li>Харитаи зинда дар асоси OpenStreetMap.</li>
+        <li>Вақти навсозии охирин дар паҳлӯи харита навишта мешавад.</li>
+        <li>Ҷойгиршавӣ худкор нав мешавад, бе ягон амали фарзанд.</li>
+      </ul>
+    </div>
+    <div class="screen">
+      <img src="/static/images/mockup_map.png" width="335" height="210" alt="Харита бо ҷойгиршавии фарзанд">
+    </div>
+  </div>
+</section>
+
+<section class="section" id="chat" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Муошират</span>
+      <h2>Чати оилавӣ дар худи барнома</h2>
+      <p class="lead" style="margin-top:16px">Волидайн ва фарзанд метавонанд бевосита дар NIGOH Family бо ҳам гап зананд. Барномаи дигар лозим нест.</p>
+      <ul class="feature-list">
+        <li>Паёмҳои матнӣ байни волидайн ва фарзанд.</li>
+        <li>Паёмҳои овозӣ, вақте ки навиштан роҳат нест.</li>
+        <li>Экрани занг дар дохили барнома.</li>
+      </ul>
+    </div>
+    <div class="grid-2">
+      <div class="card flat">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>Паёмҳо</h4>
+        <p class="small">Кӯтоҳ ва фаврӣ, танҳо дар доираи оила.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </div>
+        <h4>Паёми овозӣ</h4>
+        <p class="small">Тугмаро пахш кунед ва гап занед.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <h4>Экрани занг</h4>
+        <p class="small">Занг ба фарзанд аз худи барнома.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>Танҳо оила</h4>
+        <p class="small">Чат танҳо байни волидайн ва фарзанди пайвастшуда.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft" id="protection" style="scroll-margin-top:64px">
+  <div class="wrap split reverse">
+    <div>
+      <span class="eyebrow">Ҳимоя</span>
+      <h2>Қоидаҳо кор мекунанд, ҳатто бе интернет</h2>
+      <p class="lead" style="margin-top:16px">Вақте ки фарзанд барномаи басташударо мекушояд, экрани NIGOH онро мепӯшонад. Қоидаҳо дар худи телефон нигоҳ дошта мешаванд.</p>
+      <ul class="feature-list">
+        <li>Экрани манъ дар телефони фарзанд ба ҷои барномаи басташуда.</li>
+        <li>Бе интернет ҳам кор мекунад: қоидаҳо дар телефон сабт шудаанд.</li>
+        <li>Ҳангоми пайваст будан, қоидаҳо тақрибан ҳар 15 сония аз сервер нав мешаванд.</li>
+        <li>PIN-и волидайн тағйири танзимот ва хориҷ кардани фарзандро ҳимоя мекунад.</li>
+        <li>Бе PIN фарзанд барномаро аз телефон хориҷ карда наметавонад.</li>
+      </ul>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        </div>
+        <h4>Экрани манъ</h4>
+        <p class="small">Барномаи басташуда кушода намешавад.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </div>
+        <h4>Ҳар ~15 сония</h4>
+        <p class="small">Тағйироти шумо зуд ба телефони фарзанд мерасад.</p>
+      </div>
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h4>PIN-и волидайн</h4>
+        <p class="small">Танзимоти муҳим танҳо бо рамзи шумо.</p>
+      </div>
+      <div class="card">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h4>Ҳимоя аз хориҷкунӣ</h4>
+        <p class="small">Тавассути Device Admin-и Android.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="setup" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Насб ва навсозӣ</span>
+      <h2>Насб дар чанд дақиқа</h2>
+      <p class="lead" style="margin-top:16px">Барнома дар ҳар қадам роҳ нишон медиҳад. Шумо лозим нест, ки танзимоти Android-ро худатон ҷустуҷӯ кунед.</p>
+      <ul class="feature-list">
+        <li>Маркази иҷозатҳо дар телефони фарзанд қадам ба қадам мефаҳмонад, ки ҳар иҷозат барои чӣ лозим аст.</li>
+        <li>Пайвастшавӣ бо рамзи QR ё рамзи 6-рақама, камтар аз як дақиқа.</li>
+        <li>Як волид метавонад якчанд фарзандро илова кунад.</li>
+        <li>Барнома версияи навро худаш меёбад ва боргириро пешниҳод мекунад.</li>
+        <li>Намуди равшан ва торик.</li>
+      </ul>
+    </div>
+    <div class="grid-2">
+      <div class="card flat">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+        </div>
+        <h4>Рамзи QR</h4>
+        <p class="small">Камераро ба экрани фарзанд равона кунед.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h4>Маркази иҷозатҳо</h4>
+        <p class="small">Ҳар иҷозат бо шарҳи кӯтоҳ.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h4>Навсозии худкор</h4>
+        <p class="small">Версияи нав худаш пешниҳод мешавад.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <h4>Равшан ва торик</h4>
+        <p class="small">Намуди қулай барои рӯз ва шаб.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Барномаро имрӯз насб кунед</h2>
+        <p>Боргирӣ ройгон аст. Ҳамон як APK барои телефони волидайн ва фарзанд. Версияи {{ app_version }}.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/get">Боргирӣ</a>
+        <a class="btn btn-ghost" href="/how-it-works">Чӣ тавр кор мекунад</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
