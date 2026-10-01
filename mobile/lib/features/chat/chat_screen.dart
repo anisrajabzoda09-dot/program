@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/api.dart';
 import '../../core/models.dart';
 import '../../core/session.dart';
+import '../../ui/avatar.dart';
 import '../../ui/widgets.dart';
 import '../call/call_screen.dart';
 
@@ -23,9 +24,17 @@ const chatQuickReplies = [
 /// Polls the server every 4 seconds while visible and marks the other side's
 /// messages as read (read receipts).
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key, required this.childId, required this.title});
+  const ChatScreen({
+    super.key,
+    required this.childId,
+    required this.title,
+    this.avatarPath,
+  });
   final int childId;
   final String title;
+
+  /// Server path of the other side's photo (shown in the app bar).
+  final String? avatarPath;
 
   static const pollInterval = Duration(seconds: 4);
 
@@ -241,6 +250,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     context,
     childId: widget.childId,
     peerName: widget.title,
+    peerAvatarUrl: _api.fileUrl(widget.avatarPath),
   );
 
   @override
@@ -248,7 +258,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final myRole = SessionScope.of(context).role ?? '';
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            AvatarView(
+              name: widget.title,
+              url: _api.fileUrl(widget.avatarPath),
+              size: 36,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                widget.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Занг',

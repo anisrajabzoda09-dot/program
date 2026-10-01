@@ -14,11 +14,15 @@ class CallScreen extends StatefulWidget {
     super.key,
     required this.controller,
     required this.peerName,
+    this.peerAvatarUrl,
     this.closeDelay = const Duration(milliseconds: 1500),
   });
 
   final CallController controller;
   final String peerName;
+
+  /// Absolute URL of the other side's photo (letter shown if null/failing).
+  final String? peerAvatarUrl;
 
   /// How long the end reason stays visible before the screen closes.
   final Duration closeDelay;
@@ -43,12 +47,18 @@ class CallScreen extends StatefulWidget {
     BuildContext context, {
     required int childId,
     required String peerName,
+    String? peerAvatarUrl,
   }) async {
     if (_open) return;
     final api = SessionScope.read(context).api;
     final controller = _controller(api);
     unawaited(controller.startOutgoing(childId));
-    await _push(Navigator.of(context), controller, peerName);
+    await _push(
+      Navigator.of(context),
+      controller,
+      peerName,
+      peerAvatarUrl: peerAvatarUrl,
+    );
   }
 
   /// Shows an incoming call; with [acceptNow] it is answered immediately
@@ -70,15 +80,19 @@ class CallScreen extends StatefulWidget {
   static Future<void> _push(
     NavigatorState navigator,
     CallController controller,
-    String peerName,
-  ) async {
+    String peerName, {
+    String? peerAvatarUrl,
+  }) async {
     _open = true;
     try {
       await navigator.push(
         PageRouteBuilder<void>(
           transitionDuration: const Duration(milliseconds: 250),
-          pageBuilder: (_, _, _) =>
-              CallScreen(controller: controller, peerName: peerName),
+          pageBuilder: (_, _, _) => CallScreen(
+            controller: controller,
+            peerName: peerName,
+            peerAvatarUrl: peerAvatarUrl,
+          ),
           transitionsBuilder: (_, animation, _, child) =>
               FadeTransition(opacity: animation, child: child),
         ),
@@ -205,7 +219,7 @@ class _CallScreenState extends State<CallScreen>
   Widget _content(String name, String letter) => Column(
     children: [
       const SizedBox(height: 48),
-      _Avatar(letter: letter, pulse: _pulse),
+      _Avatar(letter: letter, url: widget.peerAvatarUrl, pulse: _pulse),
       const SizedBox(height: 24),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -302,11 +316,21 @@ String formatCallDuration(Duration d) {
 }
 
 class _Avatar extends StatelessWidget {
-  const _Avatar({required this.letter, required this.pulse});
+  const _Avatar({required this.letter, required this.pulse, this.url});
   final String letter;
+  final String? url;
   final AnimationController pulse;
 
   static const _size = 128.0;
+
+  Widget get letterText => Text(
+    letter,
+    style: const TextStyle(
+      color: Colors.white,
+      fontSize: 52,
+      fontWeight: FontWeight.w600,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -328,6 +352,7 @@ class _Avatar extends StatelessWidget {
           width: _size,
           height: _size,
           alignment: Alignment.center,
+          clipBehavior: Clip.antiAlias,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
@@ -336,14 +361,18 @@ class _Avatar extends StatelessWidget {
               colors: [Color(0xFF5B8CFF), Color(0xFF2F55D4)],
             ),
           ),
-          child: Text(
-            letter,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 52,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: url == null || url!.isEmpty
+              ? letterText
+              : Image.network(
+                  url!,
+                  width: _size,
+                  height: _size,
+                  fit: BoxFit.cover,
+                  // Letter until the first frame arrives (and on errors).
+                  frameBuilder: (_, child, frame, sync) =>
+                      sync || frame != null ? child : letterText,
+                  errorBuilder: (_, _, _) => letterText,
+                ),
         ),
       ),
     );
