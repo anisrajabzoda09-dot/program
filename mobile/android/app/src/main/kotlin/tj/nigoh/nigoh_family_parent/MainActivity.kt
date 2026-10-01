@@ -44,6 +44,8 @@ class MainActivity : FlutterActivity() {
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var packageEventSink: EventChannel.EventSink? = null
     private var packageReceiverRegistered = false
+    private var notifyChannel: MethodChannel? = null
+    private var pendingLaunch: Map<String, Any?>? = null
     private val packageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -56,6 +58,7 @@ class MainActivity : FlutterActivity() {
     }
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        configureNotifyChannel(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channelName)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -443,6 +446,123 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         if (isBlockServiceEnabled()) startProtectionService()
+        if (savedInstanceState == null) handleNotifyIntent(intent, deliver = false)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleNotifyIntent(intent, deliver = true)
+    }
+
+    // ------------------------------------------------ notifications bridge
+
+    private fun configureNotifyChannel(flutterEngine: FlutterEngine) {
+        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tj.nigoh/notify")
+        notifyChannel = channel
+        channel.setMethodCallHandler { call, result ->
+            try {
+                when (call.method) {
+                    "start" -> {
+                        NotifyService.start(this, call.argument<String>("baseUrl"))
+                        result.success(true)
+                    }
+                    "stop" -> {
+                        NotifyService.stop(this)
+                        result.success(true)
+                    }
+                    "permissionStatus" -> result.success(notifyPermissionStatus())
+                    "openFullScreenSettings" -> {
+                        result.success(openFullScreenSettings())
+                    }
+                    "getLaunchAction" -> {
+                        result.success(pendingLaunch)
+                        pendingLaunch = null
+                    }
+                    "stopRinging" -> {
+                        NotifyService.instance?.stopRinging()
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            } catch (e: Exception) {
+                result.error("notify_failed", e.message ?: "Огоҳиномаҳо кор накарданд.", null)
+            }
+        }
+    }
+
+    private fun notifyPermissionStatus(): Map<String, Boolean> {
+        val enabled = androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled()
+        val fullScreen = if (Build.VERSION.SDK_INT >= 34) {
+            getSystemService(android.app.NotificationManager::class.java).canUseFullScreenIntent()
+        } else {
+            true
+        }
+        return mapOf("notifications" to enabled, "fullScreen" to fullScreen)
+    }
+
+    private fun openFullScreenSettings(): Boolean {
+        val intent = if (Build.VERSION.SDK_INT >= 34) {
+            Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:$packageName"))
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+        }
+        return try {
+            startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            true
+        } catch (_: Exception) {
+            startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            true
+        }
+    }
+
+    /** Reads NotifyService launch extras; delivers to Dart or keeps them for getLaunchAction. */
+    private fun handleNotifyIntent(intent: Intent?, deliver: Boolean) {
+        val kind = intent?.getStringExtra(NotifyService.EXTRA_KIND) ?: return
+        val childId = intent.getIntExtra(NotifyService.EXTRA_CHILD_ID, -1)
+        val callId = intent.getIntExtra(NotifyService.EXTRA_CALL_ID, -1)
+        val accept = intent.getBooleanExtra(NotifyService.EXTRA_ACCEPT, false)
+        val fullScreen = intent.getBooleanExtra(NotifyService.EXTRA_FULL_SCREEN, false)
+        val action = mapOf<String, Any?>(
+            "kind" to kind,
+            "childId" to childId.takeIf { it >= 0 },
+            "callId" to callId.takeIf { it >= 0 },
+            "peerName" to intent.getStringExtra(NotifyService.EXTRA_PEER_NAME),
+            "acceptCall" to accept,
+            "fullScreen" to fullScreen,
+        )
+        // Consume the extras so a recreate/rotation does not replay them.
+        intent.removeExtra(NotifyService.EXTRA_KIND)
+
+        if (kind == "call" || kind == "sos") {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+                setTurnScreenOn(true)
+            } else {
+                @Suppress("DEPRECATION")
+                window.addFlags(
+                    android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                        android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                )
+            }
+        }
+        // Opening the SOS card (not the automatic full-screen launch) silences the alarm.
+        if (kind == "sos" && !fullScreen) NotifyService.instance?.stopAlarm()
+        // «Қабул»: the call screen takes over, stop the ringtone and the card.
+        if (kind == "call" && accept) NotifyService.instance?.stopCallRinging(callId.takeIf { it >= 0 })
+
+        val channel = notifyChannel
+        if (deliver && channel != null) {
+            channel.invokeMethod("launch", action)
+        } else {
+            pendingLaunch = action
+        }
     }
 
     override fun onResume() {
