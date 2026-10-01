@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../core/models.dart';
+import '../../ui/avatar.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import '../../core/api.dart';
@@ -258,75 +259,98 @@ class _MapScreenState extends State<MapScreen> {
                   ],
                   Marker(
                     point: point,
-                    width: 64,
-                    height: 64,
-                    child: _ChildMarker(child: child),
+                    width: 58,
+                    height: 58,
+                    child: _ChildMarker(
+                      child: child,
+                      url: widget.controller.api.fileUrl(child.childAvatar),
+                    ),
                   ),
-                ],
-              ),
-              const RichAttributionWidget(
-                attributions: [
-                  TextSourceAttribution('© OpenStreetMap contributors'),
                 ],
               ),
             ],
           ),
           Positioned(
-            left: 12,
-            right: 12,
-            top: 12,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _MapChip(
-                    key: const ValueKey('history-toggle'),
-                    icon: Icons.timeline_rounded,
-                    label: 'Таърихи 24 соат',
-                    selected: _showHistory,
-                    busy: _historyLoading,
-                    onTap: () => _toggleHistory(child),
-                  ),
-                  if (_showHistory && history.isNotEmpty) ...[
+            left: 0,
+            right: 0,
+            top: 0,
+            child: SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                child: Row(
+                  children: [
+                    _MapChip(
+                      key: const ValueKey('history-toggle'),
+                      icon: Icons.timeline_rounded,
+                      label: 'Таърихи 24 соат',
+                      selected: _showHistory,
+                      busy: _historyLoading,
+                      onTap: () => _toggleHistory(child),
+                    ),
+                    if (_showHistory && history.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      _MapChip(
+                        icon: Icons.list_rounded,
+                        label: 'Нуқтаҳо (${history.length})',
+                        onTap: () => _openTimeline(history),
+                      ),
+                    ],
                     const SizedBox(width: 8),
                     _MapChip(
-                      icon: Icons.list_rounded,
-                      label: 'Нуқтаҳо (${history.length})',
-                      onTap: () => _openTimeline(history),
+                      key: const ValueKey('places-open'),
+                      icon: Icons.shield_outlined,
+                      label: places.isEmpty
+                          ? 'Ҷойҳои бехатар'
+                          : 'Ҷойҳо (${places.length})',
+                      onTap: () => _openPlaces(child),
                     ),
                   ],
-                  const SizedBox(width: 8),
-                  _MapChip(
-                    key: const ValueKey('places-open'),
-                    icon: Icons.shield_outlined,
-                    label: places.isEmpty
-                        ? 'Ҷойҳои бехатар'
-                        : 'Ҷойҳо (${places.length})',
-                    onTap: () => _openPlaces(child),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
           Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
-            child: _LocationCard(
-              child: child,
-              location: location,
-              refreshing: _refreshing,
-              onRefresh: _refresh,
-              placeStatus: status,
-              inSafePlace:
-                  status != null &&
-                  placeContaining(
-                        location.latitude,
-                        location.longitude,
-                        places,
-                      ) !=
-                      null,
-              error: _historyError ?? widget.controller.placesError,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              top: false,
+              minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Center(
+                // Stays compact on tablets / landscape.
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 520),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const _OsmCredit(),
+                      const SizedBox(height: 6),
+                      _LocationCard(
+                        child: child,
+                        avatarUrl: widget.controller.api.fileUrl(
+                          child.childAvatar,
+                        ),
+                        location: location,
+                        refreshing: _refreshing,
+                        onRefresh: _refresh,
+                        placeStatus: status,
+                        inSafePlace:
+                            status != null &&
+                            placeContaining(
+                                  location.latitude,
+                                  location.longitude,
+                                  places,
+                                ) !=
+                                null,
+                        error: _historyError ?? widget.controller.placesError,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -336,38 +360,42 @@ class _MapScreenState extends State<MapScreen> {
 }
 
 class _ChildMarker extends StatelessWidget {
-  const _ChildMarker({required this.child});
+  const _ChildMarker({required this.child, this.url});
   final FamilyChild child;
+  final String? url;
 
   @override
   Widget build(BuildContext context) {
     final color = child.online ? NigohDesign.blue : NigohDesign.amber;
     return Container(
+      key: const ValueKey('child-marker'),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 4),
-        boxShadow: const [BoxShadow(blurRadius: 14, color: Colors.black26)],
+        boxShadow: const [BoxShadow(blurRadius: 12, color: Colors.black26)],
       ),
-      alignment: Alignment.center,
-      child: Text(
-        child.name.isEmpty ? '?' : child.name.characters.first.toUpperCase(),
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-        ),
+      child: AvatarView(
+        name: child.name,
+        url: url,
+        size: 52,
+        color: color,
+        border: Border.all(color: Colors.white, width: 2),
       ),
     );
   }
 }
 
+/// Compact floating card under the map: avatar, name, last update, pills
+/// and a refresh button. Every text is single-line with an ellipsis so the
+/// card never grows or wraps letter by letter on narrow phones.
 class _LocationCard extends StatelessWidget {
   const _LocationCard({
     required this.child,
     required this.location,
     required this.refreshing,
     required this.onRefresh,
+    this.avatarUrl,
     this.placeStatus,
     this.inSafePlace = false,
     this.error,
@@ -376,6 +404,7 @@ class _LocationCard extends StatelessWidget {
   final String? placeStatus;
   final bool inSafePlace;
   final String? error;
+  final String? avatarUrl;
 
   final FamilyChild child;
   final ChildLocation location;
@@ -387,101 +416,148 @@ class _LocationCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final online = location.online;
     final battery = location.batteryLevel;
-    return Card(
+    final dot = online ? NigohDesign.mint : NigohDesign.amber;
+    return Material(
+      key: const ValueKey('map-card'),
+      color: scheme.surface,
+      elevation: 3,
+      shadowColor: Colors.black26,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
+        padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: (online ? NigohDesign.mint : NigohDesign.amber)
-                    .withValues(alpha: .12),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                Icons.location_on_rounded,
-                color: online ? NigohDesign.mint : NigohDesign.amber,
-              ),
+            Row(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    AvatarView(name: child.name, url: avatarUrl, size: 44),
+                    Positioned(
+                      right: -1,
+                      bottom: -1,
+                      child: Container(
+                        width: 13,
+                        height: 13,
+                        decoration: BoxDecoration(
+                          color: dot,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: scheme.surface, width: 2),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        child.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Навсозӣ: ${timeAgo(location.updatedAt)}',
+                        key: const ValueKey('map-updated'),
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                IconButton.filledTonal(
+                  key: const ValueKey('map-refresh'),
+                  tooltip: 'Навсозӣ',
+                  onPressed: refreshing ? null : onRefresh,
+                  icon: refreshing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.refresh_rounded),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (battery != null || placeStatus != null) ...[
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
                 children: [
-                  Text(
-                    child.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                  if (placeStatus != null)
+                    Pill(
+                      placeStatus!,
+                      color: inSafePlace ? NigohDesign.mint : NigohDesign.amber,
+                      icon: inSafePlace
+                          ? Icons.shield_rounded
+                          : Icons.shield_outlined,
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Навсозӣ: ${timeAgo(location.updatedAt)}',
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: 12,
+                  if (battery != null)
+                    Pill(
+                      'Батарея $battery%',
+                      color: battery <= 15
+                          ? NigohDesign.coral
+                          : NigohDesign.mint,
+                      icon: battery <= 15
+                          ? Icons.battery_alert_rounded
+                          : Icons.battery_std_rounded,
                     ),
-                  ),
-                  if (battery != null || placeStatus != null) ...[
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        if (placeStatus != null)
-                          Pill(
-                            placeStatus!,
-                            color: inSafePlace
-                                ? NigohDesign.mint
-                                : NigohDesign.amber,
-                            icon: inSafePlace
-                                ? Icons.shield_rounded
-                                : Icons.shield_outlined,
-                          ),
-                        if (battery != null)
-                          Pill(
-                            'Батарея $battery%',
-                            color: battery <= 15
-                                ? NigohDesign.coral
-                                : NigohDesign.mint,
-                            icon: battery <= 15
-                                ? Icons.battery_alert_rounded
-                                : Icons.battery_std_rounded,
-                          ),
-                      ],
-                    ),
-                  ],
-                  if (error != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      error!,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: scheme.error, fontSize: 12),
-                    ),
-                  ],
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.tonalIcon(
-              onPressed: refreshing ? null : onRefresh,
-              icon: refreshing
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Навсозӣ'),
-            ),
+            ],
+            if (error != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                error!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: scheme.error, fontSize: 12),
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// OpenStreetMap credit (required by the tile licence), kept just above the
+/// card so it never hides under it.
+class _OsmCredit extends StatelessWidget {
+  const _OsmCredit();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: scheme.surface.withValues(alpha: .85),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        '© OpenStreetMap contributors',
+        style: TextStyle(fontSize: 10, color: scheme.onSurfaceVariant),
       ),
     );
   }
