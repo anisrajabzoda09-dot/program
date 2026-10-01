@@ -55,6 +55,7 @@ void main() {
     tester,
   ) async {
     final client = MockClient((req) async {
+      if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
       expect(req.method, 'GET');
       expect(req.url.path, '/api/mobile/v2/children/7/chat');
       return json({
@@ -102,6 +103,7 @@ void main() {
   ) async {
     Map<String, dynamic>? posted;
     final client = MockClient((req) async {
+      if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
       if (req.method == 'POST') {
         posted = jsonDecode(req.body) as Map<String, dynamic>;
         return json({
@@ -141,6 +143,7 @@ void main() {
     var failPost = true;
     var posts = 0;
     final client = MockClient((req) async {
+      if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
       if (req.method == 'POST') {
         posts++;
         if (failPost) return json({'detail': 'Сервер банд аст'}, 500);
@@ -171,6 +174,7 @@ void main() {
   testWidgets('call button sends a call message', (tester) async {
     Map<String, dynamic>? posted;
     final client = MockClient((req) async {
+      if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
       if (req.method == 'POST') {
         posted = jsonDecode(req.body) as Map<String, dynamic>;
         return json({

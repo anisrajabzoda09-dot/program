@@ -10,8 +10,17 @@ import '../../ui/widgets.dart';
 /// Text sent with a call request.
 const chatCallText = 'Занг зад — лутфан ба телефон занг занед';
 
+/// One-tap check-in messages shown to the child above the input.
+const chatQuickReplies = [
+  'Ман расидам',
+  'Ман дар роҳам',
+  'Маро гиред',
+  'Ҳама хуб аст',
+];
+
 /// Family chat between a parent and one child, used on both phones.
-/// Polls the server every 4 seconds while visible.
+/// Polls the server every 4 seconds while visible and marks the other side's
+/// messages as read (read receipts).
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, required this.childId, required this.title});
   final int childId;
@@ -41,8 +50,27 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   bool _sending = false;
   String? _loadError;
   int _lastId = 0;
+  bool _markedOnce = false;
 
   NigohApi get _api => SessionScope.read(context).api;
+  String get _myRole => SessionScope.read(context).role ?? '';
+
+  /// My newest sent message (the only one that shows «Хонда шуд»).
+  ChatMessage? _myLast(String myRole) {
+    ChatMessage? last;
+    for (final m in _messages.values) {
+      if (m.senderRole == myRole && (last == null || m.id > last.id)) last = m;
+    }
+    return last;
+  }
+
+  /// Polls from just before my newest unread message, so its `is_read`
+  /// flag is refreshed; otherwise only new messages are fetched.
+  int _fetchAfter(String myRole) {
+    final mine = _myLast(myRole);
+    if (mine == null || mine.isRead) return _lastId;
+    return mine.id - 1 < _lastId ? mine.id - 1 : _lastId;
+  }
 
   @override
   void initState() {
@@ -67,6 +95,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _messages.clear();
       _pending.clear();
       _lastId = 0;
+      _markedOnce = false;
       _loaded = false;
       _loadError = null;
       _load();
@@ -103,15 +132,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (_loading || !mounted) return;
     _loading = true;
     final childId = widget.childId;
+    final myRole = _myRole;
     try {
-      final raw = await _api.chat(childId, afterId: _lastId);
+      final raw = await _api.chat(childId, afterId: _fetchAfter(myRole));
       if (!mounted || childId != widget.childId) return;
-      final added = _merge(raw.map(ChatMessage.fromJson));
+      final fresh = _merge(raw.map(ChatMessage.fromJson));
       setState(() {
         _loaded = true;
         _loadError = null;
       });
-      if (added) _scrollToBottom();
+      if (fresh.isNotEmpty) _scrollToBottom();
+      if (!_markedOnce || fresh.any((m) => m.senderRole != myRole)) {
+        _markedOnce = true;
+        unawaited(_markRead(childId));
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _loadError = e is ApiException ? e.message : '$e');
@@ -120,11 +154,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Adds messages by id; returns true when something new arrived.
-  bool _merge(Iterable<ChatMessage> items) {
-    var added = false;
+  /// Read receipt for the other side. Not a user action: a failure is
+  /// retried with the next new message and never blocks the chat.
+  Future<void> _markRead(int childId) async {
+    try {
+      await _api.markChatRead(childId);
+    } catch (e) {
+      debugPrint('markChatRead: $e');
+    }
+  }
+
+  /// Adds/updates messages by id; returns the ones that were new.
+  List<ChatMessage> _merge(Iterable<ChatMessage> items) {
+    final added = <ChatMessage>[];
     for (final m in items) {
-      if (!_messages.containsKey(m.id)) added = true;
+      if (!_messages.containsKey(m.id)) added.add(m);
       _messages[m.id] = m;
       if (m.id > _lastId) _lastId = m.id;
     }
@@ -147,6 +191,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final text = _input.text.trim();
     if (text.isEmpty || _sending) return;
     _input.clear();
+    await _sendText(text);
+  }
+
+  Future<void> _sendText(String text) async {
+    if (_sending) return;
     final pending = _Pending(text, 'text');
     setState(() => _pending.add(pending));
     _scrollToBottom();
@@ -231,6 +280,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               child: _body(myRole),
             ),
           ),
+          if (myRole == 'child')
+            _QuickReplies(
+              enabled: !_sending,
+              onTap: (text) => _sendText(text),
+            ),
           _InputBar(
             controller: _input,
             canSend: _input.text.trim().isNotEmpty && !_sending,
@@ -271,6 +325,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
     // Built oldest → newest with day separators, shown reversed so the list
     // starts at the bottom.
+    final myLast = _myLast(myRole);
     final rows = <Widget>[];
     DateTime? lastDay;
     for (final m in items) {
@@ -283,11 +338,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         }
       }
       final mine = m.senderRole == myRole;
-      rows.add(
-        m.type == 'call'
-            ? _CallChip(message: m, mine: mine)
-            : _Bubble(text: m.content, mine: mine, time: _hhmm(m.createdAt)),
-      );
+      final time = _hhmm(m.createdAt);
+      final read = mine && m.isRead && identical(m, myLast);
+      rows.add(switch (m.type) {
+        'call' => _CallChip(message: m, mine: mine),
+        'urgent' => _UrgentBubble(
+          message: m,
+          mine: mine,
+          time: read ? '$time · Хонда шуд' : time,
+        ),
+        _ => _Bubble(
+          text: m.content,
+          mine: mine,
+          time: read ? '$time · Хонда шуд' : time,
+        ),
+      });
     }
     for (final p in _pending) {
       rows.add(
@@ -423,6 +488,110 @@ class _Bubble extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// SOS / urgent message: a red alert bubble on both phones.
+class _UrgentBubble extends StatelessWidget {
+  const _UrgentBubble({
+    required this.message,
+    required this.mine,
+    required this.time,
+  });
+
+  final ChatMessage message;
+  final bool mine;
+  final String time;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final red = scheme.error;
+    final who = mine
+        ? 'Шумо SOS фиристодед'
+        : '${message.senderName.trim().isEmpty ? 'Фарзанд' : message.senderName.trim()} SOS фиристод';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: mine
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          Container(
+            key: const ValueKey('urgent-bubble'),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * .84,
+            ),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+            decoration: BoxDecoration(
+              color: red.withValues(alpha: .10),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: red.withValues(alpha: .55), width: 1.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: red, size: 20),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        who,
+                        style: TextStyle(
+                          color: red,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                SelectableText(
+                  message.content,
+                  style: TextStyle(color: scheme.onSurface, height: 1.4),
+                ),
+              ],
+            ),
+          ),
+          if (time.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(6, 3, 6, 2),
+              child: Text(
+                time,
+                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickReplies extends StatelessWidget {
+  const _QuickReplies({required this.enabled, required this.onTap});
+  final bool enabled;
+  final ValueChanged<String> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+        itemCount: chatQuickReplies.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (_, i) {
+          final text = chatQuickReplies[i];
+          return ActionChip(
+            label: Text(text),
+            onPressed: enabled ? () => onTap(text) : null,
+          );
+        },
       ),
     );
   }
