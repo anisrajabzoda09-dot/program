@@ -1,9 +1,13 @@
+from datetime import date, datetime, timedelta, timezone
+from typing import Optional
+
 from sqlalchemy.orm import Session
-from sqlalchemy import func, distinct
+from sqlalchemy import case, func, distinct
 from app.models.analytics import SiteAnalytics
 from app.models.user import User
 from app.models.child import Child
 from app.models.app_rule import AppRule
+from app.models.app_usage import AppUsageDaily
 from app.core.config import settings
 
 def log_analytics_event(
@@ -28,88 +32,144 @@ def log_analytics_event(
     except Exception:
         db.rollback()
 
+_DOWNLOAD_EVENTS = ["apk_download", "qr_scan"]
+_SEEDED_DEVICE_NAMES = {"Samsung Galaxy A54", ""}
+_DAY_NAMES = ["Дш", "Сш", "Чш", "Пш", "Ҷм", "Шб", "Яш"]
+
+
+def _is_recent(moment: Optional[datetime], minutes: int) -> bool:
+    if moment is None:
+        return False
+    if moment.tzinfo is not None:
+        moment = moment.astimezone(timezone.utc).replace(tzinfo=None)
+    return datetime.utcnow() - moment <= timedelta(minutes=minutes)
+
+
+def _daily_series(db: Session, days: int = 14) -> list:
+    """Page views, downloads and unique visitors per day, oldest first."""
+    since = date.today() - timedelta(days=days - 1)
+    day = func.date(SiteAnalytics.created_at)
+    rows = db.query(
+        day.label("day"),
+        func.sum(case((SiteAnalytics.event_type == "page_view", 1), else_=0)),
+        func.sum(case((SiteAnalytics.event_type.in_(_DOWNLOAD_EVENTS), 1), else_=0)),
+        func.count(distinct(SiteAnalytics.ip)),
+    ).filter(day >= since.isoformat()).group_by(day).all()
+    by_day = {str(r[0]): (int(r[1] or 0), int(r[2] or 0), int(r[3] or 0)) for r in rows}
+    series = []
+    for offset in range(days):
+        current = since + timedelta(days=offset)
+        views, downloads, visitors = by_day.get(current.isoformat(), (0, 0, 0))
+        series.append({
+            "date": current.isoformat(),
+            "label": f"{current.day:02d}.{current.month:02d}",
+            "weekday": _DAY_NAMES[current.weekday()],
+            "page_views": views,
+            "downloads": downloads,
+            "visitors": visitors,
+        })
+    return series
+
+
+def _top_apps(db: Session, limit: int = 8) -> list:
+    """Apps really reported by children's phones, most common first."""
+    rows = db.query(
+        AppRule.package_name,
+        func.max(AppRule.app_name),
+        func.count(distinct(AppRule.child_id)),
+        func.sum(case((AppRule.is_blocked == 1, 1), else_=0)),
+        func.sum(case((AppRule.daily_limit_minutes > 0, 1), else_=0)),
+    ).filter(AppRule.last_synced_at.isnot(None)).group_by(AppRule.package_name).order_by(
+        func.count(distinct(AppRule.child_id)).desc(), func.max(AppRule.app_name)
+    ).limit(limit).all()
+    usage = dict(db.query(AppUsageDaily.package_name, func.sum(AppUsageDaily.minutes)).filter(
+        AppUsageDaily.usage_date == date.today()
+    ).group_by(AppUsageDaily.package_name).all())
+    return [{
+        "package_name": r[0],
+        "app_name": r[1] or r[0],
+        "children": int(r[2] or 0),
+        "blocked": int(r[3] or 0),
+        "limited": int(r[4] or 0),
+        "minutes_today": int(usage.get(r[0]) or 0),
+    } for r in rows]
+
+
 def get_admin_dashboard_data(db: Session) -> dict:
-    """Aggregate real site statistics, downloads, and mobile usage metrics from SQLite via SQLAlchemy ORM."""
-    total_downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type.in_(["apk_download", "qr_scan"])).count()
+    """Real site and family statistics for the admin panel — no sample values."""
+    total_downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type.in_(_DOWNLOAD_EVENTS)).count()
     total_qr_downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type == "qr_scan").count()
-    total_direct_downloads = max(0, total_downloads - total_qr_downloads)
     total_page_views = db.query(SiteAnalytics).filter(SiteAnalytics.event_type == "page_view").count()
     total_visitors = db.query(func.count(distinct(SiteAnalytics.ip))).scalar() or 0
+    android_downloads = db.query(SiteAnalytics).filter(
+        SiteAnalytics.event_type.in_(_DOWNLOAD_EVENTS),
+        SiteAnalytics.user_agent.ilike("%android%"),
+    ).count()
 
-    total_families = db.query(User).filter(User.role != "admin").count()
-    total_children = db.query(Child).count()
-    total_paired = db.query(Child).filter(Child.is_paired == 1).count()
-    total_online = db.query(Child).filter(Child.is_online == 1).count()
-
-    # Real registered users list
     users = db.query(User).filter(User.role != "admin").order_by(User.id.desc()).all()
-    registered_users = [u.to_dict() for u in users]
+    role_counts = {"parent": 0, "child": 0, "unassigned": 0}
+    for u in users:
+        role_counts[u.role if u.role in role_counts else "unassigned"] += 1
+    users_by_id = {u.id: u for u in users}
 
-    # Focus gauge metrics
-    focus_gauge = {
-        "title": "ВАҚТИ ТАМАРКУЗ",
-        "display_time": "45:00",
-        "minutes_used": 45,
-        "minutes_remaining": 75,
-        "total_limit": 120,
-        "percent": 37.5,
-        "sub_text": "45 дақ иҷро / 75 дақ таваққуф",
-        "status_tag": "Ҳолати тамаркуз фаъол"
-    }
+    children = db.query(Child).order_by(Child.id.desc()).all()
+    synced_children = {row[0] for row in db.query(AppRule.child_id).filter(AppRule.last_synced_at.isnot(None)).distinct().all()}
+    children_list = []
+    online = 0
+    for c in children:
+        is_online = _is_recent(c.location_updated_at, 15)
+        online += is_online
+        parent = users_by_id.get(c.parent_id)
+        children_list.append({
+            "id": c.id,
+            "name": c.name,
+            "gender": c.gender,
+            "age": c.age,
+            "device_name": None if (c.device_name or "") in _SEEDED_DEVICE_NAMES else c.device_name,
+            "is_paired": bool(c.is_paired),
+            "is_online": is_online,
+            "apps_synced": c.id in synced_children,
+            "parent_email": parent.email if parent else None,
+            "location_updated_at": c.location_updated_at.isoformat() if c.location_updated_at else None,
+            "created_at": str(c.created_at) if c.created_at else None,
+        })
 
-    # Weekly Chart
-    weekly_chart = [
-        {"day": "Дум", "full_day": "Душанбе", "hours": 2.2, "limit": 2.0, "is_peak": False, "height_pct": 60},
-        {"day": "Сеш", "full_day": "Сешанбе", "hours": 1.7, "limit": 2.0, "is_peak": False, "height_pct": 48},
-        {"day": "Чор", "full_day": "Чоршанбе", "hours": 3.1, "limit": 2.0, "is_peak": False, "height_pct": 82},
-        {"day": "Пан", "full_day": "Панҷшанбе", "hours": 2.0, "limit": 2.0, "is_peak": False, "height_pct": 55},
-        {"day": "Ҷум", "full_day": "Ҷумъа", "hours": 1.6, "limit": 2.0, "is_peak": False, "height_pct": 44},
-        {"day": "Шан", "full_day": "Шанбе", "hours": 3.7, "limit": 2.0, "is_peak": True, "height_pct": 96},
-        {"day": "Якш", "full_day": "Якшанбе", "hours": 2.4, "limit": 2.0, "is_peak": False, "height_pct": 64}
-    ]
-    weekly_meta = {
-        "limit_label": "Ҳадди: 2с 00д",
-        "today_note": "Ҳамагӣ имрӯз истифода шуд (миёнаи кӯдакон)",
-        "night_mode_note": "Ҳолати шабона: 21:00 фаъол шуд"
-    }
+    today = date.today().isoformat()
+    today_views = db.query(SiteAnalytics).filter(
+        SiteAnalytics.event_type == "page_view", func.date(SiteAnalytics.created_at) == today
+    ).count()
+    today_downloads = db.query(SiteAnalytics).filter(
+        SiteAnalytics.event_type.in_(_DOWNLOAD_EVENTS), func.date(SiteAnalytics.created_at) == today
+    ).count()
+    top_pages = [{"path": r[0], "views": int(r[1])} for r in db.query(
+        SiteAnalytics.path, func.count(SiteAnalytics.id)
+    ).filter(SiteAnalytics.event_type == "page_view").group_by(SiteAnalytics.path).order_by(
+        func.count(SiteAnalytics.id).desc()
+    ).limit(6).all()]
 
-    # App Limits & Restrictions
-    blocked_threats = db.query(AppRule).filter(AppRule.is_blocked == 1).count()
-
-    rules_rows = [
-        {"app_name": "TikTok", "app_icon": "🎵", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "Маҳкамшуда", "badge": "Маҳкам"},
-        {"app_name": "Instagram", "app_icon": "📸", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1, "daily_limit_minutes": 30, "stat": "30 дақ/рӯз", "badge": "30 дақ/рӯз"},
-        {"app_name": "Free Fire", "app_icon": "🔥", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "Маҳкамшуда", "badge": "Маҳкам"},
-        {"app_name": "PUBG Mobile", "app_icon": "🔫", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 0, "stat": "Маҳкамшуда", "badge": "Маҳкам"},
-        {"app_name": "Roblox", "app_icon": "🧱", "category": "Бозиҳо", "is_blocked": 1, "daily_limit_minutes": 45, "stat": "45 дақ/рӯз", "badge": "45 дақ/рӯз"},
-        {"app_name": "YouTube", "app_icon": "▶️", "category": "Видео", "is_blocked": 0, "daily_limit_minutes": 60, "stat": "Интернети бехатар", "badge": "Иҷозат"}
-    ]
-
-    # Children list
-    children = db.query(Child).order_by(Child.id.desc()).limit(15).all()
-    children_list = [c.to_dict() for c in children]
-
-    # Recent downloads
-    downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type.in_(["apk_download", "qr_scan"])).order_by(SiteAnalytics.id.desc()).limit(8).all()
-    recent_downloads = [d.to_dict() for d in downloads]
+    downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type.in_(_DOWNLOAD_EVENTS)).order_by(SiteAnalytics.id.desc()).limit(10).all()
 
     return {
+        "current_version": f"v{settings.APP_VERSION}",
         "total_downloads": total_downloads,
         "total_qr_downloads": total_qr_downloads,
-        "total_direct_downloads": total_direct_downloads,
+        "total_direct_downloads": max(0, total_downloads - total_qr_downloads),
+        "android_downloads": android_downloads,
         "total_page_views": total_page_views,
         "total_visitors": total_visitors,
-        "total_families": total_families,
-        "total_children": total_children,
-        "total_paired": total_paired,
-        "total_online": total_online,
-        "blocked_threats": blocked_threats,
-        "focus_gauge": focus_gauge,
-        "weekly_chart": weekly_chart,
-        "weekly_meta": weekly_meta,
-        "rules_rows": rules_rows,
+        "today_views": today_views,
+        "today_downloads": today_downloads,
+        "total_families": len(users),
+        "role_counts": role_counts,
+        "total_children": len(children),
+        "total_paired": sum(1 for c in children if c.is_paired),
+        "total_online": online,
+        "children_with_apps": len(synced_children),
+        "blocked_rules": db.query(AppRule).filter(AppRule.is_blocked == 1, AppRule.last_synced_at.isnot(None)).count(),
+        "daily_chart": _daily_series(db),
+        "top_apps": _top_apps(db),
+        "top_pages": top_pages,
         "children_list": children_list,
-        "recent_downloads": recent_downloads,
-        "registered_users": registered_users,
-        "current_version": f"v{settings.APP_VERSION}"
+        "recent_downloads": [d.to_dict() for d in downloads],
+        "registered_users": [u.to_dict() for u in users],
     }
