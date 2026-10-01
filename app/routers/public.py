@@ -59,6 +59,78 @@ def get_sitemap_xml():
     </image:image>
   </url>
   <url>
+    <loc>https://nigohfamily.qobus.tj/ru</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/ru/features</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/ru/how-it-works</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/ru/security</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/ru/faq</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/ru/get</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/en</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/en/features</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/en/how-it-works</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/en/security</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/en/faq</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/en/get</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://nigohfamily.qobus.tj/get</loc>
     <lastmod>2026-10-01</lastmod>
     <changefreq>weekly</changefreq>
@@ -154,18 +226,60 @@ def health_check(db: Session = Depends(get_db)):
         "active_apk": active_apk_name
     }
 
-def _site_page(request: Request, name: str, active: str, **context):
+SITE_LANGS = ("tg", "ru", "en")
+
+
+def _site_page(request: Request, name: str, active: str, lang: str = "tg", **context):
+    """Render a public page. Tajik lives at /, Russian at /ru/…, English at /en/…"""
+    path = request.url.path
+    base_path = path
+    for prefix in ("/ru", "/en"):
+        if path == prefix or path.startswith(prefix + "/"):
+            base_path = path[len(prefix):] or "/"
+    template = f"site/{name}.html" if lang == "tg" else f"site/{lang}/{name}.html"
     return templates.TemplateResponse(
         request=request,
-        name=f"site/{name}.html",
+        name=template,
         context={
             "user": get_current_user(request),
             "app_version": settings.APP_VERSION,
             "active": active,
-            "page_path": request.url.path if request.url.path != "/" else "/",
+            "lang": lang,
+            "lang_prefix": "" if lang == "tg" else f"/{lang}",
+            "base_path": base_path,
+            "page_path": path,
             **context,
         },
     )
+
+
+_PAGES = [
+    ("", "home", "home"),
+    ("/features", "features", "features"),
+    ("/how-it-works", "how", "how"),
+    ("/security", "security", "security"),
+    ("/faq", "faq", "faq"),
+    ("/get", "get", "get"),
+]
+
+
+def _register_translated(lang: str) -> None:
+    for suffix, name, active in _PAGES:
+        def view(request: Request, db: Session = Depends(get_db), _name=name, _active=active):
+            extra = {}
+            if _name == "home":
+                extra["reviews"] = [r.to_dict() for r in db.query(Review).order_by(Review.id.desc()).limit(6).all()]
+            return _site_page(request, _name, _active, lang=lang, **extra)
+
+        route = f"/{lang}{suffix}" or f"/{lang}"
+        router.add_api_route(route, view, methods=["GET"], response_class=HTMLResponse, include_in_schema=False)
+        router.add_api_route(route, view, methods=["HEAD"], response_class=HTMLResponse, include_in_schema=False)
+        if suffix == "":
+            router.add_api_route(f"/{lang}/", view, methods=["GET"], response_class=HTMLResponse, include_in_schema=False)
+
+
+for _lang in ("ru", "en"):
+    _register_translated(_lang)
 
 
 @router.head("/", include_in_schema=False)
