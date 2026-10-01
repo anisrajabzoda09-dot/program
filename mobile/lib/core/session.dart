@@ -35,6 +35,18 @@ class Session extends ChangeNotifier {
   String get displayName => user?['full_name']?.toString() ?? '';
   String get email => user?['email']?.toString() ?? '';
 
+  /// Server path of the profile photo (see `NigohApi.fileUrl`), or null.
+  String? get avatar {
+    final value = user?['avatar']?.toString();
+    return value == null || value.isEmpty ? null : value;
+  }
+
+  /// Updates the cached profile after an avatar upload/delete.
+  void setAvatar(String? path) {
+    user = {...?user, 'avatar': path};
+    notifyListeners();
+  }
+
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     api.token = prefs.getString(_tokenKey);
