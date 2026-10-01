@@ -1,5 +1,8 @@
 """Sign-in endpoints for the NIGOH Android app (no Firebase)."""
 
+import base64
+import os
+import secrets
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -14,6 +17,7 @@ from app.core.mobile_auth import (
     upsert_google_user,
     verify_google_id_token,
 )
+from app.core.config import settings
 from app.core.security import check_rate_limit, hash_password, verify_password
 from app.db.session import get_db
 from app.models.user import User
@@ -125,3 +129,56 @@ def update_me(payload: ProfileUpdate, request: Request, db: Session = Depends(ge
     db.commit()
     db.refresh(user)
     return {"status": "success", "user": user.to_dict()}
+
+
+class AvatarUpload(BaseModel):
+    # JPEG/PNG, already resized on the phone (≈512 px); ~350 KB of base64 max.
+    image_base64: str = Field(..., min_length=100, max_length=480_000)
+
+
+_AVATAR_DIR = os.path.join(settings.STATIC_DIR, "avatars")
+
+
+@router.post("/me/avatar")
+def upload_avatar(payload: AvatarUpload, request: Request, db: Session = Depends(get_db)):
+    """Profile photo. Stored as a static file; only the URL is kept in the DB."""
+    current = require_mobile_user(request, db)
+    try:
+        raw = base64.b64decode(payload.image_base64.split(",")[-1], validate=True)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Сурат вайрон аст")
+    if raw[:3] == b"\xff\xd8\xff":
+        ext = "jpg"
+    elif raw[:8] == b"\x89PNG\r\n\x1a\n":
+        ext = "png"
+    else:
+        raise HTTPException(status_code=400, detail="Танҳо сурати JPEG ё PNG")
+    os.makedirs(_AVATAR_DIR, exist_ok=True)
+    user = db.query(User).filter(User.id == current["id"]).first()
+    old = user.avatar or ""
+    name = f"{user.id}_{secrets.token_hex(8)}.{ext}"
+    with open(os.path.join(_AVATAR_DIR, name), "wb") as fh:
+        fh.write(raw)
+    user.avatar = f"/static/avatars/{name}"
+    db.commit()
+    if old.startswith("/static/avatars/"):
+        try:
+            os.remove(os.path.join(_AVATAR_DIR, os.path.basename(old)))
+        except OSError:
+            pass
+    return {"status": "success", "avatar": user.avatar}
+
+
+@router.delete("/me/avatar")
+def delete_avatar(request: Request, db: Session = Depends(get_db)):
+    current = require_mobile_user(request, db)
+    user = db.query(User).filter(User.id == current["id"]).first()
+    old = user.avatar or ""
+    user.avatar = None
+    db.commit()
+    if old.startswith("/static/avatars/"):
+        try:
+            os.remove(os.path.join(_AVATAR_DIR, os.path.basename(old)))
+        except OSError:
+            pass
+    return {"status": "success"}

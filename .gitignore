@@ -10,3 +10,4 @@ new.md
 # Release APKs are published to the server, not stored in git (GitHub 100 MB limit)
 app/static/downloads
 /*.apk
+app/static/avatars/
