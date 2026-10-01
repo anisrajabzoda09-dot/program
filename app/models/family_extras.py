@@ -46,3 +46,76 @@ class SafePlace(Base):
             "longitude": self.longitude,
             "radius_meters": self.radius_meters,
         }
+
+
+class FamilyEvent(Base):
+    """Something a phone should be notified about (SOS, message, call…).
+
+    `target_role` is the side that should see it: 'parent' or 'child'.
+    Phones long-poll `/api/mobile/v3/events` and show local notifications.
+    """
+
+    __tablename__ = "family_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    child_id = Column(Integer, ForeignKey("children.id"), nullable=False, index=True)
+    target_role = Column(String(10), nullable=False, index=True)
+    kind = Column(String(30), nullable=False)
+    title = Column(String(160), nullable=False)
+    body = Column(String(500), nullable=False, default="")
+    data_json = Column(String, nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), index=True)
+
+    def to_dict(self):
+        import json
+
+        return {
+            "id": self.id,
+            "child_id": self.child_id,
+            "kind": self.kind,
+            "title": self.title,
+            "body": self.body,
+            "data": json.loads(self.data_json) if self.data_json else {},
+            "created_at": str(self.created_at) if self.created_at else None,
+        }
+
+
+class CallSession(Base):
+    """A voice call between the parent and a child (WebRTC, server signaling)."""
+
+    __tablename__ = "call_sessions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    child_id = Column(Integer, ForeignKey("children.id"), nullable=False, index=True)
+    caller_role = Column(String(10), nullable=False)
+    status = Column(String(12), nullable=False, default="ringing")  # ringing|active|ended|declined|missed
+    created_at = Column(DateTime, server_default=func.now())
+    answered_at = Column(DateTime, nullable=True)
+    ended_at = Column(DateTime, nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "child_id": self.child_id,
+            "caller_role": self.caller_role,
+            "status": self.status,
+            "created_at": str(self.created_at) if self.created_at else None,
+            "answered_at": str(self.answered_at) if self.answered_at else None,
+            "ended_at": str(self.ended_at) if self.ended_at else None,
+        }
+
+
+class CallSignal(Base):
+    """WebRTC offer/answer/ICE message relayed through the server."""
+
+    __tablename__ = "call_signals"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    call_id = Column(Integer, ForeignKey("call_sessions.id"), nullable=False, index=True)
+    from_role = Column(String(10), nullable=False)
+    kind = Column(String(20), nullable=False)  # offer|answer|ice
+    payload = Column(String, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+    def to_dict(self):
+        return {"id": self.id, "from_role": self.from_role, "kind": self.kind, "payload": self.payload}
