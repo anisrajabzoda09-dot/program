@@ -84,6 +84,39 @@ def main():
         check("parent reads chat", c.post(f"/api/mobile/v2/children/{cid}/chat/read", headers=H(pt, "parent")), 200)
         kid = next(k for k in c.get("/api/mobile/v2/snapshot", headers=H(pt, "parent")).json()["children"] if k["id"] == cid)
         assert kid["unread_from_child"] == 0 and kid["last_urgent"] is None
+        # --- notifications (events) ---
+        pos = check("parent event cursor", c.get("/api/mobile/v3/events", headers=H(pt, "parent")), 200)["latest_id"]
+        cpos = check("child event cursor", c.get("/api/mobile/v3/events", headers=H(ct, "child")), 200)["latest_id"]
+        check("message to child", c.post(f"/api/mobile/v2/children/{cid}/chat", json={"content": "Салом писарам"}, headers=H(pt, "parent")), 200)
+        ev = check("child gets message event", c.get(f"/api/mobile/v3/events?after_id={cpos}&wait=3", headers=H(ct, "child")), 200)
+        assert [e["kind"] for e in ev["events"]] == ["message"] and ev["events"][0]["body"] == "Салом писарам", ev
+        check("sos 2", c.post(f"/api/mobile/v2/children/{cid}/chat", json={"content": "SOS!", "message_type": "urgent"}, headers=H(ct, "child")), 200)
+        check("low battery", c.post(f"/api/mobile/v2/children/{cid}/location", json={"latitude": 38.5, "longitude": 68.7, "battery_level": 9}, headers=H(ct, "child")), 200)
+        check("low battery again", c.post(f"/api/mobile/v2/children/{cid}/location", json={"latitude": 38.5, "longitude": 68.7, "battery_level": 8}, headers=H(ct, "child")), 200)
+        check("new app installed", c.post(f"/api/mobile/v2/children/{cid}/apps/sync", json={"apps": [{"package_name": "com.whatsapp", "app_name": "WhatsApp"}, {"package_name": "com.roblox.client", "app_name": "Roblox"}]}, headers=H(ct, "child")), 200)
+        kinds = [e["kind"] for e in c.get(f"/api/mobile/v3/events?after_id={pos}", headers=H(pt, "parent")).json()["events"]]
+        assert kinds == ["sos", "low_battery", "new_app"], kinds
+        check("study mode", c.put(f"/api/mobile/v2/children/{cid}/settings", json={"study": {"enabled": True, "start": "08:00", "end": "13:00", "weekdays": [1, 2, 3, 4, 5, 9]}}, headers=H(pt, "parent")), 200)
+        kid = next(k for k in c.get("/api/mobile/v2/snapshot", headers=H(pt, "parent")).json()["children"] if k["id"] == cid)
+        assert kid["study"]["weekdays"] == [1, 2, 3, 4, 5] and kid["bedtime"]["enabled"] and kid["battery_level"] == 8, kid
+        # --- calls ---
+        check("ice config", c.get("/api/mobile/v3/calls/config", headers=H(pt, "parent")), 200)
+        cpos = c.get("/api/mobile/v3/events", headers=H(ct, "child")).json()["latest_id"]
+        call = check("parent calls child", c.post("/api/mobile/v3/calls", json={"child_id": cid}, headers=H(pt, "parent")), 200)["call"]
+        ev = c.get(f"/api/mobile/v3/events?after_id={cpos}", headers=H(ct, "child")).json()["events"]
+        assert ev[-1]["kind"] == "call" and ev[-1]["data"]["call_id"] == call["id"], ev
+        check("caller cannot accept own call", c.post(f"/api/mobile/v3/calls/{call['id']}/accept", headers=H(pt, "parent")), 409)
+        check("child accepts", c.post(f"/api/mobile/v3/calls/{call['id']}/accept", headers=H(ct, "child")), 200)
+        check("offer", c.post(f"/api/mobile/v3/calls/{call['id']}/signal", json={"kind": "offer", "payload": "{\"sdp\":\"x\"}"}, headers=H(pt, "parent")), 200)
+        sig = check("child gets offer", c.get(f"/api/mobile/v3/calls/{call['id']}/signals?wait=2", headers=H(ct, "child")), 200)
+        assert [x["kind"] for x in sig["signals"]] == ["offer"] and sig["call"]["status"] == "active"
+        check("answer", c.post(f"/api/mobile/v3/calls/{call['id']}/signal", json={"kind": "answer", "payload": "{}"}, headers=H(ct, "child")), 200)
+        assert [x["kind"] for x in c.get(f"/api/mobile/v3/calls/{call['id']}/signals", headers=H(pt, "parent")).json()["signals"]] == ["answer"]
+        check("parent hangs up", c.post(f"/api/mobile/v3/calls/{call['id']}/end", headers=H(pt, "parent")), 200)
+        check("no signals after end", c.post(f"/api/mobile/v3/calls/{call['id']}/signal", json={"kind": "ice", "payload": "{}"}, headers=H(ct, "child")), 409)
+        call2 = c.post("/api/mobile/v3/calls", json={"child_id": cid}, headers=H(ct, "child")).json()["call"]
+        sqlite3.connect("app/nigoh.db").execute("UPDATE call_sessions SET created_at = datetime('now', '-2 minutes') WHERE id = ?", (call2["id"],)).connection.commit()
+        assert c.get(f"/api/mobile/v3/calls/{call2['id']}", headers=H(pt, "parent")).json()["call"]["status"] == "missed"
         check("delete safe place", c.delete(f"/api/mobile/v2/children/{cid}/places/{place['id']}", headers=H(pt, "parent")), 200)
         other = check("stranger cannot read history", c.get(f"/api/mobile/v2/children/{cid}/locations", headers=H(pt, "child")), 404)
         check("child cannot unlink", c.delete(f"/api/mobile/v2/children/{cid}", headers=H(ct, "child")), 403)
@@ -95,7 +128,9 @@ def main():
     with conn:
         ids = [r[0] for r in conn.execute("SELECT id FROM users WHERE email IN (?, ?)", emails)]
         kids = [r[0] for r in conn.execute(f"SELECT id FROM children WHERE user_id IN ({','.join('?' * len(ids))})", ids)]
-        for table in ("app_rules", "app_usage_daily", "chat_messages", "location_points", "safe_places", "app_extension_requests"):
+        calls = [r[0] for r in conn.execute(f"SELECT id FROM call_sessions WHERE child_id IN ({','.join('?' * len(kids))})", kids)]
+        conn.execute(f"DELETE FROM call_signals WHERE call_id IN ({','.join('?' * len(calls))})", calls)
+        for table in ("app_rules", "app_usage_daily", "chat_messages", "location_points", "safe_places", "app_extension_requests", "family_events", "call_sessions"):
             conn.execute(f"DELETE FROM {table} WHERE child_id IN ({','.join('?' * len(kids))})", kids)
         conn.execute(f"DELETE FROM children WHERE id IN ({','.join('?' * len(kids))})", kids)
         conn.execute(f"DELETE FROM mobile_sessions WHERE user_id IN ({','.join('?' * len(ids))})", ids)
