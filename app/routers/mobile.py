@@ -217,7 +217,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.9.19: рӯйхати барномаҳои фарзанд барои волидайн ислоҳ шуд, дизайни ранга.",
+        "release_notes": "v2.10.0: барнома бе Firebase — чат, рӯйхати барномаҳо ва ҷойгиршавӣ тавассути сервери NIGOH. Тарҳи нав. Лутфан аз нав ворид шавед.",
         "download_url": download_url
     }
 
