@@ -15,6 +15,7 @@ from app.routers.admin import router as admin_router
 from app.routers.mobile import router as mobile_router
 from app.routers.mobile_auth import router as mobile_auth_router
 from app.routers.mobile_family import router as mobile_family_router
+from app.routers.mobile_realtime import router as mobile_realtime_router
 from app.routers.download import router as download_router
 
 app = FastAPI(
@@ -82,8 +83,13 @@ app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
 # 4. Startup Database Initialization
 @app.on_event("startup")
-def on_startup():
+async def on_startup():
     init_db()
+    # Phones keep long-poll requests open (notifications, call signaling);
+    # each one holds a worker thread, so allow more than the default 40.
+    import anyio.to_thread
+
+    anyio.to_thread.current_default_thread_limiter().total_tokens = 200
 
 # 5. Include Modular Routers
 app.include_router(public_router)
@@ -92,4 +98,5 @@ app.include_router(admin_router)
 app.include_router(mobile_router)
 app.include_router(mobile_auth_router)
 app.include_router(mobile_family_router)
+app.include_router(mobile_realtime_router)
 app.include_router(download_router)
