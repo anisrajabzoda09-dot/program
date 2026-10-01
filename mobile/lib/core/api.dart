@@ -139,6 +139,23 @@ class NigohApi {
         body: {'full_name': ?fullName, 'role': ?role},
       );
 
+  /// Profile photo (JPEG/PNG bytes, resized on the phone to ~512 px).
+  Future<String?> uploadAvatar(List<int> imageBytes) async =>
+      (await _send(
+        'POST',
+        '/api/mobile/v3/me/avatar',
+        body: {'image_base64': base64Encode(imageBytes)},
+      ))['avatar']?.toString();
+
+  Future<void> deleteAvatar() => _send('DELETE', '/api/mobile/v3/me/avatar');
+
+  /// Absolute URL for a server path like `/static/avatars/…` (null if none).
+  String? fileUrl(String? path) {
+    if (path == null || path.isEmpty) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return '$baseUrl$path';
+  }
+
   // ---------- Family ----------
 
   /// Parent: `{children: [...]}`. Child: `{child: {...} | null}`.

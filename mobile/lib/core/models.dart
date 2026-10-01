@@ -158,6 +158,8 @@ class FamilyChild {
     this.parentName,
     this.bedtime = const Bedtime(),
     this.study = const StudyMode(),
+    this.childAvatar,
+    this.parentAvatar,
     this.batteryLevel,
     this.unreadFromChild = 0,
     this.unreadFromParent = 0,
@@ -167,6 +169,10 @@ class FamilyChild {
 
   final Bedtime bedtime;
   final StudyMode study;
+
+  /// Server paths of profile photos (use NigohApi.fileUrl), null if none.
+  final String? childAvatar;
+  final String? parentAvatar;
 
   /// Last reported battery % of the child's phone (null if unknown).
   final int? batteryLevel;
@@ -210,6 +216,8 @@ class FamilyChild {
     parentName: j['parent_name']?.toString(),
     bedtime: Bedtime.fromJson(j['bedtime']),
     study: StudyMode.fromJson(j['study']),
+    childAvatar: j['child_avatar']?.toString(),
+    parentAvatar: j['parent_avatar']?.toString(),
     batteryLevel: (j['battery_level'] as num?)?.toInt(),
     unreadFromChild: (j['unread_from_child'] as num?)?.toInt() ?? 0,
     unreadFromParent: (j['unread_from_parent'] as num?)?.toInt() ?? 0,
