@@ -1,0 +1,136 @@
+{% extends "site/base.html" %}
+
+{% block title %}Скачать для Android — NIGOH Family{% endblock %}
+
+{% block description %}Скачайте NIGOH Family {{ app_version }} для Android бесплатно. APK-файл, QR-код и инструкция по установке на телефон родителя и ребёнка.{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Скачать</span>
+    <h1>NIGOH Family для Android</h1>
+    <p class="lead">Одно приложение для обоих телефонов. Скачайте APK-файл напрямую с нашего сайта — бесплатно и без рекламы.</p>
+    <div class="btn-row" style="margin-top:30px;align-items:center">
+      <a class="btn btn-primary" href="/download/android">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+        Скачать APK
+      </a>
+      <span class="tag blue">Версия {{ app_version }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="qr">
+  <div class="wrap split">
+    <div class="center">
+      <img class="qr-big" src="/api/qr/download" width="240" height="240" alt="QR-код для скачивания NIGOH Family" style="margin:0 auto">
+      <p class="muted small" style="margin:18px auto 0;max-width:320px">Отсканируйте камерой телефона. QR-код всегда ведёт на последнюю версию приложения.</p>
+    </div>
+    <div>
+      <h2>О файле</h2>
+      <table class="meta-table" style="margin-top:24px">
+        <tr><th>Версия</th><td>{{ app_version }}</td></tr>
+        <tr><th>Размер</th><td>~77 МБ</td></tr>
+        <tr><th>Система</th><td>Android 8.0 и новее</td></tr>
+        <tr><th>Цена</th><td>Бесплатно</td></tr>
+        <tr><th>Package</th><td style="word-break:break-all">tj.nigoh.nigoh_family_parent</td></tr>
+        <tr><th>Источник</th><td>nigohfamily.qobus.tj</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Установка</span>
+      <h2>Как установить</h2>
+      <p class="lead">Приложения нет в Google Play, поэтому Android запросит одно дополнительное разрешение.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Скачайте файл</h3>
+          <p>Нажмите кнопку «Скачать APK» или отсканируйте QR-код.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Разрешите установку</h3>
+          <p>Android попросит разрешить браузеру «Установку неизвестных приложений». Разрешите и вернитесь назад.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Установите приложение</h3>
+          <p>Откройте скачанный файл и нажмите «Установить».</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Откройте и выберите роль</h3>
+          <p>На своём телефоне выберите «Родитель», на телефоне ребёнка — «Ребёнок».</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:32px">
+      <div class="callout amber">
+        <p><strong>Android 13 и новее.</strong> На телефоне ребёнка перед включением Accessibility может понадобиться: О приложении → ⋮ → «Allow restricted settings».</p>
+      </div>
+      <div class="callout">
+        <p>Один APK-файл устанавливается на оба телефона. Роль — родитель или ребёнок — выбирается при первом запуске.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Версия {{ app_version }}</span>
+      <h2>Что нового в {{ app_version }}</h2>
+      <p class="lead" style="margin-top:16px">Приложение само проверяет наличие новой версии и предлагает её скачать.</p>
+    </div>
+    <ul class="feature-list" style="margin-top:0">
+      <li>После регистрации разрешения выдаются шаг за шагом — с кнопкой и подсказкой для каждого.</li>
+      <li>Фото профиля для родителя и ребёнка.</li>
+      <li>Удаление ребёнка — только с PIN-кодом родителя.</li>
+      <li>Исправлена карточка карты, дизайн стал чище.</li>
+      <li>Уведомления, SOS с сигналом тревоги, голосовые звонки и «Учебный режим» — начиная с версии 2.13.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>После установки</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+        <h3>Телефон родителя</h3>
+        <ul class="feature-list">
+          <li>Выберите роль «Родитель».</li>
+          <li>Войдите через Google или по электронной почте.</li>
+          <li>Задайте PIN-код родителя в настройках.</li>
+          <li>Отсканируйте QR-код ребёнка или введите 6-значный код.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+        <h3>Телефон ребёнка</h3>
+        <ul class="feature-list">
+          <li>Выберите роль «Ребёнок».</li>
+          <li>Включите разрешения шаг за шагом в центре разрешений.</li>
+          <li>Покажите родителю QR-код или 6-значный код.</li>
+          <li>Код срабатывает один раз и перестаёт действовать через 15 минут.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:28px">Есть вопросы? <a class="link-arrow" href="{{ lang_prefix }}/faq">Вопросы и ответы</a></p>
+  </div>
+</section>
+
+{% endblock %}

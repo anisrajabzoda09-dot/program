@@ -1,0 +1,185 @@
+{% extends "site/base.html" %}
+
+{% block title %}Как это работает — NIGOH Family{% endblock %}
+{% block description %}Три шага до контроля: установите NIGOH Family на два телефона, выдайте разрешения на телефоне ребёнка и свяжите устройства по QR-коду. Каждое разрешение Android — с пояснением.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Как это работает</span>
+    <h1>От скачивания до контроля —<br>за несколько минут</h1>
+    <p class="lead">Одно приложение на двух телефонах. При первом запуске вы выбираете роль: Родитель или Ребёнок. Затем телефоны связываются по QR-коду.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Три шага</span>
+      <h2>Установка и привязка</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Установите приложение на оба телефона</h3>
+          <p>Скачайте APK-файл на <a href="{{ lang_prefix }}/get">странице загрузки</a>. Один и тот же файл подходит для телефона родителя и телефона ребёнка. Если Android спросит, разрешите браузеру «Установку неизвестных приложений».</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>На телефоне ребёнка выберите «Ребёнок»</h3>
+          <p>Центр разрешений шаг за шагом покажет, что нужно включить и зачем. Когда всё готово, на экране появятся QR-код и 6-значный код.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>На своём телефоне выберите «Родитель»</h3>
+          <p>Войдите и нажмите «Добавить ребёнка». Наведите камеру на QR-код или введите 6-значный код вручную. Привязка занимает меньше минуты.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Две роли</span>
+      <h2>У каждого телефона своя задача</h2>
+      <p class="lead">Приложение одно, но родитель и ребёнок видят его по-разному.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3>На телефоне родителя</h3>
+        <ul class="feature-list">
+          <li>Местоположение ребёнка на карте и время последнего обновления.</li>
+          <li>Список приложений с иконками и временем использования за сегодня.</li>
+          <li>Блокировка, дневной лимит и «Время уроков» для каждого приложения.</li>
+          <li>«Пауза», чтобы заблокировать все приложения разом.</li>
+          <li>Чат, оповещения SOS и запросы дополнительного времени.</li>
+          <li>PIN-код для важных настроек.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3>На телефоне ребёнка</h3>
+        <ul class="feature-list">
+          <li>Приложение установлено и видно. Ребёнок знает, что оно есть.</li>
+          <li>Местоположение и список приложений передаются родителю.</li>
+          <li>Заблокированное приложение закрывается экраном NIGOH.</li>
+          <li>Правила работают и без интернета.</li>
+          <li>Чат с родителем, кнопка SOS и «Мои правила».</li>
+          <li>Удалить приложение без PIN-кода родителя нельзя.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Разрешения</span>
+      <h2>Зачем нужно каждое разрешение</h2>
+      <p class="lead">Эти разрешения выдаются на телефоне ребёнка. Мы запрашиваем только то, без чего приложение не сможет работать.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>Местоположение</h3>
+        <p>Чтобы родитель видел, где находится ребёнок, на карте. Эти данные видны только привязанному родителю.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <h3>Уведомления</h3>
+        <p>Для сообщений чата и чтобы показывать, что приложение работает в фоне.</p>
+      </div>
+      <div class="card">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <h3>Камера</h3>
+        <p>Только для сканирования QR-кода при привязке.</p>
+      </div>
+      <div class="card">
+        <div class="icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <h3>Доступ к статистике использования</h3>
+        <p>Чтобы знать, сколько минут использовалось каждое приложение. На этой основе считаются экранное время и лимиты.</p>
+      </div>
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><rect x="8" y="7" width="8" height="6" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Поверх других приложений</h3>
+        <p>Чтобы показывать экран NIGOH поверх заблокированного приложения.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4.5" r="1.5"/><path d="M5 8l7 1.5L19 8"/><path d="M12 9.5V14l-3 7"/><path d="M12 14l3 7"/></svg>
+        </div>
+        <h3>Accessibility</h3>
+        <p>Чтобы понимать, какое приложение только что открыто, и сразу применять правила.</p>
+      </div>
+    </div>
+    <div class="callout amber" style="margin-top:32px">
+      <div>
+        <strong>Android 13 и новее.</strong> Если при включении Accessibility Android сообщает, что настройка ограничена, откройте <em>Настройки → Приложения → NIGOH Family</em>, нажмите <strong>⋮</strong> в правом верхнем углу и выберите «Allow restricted settings» («Разрешить ограниченные настройки»). Затем вернитесь в центр разрешений.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">После привязки</span>
+      <h2>Что происходит дальше</h2>
+    </div>
+    <div class="grid-3">
+      <div>
+        <h3>Список приложений</h3>
+        <p class="muted" style="margin-top:8px">В течение минуты все приложения с телефона ребёнка автоматически появятся на вашем телефоне.</p>
+      </div>
+      <div>
+        <h3>Правила</h3>
+        <p class="muted" style="margin-top:8px">Заблокируйте приложение или задайте лимит. Изменения дойдут до телефона ребёнка примерно за 15 секунд.</p>
+      </div>
+      <div>
+        <h3>Без интернета</h3>
+        <p class="muted" style="margin-top:8px">Правила хранятся на телефоне ребёнка и работают даже без интернета.</p>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:40px;gap:24px">
+      <a class="link-arrow" href="{{ lang_prefix }}/features">Все возможности</a>
+      <a class="link-arrow" href="{{ lang_prefix }}/faq">Вопросы и ответы</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Готовы начать?</h2>
+        <p>Отсканируйте QR-код камерой телефона или нажмите кнопку. NIGOH Family {{ app_version }}, бесплатно.</p>
+        <div class="btn-row" style="margin-top:24px">
+          <a class="btn btn-primary" href="/download/android">Скачать APK</a>
+          <a class="btn btn-ghost" href="{{ lang_prefix }}/get">Страница загрузки</a>
+        </div>
+      </div>
+      <img src="/api/qr/download" width="132" height="132" alt="QR-код для скачивания NIGOH Family">
+    </div>
+  </div>
+</section>
+{% endblock %}

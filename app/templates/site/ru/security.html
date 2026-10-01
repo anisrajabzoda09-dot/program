@@ -1,0 +1,145 @@
+{% extends "site/base.html" %}
+
+{% block title %}Безопасность и приватность — NIGOH Family{% endblock %}
+{% block description %}Как NIGOH Family защищает данные вашей семьи: HTTPS, проверенный вход, собственный сервер, одноразовый код привязки и PIN-код родителя.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Безопасность и приватность</span>
+    <h1>Данные вашей семьи — только для вашей семьи</h1>
+    <p class="lead">Местоположение, приложения и сообщения ребёнка — это личное. На этой странице мы простыми словами рассказываем, как храним эти данные и кто их видит.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Защита на каждом шаге</h2>
+      <p class="lead">С момента входа до каждого обновления карты.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>Зашифрованное соединение</h3>
+        <p>Все данные между телефонами и сервером передаются по HTTPS. Прочитать их по пути невозможно.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Проверенный вход</h3>
+        <p>Вход через Google или по почте выполняется напрямую через сервер NIGOH. Сервер сам проверяет токен Google и выдаёт телефону специальный ключ, который хранится в базе только в виде хеша.</p>
+      </div>
+      <div class="card">
+        <div class="icon ink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 7h.01M6 17h.01"/></svg></div>
+        <h3>Собственный сервер</h3>
+        <p>Данные семьи хранятся на сервере NIGOH, которым мы управляем сами.</p>
+      </div>
+      <div class="card">
+        <div class="icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>Одноразовый код</h3>
+        <p>Код привязки срабатывает только один раз и перестаёт действовать через 15 минут.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Только привязанный родитель</h3>
+        <p>Местоположение и список приложений ребёнка видит только тот родитель, который привязал его телефон.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M9 9h6M9 13h6"/></svg></div>
+        <h3>PIN-код и защита от удаления</h3>
+        <p>PIN-код родителя защищает настройки и удаление ребёнка. Без него удалить приложение с телефона ребёнка нельзя.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="split" style="align-items:start">
+      <div>
+        <h2>Что мы собираем и зачем</h2>
+        <p class="lead" style="margin-top:16px">Только то, что нужно для работы приложения. У каждого вида данных своя задача.</p>
+      </div>
+      <table class="meta-table">
+        <thead>
+          <tr><th scope="col">Данные</th><th scope="col">Зачем</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Местоположение</th><td>Показывать родителю, где находится ребёнок, на карте</td></tr>
+          <tr><th scope="row">Список приложений и иконки</th><td>Чтобы родитель видел приложения и задавал для них правила</td></tr>
+          <tr><th scope="row">Время использования</th><td>Подсчёт экранного времени и дневных лимитов</td></tr>
+          <tr><th scope="row">Сообщения чата</th><td>Доставка сообщений между родителем и ребёнком в семейном чате</td></tr>
+          <tr><th scope="row">Email и имя из Google</th><td>Вход в аккаунт и распознавание членов семьи</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:64px;max-width:680px">
+      <h3>Чего мы не делаем</h3>
+      <ul class="feature-list">
+        <li>Не показываем рекламу.</li>
+        <li>Никому не продаём ваши данные.</li>
+        <li>Не следим тайно. Ребёнок знает, что приложение установлено.</li>
+        <li>Не имеем доступа к сообщениям в других приложениях, паролям и фотографиям ребёнка.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <span class="eyebrow">Прозрачность</span>
+        <h2>Прозрачность для ребёнка</h2>
+        <p class="lead" style="margin-top:16px">NIGOH Family не скрывается на телефоне ребёнка. Иконка приложения видна, а при установке каждое разрешение объясняется.</p>
+      </div>
+      <div class="stack">
+        <p class="muted">Мы считаем, что контроль должен строиться на доверии. Когда ребёнок знает, что именно контролируется и зачем, он легче принимает правила и сам обращается к вам, если что-то случилось.</p>
+        <div class="callout">
+          <p>Перед установкой поговорите с ребёнком. Объясните, что приложение нужно для его безопасности, а не для слежки. Правила экранного времени установите вместе.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Контроль в ваших руках</h2>
+      <p class="lead">Вы в любой момент можете отвязать телефон или выйти из аккаунта.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Удаление ребёнка</h3>
+        <p>Удалите ребёнка из списка с помощью PIN-кода родителя. Связь между телефонами полностью разрывается.</p>
+      </div>
+      <div class="card">
+        <h3>Выход из аккаунта</h3>
+        <p>Выйти из аккаунта можно в любое время — в приложении или на сайте. Для нового входа потребуется повторное подтверждение.</p>
+      </div>
+      <div class="card">
+        <h3>Удаление аккаунта</h3>
+        <p>Чтобы удалить аккаунт и его данные, свяжитесь с нами через свой аккаунт на сайте.</p>
+        <p style="margin-top:14px"><a class="link-arrow" href="/auth?lang=ru">Войти</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Остались вопросы?</h2>
+        <p>Ответы об установке, привязке и приватности — на странице вопросов.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href="{{ lang_prefix }}/faq">Вопросы и ответы</a>
+        <a class="btn btn-primary" href="{{ lang_prefix }}/get">Скачать</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
