@@ -163,6 +163,12 @@ def security_page(request: Request):
     return _site_page(request, "security", "security")
 
 
+@router.head("/faq", include_in_schema=False)
+@router.get("/faq", response_class=HTMLResponse)
+def faq_page(request: Request):
+    return _site_page(request, "faq", "faq")
+
+
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
 @router.get("/3d", response_class=HTMLResponse)
