@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core import events as family_events
 from app.core.mobile_auth import require_mobile_user
 from app.db.session import get_db
 from app.models.app_rule import AppRule
@@ -146,6 +147,10 @@ def create_time_request(child_id: int, payload: TimeRequestCreate, request: Requ
         status="pending",
     )
     db.add(row)
+    rule = db.query(AppRule).filter(AppRule.child_id == child.id, AppRule.package_name == payload.package_name).first()
+    app_name = rule.app_name if rule else payload.package_name
+    family_events.emit(db, child, "parent", "time_request", f"{child.name}: +{payload.minutes} дақ барои {app_name}",
+                       row.reason or "Фарзанд вақти иловагӣ мепурсад.", {"package_name": payload.package_name})
     db.commit()
     db.refresh(row)
     return {"status": "success", "request": _request_payload(db, row)}
@@ -194,6 +199,12 @@ def decide_time_request(
         if rule is None:
             raise HTTPException(status_code=404, detail="Барнома ёфт нашуд")
         _add_bonus(rule, payload.minutes or row.requested_minutes)
+    rule_name = _request_payload(db, row)["app_name"]
+    family_events.emit(
+        db, child, "child", "time_decision",
+        "Иҷозат дода шуд" if payload.approve else "Дархост рад шуд",
+        f"{rule_name}: +{payload.minutes or row.requested_minutes} дақ" if payload.approve else rule_name,
+    )
     db.commit()
     return {"status": "success", "request": _request_payload(db, row)}
 
@@ -225,8 +236,16 @@ class Bedtime(BaseModel):
     end: str = Field(default="07:00", pattern=_TIME)
 
 
+class StudyMode(BaseModel):
+    enabled: bool = False
+    start: str = Field(default="08:00", pattern=_TIME)
+    end: str = Field(default="13:00", pattern=_TIME)
+    weekdays: list = Field(default_factory=lambda: [1, 2, 3, 4, 5, 6])
+
+
 class ChildSettings(BaseModel):
-    bedtime: Bedtime
+    bedtime: Optional[Bedtime] = None
+    study: Optional[StudyMode] = None
 
 
 @router.put("/settings")
@@ -234,9 +253,18 @@ def update_child_settings(child_id: int, payload: ChildSettings, request: Reques
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)
-    child.bedtime_json = payload.bedtime.model_dump_json()
+    if payload.study is not None:
+        days = sorted({int(d) for d in payload.study.weekdays if 1 <= int(d) <= 7})
+        payload.study.weekdays = days
+        child.study_json = payload.study.model_dump_json()
+    if payload.bedtime is not None:
+        child.bedtime_json = payload.bedtime.model_dump_json()
     db.commit()
-    return {"status": "success", "bedtime": json.loads(child.bedtime_json)}
+    return {
+        "status": "success",
+        "bedtime": json.loads(child.bedtime_json) if child.bedtime_json else None,
+        "study": json.loads(child.study_json) if child.study_json else None,
+    }
 
 
 # ---------- Safe places ----------
