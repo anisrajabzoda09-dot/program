@@ -3,10 +3,10 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/home_target.dart';
 import '../../core/session.dart';
-import '../../pages/access_center_page.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import '../chat/chat_screen.dart';
+import '../onboarding/permissions_wizard.dart';
 import '../settings/settings_screen.dart';
 import 'child_rules.dart';
 import 'child_sync.dart';
@@ -86,9 +86,10 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   void _onSync() {
     if (!mounted) return;
     setState(() {});
-    // Like the old app: open the permission wizard once if something
-    // required is missing.
+    // Open the permission wizard once if something required is missing
+    // (not again when it was just shown after registration).
     if (!_accessShown &&
+        !PermissionsWizard.shownThisSession &&
         sync.protectionKnown &&
         sync.missingPermissions.isNotEmpty) {
       _accessShown = true;
@@ -98,14 +99,8 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
 
   Future<void> _openAccess() async {
     if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => Scaffold(
-          appBar: AppBar(title: const Text('Иҷозатҳо')),
-          body: const AccessCenterPage(childMode: true),
-        ),
-      ),
-    );
+    _accessShown = true;
+    await PermissionsWizard.open(context, childMode: true);
     if (mounted) await sync.refreshProtection();
     if (mounted) setState(() {});
   }
@@ -144,6 +139,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
                 key: ValueKey('chat-$id'),
                 childId: id,
                 title: sync.parentName ?? 'Волидайн',
+                avatarPath: sync.child?.parentAvatar,
               );
       case 3:
         page = const SettingsScreen();
@@ -491,11 +487,16 @@ class _PairedView extends StatelessWidget {
                 ? 'Ҳамаи иҷозатҳо дода шудаанд'
                 : '${missing.length} иҷозат намерасад',
             detail: protectionOk ? null : missing.join(', '),
-            action: protectionOk || !sync.protectionKnown
+            action: !sync.protectionKnown
                 ? null
+                : protectionOk
+                ? TextButton(
+                    onPressed: onOpenAccess,
+                    child: const Text('Иҷозатҳо'),
+                  )
                 : FilledButton.tonal(
                     onPressed: onOpenAccess,
-                    child: const Text('Танзим кардан'),
+                    child: const Text('Иҷозатҳо'),
                   ),
           ),
         ),

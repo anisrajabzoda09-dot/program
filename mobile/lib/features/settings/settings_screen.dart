@@ -6,11 +6,12 @@ import '../../core/child_profile.dart';
 import '../../core/notify_bridge.dart';
 import '../../core/session.dart';
 import '../../core/user_journey_logic.dart';
-import '../../pages/access_center_page.dart';
+import '../onboarding/permissions_wizard.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'app_update.dart';
 import 'parent_pin.dart';
+import 'profile_photo.dart';
 import 'theme_mode.dart';
 
 /// Settings tab shared by the parent and child homes. Has its own Scaffold.
@@ -113,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   Future<void> editPin() async {
     final changed = await showDialog<bool>(
       context: context,
-      builder: (_) => _PinSetupDialog(hasPin: hasPin == true),
+      builder: (_) => PinSetupDialog(hasPin: hasPin == true),
     );
     if (changed == true && mounted) {
       showMessage(
@@ -225,22 +226,20 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   onTap: pinError != null ? loadPin : editPin,
                 ),
+                const Divider(height: 1),
+                _Tile(
+                  icon: Icons.verified_user_outlined,
+                  color: NigohDesign.mint,
+                  title: 'Иҷозатҳо (устод)',
+                  subtitle: child
+                      ? 'Ҷойгиршавӣ, истифода ва бастани барномаҳо'
+                      : 'Огоҳиномаҳо, камера, микрофон ва батарея',
+                  onTap: () async {
+                    await PermissionsWizard.open(context, childMode: child);
+                    if (mounted) await loadNotifyStatus();
+                  },
+                ),
                 if (child) ...[
-                  const Divider(height: 1),
-                  _Tile(
-                    icon: Icons.verified_user_outlined,
-                    color: NigohDesign.mint,
-                    title: 'Иҷозатҳо',
-                    subtitle: 'Ҷойгиршавӣ, истифода ва бастани барномаҳо',
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => Scaffold(
-                          appBar: AppBar(title: const Text('Иҷозатҳо')),
-                          body: const AccessCenterPage(childMode: true),
-                        ),
-                      ),
-                    ),
-                  ),
                   const Divider(height: 1),
                   _Tile(
                     icon: Icons.shield_outlined,
@@ -408,23 +407,7 @@ class _ProfileCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Container(
-              width: 52,
-              height: 52,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: roleColor.withValues(alpha: .12),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                name.characters.first.toUpperCase(),
-                style: TextStyle(
-                  color: roleColor,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
+            ProfileAvatarButton(session: session, color: roleColor),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -564,121 +547,6 @@ class _NameDialogState extends State<_NameDialog> {
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
         onPressed: save,
-        child: const Text('Нигоҳ доштан'),
-      ),
-    ],
-  );
-}
-
-/// Set (first time) or change the parent PIN — legacy SecurityCodePage flow.
-class _PinSetupDialog extends StatefulWidget {
-  const _PinSetupDialog({required this.hasPin});
-  final bool hasPin;
-
-  @override
-  State<_PinSetupDialog> createState() => _PinSetupDialogState();
-}
-
-class _PinSetupDialogState extends State<_PinSetupDialog> {
-  final current = TextEditingController();
-  final next = TextEditingController();
-  final confirm = TextEditingController();
-  String? error;
-  bool saving = false;
-
-  @override
-  void dispose() {
-    current.dispose();
-    next.dispose();
-    confirm.dispose();
-    super.dispose();
-  }
-
-  Future<void> save() async {
-    final newPin = next.text.trim();
-    if (!UserJourneyLogic.validPin(newPin)) {
-      return setState(() => error = 'PIN бояд аз 4 рақам иборат бошад.');
-    }
-    if (newPin != confirm.text.trim()) {
-      return setState(() => error = 'Такрори PIN мувофиқ нест.');
-    }
-    setState(() {
-      saving = true;
-      error = null;
-    });
-    try {
-      final failure = await ParentPin.change(
-        currentPin: widget.hasPin ? current.text.trim() : '',
-        newPin: newPin,
-      );
-      if (!mounted) return;
-      if (failure == null) return Navigator.pop(context, true);
-      setState(() => error = failure);
-    } on PlatformException catch (e) {
-      if (mounted) {
-        setState(() => error = e.message ?? 'PIN нигоҳ дошта нашуд.');
-      }
-    } finally {
-      if (mounted) setState(() => saving = false);
-    }
-  }
-
-  Widget field(
-    TextEditingController controller,
-    String label, {
-    bool focus = false,
-  }) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: TextField(
-      controller: controller,
-      autofocus: focus,
-      obscureText: true,
-      maxLength: 4,
-      keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      decoration: InputDecoration(labelText: label, counterText: ''),
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    icon: const Icon(Icons.pin_outlined),
-    title: Text(widget.hasPin ? 'Иваз кардани PIN' : 'Гузоштани PIN'),
-    content: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'PIN дар ҳамин телефон нигоҳ дошта мешавад ва барои амалҳои муҳим лозим аст.',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 14),
-          if (widget.hasPin) field(current, 'PIN-и ҷорӣ', focus: true),
-          field(
-            next,
-            widget.hasPin ? 'PIN-и нав' : 'PIN (4 рақам)',
-            focus: !widget.hasPin,
-          ),
-          field(confirm, 'Такрори PIN'),
-          if (error != null)
-            Text(
-              error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-        ],
-      ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: saving ? null : () => Navigator.pop(context, false),
-        child: const Text('Бекор'),
-      ),
-      FilledButton(
-        style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
-        onPressed: saving ? null : save,
         child: const Text('Нигоҳ доштан'),
       ),
     ],
