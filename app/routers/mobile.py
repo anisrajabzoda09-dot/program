@@ -406,7 +406,6 @@ def create_mobile_pair_code_v2(
     child.gender = payload.gender
     child.age = payload.age
     child.is_paired = 0
-    ensure_default_child_apps(db, child.id)
     db.commit()
     db.refresh(child)
     return {"status": "success", "child_id": child.id, "pairing_code": child.pairing_code, "paired": False}
@@ -429,7 +428,6 @@ def pair_mobile_device_v2(
         raise HTTPException(status_code=409, detail="Ин дастгоҳ ба оилаи дигар пайваст аст")
     child.parent_id = user["id"]
     child.is_paired = 1
-    ensure_default_child_apps(db, child.id)
     db.commit()
     db.refresh(child)
     return {"status": "success", "child": _mobile_child_payload(db, child), "message": "Фарзанд пайваст шуд"}
@@ -451,7 +449,6 @@ def link_existing_mobile_family_v2(
         raise HTTPException(status_code=404, detail="Ҳисоби волидайн ҳоло дар сервер кушода нашудааст")
     child.parent_id = parent.id
     child.is_paired = 1
-    ensure_default_child_apps(db, child.id)
     db.commit()
     return {"status": "success", "child": _mobile_child_payload(db, child)}
 
@@ -467,7 +464,6 @@ def sync_mobile_apps_v2(
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад рӯйхати барномаҳоро фиристад")
     child = _mobile_child(db, user, child_id)
-    ensure_default_child_apps(db, child.id)
     today = date.today()
     for item in payload.apps:
         rule = db.query(AppRule).filter(
