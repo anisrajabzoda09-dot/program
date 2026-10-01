@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../core/home_target.dart';
 import '../../core/session.dart';
 import '../../pages/access_center_page.dart';
 import '../../ui/nigoh_design.dart';
@@ -39,6 +40,23 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    homeTarget.addListener(_onHomeTarget);
+    // Opened from a notification before this screen existed.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onHomeTarget());
+  }
+
+  /// Notification tap: chat → «Чат», requests/decisions → «Қоидаҳо»
+  /// (the requests list lives there), everything else → «Асосӣ».
+  void _onHomeTarget() {
+    final target = homeTarget.value;
+    if (target == null || !mounted) return;
+    homeTarget.value = null;
+    final tab = switch (target.kind) {
+      'chat' => 2,
+      'requests' => 1,
+      _ => 0,
+    };
+    setState(() => _tab = tab);
   }
 
   @override
@@ -54,6 +72,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    homeTarget.removeListener(_onHomeTarget);
     _sync?.removeListener(_onSync);
     if (_ownsSync) _sync?.dispose();
     super.dispose();
@@ -403,6 +422,8 @@ class _PairedView extends StatelessWidget {
     final protectionOk = sync.protectionKnown && missing.isEmpty;
     final child = sync.child;
     final bedtimeActive = child?.bedtime.activeAt(sync.now()) ?? false;
+    final studyActive =
+        !bedtimeActive && (child?.study.activeAt(sync.now()) ?? false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -444,20 +465,19 @@ class _PairedView extends StatelessWidget {
           FadeIn(child: BedtimeNotice(bedtime: child!.bedtime)),
           const SizedBox(height: 12),
         ],
+        if (studyActive) ...[
+          FadeIn(child: StudyNotice(study: child!.study)),
+          const SizedBox(height: 12),
+        ],
         if (sync.lastError != null) ...[
           FadeIn(
             child: _ErrorCard(text: sync.lastError!, onRetry: sync.forceSync),
           ),
           const SizedBox(height: 12),
         ],
-        FadeIn(
-          child: SosButton(onTriggered: () => _sendSos(context)),
-        ),
+        FadeIn(child: SosButton(onTriggered: () => _sendSos(context))),
         const SectionTitle('Вақти экрани ман'),
-        FadeIn(
-          index: 1,
-          child: ScreenTimeCard(apps: child?.apps ?? const []),
-        ),
+        FadeIn(index: 1, child: ScreenTimeCard(apps: child?.apps ?? const [])),
         const SectionTitle('Ҳолати телефон'),
         FadeIn(
           index: 1,
