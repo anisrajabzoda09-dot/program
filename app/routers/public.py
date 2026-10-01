@@ -59,6 +59,36 @@ def get_sitemap_xml():
     </image:image>
   </url>
   <url>
+    <loc>https://nigohfamily.qobus.tj/get</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/features</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/how-it-works</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/security</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nigohfamily.qobus.tj/faq</loc>
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://nigohfamily.qobus.tj/download/android</loc>
     <lastmod>2026-09-27</lastmod>
     <changefreq>daily</changefreq>
