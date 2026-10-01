@@ -1,4 +1,5 @@
 import '../ui/widgets.dart' show parseServerTime;
+import 'app_categories.dart';
 
 /// Typed views over the server snapshot JSON (see app/routers/mobile.py
 /// `_mobile_child_payload`).
@@ -85,9 +86,13 @@ class ChildApp {
   );
 
   /// Rule sent to the native blocker (`setAppControlRules`). The native
-  /// side is unchanged; bonus time, «always allowed» and bedtime only adjust
-  /// what is sent. [bedtimeActive] blocks every app that is not always allowed.
-  Map<String, dynamic> toNativeRule({bool bedtimeActive = false}) {
+  /// side is unchanged; bonus time, «always allowed», bedtime and study mode
+  /// only adjust what is sent. Phone/SMS/system essentials are never forced
+  /// closed by bedtime or study mode, so the child can always call.
+  Map<String, dynamic> toNativeRule({
+    bool bedtimeActive = false,
+    bool studyActive = false,
+  }) {
     if (alwaysAllowed) {
       return {
         'packageName': packageName,
@@ -96,9 +101,12 @@ class ChildApp {
         'schedule': null,
       };
     }
+    final essential = isEssentialApp(packageName);
+    final studyBlocks =
+        studyActive && !essential && studyBlockedCategories.contains(categoryOf(this));
     return {
       'packageName': packageName,
-      'blocked': blocked || bedtimeActive,
+      'blocked': blocked || (bedtimeActive && !essential) || studyBlocks,
       'dailyLimitMinutes': effectiveLimitMinutes,
       'schedule': schedule.enabled ? schedule.toJson() : null,
     };
@@ -149,6 +157,8 @@ class FamilyChild {
     this.location,
     this.parentName,
     this.bedtime = const Bedtime(),
+    this.study = const StudyMode(),
+    this.batteryLevel,
     this.unreadFromChild = 0,
     this.unreadFromParent = 0,
     this.pendingRequests = 0,
@@ -156,6 +166,10 @@ class FamilyChild {
   });
 
   final Bedtime bedtime;
+  final StudyMode study;
+
+  /// Last reported battery % of the child's phone (null if unknown).
+  final int? batteryLevel;
   final int unreadFromChild;
   final int unreadFromParent;
   final int pendingRequests;
@@ -195,6 +209,8 @@ class FamilyChild {
     location: ChildLocation.fromJson(j['location']),
     parentName: j['parent_name']?.toString(),
     bedtime: Bedtime.fromJson(j['bedtime']),
+    study: StudyMode.fromJson(j['study']),
+    batteryLevel: (j['battery_level'] as num?)?.toInt(),
     unreadFromChild: (j['unread_from_child'] as num?)?.toInt() ?? 0,
     unreadFromParent: (j['unread_from_parent'] as num?)?.toInt() ?? 0,
     pendingRequests: (j['pending_requests'] as num?)?.toInt() ?? 0,
@@ -325,4 +341,44 @@ class SafePlace {
     longitude: (j['longitude'] as num).toDouble(),
     radiusMeters: (j['radius_meters'] as num?)?.toInt() ?? 150,
   );
+}
+
+/// «Тамаркузи дарс»: during school hours games, social and video apps are
+/// blocked; education, essentials (phone, SMS) and «always allowed» stay open.
+class StudyMode {
+  const StudyMode({
+    this.enabled = false,
+    this.start = '08:00',
+    this.end = '13:00',
+    this.weekdays = const [1, 2, 3, 4, 5, 6],
+  });
+
+  final bool enabled;
+  final String start;
+  final String end;
+  final List<int> weekdays;
+
+  factory StudyMode.fromJson(Object? raw) {
+    if (raw is! Map) return const StudyMode();
+    return StudyMode(
+      enabled: raw['enabled'] == true,
+      start: raw['start']?.toString() ?? '08:00',
+      end: raw['end']?.toString() ?? '13:00',
+      weekdays: (raw['weekdays'] as List? ?? const [1, 2, 3, 4, 5, 6])
+          .map((d) => (d as num).toInt())
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'enabled': enabled,
+    'start': start,
+    'end': end,
+    'weekdays': weekdays,
+  };
+
+  bool activeAt(DateTime now) {
+    if (!enabled || !weekdays.contains(now.weekday)) return false;
+    return Bedtime(enabled: true, start: start, end: end).activeAt(now);
+  }
 }
