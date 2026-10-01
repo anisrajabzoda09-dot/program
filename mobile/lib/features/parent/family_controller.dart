@@ -11,10 +11,7 @@ import '../../core/models.dart';
 /// applied optimistically and rolled back on failure; the [ApiException] is
 /// rethrown so the screen can show the server message.
 class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
-  FamilyController(
-    this.api, {
-    this.pollInterval = const Duration(seconds: 10),
-  });
+  FamilyController(this.api, {this.pollInterval = const Duration(seconds: 10)});
 
   final NigohApi api;
 
@@ -109,6 +106,13 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
       if (_pending == 0) children = list;
       error = null;
       loadedOnce = true;
+      for (final child in list) {
+        if (child.paired && !places.containsKey(child.id)) {
+          places[child.id] = const [];
+          // Retried on the next refresh when it fails.
+          if (!await loadPlaces(child.id)) places.remove(child.id);
+        }
+      }
     } catch (e) {
       error = e is ApiException ? e.message : 'Маълумот гирифта нашуд: $e';
     } finally {
@@ -135,31 +139,160 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> setBlocked(FamilyChild child, ChildApp app, bool blocked) =>
-      _updateApp(
-        child,
-        app,
-        _copyApp(app, blocked: blocked),
-        {'is_blocked': blocked},
-      );
+      _updateApp(child, app, _copyApp(app, blocked: blocked), {
+        'is_blocked': blocked,
+      });
 
   Future<void> setLimit(FamilyChild child, ChildApp app, int minutes) =>
-      _updateApp(
-        child,
-        app,
-        _copyApp(app, dailyLimitMinutes: minutes),
-        {'daily_limit_minutes': minutes},
-      );
+      _updateApp(child, app, _copyApp(app, dailyLimitMinutes: minutes), {
+        'daily_limit_minutes': minutes,
+      });
 
   Future<void> setSchedule(
     FamilyChild child,
     ChildApp app,
     AppSchedule schedule,
-  ) => _updateApp(
-    child,
-    app,
-    _copyApp(app, schedule: schedule),
-    {'schedule': schedule.toJson()},
-  );
+  ) => _updateApp(child, app, _copyApp(app, schedule: schedule), {
+    'schedule': schedule.toJson(),
+  });
+
+  /// «Ҳамеша иҷозат»: the app is never locked by pause or bedtime.
+  Future<void> setAlwaysAllowed(FamilyChild child, ChildApp app, bool value) =>
+      _updateApp(child, app, _copyApp(app, alwaysAllowed: value), {
+        'always_allowed': value,
+      });
+
+  /// Extra minutes for today on top of the daily limit.
+  Future<void> giveBonus(FamilyChild child, ChildApp app, int minutes) async {
+    _replaceApp(
+      child.id,
+      _copyApp(app, bonusMinutesToday: app.bonusMinutesToday + minutes),
+    );
+    _pending++;
+    _notify();
+    try {
+      await _guard(() => api.giveBonus(child.id, app.packageName, minutes));
+    } catch (_) {
+      _replaceApp(child.id, app);
+      rethrow;
+    } finally {
+      _pending--;
+      _notify();
+    }
+  }
+
+  Future<void> setBedtime(FamilyChild child, Bedtime bedtime) async {
+    final before = childById(child.id) ?? child;
+    _replaceChild(_copyChild(before, before.apps, bedtime: bedtime));
+    _pending++;
+    _notify();
+    try {
+      await _guard(() => api.setBedtime(child.id, bedtime.toJson()));
+    } catch (_) {
+      _replaceChild(before);
+      rethrow;
+    } finally {
+      _pending--;
+      _notify();
+    }
+  }
+
+  /// Approve (with [minutes]) or deny an extra-time request, then reload so
+  /// the badge and bonus minutes update.
+  Future<void> decideRequest(
+    int childId,
+    int requestId, {
+    required bool approve,
+    int? minutes,
+  }) async {
+    await _guard(
+      () => api.decideTimeRequest(
+        childId,
+        requestId,
+        approve: approve,
+        minutes: minutes,
+      ),
+    );
+    await refresh(silent: true);
+  }
+
+  /// Marks the child's messages read (clears the SOS alert and unread badge).
+  Future<void> markChatRead(int childId) async {
+    await _guard(() => api.markChatRead(childId));
+    await refresh(silent: true);
+  }
+
+  // ---------- Safe places ----------
+
+  /// Safe places per child id (loaded once per child, then on change).
+  final Map<int, List<SafePlace>> places = {};
+
+  /// Last error while loading safe places (shown on the map).
+  String? placesError;
+
+  List<SafePlace> placesFor(int childId) => places[childId] ?? const [];
+
+  /// Returns false on failure; the message stays in [placesError].
+  Future<bool> loadPlaces(int childId) async {
+    var ok = true;
+    try {
+      final raw = await api.safePlaces(childId);
+      places[childId] = raw.map(SafePlace.fromJson).toList();
+      placesError = null;
+    } catch (e) {
+      placesError = e is ApiException ? e.message : 'Ҷойҳо гирифта нашуд: $e';
+      ok = false;
+    }
+    _notify();
+    return ok;
+  }
+
+  Future<void> addPlace(
+    int childId, {
+    required String name,
+    required double latitude,
+    required double longitude,
+    required int radiusMeters,
+  }) async {
+    await _guard(
+      () => api.addSafePlace(
+        childId,
+        name: name,
+        latitude: latitude,
+        longitude: longitude,
+        radiusMeters: radiusMeters,
+      ),
+    );
+    await loadPlaces(childId);
+  }
+
+  Future<void> deletePlace(int childId, SafePlace place) async {
+    final before = placesFor(childId);
+    places[childId] = [
+      for (final p in before)
+        if (p.id != place.id) p,
+    ];
+    _notify();
+    try {
+      await _guard(() => api.deleteSafePlace(childId, place.id));
+    } catch (_) {
+      places[childId] = before;
+      _notify();
+      rethrow;
+    }
+  }
+
+  // ---------- Totals for badges ----------
+
+  int get pendingRequestsTotal =>
+      children.fold(0, (sum, c) => sum + c.pendingRequests);
+
+  int get unreadTotal => children.fold(0, (sum, c) => sum + c.unreadFromChild);
+
+  List<FamilyChild> get urgentChildren => [
+    for (final c in children)
+      if (c.lastUrgent != null) c,
+  ];
 
   Future<void> unlink(FamilyChild child) async {
     final before = children;
@@ -200,6 +333,13 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  void _replaceChild(FamilyChild child) {
+    children = [
+      for (final c in children)
+        if (c.id == child.id) child else c,
+    ];
+  }
+
   void _replaceApp(int childId, ChildApp app) {
     children = [
       for (final c in children)
@@ -229,6 +369,8 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     bool? blocked,
     int? dailyLimitMinutes,
     AppSchedule? schedule,
+    bool? alwaysAllowed,
+    int? bonusMinutesToday,
   }) => ChildApp(
     packageName: app.packageName,
     name: app.name,
@@ -237,20 +379,31 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     dailyLimitMinutes: dailyLimitMinutes ?? app.dailyLimitMinutes,
     usageMinutesToday: app.usageMinutesToday,
     schedule: schedule ?? app.schedule,
+    alwaysAllowed: alwaysAllowed ?? app.alwaysAllowed,
+    bonusMinutesToday: bonusMinutesToday ?? app.bonusMinutesToday,
+    firstSeenAt: app.firstSeenAt,
   );
 
-  static FamilyChild _copyChild(FamilyChild c, List<ChildApp> apps) =>
-      FamilyChild(
-        id: c.id,
-        name: c.name,
-        gender: c.gender,
-        age: c.age,
-        paired: c.paired,
-        pairingCode: c.pairingCode,
-        apps: apps,
-        location: c.location,
-        parentName: c.parentName,
-      );
+  static FamilyChild _copyChild(
+    FamilyChild c,
+    List<ChildApp> apps, {
+    Bedtime? bedtime,
+  }) => FamilyChild(
+    id: c.id,
+    name: c.name,
+    gender: c.gender,
+    age: c.age,
+    paired: c.paired,
+    pairingCode: c.pairingCode,
+    apps: apps,
+    location: c.location,
+    parentName: c.parentName,
+    bedtime: bedtime ?? c.bedtime,
+    unreadFromChild: c.unreadFromChild,
+    unreadFromParent: c.unreadFromParent,
+    pendingRequests: c.pendingRequests,
+    lastUrgent: c.lastUrgent,
+  );
 
   void _notify() {
     if (!_disposed) notifyListeners();
