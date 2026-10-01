@@ -124,16 +124,26 @@ def health_check(db: Session = Depends(get_db)):
         "active_apk": active_apk_name
     }
 
+def _site_page(request: Request, name: str, active: str, **context):
+    return templates.TemplateResponse(
+        request=request,
+        name=f"site/{name}.html",
+        context={
+            "user": get_current_user(request),
+            "app_version": settings.APP_VERSION,
+            "active": active,
+            "page_path": request.url.path if request.url.path != "/" else "/",
+            **context,
+        },
+    )
+
+
 @router.head("/", include_in_schema=False)
 @router.get("/", response_class=HTMLResponse)
 def landing_page(request: Request, db: Session = Depends(get_db)):
-    user = get_current_user(request)
-    reviews = [r.to_dict() for r in db.query(Review).order_by(Review.id.desc()).all()]
-    return templates.TemplateResponse(
-        request=request,
-        name="landing.html",
-        context={"user": user, "reviews": reviews}
-    )
+    reviews = [r.to_dict() for r in db.query(Review).order_by(Review.id.desc()).limit(6).all()]
+    return _site_page(request, "home", "home", reviews=reviews)
+
 
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
