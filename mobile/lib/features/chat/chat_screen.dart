@@ -6,8 +6,9 @@ import '../../core/api.dart';
 import '../../core/models.dart';
 import '../../core/session.dart';
 import '../../ui/widgets.dart';
+import '../call/call_screen.dart';
 
-/// Text sent with a call request.
+/// Text of the old 'call' chat messages (still rendered; no longer sent).
 const chatCallText = 'Занг зад — лутфан ба телефон занг занед';
 
 /// One-tap check-in messages shown to the child above the input.
@@ -235,26 +236,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _call() async {
-    try {
-      final data = await _api.sendChat(
-        widget.childId,
-        chatCallText,
-        messageType: 'call',
-      );
-      if (!mounted) return;
-      final raw = data['message'];
-      if (raw is Map) {
-        setState(
-          () => _merge([ChatMessage.fromJson(Map<String, dynamic>.from(raw))]),
-        );
-        _scrollToBottom();
-      }
-      showMessage(context, 'Хоҳиши занг фиристода шуд');
-    } catch (e) {
-      if (mounted) showMessage(context, e, error: true);
-    }
-  }
+  /// Starts a real voice call (WebRTC) with the other side of this chat.
+  Future<void> _call() => CallScreen.openOutgoing(
+    context,
+    childId: widget.childId,
+    peerName: widget.title,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +251,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         title: Text(widget.title),
         actions: [
           IconButton(
-            tooltip: 'Хоҳиши занг',
+            tooltip: 'Занг',
             icon: const Icon(Icons.phone_rounded),
             onPressed: _call,
           ),
@@ -281,10 +268,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             ),
           ),
           if (myRole == 'child')
-            _QuickReplies(
-              enabled: !_sending,
-              onTap: (text) => _sendText(text),
-            ),
+            _QuickReplies(enabled: !_sending, onTap: (text) => _sendText(text)),
           _InputBar(
             controller: _input,
             canSend: _input.text.trim().isNotEmpty && !_sending,

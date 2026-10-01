@@ -6,7 +6,12 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:nigoh_family_parent/core/api.dart';
 import 'package:nigoh_family_parent/core/session.dart';
+import 'package:nigoh_family_parent/features/call/call_controller.dart';
+import 'package:nigoh_family_parent/features/call/call_screen.dart';
+import 'package:nigoh_family_parent/features/call/rtc_engine.dart';
 import 'package:nigoh_family_parent/features/chat/chat_screen.dart';
+
+import 'call_fakes.dart';
 
 Map<String, dynamic> msg(
   int id,
@@ -171,26 +176,45 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('call button sends a call message', (tester) async {
-    Map<String, dynamic>? posted;
+  testWidgets('call button starts a real voice call (no chat message)', (
+    tester,
+  ) async {
+    final server = FakeCallServer();
+    final engine = FakeRtcEngine();
+    CallScreen.engineFactory = () => engine;
+    CallScreen.micPermission = () async => true;
+    addTearDown(() {
+      CallScreen.engineFactory = FlutterRtcEngine.new;
+      CallScreen.micPermission = requestMicrophonePermission;
+    });
+    final chatPosts = <Map<String, dynamic>>[];
     final client = MockClient((req) async {
+      final handled = await server.handle(req);
+      if (handled != null) return handled;
       if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
       if (req.method == 'POST') {
-        posted = jsonDecode(req.body) as Map<String, dynamic>;
-        return json({
-          'status': 'success',
-          'message': msg(12, 'child', chatCallText, type: 'call'),
-        });
+        chatPosts.add(jsonDecode(req.body) as Map<String, dynamic>);
       }
       return json({'messages': []});
     });
     await pumpChat(tester, client);
     await tester.tap(find.byIcon(Icons.phone_rounded));
-    await tester.pumpAndSettle();
-    expect(posted?['message_type'], 'call');
-    expect(posted?['content'], chatCallText);
-    expect(find.text('Хоҳиши занг фиристода шуд'), findsOneWidget);
-    expect(find.textContaining('Шумо хоҳиши занг фиристодед'), findsOneWidget);
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byType(CallScreen), findsOneWidget);
+    expect(find.text('Занг задан…'), findsOneWidget);
+    expect(server.startBody, {'child_id': 7});
+    expect(server.sent.first['kind'], 'offer');
+    expect(chatPosts, isEmpty);
+
+    await tester.tap(find.byIcon(Icons.call_end_rounded));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(server.posted('/5/end'), isTrue);
+    expect(engine.closed, isTrue);
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(CallScreen), findsNothing);
     await unmount(tester);
   });
 }
