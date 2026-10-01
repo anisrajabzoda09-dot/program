@@ -130,7 +130,11 @@ def auth_page(request: Request):
         if user.get("role") == "admin":
             return RedirectResponse("/admin", status_code=303)
         return RedirectResponse("/get", status_code=303)
-    return templates.TemplateResponse(request=request, name="auth.html", context={"app_version": settings.APP_VERSION})
+    lang = request.query_params.get("lang", "tg")
+    name = f"auth_{lang}.html" if lang in ("ru", "en") else "auth.html"
+    return templates.TemplateResponse(
+        request=request, name=name, context={"app_version": settings.APP_VERSION, "lang": lang}
+    )
 
 @router.post("/api/auth/register")
 def api_register(payload: UserRegister, request: Request, response: Response, db: Session = Depends(get_db)):
