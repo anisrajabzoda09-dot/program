@@ -19,3 +19,4 @@ __all__ = [
     "ChatMessage",
     "SiteAnalytics",
 ]
+from app.models.mobile_session import MobileSession

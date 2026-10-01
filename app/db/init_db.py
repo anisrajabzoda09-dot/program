@@ -12,6 +12,7 @@ from app.models.analytics import SiteAnalytics
 from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
+from app.models.mobile_session import MobileSession  # noqa: F401  (create_all)
 from app.crud.crud_bundle import ensure_initial_bundle
 from app.core.security import hash_password
 
