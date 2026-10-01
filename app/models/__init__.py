@@ -20,3 +20,4 @@ __all__ = [
     "SiteAnalytics",
 ]
 from app.models.mobile_session import MobileSession
+from app.models.family_extras import LocationPoint, SafePlace
