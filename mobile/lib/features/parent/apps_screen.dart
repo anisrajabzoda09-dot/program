@@ -101,6 +101,7 @@ class _AppsScreenState extends State<AppsScreen> {
             child: const Text('Бекор'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(block ? 'Бастан' : 'Кушодан'),
           ),

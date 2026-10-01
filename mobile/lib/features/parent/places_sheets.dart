@@ -213,6 +213,7 @@ class _PlacesSheetState extends State<PlacesSheet> {
             child: const Text('Бекор'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: const Text('Нест кардан'),
           ),

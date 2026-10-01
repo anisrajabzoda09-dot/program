@@ -107,6 +107,11 @@ void main() {
     await pumpHome(tester, snapshotJson());
     expect(find.text('Сино'), findsOneWidget);
     expect(find.text('Офлайн'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Илова кардани фарзанд'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Илова кардани фарзанд'), findsOneWidget);
   });
 

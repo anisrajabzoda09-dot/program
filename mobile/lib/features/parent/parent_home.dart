@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/api.dart';
 import '../../core/home_target.dart';
 import '../../core/models.dart';
 import '../../core/session.dart';
+import '../../ui/avatar.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import '../call/call_screen.dart';
 import '../chat/chat_screen.dart';
+import '../settings/parent_pin.dart';
 import '../settings/settings_screen.dart';
 import 'add_child_screen.dart';
 import 'apps_screen.dart';
@@ -18,8 +21,6 @@ import 'parent_sheets.dart';
 import 'requests_screen.dart';
 import 'study_sheet.dart';
 import 'weekly_report.dart';
-
-const _deviceChannel = MethodChannel('tj.nigoh/device_control');
 
 /// Parent side: family overview, app rules, map, chat and settings.
 class ParentHome extends StatefulWidget {
@@ -152,84 +153,42 @@ class _ParentHomeState extends State<ParentHome> {
     setState(() => _tab = tab);
   }
 
-  /// True when removal may continue (no local PIN, or the PIN was correct).
-  Future<bool> _verifyPin() async {
+  /// Removing a child always needs the parent PIN. Without one yet, the
+  /// parent creates it first; then it is checked. False = stop.
+  Future<bool> _requirePin(FamilyChild child) async {
     bool hasPin;
     try {
-      hasPin =
-          await _deviceChannel.invokeMethod<bool>('getLocalPinStatus') ?? false;
-    } on MissingPluginException {
-      hasPin = false;
-    } on PlatformException catch (e) {
+      hasPin = await ParentPin.isSet();
+    } catch (e) {
       if (mounted) {
-        showMessage(context, 'PIN санҷида нашуд: ${e.message}', error: true);
+        showMessage(
+          context,
+          'PIN санҷида нашуд: ${e is PlatformException ? e.message ?? e.code : e}',
+          error: true,
+        );
       }
       return false;
     }
-    if (!hasPin) return true;
     if (!mounted) return false;
-    final input = TextEditingController();
-    var wrong = false;
-    var checking = false;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (_, setDialogState) => AlertDialog(
-          icon: const Icon(Icons.lock_rounded),
-          title: const Text('PIN-ро ворид кунед'),
-          content: TextField(
-            controller: input,
-            obscureText: true,
-            keyboardType: TextInputType.number,
-            maxLength: 4,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: 'PIN-и волидайн',
-              errorText: wrong ? 'PIN нодуруст аст' : null,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Бекор'),
-            ),
-            FilledButton(
-              onPressed: checking
-                  ? null
-                  : () async {
-                      setDialogState(() => checking = true);
-                      bool valid;
-                      try {
-                        valid =
-                            await _deviceChannel.invokeMethod<bool>(
-                              'verifyLocalPin',
-                              {'pin': input.text.trim()},
-                            ) ??
-                            false;
-                      } on PlatformException {
-                        valid = false;
-                      }
-                      if (valid && dialogContext.mounted) {
-                        Navigator.pop(dialogContext, true);
-                      } else {
-                        setDialogState(() {
-                          wrong = true;
-                          checking = false;
-                        });
-                      }
-                    },
-              child: const Text('Тасдиқ'),
-            ),
-          ],
-        ),
-      ),
+    if (!hasPin) {
+      final created = await ParentPin.setUp(
+        context,
+        text:
+            'Барои хориҷ кардани фарзанд аввал PIN-и волидайнро гузоред. '
+            'Ин PIN дар ҳамин телефон нигоҳ дошта мешавад.',
+      );
+      if (!created || !mounted) return false;
+    }
+    final ok = await ParentPin.ask(
+      context,
+      title: 'PIN-ро ворид кунед',
+      text: 'Барои хориҷ кардани ${child.name} PIN-и волидайн лозим аст.',
     );
-    input.dispose();
-    return ok == true;
+    return ok && mounted;
   }
 
   Future<void> _removeChild(FamilyChild child) async {
-    if (!await _verifyPin() || !mounted) return;
+    if (!await _requirePin(child) || !mounted) return;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -245,6 +204,7 @@ class _ParentHomeState extends State<ParentHome> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
+              minimumSize: const Size(110, 44),
               backgroundColor: Theme.of(dialogContext).colorScheme.error,
               foregroundColor: Theme.of(dialogContext).colorScheme.onError,
             ),
@@ -289,7 +249,7 @@ class _ParentHomeState extends State<ParentHome> {
         } else if (children.isEmpty) {
           body = _EmptyFamily(onAdd: _addChild);
         } else {
-          body = _tabBody(session.displayName);
+          body = _tabBody(session.displayName, session.avatar);
           _markReadIfNeeded();
         }
         final unread = controller.unreadTotal;
@@ -361,11 +321,12 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
-  Widget _tabBody(String parentName) {
+  Widget _tabBody(String parentName, String? parentAvatar) {
     if (_tab == 0) {
       return _Overview(
         controller: controller,
         parentName: parentName,
+        parentAvatar: parentAvatar,
         onAdd: _addChild,
         onOpen: _open,
         onRemove: _removeChild,
@@ -381,13 +342,18 @@ class _ParentHomeState extends State<ParentHome> {
       2 => MapScreen(controller: controller),
       _ => KeyedSubtree(
         key: ValueKey('chat-${selected.id}'),
-        child: ChatScreen(childId: selected.id, title: selected.name),
+        child: ChatScreen(
+          childId: selected.id,
+          title: selected.name,
+          avatarPath: selected.childAvatar,
+        ),
       ),
     };
     return Column(
       children: [
         if (controller.children.length > 1)
           _ChildSelector(
+            api: controller.api,
             children: controller.children,
             selectedId: selected.id,
             onSelect: controller.select,
@@ -431,12 +397,14 @@ class _EmptyFamily extends StatelessWidget {
 
 class _ChildSelector extends StatelessWidget {
   const _ChildSelector({
+    required this.api,
     required this.children,
     required this.selectedId,
     required this.onSelect,
     this.showUnread = false,
   });
 
+  final NigohApi api;
   final List<FamilyChild> children;
   final int selectedId;
   final ValueChanged<int> onSelect;
@@ -453,7 +421,11 @@ class _ChildSelector extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
-              avatar: _Avatar(name: child.name, size: 24),
+              avatar: AvatarView(
+                name: child.name,
+                url: api.fileUrl(child.childAvatar),
+                size: 24,
+              ),
               label: Badge.count(
                 count: child.unreadFromChild,
                 isLabelVisible: showUnread && child.unreadFromChild > 0,
@@ -470,38 +442,11 @@ class _ChildSelector extends StatelessWidget {
   );
 }
 
-class _Avatar extends StatelessWidget {
-  const _Avatar({required this.name, this.size = 48});
-  final String name;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = NigohDesign.accentFor(name);
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: .14),
-        shape: BoxShape.circle,
-      ),
-      child: Text(
-        name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-        style: TextStyle(
-          color: color,
-          fontSize: size * .42,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
-
 class _Overview extends StatelessWidget {
   const _Overview({
     required this.controller,
     required this.parentName,
+    this.parentAvatar,
     required this.onAdd,
     required this.onOpen,
     required this.onRemove,
@@ -513,6 +458,7 @@ class _Overview extends StatelessWidget {
 
   final FamilyController controller;
   final String parentName;
+  final String? parentAvatar;
   final VoidCallback onAdd;
   final void Function(int tab, FamilyChild child) onOpen;
   final ValueChanged<FamilyChild> onRemove;
@@ -549,14 +495,41 @@ class _Overview extends StatelessWidget {
                 onMap: () => onOpen(2, child),
               ),
             ),
-          Text(
-            name.isEmpty ? 'Салом!' : 'Салом, $name!',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Ҳолати имрӯзаи оилаи шумо',
-            style: TextStyle(color: scheme.onSurfaceVariant),
+          Row(
+            key: const ValueKey('greeting'),
+            children: [
+              AvatarView(
+                name: parentName.trim().isEmpty ? '?' : parentName,
+                url: controller.api.fileUrl(parentAvatar),
+                size: 48,
+                color: NigohDesign.blue,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name.isEmpty ? 'Салом!' : 'Салом, $name!',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Ҳолати имрӯзаи оилаи шумо',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           if (controller.error != null) ...[
             const SizedBox(height: 12),
@@ -566,26 +539,36 @@ class _Overview extends StatelessWidget {
             ),
           ],
           if (controller.children.any((c) => c.paired)) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             _RequestsTile(
               count: controller.pendingRequestsTotal,
               onTap: onRequests,
             ),
           ],
           if (deviceAlerts.isNotEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             _DeviceAlerts(
               children: deviceAlerts,
               onOpen: (child) => onOpen(2, child),
             ),
           ],
-          const SizedBox(height: 8),
+          SectionTitle(
+            'Фарзандон',
+            trailing: Text(
+              '${sorted.length}',
+              style: TextStyle(
+                color: scheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
           for (final (index, child) in sorted.indexed)
             FadeIn(
               key: ValueKey('child-${child.id}'),
               index: index,
               child: _ChildCard(
                 child: child,
+                avatarUrl: controller.api.fileUrl(child.childAvatar),
                 places: controller.placesFor(child.id),
                 onOpen: (tab) => onOpen(tab, child),
                 onRemove: () => onRemove(child),
@@ -594,7 +577,6 @@ class _Overview extends StatelessWidget {
                 onStudy: () => onStudy(child),
               ),
             ),
-          const SizedBox(height: 16),
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(50),
@@ -641,6 +623,7 @@ class _ErrorBanner extends StatelessWidget {
 class _ChildCard extends StatelessWidget {
   const _ChildCard({
     required this.child,
+    this.avatarUrl,
     required this.places,
     required this.onOpen,
     required this.onRemove,
@@ -650,6 +633,7 @@ class _ChildCard extends StatelessWidget {
   });
 
   final FamilyChild child;
+  final String? avatarUrl;
   final List<SafePlace> places;
   final ValueChanged<int> onOpen;
   final VoidCallback onRemove;
@@ -722,7 +706,7 @@ class _ChildCard extends StatelessWidget {
         ),
     ];
     return Card(
-      margin: const EdgeInsets.only(top: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onLongPress: onRemove,
@@ -734,7 +718,7 @@ class _ChildCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  _Avatar(name: child.name),
+                  AvatarView(name: child.name, url: avatarUrl, size: 48),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -861,6 +845,7 @@ class _ChildCard extends StatelessWidget {
                           context,
                           childId: child.id,
                           peerName: child.name,
+                          peerAvatarUrl: avatarUrl,
                         ),
                         icon: const Icon(Icons.call_rounded, size: 20),
                       ),
