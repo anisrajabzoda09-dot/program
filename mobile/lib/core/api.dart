@@ -48,6 +48,7 @@ class NigohApi {
     Map<String, dynamic>? body,
     Map<String, String>? query,
     bool auth = true,
+    Duration timeout = _timeout,
   }) async {
     final uri = Uri.parse('$baseUrl$path').replace(queryParameters: query);
     final request = http.Request(method, uri)
@@ -61,8 +62,8 @@ class NigohApi {
     if (body != null) request.body = jsonEncode(body);
     http.Response response;
     try {
-      final streamed = await _client.send(request).timeout(_timeout);
-      response = await http.Response.fromStream(streamed).timeout(_timeout);
+      final streamed = await _client.send(request).timeout(timeout);
+      response = await http.Response.fromStream(streamed).timeout(timeout);
     } on TimeoutException {
       throw const ApiException('Сервер ҷавоб надод. Интернетро санҷед.');
     } on SocketException {
@@ -313,6 +314,58 @@ class NigohApi {
       .whereType<Map>()
       .map((m) => Map<String, dynamic>.from(m))
       .toList();
+
+  /// study: {enabled, start 'HH:mm', end 'HH:mm', weekdays [1..7]}
+  Future<void> setStudyMode(int childId, Map<String, dynamic> study) => _send(
+    'PUT',
+    '/api/mobile/v2/children/$childId/settings',
+    body: {'study': study},
+  );
+
+  // ---------- Notifications (long-poll) ----------
+
+  /// Events for this phone after [afterId]: {events: [...], latest_id}.
+  /// afterId 0 returns only the current position. [wait] holds the request
+  /// up to that many seconds until something happens.
+  Future<Map<String, dynamic>> events({int afterId = 0, int wait = 0}) => _send(
+    'GET',
+    '/api/mobile/v3/events',
+    query: {'after_id': '$afterId', 'wait': '$wait'},
+    timeout: Duration(seconds: wait + 15),
+  );
+
+  // ---------- Voice calls (WebRTC signaling) ----------
+
+  /// [{urls: [...], username?, credential?}]
+  Future<List<Map<String, dynamic>>> callConfig() async =>
+      _list((await _send('GET', '/api/mobile/v3/calls/config'))['ice_servers']);
+
+  Future<Map<String, dynamic>> startCall(int childId) async =>
+      Map<String, dynamic>.from(
+        (await _send('POST', '/api/mobile/v3/calls', body: {'child_id': childId}))['call'] as Map,
+      );
+
+  Future<Map<String, dynamic>> callStatus(int callId) async =>
+      Map<String, dynamic>.from((await _send('GET', '/api/mobile/v3/calls/$callId'))['call'] as Map);
+
+  Future<void> acceptCall(int callId) => _send('POST', '/api/mobile/v3/calls/$callId/accept');
+  Future<void> declineCall(int callId) => _send('POST', '/api/mobile/v3/calls/$callId/decline');
+  Future<void> endCall(int callId) => _send('POST', '/api/mobile/v3/calls/$callId/end');
+
+  /// kind: 'offer' | 'answer' | 'ice'; payload: JSON string.
+  Future<void> sendSignal(int callId, String kind, String payload) => _send(
+    'POST',
+    '/api/mobile/v3/calls/$callId/signal',
+    body: {'kind': kind, 'payload': payload},
+  );
+
+  /// {call: {...status}, signals: [{id, from_role, kind, payload}]}
+  Future<Map<String, dynamic>> callSignals(int callId, {int afterId = 0, int wait = 0}) => _send(
+    'GET',
+    '/api/mobile/v3/calls/$callId/signals',
+    query: {'after_id': '$afterId', 'wait': '$wait'},
+    timeout: Duration(seconds: wait + 15),
+  );
 
   // ---------- Updates ----------
 
