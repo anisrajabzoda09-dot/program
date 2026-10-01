@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'core/child_profile.dart';
+import 'core/home_target.dart';
+import 'core/notify_bridge.dart';
 import 'core/session.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/auth/brand_logo.dart';
+import 'features/call/call_screen.dart';
 import 'features/child/child_home.dart';
 import 'features/onboarding/child_setup_screen.dart';
 import 'features/onboarding/role_screen.dart';
@@ -11,6 +14,9 @@ import 'features/parent/parent_home.dart';
 import 'features/settings/app_update.dart';
 import 'features/settings/theme_mode.dart';
 import 'ui/theme.dart';
+
+/// App-wide navigator, used to open screens from notifications.
+final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +36,7 @@ class NigohApp extends StatelessWidget {
       valueListenable: themeModeSetting,
       builder: (_, mode, _) => MaterialApp(
         title: 'NIGOH Family',
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: NigohTheme.light(),
         darkTheme: NigohTheme.dark(),
@@ -55,6 +62,103 @@ class _RootGateState extends State<RootGate> {
   bool profileLoaded = false;
   bool profileLoading = false;
   bool updateChecked = false;
+
+  /// Token and role (as `token|role`) the notification service was started for.
+  String? notifyKey;
+  bool notifyPermissionsAsked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    NotifyBridge.launch.addListener(onLaunch);
+    if (NotifyBridge.launch.value != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => onLaunch());
+    }
+  }
+
+  @override
+  void dispose() {
+    NotifyBridge.launch.removeListener(onLaunch);
+    super.dispose();
+  }
+
+  /// Starts the notification service when signed in with a role, stops it on
+  /// sign-out, and asks for notification permissions once.
+  void syncNotifications(Session session, {required bool home}) {
+    final token = session.api.token;
+    final key = session.signedIn && session.role != null
+        ? '$token|${session.role}'
+        : null;
+    if (key != notifyKey) {
+      final wasStarted = notifyKey != null;
+      notifyKey = key;
+      if (key != null) {
+        NotifyBridge.start(session.api);
+      } else if (wasStarted) {
+        NotifyBridge.stop();
+        notifyPermissionsAsked = false;
+      }
+    }
+    if (key != null && home && !notifyPermissionsAsked) {
+      notifyPermissionsAsked = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) NotifyBridge.ensurePermissions(context);
+      });
+    }
+  }
+
+  /// Routes a tap on a notification: calls open [CallScreen], everything else
+  /// sets [homeTarget] for the parent/child home to pick up.
+  void onLaunch() {
+    final action = NotifyBridge.launch.value;
+    if (action == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || NotifyBridge.launch.value != action) return;
+      NotifyBridge.launch.value = null;
+      handleLaunch(action);
+    });
+  }
+
+  Future<void> handleLaunch(LaunchAction action) async {
+    final navigator = navigatorKey.currentState;
+    if (action.kind == 'call') {
+      final callId = action.callId;
+      if (callId == null || navigator == null) return;
+      await CallScreen.openIncoming(
+        navigator,
+        callId: callId,
+        childId: action.childId ?? 0,
+        peerName: action.peerName ?? 'NIGOH Family',
+        acceptNow: action.acceptCall,
+      );
+      return;
+    }
+    homeTarget.value = HomeTarget.forEvent(action.kind, action.childId);
+    if (action.kind == 'sos' && action.fullScreen && navigator != null) {
+      // Opened over the lock screen while the alarm is still ringing.
+      await showDialog<void>(
+        context: navigator.context,
+        barrierDismissible: false,
+        builder: (dialogContext) => AlertDialog(
+          icon: const Icon(Icons.sos_rounded, color: Colors.red, size: 40),
+          title: const Text('SOS'),
+          content: Text(
+            action.peerName == null
+                ? 'Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед.'
+                : '${action.peerName} ёрӣ мехоҳад. Ҷойгиршавиро бинед.',
+          ),
+          actions: [
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Хомӯш кардан'),
+            ),
+          ],
+        ),
+      );
+      await NotifyBridge.stopRinging();
+    }
+  }
 
   Future<void> loadProfile() async {
     profileLoading = true;
@@ -114,6 +218,7 @@ class _RootGateState extends State<RootGate> {
       screen = const ChildHome();
     }
     if (state == 'parent' || state == 'child') scheduleUpdateCheck(session);
+    syncNotifications(session, home: state == 'parent' || state == 'child');
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 280),
