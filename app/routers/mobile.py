@@ -212,7 +212,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.9.18: намуди содаи сафед, матни хонданӣ ва панели равшани оила.",
+        "release_notes": "v2.9.19: рӯйхати барномаҳои фарзанд барои волидайн ислоҳ шуд, дизайни ранга.",
         "download_url": download_url
     }
 
@@ -606,10 +606,7 @@ def list_child_apps_v1(child_id: int, request: Request, db: Session = Depends(ge
         AppUsageDaily.usage_date == today,
     ).all()
     usage_by_package = {row.package_name: row for row in usage_rows}
-    rules = db.query(AppRule).filter(
-        AppRule.child_id == child.id,
-        AppRule.last_synced_at.isnot(None),
-    ).order_by(AppRule.app_name.asc()).all()
+    rules = db.query(AppRule).filter(AppRule.child_id == child.id).order_by(AppRule.app_name.asc()).all()
     return {
         "status": "success",
         "child": child.to_dict(),
