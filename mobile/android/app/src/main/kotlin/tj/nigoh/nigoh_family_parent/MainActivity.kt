@@ -114,6 +114,11 @@ class MainActivity : FlutterActivity() {
                         result.success(enabled)
                     }
                     "getProtectionStatus" -> result.success(protectionStatus())
+                    "getBatteryLevel" -> {
+                        val manager = getSystemService(BATTERY_SERVICE) as android.os.BatteryManager
+                        val level = manager.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                        result.success(if (level in 0..100) level else null)
+                    }
                     "openAppDetails" -> {
                         startActivity(
                             Intent(
