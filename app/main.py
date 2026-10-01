@@ -91,6 +91,23 @@ async def on_startup():
 
     anyio.to_thread.current_default_thread_limiter().total_tokens = 200
 
+# Mobile API errors in the phone's language (X-NIGOH-Lang: tg | ru | en)
+from fastapi.exceptions import HTTPException as _HTTPException  # noqa: E402
+from fastapi.exception_handlers import http_exception_handler as _default_http_handler  # noqa: E402
+from app.core.i18n import request_lang, translate  # noqa: E402
+
+
+@app.exception_handler(_HTTPException)
+async def localized_http_exception(request: Request, exc: _HTTPException):
+    if request.url.path.startswith("/api/mobile") and isinstance(exc.detail, str):
+        exc = _HTTPException(
+            status_code=exc.status_code,
+            detail=translate(exc.detail, request_lang(request.headers)),
+            headers=exc.headers,
+        )
+    return await _default_http_handler(request, exc)
+
+
 # 5. Include Modular Routers
 app.include_router(public_router)
 app.include_router(auth_router)
