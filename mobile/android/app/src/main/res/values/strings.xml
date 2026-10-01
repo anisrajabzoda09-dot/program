@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NIGOH Family</string>
+    <string name="app_block_service_description">Барномаҳои аз тарафи волидайн маҳкамшударо ошкоро бозмедорад.</string>
+    <string name="device_admin_description">Муҳофизати NIGOH Family аз тағйироти ғайри иҷозатии кӯдак</string>
+</resources>
