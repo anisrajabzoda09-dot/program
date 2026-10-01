@@ -38,7 +38,7 @@ def default_bundle_payload() -> dict:
                 "update_banner": "Муҳофизати оила фаъол аст",
             },
             "visibility": {
-                "demoLogin": True,
+                "demoLogin": False,
                 "homeworkMode": True,
             },
         },
