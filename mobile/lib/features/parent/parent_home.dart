@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/home_target.dart';
 import '../../core/models.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
+import '../call/call_screen.dart';
 import '../chat/chat_screen.dart';
 import '../settings/settings_screen.dart';
 import 'add_child_screen.dart';
@@ -14,6 +16,7 @@ import 'map_screen.dart';
 import 'parent_logic.dart';
 import 'parent_sheets.dart';
 import 'requests_screen.dart';
+import 'study_sheet.dart';
 import 'weekly_report.dart';
 
 const _deviceChannel = MethodChannel('tj.nigoh/device_control');
@@ -38,6 +41,31 @@ class _ParentHomeState extends State<ParentHome> {
   String? _readMarked;
 
   FamilyController get controller => _controller!;
+
+  @override
+  void initState() {
+    super.initState();
+    homeTarget.addListener(_onHomeTarget);
+    // Opened from a notification before this screen existed.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onHomeTarget());
+  }
+
+  /// Notification tap: select the child and switch to chat / map / overview,
+  /// or open the extra-time requests.
+  void _onHomeTarget() {
+    final target = homeTarget.value;
+    if (target == null || !mounted || _controller == null) return;
+    homeTarget.value = null;
+    final childId = target.childId;
+    if (childId != null) controller.select(childId);
+    final tab = switch (target.kind) {
+      'chat' => 3,
+      'map' => 2,
+      _ => 0,
+    };
+    setState(() => _tab = tab);
+    if (target.kind == 'requests') _openRequests();
+  }
 
   /// When a child's chat is visible and has unread messages (or an SOS),
   /// tell the server they were seen; this also clears the SOS banner.
@@ -83,6 +111,15 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
+  void _openStudy(FamilyChild child) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => StudySheet(controller: controller, child: child),
+    );
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -98,6 +135,7 @@ class _ParentHomeState extends State<ParentHome> {
 
   @override
   void dispose() {
+    homeTarget.removeListener(_onHomeTarget);
     if (_owned) _controller?.dispose();
     super.dispose();
   }
@@ -334,6 +372,7 @@ class _ParentHomeState extends State<ParentHome> {
         onRequests: _openRequests,
         onReport: _openReport,
         onBedtime: _openBedtime,
+        onStudy: _openStudy,
       );
     }
     final selected = controller.selected!;
@@ -469,6 +508,7 @@ class _Overview extends StatelessWidget {
     required this.onRequests,
     required this.onReport,
     required this.onBedtime,
+    required this.onStudy,
   });
 
   final FamilyController controller;
@@ -479,10 +519,20 @@ class _Overview extends StatelessWidget {
   final VoidCallback onRequests;
   final ValueChanged<FamilyChild> onReport;
   final ValueChanged<FamilyChild> onBedtime;
+  final ValueChanged<FamilyChild> onStudy;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final sorted = controller.sortedByAttention;
+    final deviceAlerts = [
+      for (final c in sorted)
+        // A phone that never reported is shown on its own card only.
+        if (c.paired &&
+            (isLowBattery(c) ||
+                (c.location?.updatedAt != null && isOfflineChild(c))))
+          c,
+    ];
     final name = parentName.trim().split(' ').first;
     return RefreshIndicator(
       onRefresh: () => controller.refresh(),
@@ -522,8 +572,15 @@ class _Overview extends StatelessWidget {
               onTap: onRequests,
             ),
           ],
+          if (deviceAlerts.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _DeviceAlerts(
+              children: deviceAlerts,
+              onOpen: (child) => onOpen(2, child),
+            ),
+          ],
           const SizedBox(height: 8),
-          for (final (index, child) in controller.children.indexed)
+          for (final (index, child) in sorted.indexed)
             FadeIn(
               key: ValueKey('child-${child.id}'),
               index: index,
@@ -534,6 +591,7 @@ class _Overview extends StatelessWidget {
                 onRemove: () => onRemove(child),
                 onReport: () => onReport(child),
                 onBedtime: () => onBedtime(child),
+                onStudy: () => onStudy(child),
               ),
             ),
           const SizedBox(height: 16),
@@ -588,6 +646,7 @@ class _ChildCard extends StatelessWidget {
     required this.onRemove,
     required this.onReport,
     required this.onBedtime,
+    required this.onStudy,
   });
 
   final FamilyChild child;
@@ -596,13 +655,17 @@ class _ChildCard extends StatelessWidget {
   final VoidCallback onRemove;
   final VoidCallback onReport;
   final VoidCallback onBedtime;
+  final VoidCallback onStudy;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final online = child.online;
+    final now = DateTime.now();
+    final offline = isOfflineChild(child, now);
     final seen = child.location?.updatedAt;
-    final battery = child.location?.batteryLevel;
+    final battery = batteryOf(child);
+    final lowBattery = isLowBattery(child);
+    final studyActive = child.study.activeAt(now);
     final status = placeStatus(child.location, places);
     final inside =
         status != null &&
@@ -615,11 +678,21 @@ class _ChildCard extends StatelessWidget {
     final bedtimeActive = child.bedtime.activeAt(DateTime.now());
     final newApps = child.newAppsCount;
     final chips = <Widget>[
+      if (offline)
+        Pill(
+          key: ValueKey('offline-${child.id}'),
+          seen == null ? 'Офлайн — маълумот нест' : 'Офлайн — ${timeAgo(seen)}',
+          color: scheme.outline,
+          icon: Icons.cloud_off_rounded,
+        ),
       if (battery != null)
         Pill(
-          '$battery%',
-          color: battery <= 15 ? NigohDesign.coral : NigohDesign.mint,
-          icon: battery <= 15
+          key: ValueKey(
+            lowBattery ? 'battery-low-${child.id}' : 'battery-${child.id}',
+          ),
+          lowBattery ? 'Батарея кам: $battery%' : '$battery%',
+          color: lowBattery ? scheme.error : NigohDesign.mint,
+          icon: lowBattery
               ? Icons.battery_alert_rounded
               : Icons.battery_std_rounded,
         ),
@@ -698,8 +771,8 @@ class _ChildCard extends StatelessWidget {
                     const Pill('Интизор', color: NigohDesign.amber)
                   else
                     Pill(
-                      online ? 'Онлайн' : 'Офлайн',
-                      color: online ? NigohDesign.mint : scheme.outline,
+                      offline ? 'Офлайн' : 'Онлайн',
+                      color: offline ? scheme.outline : NigohDesign.mint,
                       icon: Icons.circle,
                     ),
                   PopupMenuButton<String>(
@@ -719,6 +792,13 @@ class _ChildCard extends StatelessWidget {
               if (chips.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Wrap(spacing: 6, runSpacing: 6, children: chips),
+              ],
+              if (child.paired) ...[
+                const SizedBox(height: 8),
+                _InternetRow(
+                  key: ValueKey('net-${child.id}'),
+                  online: !offline,
+                ),
               ],
               const SizedBox(height: 14),
               Row(
@@ -769,6 +849,21 @@ class _ChildCard extends StatelessWidget {
                       label: 'Чат',
                       onTap: () => onOpen(3),
                     ),
+                    if (child.paired)
+                      IconButton.filled(
+                        key: ValueKey('call-${child.id}'),
+                        tooltip: 'Занг',
+                        style: IconButton.styleFrom(
+                          backgroundColor: NigohDesign.mint,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () => CallScreen.openOutgoing(
+                          context,
+                          childId: child.id,
+                          peerName: child.name,
+                        ),
+                        icon: const Icon(Icons.call_rounded, size: 20),
+                      ),
                   ],
                 ),
               ),
@@ -800,11 +895,102 @@ class _ChildCard extends StatelessWidget {
                         onTap: onBedtime,
                       ),
                     ),
+                    Expanded(
+                      child: Tooltip(
+                        message: studyLabel(child.study),
+                        child: _LinkRow(
+                          key: ValueKey('study-${child.id}'),
+                          icon: studyActive
+                              ? Icons.school_rounded
+                              : Icons.school_outlined,
+                          color: NigohDesign.mint,
+                          label: 'Тамаркузи дарс',
+                          trailing: !child.study.enabled
+                              ? null
+                              : studyActive
+                              ? 'Ҳозир фаъол'
+                              : '${child.study.start}–${child.study.end}',
+                          onTap: onStudy,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// «Интернет: пайваст» / «Интернет: пайваст нест».
+class _InternetRow extends StatelessWidget {
+  const _InternetRow({super.key, required this.online});
+  final bool online;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final color = online ? NigohDesign.mint : scheme.onSurfaceVariant;
+    return Row(
+      children: [
+        Icon(
+          online ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+          size: 15,
+          color: color,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          online ? 'Интернет: пайваст' : 'Интернет: пайваст нест',
+          style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
+/// Phones that need attention: low battery or no report for 20+ minutes.
+class _DeviceAlerts extends StatelessWidget {
+  const _DeviceAlerts({required this.children, required this.onOpen});
+  final List<FamilyChild> children;
+  final ValueChanged<FamilyChild> onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      key: const ValueKey('device-alerts'),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          children: [
+            for (final c in children)
+              ListTile(
+                dense: true,
+                onTap: () => onOpen(c),
+                leading: Icon(
+                  isLowBattery(c)
+                      ? Icons.battery_alert_rounded
+                      : Icons.cloud_off_rounded,
+                  color: isLowBattery(c) ? scheme.error : scheme.outline,
+                ),
+                title: Text(
+                  c.name,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  [
+                    if (isLowBattery(c)) 'Батарея кам: ${batteryOf(c)}%',
+                    if (isOfflineChild(c))
+                      'Офлайн — ${timeAgo(c.location?.updatedAt)}',
+                  ].join(' · '),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+              ),
+          ],
         ),
       ),
     );
@@ -935,8 +1121,8 @@ class _LinkRow extends StatelessWidget {
                 if (trailing != null)
                   Text(
                     trailing!,
-                    style: const TextStyle(
-                      color: NigohDesign.violet,
+                    style: TextStyle(
+                      color: color,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
