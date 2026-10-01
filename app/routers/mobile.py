@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 import json
 import secrets
 
@@ -53,6 +53,7 @@ from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.chat import ChatMessage
+from app.models.family_extras import LocationPoint
 from app.models.user import User
 from app.core.firebase_mobile import find_user_by_firebase_uid
 from app.core.mobile_auth import require_mobile_user
@@ -123,9 +124,13 @@ def _rule_payload(rule: AppRule, usage: Optional[AppUsageDaily] = None) -> dict:
             schedule = json.loads(rule.schedule_json)
         except (TypeError, json.JSONDecodeError):
             schedule = None
+    today_iso = date.today().isoformat()
     return {
         **rule.to_dict(),
         "schedule": schedule,
+        "always_allowed": bool(rule.always_allowed),
+        "bonus_minutes_today": (rule.bonus_minutes or 0) if rule.bonus_date == today_iso else 0,
+        "first_seen_at": rule.first_seen_at.isoformat() if rule.first_seen_at else None,
         "usage_minutes_today": minutes,
         "usage_percent": min(100, round(minutes * 100 / limit)) if limit else 0,
         "is_limit_exceeded": bool(limit and minutes >= limit),
@@ -178,7 +183,48 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
             "updated_at": child.location_updated_at.isoformat() if child.location_updated_at else None,
         } if child.location_updated_at else None,
         "apps": [_rule_payload(rule, usage_by_package.get(rule.package_name)) for rule in rules],
+        "bedtime": _json_or_none(child.bedtime_json),
+        "unread_from_child": _unread(db, child.id, "child"),
+        "unread_from_parent": _unread(db, child.id, "parent"),
+        "pending_requests": db.query(AppExtensionRequest).filter(
+            AppExtensionRequest.child_id == child.id,
+            AppExtensionRequest.status == "pending",
+        ).count(),
+        "last_urgent": _last_urgent(db, child.id),
     }
+
+
+def _json_or_none(raw: Optional[str]):
+    if not raw:
+        return None
+    try:
+        return json.loads(raw)
+    except (TypeError, ValueError):
+        return None
+
+
+def _unread(db: Session, child_id: int, sender_role: str) -> int:
+    return db.query(ChatMessage).filter(
+        ChatMessage.child_id == child_id,
+        ChatMessage.sender_role == sender_role,
+        ChatMessage.is_read == 0,
+    ).count()
+
+
+def _last_urgent(db: Session, child_id: int) -> Optional[dict]:
+    """Newest unread SOS from the child within the last 24 hours."""
+    row = db.query(ChatMessage).filter(
+        ChatMessage.child_id == child_id,
+        ChatMessage.sender_role == "child",
+        ChatMessage.message_type == "urgent",
+        ChatMessage.is_read == 0,
+    ).order_by(ChatMessage.id.desc()).first()
+    if row is None or row.created_at is None:
+        return None
+    created = row.created_at if row.created_at.tzinfo else row.created_at.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) - created > timedelta(hours=24):
+        return None
+    return row.to_dict()
 
 
 def _mobile_snapshot(db: Session, user: dict) -> dict:
@@ -481,6 +527,7 @@ def sync_mobile_apps_v2(
                 package_name=item.package_name,
                 app_name=item.app_name or item.package_name,
                 daily_limit_minutes=0,
+                first_seen_at=datetime.now(timezone.utc),
             )
             db.add(rule)
         elif rule.last_synced_at is None:
@@ -533,6 +580,8 @@ def update_mobile_app_rule_v2(
         rule.daily_limit_minutes = payload.daily_limit_minutes
     if payload.schedule is not None:
         rule.schedule_json = payload.schedule.model_dump_json()
+    if payload.always_allowed is not None:
+        rule.always_allowed = 1 if payload.always_allowed else 0
     rule.last_synced_at = datetime.now(timezone.utc)
     db.commit()
     return {"status": "success", "child": _mobile_child_payload(db, child)}
@@ -556,6 +605,13 @@ def update_mobile_location_v2(
     if payload.battery_level is not None:
         child.battery_level = payload.battery_level
     child.location_updated_at = datetime.now(timezone.utc)
+    db.add(LocationPoint(
+        child_id=child.id,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        accuracy=payload.accuracy,
+        battery_level=payload.battery_level,
+    ))
     db.commit()
     return {"status": "success", "location": _mobile_child_payload(db, child)["location"]}
 
