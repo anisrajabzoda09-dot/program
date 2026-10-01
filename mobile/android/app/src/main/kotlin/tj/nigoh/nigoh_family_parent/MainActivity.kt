@@ -1,7 +1,6 @@
 package tj.nigoh.nigoh_family_parent
 
 import android.app.AppOpsManager
-import android.app.DownloadManager
 import android.app.usage.UsageStatsManager
 import android.app.admin.DevicePolicyManager
 import android.content.BroadcastReceiver
@@ -10,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.os.Process
 import android.provider.Settings
 import android.content.pm.ApplicationInfo
@@ -41,7 +39,6 @@ class MainActivity : FlutterActivity() {
     private val channelName = "tj.nigoh/update"
     private val deviceControlChannelName = "tj.nigoh/device_control"
     private val packageEventsChannelName = "tj.nigoh/package_events"
-    private var updateDownloadId: Long? = null
     private var pendingUpdateUrl: String? = null
     private var pendingUpdateVersion: String? = null
     private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -55,27 +52,6 @@ class MainActivity : FlutterActivity() {
                 Intent.ACTION_PACKAGE_REPLACED ->
                     packageEventSink?.success(intent.data?.schemeSpecificPart ?: "")
             }
-        }
-    }
-    private val updateReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action != DownloadManager.ACTION_DOWNLOAD_COMPLETE) return
-            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
-            if (id != updateDownloadId) return
-            val manager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-            val cursor = manager.query(DownloadManager.Query().setFilterById(id))
-            cursor.use {
-                if (!it.moveToFirst()) return
-                val status = it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                if (status != DownloadManager.STATUS_SUCCESSFUL) return
-            }
-            val apkUri = manager.getUriForDownloadedFile(id) ?: return
-            startActivity(
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(apkUri, "application/vnd.android.package-archive")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )
         }
     }
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -103,6 +79,16 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "tj.nigoh/update_progress")
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+                    AppUpdater.listener = { event -> events.success(event) }
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    AppUpdater.listener = null
+                }
+            })
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, deviceControlChannelName)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
@@ -456,13 +442,6 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
-        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(updateReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(updateReceiver, filter)
-        }
         if (isBlockServiceEnabled()) startProtectionService()
     }
 
@@ -475,20 +454,15 @@ class MainActivity : FlutterActivity() {
             pendingUpdateUrl != null && packageManager.canRequestPackageInstalls()
         ) {
             val url = pendingUpdateUrl!!
-            val version = pendingUpdateVersion ?: "latest"
             pendingUpdateUrl = null
             pendingUpdateVersion = null
-            enqueueUpdate(url, version)
+            AppUpdater.start(this, url)
         }
     }
 
     override fun onDestroy() {
         activityScope.cancel()
         unregisterPackageReceiver()
-        try {
-            unregisterReceiver(updateReceiver)
-        } catch (_: Exception) {
-        }
         super.onDestroy()
     }
 
@@ -559,24 +533,10 @@ class MainActivity : FlutterActivity() {
             result.success("install_permission_required")
             return
         }
-        enqueueUpdate(url, version)
+        AppUpdater.start(this, url)
         result.success("download_started")
     }
 
-    private fun enqueueUpdate(url: String, version: String) {
-        val manager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-        val safeVersion = version.replace(Regex("[^A-Za-z0-9._-]"), "-")
-        val fileName = "NIGOH-Family-$safeVersion-${System.currentTimeMillis()}.apk"
-        val request = DownloadManager.Request(Uri.parse(url))
-            .setTitle("NIGOH Family $version")
-            .setDescription("Навсозӣ зеркашӣ мешавад")
-            .setMimeType("application/vnd.android.package-archive")
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, fileName)
-            .setAllowedOverMetered(true)
-            .setAllowedOverRoaming(false)
-        updateDownloadId = manager.enqueue(request)
-    }
 
     private fun uninstallWithParentPin() {
         val policy = getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
