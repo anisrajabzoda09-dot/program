@@ -20,7 +20,7 @@ ANDROID_PROJECT = Path(os.environ.get(
     "NIGOH_ANDROID_PROJECT",
     str(Path(__file__).resolve().parents[1] / "mobile"),
 ))
-APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.12.0.apk")
+APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.13.0.apk")
 
 
 def build_and_verify_release_apk():

@@ -266,7 +266,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.12.0: навсозӣ бо як тугма — бе нест кардани барнома; маълумот ва иҷозатҳо мемонанд.",
+        "release_notes": "v2.13.0: огоҳиномаҳо (паём, SOS бо занги хатар), занги овозӣ мисли Telegram, «Тамаркузи дарс», огоҳии батареяи кам ва интернет.",
         "download_url": download_url
     }
 
