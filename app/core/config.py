@@ -9,8 +9,8 @@ load_dotenv(os.path.join(PROJECT_DIR, ".env"))
 class Settings:
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
-    APP_VERSION: str = "2.13.0"
-    APP_VERSION_CODE: int = 41
+    APP_VERSION: str = "2.14.0"
+    APP_VERSION_CODE: int = 42
 
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR: str = os.path.join(BASE_DIR, "static")
@@ -63,6 +63,7 @@ class Settings:
     ]
 
     APK_CANDIDATES = [
+        "NIGOH_Family_Android_v2.14.0.apk",
         "NIGOH_Family_Android_v2.13.0.apk",
         "NIGOH_Family_Android_v2.12.0.apk",
         "NIGOH_Family_Android_v2.11.0.apk",
