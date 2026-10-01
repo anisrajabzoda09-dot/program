@@ -45,7 +45,23 @@ class ChildApp {
     this.dailyLimitMinutes = 0,
     this.usageMinutesToday = 0,
     this.schedule = const AppSchedule(),
+    this.alwaysAllowed = false,
+    this.bonusMinutesToday = 0,
+    this.firstSeenAt,
   });
+
+  final bool alwaysAllowed;
+  final int bonusMinutesToday;
+  final DateTime? firstSeenAt;
+
+  /// Daily limit including today's bonus (0 = no limit).
+  int get effectiveLimitMinutes =>
+      dailyLimitMinutes == 0 ? 0 : dailyLimitMinutes + bonusMinutesToday;
+
+  /// Installed within the last 24 hours.
+  bool get isNew =>
+      firstSeenAt != null &&
+      DateTime.now().toUtc().difference(firstSeenAt!.toUtc()).inHours < 24;
 
   final String packageName;
   final String name;
@@ -63,15 +79,30 @@ class ChildApp {
     dailyLimitMinutes: (j['daily_limit_minutes'] as num?)?.toInt() ?? 0,
     usageMinutesToday: (j['usage_minutes_today'] as num?)?.toInt() ?? 0,
     schedule: AppSchedule.fromJson(j['schedule']),
+    alwaysAllowed: j['always_allowed'] == true || j['always_allowed'] == 1,
+    bonusMinutesToday: (j['bonus_minutes_today'] as num?)?.toInt() ?? 0,
+    firstSeenAt: parseServerTime(j['first_seen_at']),
   );
 
-  /// Rule list sent to the native blocker (`setAppControlRules`).
-  Map<String, dynamic> toNativeRule() => {
-    'packageName': packageName,
-    'blocked': blocked,
-    'dailyLimitMinutes': dailyLimitMinutes,
-    'schedule': schedule.enabled ? schedule.toJson() : null,
-  };
+  /// Rule sent to the native blocker (`setAppControlRules`). The native
+  /// side is unchanged; bonus time, «always allowed» and bedtime only adjust
+  /// what is sent. [bedtimeActive] blocks every app that is not always allowed.
+  Map<String, dynamic> toNativeRule({bool bedtimeActive = false}) {
+    if (alwaysAllowed) {
+      return {
+        'packageName': packageName,
+        'blocked': false,
+        'dailyLimitMinutes': 0,
+        'schedule': null,
+      };
+    }
+    return {
+      'packageName': packageName,
+      'blocked': blocked || bedtimeActive,
+      'dailyLimitMinutes': effectiveLimitMinutes,
+      'schedule': schedule.enabled ? schedule.toJson() : null,
+    };
+  }
 }
 
 class ChildLocation {
@@ -117,7 +148,21 @@ class FamilyChild {
     required this.apps,
     this.location,
     this.parentName,
+    this.bedtime = const Bedtime(),
+    this.unreadFromChild = 0,
+    this.unreadFromParent = 0,
+    this.pendingRequests = 0,
+    this.lastUrgent,
   });
+
+  final Bedtime bedtime;
+  final int unreadFromChild;
+  final int unreadFromParent;
+  final int pendingRequests;
+
+  /// Unread SOS from the child within the last 24 h (parent shows an alert).
+  final ChatMessage? lastUrgent;
+  int get newAppsCount => apps.where((a) => a.isNew).length;
 
   final int id;
   final String name;
@@ -149,6 +194,13 @@ class FamilyChild {
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
     location: ChildLocation.fromJson(j['location']),
     parentName: j['parent_name']?.toString(),
+    bedtime: Bedtime.fromJson(j['bedtime']),
+    unreadFromChild: (j['unread_from_child'] as num?)?.toInt() ?? 0,
+    unreadFromParent: (j['unread_from_parent'] as num?)?.toInt() ?? 0,
+    pendingRequests: (j['pending_requests'] as num?)?.toInt() ?? 0,
+    lastUrgent: j['last_urgent'] is Map
+        ? ChatMessage.fromJson(Map<String, dynamic>.from(j['last_urgent'] as Map))
+        : null,
   );
 }
 
@@ -160,8 +212,11 @@ class ChatMessage {
     required this.type,
     required this.content,
     this.createdAt,
+    this.isRead = false,
   });
 
+  /// The other side has opened the chat since this was sent.
+  final bool isRead;
   final int id;
   final String senderRole;
   final String senderName;
@@ -176,5 +231,98 @@ class ChatMessage {
     type: j['message_type']?.toString() ?? 'text',
     content: j['content']?.toString() ?? '',
     createdAt: parseServerTime(j['created_at']),
+    isRead: j['is_read'] == true || j['is_read'] == 1,
+  );
+}
+
+/// Phone-wide quiet hours: every app except «always allowed» ones is blocked.
+class Bedtime {
+  const Bedtime({this.enabled = false, this.start = '21:30', this.end = '07:00'});
+
+  final bool enabled;
+  final String start;
+  final String end;
+
+  factory Bedtime.fromJson(Object? raw) {
+    if (raw is! Map) return const Bedtime();
+    return Bedtime(
+      enabled: raw['enabled'] == true,
+      start: raw['start']?.toString() ?? '21:30',
+      end: raw['end']?.toString() ?? '07:00',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'enabled': enabled, 'start': start, 'end': end};
+
+  /// True when [now] is inside the window (handles windows over midnight).
+  bool activeAt(DateTime now) {
+    if (!enabled) return false;
+    int? minutes(String hhmm) {
+      final parts = hhmm.split(':');
+      if (parts.length != 2) return null;
+      final h = int.tryParse(parts[0]);
+      final m = int.tryParse(parts[1]);
+      return h == null || m == null ? null : h * 60 + m;
+    }
+
+    final s = minutes(start);
+    final e = minutes(end);
+    if (s == null || e == null || s == e) return false;
+    final t = now.hour * 60 + now.minute;
+    return s < e ? (t >= s && t < e) : (t >= s || t < e);
+  }
+}
+
+class TimeRequest {
+  const TimeRequest({
+    required this.id,
+    required this.packageName,
+    required this.appName,
+    required this.minutes,
+    required this.status,
+    this.reason,
+    this.createdAt,
+  });
+
+  final int id;
+  final String packageName;
+  final String appName;
+  final int minutes;
+  final String status; // pending | approved | denied
+  final String? reason;
+  final DateTime? createdAt;
+
+  factory TimeRequest.fromJson(Map<String, dynamic> j) => TimeRequest(
+    id: (j['id'] as num).toInt(),
+    packageName: j['package_name']?.toString() ?? '',
+    appName: j['app_name']?.toString() ?? j['package_name']?.toString() ?? '',
+    minutes: (j['requested_minutes'] as num?)?.toInt() ?? 15,
+    status: j['status']?.toString() ?? 'pending',
+    reason: j['reason']?.toString(),
+    createdAt: parseServerTime(j['created_at']),
+  );
+}
+
+class SafePlace {
+  const SafePlace({
+    required this.id,
+    required this.name,
+    required this.latitude,
+    required this.longitude,
+    required this.radiusMeters,
+  });
+
+  final int id;
+  final String name;
+  final double latitude;
+  final double longitude;
+  final int radiusMeters;
+
+  factory SafePlace.fromJson(Map<String, dynamic> j) => SafePlace(
+    id: (j['id'] as num).toInt(),
+    name: j['name']?.toString() ?? '',
+    latitude: (j['latitude'] as num).toDouble(),
+    longitude: (j['longitude'] as num).toDouble(),
+    radiusMeters: (j['radius_meters'] as num?)?.toInt() ?? 150,
   );
 }
