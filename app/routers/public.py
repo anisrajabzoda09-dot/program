@@ -157,6 +157,12 @@ def how_it_works_page(request: Request):
     return _site_page(request, "how", "how")
 
 
+@router.head("/security", include_in_schema=False)
+@router.get("/security", response_class=HTMLResponse)
+def security_page(request: Request):
+    return _site_page(request, "security", "security")
+
+
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
 @router.get("/3d", response_class=HTMLResponse)
