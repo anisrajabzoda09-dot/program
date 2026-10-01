@@ -198,7 +198,7 @@ def _mobile_snapshot(db: Session, user: dict) -> dict:
 @router.get("/mobile")
 def mobile_app_page():
     """Redirect to official APK download section"""
-    return RedirectResponse(url="/#download", status_code=302)
+    return RedirectResponse(url="/get", status_code=302)
 
 @router.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):

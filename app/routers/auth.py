@@ -129,8 +129,8 @@ def auth_page(request: Request):
     if user:
         if user.get("role") == "admin":
             return RedirectResponse("/admin", status_code=303)
-        return RedirectResponse("/#download", status_code=303)
-    return templates.TemplateResponse(request=request, name="auth.html", context={})
+        return RedirectResponse("/get", status_code=303)
+    return templates.TemplateResponse(request=request, name="auth.html", context={"app_version": settings.APP_VERSION})
 
 @router.post("/api/auth/register")
 def api_register(payload: UserRegister, request: Request, response: Response, db: Session = Depends(get_db)):
@@ -160,7 +160,7 @@ def api_register(payload: UserRegister, request: Request, response: Response, db
         max_age=settings.SESSION_MAX_AGE,
         secure=_request_is_https(request)
     )
-    return {"status": "success", "user": user_dict, "redirect": "/#download"}
+    return {"status": "success", "user": user_dict, "redirect": "/get"}
 
 @router.post("/api/auth/login")
 def api_login(payload: UserLogin, request: Request, response: Response, db: Session = Depends(get_db)):
@@ -186,7 +186,7 @@ def api_login(payload: UserLogin, request: Request, response: Response, db: Sess
         secure=_request_is_https(request)
     )
 
-    redirect_target = "/admin" if user_dict.get("role") == "admin" else "/#download"
+    redirect_target = "/admin" if user_dict.get("role") == "admin" else "/get"
     return {"status": "success", "user": user_dict, "redirect": redirect_target}
 
 @router.post("/api/auth/google")
@@ -199,7 +199,7 @@ def api_google_auth(payload: GoogleAuthRequest, request: Request, response: Resp
     check_rate_limit(request, action="google", max_requests=10, window_seconds=60)
     userinfo = _google_userinfo_from_access_token(payload.token)
     user_dict = _sign_in_google_user(request, response, db, userinfo)
-    return {"status": "success", "user": user_dict, "redirect": "/#download"}
+    return {"status": "success", "user": user_dict, "redirect": "/get"}
 
 
 @router.get("/auth/google/login")
