@@ -51,7 +51,7 @@ async def security_and_analytics_middleware(request: Request, call_next):
         client_ip = "127.0.0.1"
 
     path = request.url.path
-    if path in ["/", "/auth", "/admin"]:
+    if path in ["/", "/features", "/how-it-works", "/security", "/faq", "/get", "/auth", "/admin"]:
         user_agent = request.headers.get("user-agent", "")
         # Track analytics using scoped SQLAlchemy session
         db = SessionLocal()
