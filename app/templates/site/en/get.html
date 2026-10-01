@@ -1,0 +1,136 @@
+{% extends "site/base.html" %}
+
+{% block title %}Download for Android — NIGOH Family{% endblock %}
+
+{% block description %}Download NIGOH Family {{ app_version }} for Android for free. APK file, QR code and installation guide for the parent's and the child's phone.{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Download</span>
+    <h1>NIGOH Family for Android</h1>
+    <p class="lead">One app for both phones. Download the APK directly from our website — free and ad-free.</p>
+    <div class="btn-row" style="margin-top:30px;align-items:center">
+      <a class="btn btn-primary" href="/download/android">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+        Download APK
+      </a>
+      <span class="tag blue">Version {{ app_version }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="qr">
+  <div class="wrap split">
+    <div class="center">
+      <img class="qr-big" src="/api/qr/download" width="240" height="240" alt="QR code to download NIGOH Family" style="margin:0 auto">
+      <p class="muted small" style="margin:18px auto 0;max-width:320px">Scan with your phone's camera. The QR code always points to the latest version of the app.</p>
+    </div>
+    <div>
+      <h2>File details</h2>
+      <table class="meta-table" style="margin-top:24px">
+        <tr><th>Version</th><td>{{ app_version }}</td></tr>
+        <tr><th>Size</th><td>~77 MB</td></tr>
+        <tr><th>System</th><td>Android 8.0 and later</td></tr>
+        <tr><th>Price</th><td>Free</td></tr>
+        <tr><th>Package</th><td style="word-break:break-all">tj.nigoh.nigoh_family_parent</td></tr>
+        <tr><th>Source</th><td>nigohfamily.qobus.tj</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Installation</span>
+      <h2>How to install</h2>
+      <p class="lead">The app isn't on Google Play, so Android asks for one extra permission.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Download the file</h3>
+          <p>Tap “Download APK” or scan the QR code.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Allow the installation</h3>
+          <p>Android will ask you to let your browser “Install unknown apps”. Allow it and go back.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Install the app</h3>
+          <p>Open the downloaded file and tap “Install”.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Open it and choose a role</h3>
+          <p>Choose “Parent” on your phone and “Child” on your child's phone.</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:32px">
+      <div class="callout amber">
+        <p><strong>Android 13 and later.</strong> On your child's phone, before turning on Accessibility, you may need to go to: App info → ⋮ → “Allow restricted settings”.</p>
+      </div>
+      <div class="callout">
+        <p>The same APK is installed on both phones. The role — parent or child — is chosen when you first open the app.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Version {{ app_version }}</span>
+      <h2>What's new in {{ app_version }}</h2>
+      <p class="lead" style="margin-top:16px">The app checks for new versions itself and offers to download them.</p>
+    </div>
+    <ul class="feature-list" style="margin-top:0">
+      <li>After sign-up, permissions are granted step by step, with a button and a guide for each one.</li>
+      <li>Profile photos for parent and child.</li>
+      <li>Removing a child requires the parent PIN.</li>
+      <li>The map card has been fixed and the design is cleaner.</li>
+      <li>Notifications, SOS with an alarm, voice calls and “Study mode” since version 2.13.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>After installing</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+        <h3>Parent's phone</h3>
+        <ul class="feature-list">
+          <li>Choose the “Parent” role.</li>
+          <li>Sign in with Google or email.</li>
+          <li>Set a parent PIN in settings.</li>
+          <li>Scan your child's QR code or enter the 6-digit code.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+        <h3>Child's phone</h3>
+        <ul class="feature-list">
+          <li>Choose the “Child” role.</li>
+          <li>Turn on permissions step by step in the permission center.</li>
+          <li>Show the QR code or the 6-digit code to the parent.</li>
+          <li>The code works once and expires after 15 minutes.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:28px">Have a question? <a class="link-arrow" href="{{ lang_prefix }}/faq">Questions &amp; answers</a></p>
+  </div>
+</section>
+
+{% endblock %}

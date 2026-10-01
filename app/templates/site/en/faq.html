@@ -1,0 +1,183 @@
+{% extends "site/base.html" %}
+
+{% block title %}FAQ — NIGOH Family{% endblock %}
+{% block description %}Answers to common questions about NIGOH Family: installing the APK, linking your child's phone, app control, security and updates.{% endblock %}
+
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "My child's location isn't showing on the map", "acceptedAnswer": {"@type": "Answer", "text": "On your child's phone, turn on GPS and give the app location permission set to “Allow all the time”. The app sends the last known location immediately and then updates it every minute, even indoors. If something isn't working, the reason is shown on your child's home screen. Update both phones to the latest version."}},
+    {"@type": "Question", "name": "How does the SOS button work?", "acceptedAnswer": {"@type": "Answer", "text": "Your child holds the SOS button for about two seconds, so it isn't pressed by accident. The parent sees a red alert in the app with the child's location and battery level."}},
+    {"@type": "Question", "name": "How does my child ask for extra time?", "acceptedAnswer": {"@type": "Answer", "text": "In “My rules”, your child picks a blocked or limited app and asks for 15, 30 or 60 minutes. The parent sees the request and approves or declines it with one tap. Extra time applies only to that day."}},
+    {"@type": "Question", "name": "Is NIGOH Family free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The app is downloaded and installed for free from the official website. It has no ads, and we don't sell your data."}},
+    {"@type": "Question", "name": "Which phones does the app support?", "acceptedAnswer": {"@type": "Answer", "text": "NIGOH Family is built for Android. Android 8 or later is recommended. There is no iPhone app yet."}},
+    {"@type": "Question", "name": "Is the app on Google Play?", "acceptedAnswer": {"@type": "Answer", "text": "No. The app is distributed as an APK file from the official website nigohfamily.qobus.tj. The file is signed with our release key, so it can't be modified without that being detected. Download the app only from nigohfamily.qobus.tj."}},
+    {"@type": "Question", "name": "Do I need to install the app on both phones?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The same APK is installed on the parent's phone and on the child's phone. When you first open it, you choose a role: Parent or Child."}},
+    {"@type": "Question", "name": "Android warns about installing unknown apps. What should I do?", "acceptedAnswer": {"@type": "Answer", "text": "This is a standard Android warning for any app installed outside Google Play. Allow your browser to install unknown apps and continue the installation. If the file was downloaded from nigohfamily.qobus.tj, it is safe."}},
+    {"@type": "Question", "name": "Accessibility won't turn on in Android 13. What should I do?", "acceptedAnswer": {"@type": "Answer", "text": "On Android 13 and later, some settings are restricted for apps installed from an APK. On your child's phone, open Settings, Apps, NIGOH Family, tap the three-dot menu and choose Allow restricted settings. Then turn Accessibility on again."}},
+    {"@type": "Question", "name": "How do I link my child's phone?", "acceptedAnswer": {"@type": "Answer", "text": "On your child's phone, choose the Child role; it will show a QR code and a 6-digit code. On the parent's phone, add a child and scan the QR code with the camera or enter the code manually. It takes less than a minute."}},
+    {"@type": "Question", "name": "The code doesn't work or has expired.", "acceptedAnswer": {"@type": "Answer", "text": "The linking code is single-use and expires after 15 minutes. Get a new code on your child's phone and scan it again. Make sure both phones are connected to the internet."}},
+    {"@type": "Question", "name": "Can I link more than one child?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. One parent can add several children. Each child has a separate card and their own rules in the app."}},
+    {"@type": "Question", "name": "I can't see my child's app list.", "acceptedAnswer": {"@type": "Answer", "text": "Open the app on your child's phone and check that it's connected to the internet. In the permission center, make sure all permissions are granted, especially usage access. The list usually appears within a minute. Update the app on both phones to version {{ app_version }}."}},
+    {"@type": "Question", "name": "How do I block an app or limit its time?", "acceptedAnswer": {"@type": "Answer", "text": "In the app list, block or unblock any app with a single switch. You can set a daily limit for each app: 15 minutes, 1, 1.5, 2 or 4 hours. Homework time blocks the app on the days and hours you choose. Pause blocks all apps at once."}},
+    {"@type": "Question", "name": "Does blocking work offline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Rules are stored on your child's phone and work without the internet too. When the phone is online, your changes arrive roughly every 15 seconds."}},
+    {"@type": "Question", "name": "Can my child uninstall the app?", "acceptedAnswer": {"@type": "Answer", "text": "Not without the parent PIN. The app uses Android device administrator rights so it can't be uninstalled without permission. Removing a child and changing settings are also protected by the PIN."}},
+    {"@type": "Question", "name": "Does my child know the app is installed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. NIGOH Family isn't hidden. The app icon is visible on your child's phone, and every permission is explained during setup. We recommend talking to your child before installing."}},
+    {"@type": "Question", "name": "Where is our data stored?", "acceptedAnswer": {"@type": "Answer", "text": "On NIGOH's own server, which we manage. Data is transferred over HTTPS. Only the linked parent can see the child's location and app list."}},
+    {"@type": "Question", "name": "How do I update the app?", "acceptedAnswer": {"@type": "Answer", "text": "Since version 2.12.0, updating takes one tap: the app finds the new version on its own, you tap “Update”, and it downloads and installs. There's no need to uninstall the app — your sign-in, data and permissions are kept. The first time, Android will ask once for permission to install from this source. If your version is older than 2.12.0, download the new file from the website once and install it over the current app — without uninstalling."}},
+    {"@type": "Question", "name": "Does the app drain the battery?", "acceptedAnswer": {"@type": "Answer", "text": "Location tracking runs in the background, so it uses a little power. We've reduced this through optimization. For reliable operation, turn off battery optimization for NIGOH Family on your child's phone."}}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Support</span>
+    <h1>Questions &amp; answers</h1>
+    <p class="lead">Short answers to the questions parents ask most often, from installation to app control.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap" style="max-width:860px">
+
+    <h2>General</h2>
+    <div class="faq" style="margin-top:24px">
+      <details>
+        <summary>Is NIGOH Family free?</summary>
+        <div><p>Yes. The app is downloaded and installed for free from the official website. It has no ads, and we don't sell your data.</p></div>
+      </details>
+      <details>
+        <summary>Which phones does the app support?</summary>
+        <div><p>NIGOH Family is built for Android. Android 8 or later is recommended. There is no iPhone app yet.</p></div>
+      </details>
+      <details>
+        <summary>Is the app on Google Play?</summary>
+        <div>
+          <p>No. The app is distributed as an APK file from the official website nigohfamily.qobus.tj.</p>
+          <p>The file is signed with our release key, so it can't be modified without that being detected. Download the app only from <a href="{{ lang_prefix }}/get">nigohfamily.qobus.tj</a>, not from other websites or groups.</p>
+        </div>
+      </details>
+    </div>
+
+    <h2 style="margin-top:72px">Installation</h2>
+    <div class="faq" style="margin-top:24px">
+      <details>
+        <summary>Do I need to install the app on both phones?</summary>
+        <div><p>Yes. The same APK is installed on the parent's phone and on the child's phone. When you first open it, you choose a role: Parent or Child.</p></div>
+      </details>
+      <details>
+        <summary>Android warns: “Install unknown apps”. What should I do?</summary>
+        <div>
+          <p>This is a standard Android warning for any app installed outside Google Play. Allow your browser to install unknown apps and continue the installation.</p>
+          <p>If the file was downloaded from nigohfamily.qobus.tj, it is safe.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Accessibility won't turn on in Android 13. What should I do?</summary>
+        <div>
+          <p>On Android 13 and later, some settings are restricted for apps installed from an APK. On your child's phone, open <b>Settings → Apps → NIGOH Family</b>, tap the <b>⋮</b> menu and choose “Allow restricted settings”.</p>
+          <p>Then turn Accessibility on again.</p>
+        </div>
+      </details>
+    </div>
+
+    <h2 style="margin-top:72px">Linking</h2>
+    <div class="faq" style="margin-top:24px">
+      <details>
+        <summary>How do I link my child's phone?</summary>
+        <div><p>On your child's phone, choose the “Child” role; it will show a QR code and a 6-digit code. On the parent's phone, add a child and scan the QR code with the camera or enter the code manually. It takes less than a minute.</p></div>
+      </details>
+      <details>
+        <summary>The code doesn't work or has expired</summary>
+        <div><p>The linking code is single-use and expires after 15 minutes. Get a new code on your child's phone and scan it again. Make sure both phones are connected to the internet.</p></div>
+      </details>
+      <details>
+        <summary>Can I link more than one child?</summary>
+        <div><p>Yes. One parent can add several children. Each child has a separate card and their own rules in the app.</p></div>
+      </details>
+    </div>
+
+    <h2 style="margin-top:72px">App control</h2>
+    <div class="faq" style="margin-top:24px">
+      <details>
+        <summary>I can't see my child's app list</summary>
+        <div>
+          <p>Open the app on your child's phone and check that it's connected to the internet. In the permission center, make sure all permissions are granted, especially usage access. The list usually appears within a minute.</p>
+          <p>Update the app on both phones to version {{ app_version }}. In this version, the app list syncs automatically and retries if something goes wrong.</p>
+        </div>
+      </details>
+      <details>
+        <summary>How do I block an app or limit its time?</summary>
+        <div>
+          <p>In the app list, block or unblock any app with a single switch. You can set a daily limit for each app: 15 minutes, 1, 1.5, 2 or 4 hours.</p>
+          <p>“Homework time” blocks the app on the days and hours you choose. “Pause” blocks all apps at once.</p>
+        </div>
+      </details>
+      <details>
+        <summary>My child's location isn't showing on the map</summary>
+        <div>
+          <p>On your child's phone, turn on GPS and give the app location permission set to “Allow all the time”. The app sends the last known location immediately and then updates it every minute, even indoors.</p>
+          <p>If something isn't working, the reason is shown on your child's home screen. Update both phones to the latest version.</p>
+        </div>
+      </details>
+      <details>
+        <summary>How does the SOS button work?</summary>
+        <div>
+          <p>Your child holds the SOS button for about two seconds, so it isn't pressed by accident. The parent sees a red alert in the app with the child's location and battery level.</p>
+        </div>
+      </details>
+      <details>
+        <summary>How does my child ask for extra time?</summary>
+        <div>
+          <p>In “My rules”, your child picks a blocked or limited app and asks for 15, 30 or 60 minutes. The parent sees the request and approves or declines it with one tap. Extra time applies only to that day.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Does blocking work offline?</summary>
+        <div><p>Yes. Rules are stored on your child's phone and work without the internet too. When the phone is online, your changes arrive roughly every 15 seconds.</p></div>
+      </details>
+      <details>
+        <summary>Does the app drain the battery?</summary>
+        <div>
+          <p>Location tracking runs in the background, so it uses a little power. We've reduced this through optimization.</p>
+          <p>For reliable operation, turn off battery optimization for NIGOH Family on your child's phone.</p>
+        </div>
+      </details>
+      <details>
+        <summary>How do I update the app?</summary>
+        <div><p>Since version 2.12.0, updating takes one tap: the app finds the new version on its own, you tap “Update”, and it downloads and installs. There's no need to uninstall the app — your sign-in, data and permissions are kept.</p><p>The first time, Android will ask once for permission to install from this source. If your version is older than 2.12.0, download the new file from the website once and install it over the current app — without uninstalling.</p></div>
+      </details>
+    </div>
+
+    <h2 style="margin-top:72px">Security</h2>
+    <div class="faq" style="margin-top:24px">
+      <details>
+        <summary>Can my child uninstall the app?</summary>
+        <div><p>Not without the parent PIN. The app uses Android device administrator rights so it can't be uninstalled without permission. Removing a child and changing settings are also protected by the PIN.</p></div>
+      </details>
+      <details>
+        <summary>Does my child know the app is installed?</summary>
+        <div><p>Yes. NIGOH Family isn't hidden. The app icon is visible on your child's phone, and every permission is explained during setup. We recommend talking to your child before installing.</p></div>
+      </details>
+      <details>
+        <summary>Where is our data stored?</summary>
+        <div>
+          <p>On NIGOH's own server, which we manage. Data is transferred over HTTPS. Only the linked parent can see the child's location and app list.</p>
+          <p>More details on the <a href="{{ lang_prefix }}/security">Security &amp; privacy</a> page.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="callout" style="margin-top:72px">
+      <p>Didn't find your answer? See the step-by-step setup on the <a href="{{ lang_prefix }}/how-it-works">How it works</a> page, or install the app from the <a href="{{ lang_prefix }}/get">download</a> page.</p>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "site/base.html" %}
+
+{% block title %}Security &amp; privacy — NIGOH Family{% endblock %}
+{% block description %}How NIGOH Family protects your family's data: HTTPS, verified sign-in, our own server, a one-time linking code and a parent PIN.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Security &amp; privacy</span>
+    <h1>Your family's data — for your family only</h1>
+    <p class="lead">Your child's location, apps and messages are personal. On this page we explain in plain terms how we store them and who can see them.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Protection at every step</h2>
+      <p class="lead">From the moment you sign in to every map update.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>Encrypted connection</h3>
+        <p>All data between the phones and the server travels over HTTPS. It can't be read in transit.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Verified sign-in</h3>
+        <p>Sign-in with Google or email goes directly through the NIGOH server. The server verifies the Google token itself and gives the phone a dedicated key, which is stored in the database only as a hash.</p>
+      </div>
+      <div class="card">
+        <div class="icon ink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><path d="M6 7h.01M6 17h.01"/></svg></div>
+        <h3>Our own server</h3>
+        <p>Family data is stored on the NIGOH server, which we manage ourselves.</p>
+      </div>
+      <div class="card">
+        <div class="icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>One-time code</h3>
+        <p>The linking code works only once and expires after 15 minutes.</p>
+      </div>
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Linked parents only</h3>
+        <p>Only the parent who linked the child's phone can see the child's location and app list.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/><path d="M9 9h6M9 13h6"/></svg></div>
+        <h3>PIN and uninstall protection</h3>
+        <p>The parent PIN protects settings and removing a child. Without it, the app can't be uninstalled from the child's phone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="split" style="align-items:start">
+      <div>
+        <h2>What we collect and why</h2>
+        <p class="lead" style="margin-top:16px">Only what the app needs to work. Every piece of data has a purpose.</p>
+      </div>
+      <table class="meta-table">
+        <thead>
+          <tr><th scope="col">Data</th><th scope="col">Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Location</th><td>Showing the parent where the child is on a map</td></tr>
+          <tr><th scope="row">App list and icons</th><td>So the parent can see apps and set rules for them</td></tr>
+          <tr><th scope="row">Usage time</th><td>Calculating screen time and daily limits</td></tr>
+          <tr><th scope="row">Chat messages</th><td>Delivering messages between parent and child in the family chat</td></tr>
+          <tr><th scope="row">Email and name from Google</th><td>Signing in to the account and identifying family members</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:64px;max-width:680px">
+      <h3>What we don't do</h3>
+      <ul class="feature-list">
+        <li>We don't show ads.</li>
+        <li>We don't sell your data to anyone.</li>
+        <li>We don't monitor in secret. Your child knows the app is installed.</li>
+        <li>We have no access to messages in other apps, or to your child's passwords and photos.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <span class="eyebrow">Transparency</span>
+        <h2>Transparency for your child</h2>
+        <p class="lead" style="margin-top:16px">NIGOH Family isn't hidden on your child's phone. The app icon is visible, and every permission is explained during setup.</p>
+      </div>
+      <div class="stack">
+        <p class="muted">We believe parental control should be built on trust. When children know what is monitored and why, they accept the rules more easily and come to you on their own when something goes wrong.</p>
+        <div class="callout">
+          <p>Talk to your child before installing. Explain that the app is there to keep them safe, not to spy on them. Agree on the screen time rules together.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>You're in control</h2>
+      <p class="lead">You can unlink at any time or sign out of your account.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Remove a child</h3>
+        <p>Remove a child from the list using the parent PIN. The link between the phones is fully revoked.</p>
+      </div>
+      <div class="card">
+        <h3>Sign out</h3>
+        <p>Sign out in the app or on the website at any time. Signing in again requires new verification.</p>
+      </div>
+      <div class="card">
+        <h3>Delete your account</h3>
+        <p>To delete your account and its data, contact us through your account on the website.</p>
+        <p style="margin-top:14px"><a class="link-arrow" href="/auth?lang=en">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Have another question?</h2>
+        <p>Find answers about installation, linking and privacy on the FAQ page.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href="{{ lang_prefix }}/faq">Questions &amp; answers</a>
+        <a class="btn btn-primary" href="{{ lang_prefix }}/get">Download</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

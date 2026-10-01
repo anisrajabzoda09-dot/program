@@ -1,0 +1,185 @@
+{% extends "site/base.html" %}
+
+{% block title %}How it works — NIGOH Family{% endblock %}
+{% block description %}Three steps to get started: install NIGOH Family on two phones, grant permissions on your child's phone and link them with a QR code. Every Android permission explained.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">How it works</span>
+    <h1>From download to control —<br>in a few minutes</h1>
+    <p class="lead">One app on two phones. When you first open it, you choose a role: Parent or Child. Then the phones are linked with a QR code.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Three steps</span>
+      <h2>Install and link</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Install the app on both phones</h3>
+          <p>Get the APK file from the <a href="{{ lang_prefix }}/get">download</a> page. The same file works for the parent's phone and the child's phone. If Android asks, allow your browser to “Install unknown apps”.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Choose “Child” on your child's phone</h3>
+          <p>The permission center shows step by step what needs to be turned on and why. Once everything is ready, a QR code and a 6-digit code appear on the screen.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Choose “Parent” on your phone</h3>
+          <p>Sign in and tap “Add child”. Point the camera at the QR code or enter the 6-digit code manually. Linking takes less than a minute.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Two roles</span>
+      <h2>Each phone has its own job</h2>
+      <p class="lead">It's one app, but parent and child see it differently.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3>On the parent's phone</h3>
+        <ul class="feature-list">
+          <li>Your child's location on a map and the time of the last update.</li>
+          <li>A list of apps with icons and today's usage time.</li>
+          <li>Blocking, daily limits and “Homework time” for each app.</li>
+          <li>“Pause” to block all apps at once.</li>
+          <li>Chat, SOS alerts and extra time requests.</li>
+          <li>A PIN for important settings.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3>On the child's phone</h3>
+        <ul class="feature-list">
+          <li>The app is installed and visible. Your child knows it's there.</li>
+          <li>Location and the app list are sent to the parent.</li>
+          <li>A blocked app is covered by the NIGOH screen.</li>
+          <li>Rules work offline too.</li>
+          <li>Chat with the parent, an SOS button and “My rules”.</li>
+          <li>Can't be uninstalled without the parent PIN.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Permissions</span>
+      <h2>Why each permission is needed</h2>
+      <p class="lead">These permissions are granted on your child's phone. We only ask for what the app can't work without.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>Location</h3>
+        <p>So the parent can see the child's location on a map. This data is visible only to the linked parent.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <h3>Notifications</h3>
+        <p>For chat messages, and so the app can show that it's running in the background.</p>
+      </div>
+      <div class="card">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <h3>Camera</h3>
+        <p>Only for scanning the QR code when linking.</p>
+      </div>
+      <div class="card">
+        <div class="icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <h3>Usage access</h3>
+        <p>To know how many minutes each app has been used. Screen time and limits are calculated from this.</p>
+      </div>
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><rect x="8" y="7" width="8" height="6" rx="1"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Display over other apps</h3>
+        <p>To show the NIGOH screen on top of an app that has been blocked.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4.5" r="1.5"/><path d="M5 8l7 1.5L19 8"/><path d="M12 9.5V14l-3 7"/><path d="M12 14l3 7"/></svg>
+        </div>
+        <h3>Accessibility</h3>
+        <p>To detect which app was just opened, so the rules take effect immediately.</p>
+      </div>
+    </div>
+    <div class="callout amber" style="margin-top:32px">
+      <div>
+        <strong>Android 13 and later.</strong> If Android says the setting is restricted when you turn on Accessibility, go to <em>Settings → Apps → NIGOH Family</em>, tap <strong>⋮</strong> in the top corner and choose “Allow restricted settings”. Then return to the permission center.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">After linking</span>
+      <h2>What happens next</h2>
+    </div>
+    <div class="grid-3">
+      <div>
+        <h3>App list</h3>
+        <p class="muted" style="margin-top:8px">Within a minute, all the apps on your child's phone appear on your phone automatically.</p>
+      </div>
+      <div>
+        <h3>Rules</h3>
+        <p class="muted" style="margin-top:8px">Block an app or set a limit. Changes reach your child's phone in about 15 seconds.</p>
+      </div>
+      <div>
+        <h3>Offline</h3>
+        <p class="muted" style="margin-top:8px">Rules are stored on your child's phone and work without the internet too.</p>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:40px;gap:24px">
+      <a class="link-arrow" href="{{ lang_prefix }}/features">All features</a>
+      <a class="link-arrow" href="{{ lang_prefix }}/faq">Questions &amp; answers</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Ready to get started?</h2>
+        <p>Scan the QR code with your phone's camera or tap the button. NIGOH Family {{ app_version }}, free.</p>
+        <div class="btn-row" style="margin-top:24px">
+          <a class="btn btn-primary" href="/download/android">Download APK</a>
+          <a class="btn btn-ghost" href="{{ lang_prefix }}/get">Download page</a>
+        </div>
+      </div>
+      <img src="/api/qr/download" width="132" height="132" alt="QR code to download NIGOH Family">
+    </div>
+  </div>
+</section>
+{% endblock %}

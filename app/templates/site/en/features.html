@@ -1,0 +1,227 @@
+{% extends "site/base.html" %}
+
+{% block title %}Features — NIGOH Family{% endblock %}
+{% block description %}All NIGOH Family features: app and screen time control, your child's location on a map, family chat, PIN protection and easy setup with a QR code.{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Features</span>
+    <h1>Everything parents need<br>for peace of mind</h1>
+    <p class="lead">One app for two phones. See which apps your child uses and where they are, and stay in touch with them. You set the rules.</p>
+    <div class="btn-row" style="margin-top:28px;gap:8px">
+      <a class="tag" href="#apps">App control</a>
+      <a class="tag" href="#location">Location</a>
+      <a class="tag" href="#chat">Communication</a>
+      <a class="tag" href="#protection">Protection</a>
+      <a class="tag" href="#setup">Setup and updates</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="apps" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">App control</span>
+      <h2>Every app under your watch</h2>
+      <p class="lead" style="margin-top:16px">A full list of the apps on your child's phone, with icons and today's usage time. You can set a separate rule for each one.</p>
+      <ul class="feature-list">
+        <li>Block or unblock any app with a single switch.</li>
+        <li>Daily limit: 15 minutes, 1 hour, 1.5 hours, 2 hours, 4 hours or no limit.</li>
+        <li>“Homework time”: choose days of the week and hours, for example Monday to Friday, 16:00–18:00. The app is blocked during that time.</li>
+        <li>“Pause”: all apps are blocked at once, for example during dinner or lessons.</li>
+        <li>Screen time at a glance: total usage today, time remaining and the number of blocked apps.</li>
+        <li>New apps your child installs appear in the list automatically with a “New” badge.</li>
+        <li>Extra time: your child sends a request from the app, and you grant +15, +30 or +60 minutes with one tap.</li>
+        <li>“Always allowed”: essential apps, such as the phone or maps, are never blocked.</li>
+        <li>Categories: view games, social, video and education apps separately and block a whole category at once.</li>
+        <li>Weekly report: screen time for the past 7 days and the most-used apps.</li>
+      </ul>
+    </div>
+    <div class="screen">
+      <img src="/static/images/hero_phone_clean.png" width="420" height="578" alt="Parent home screen: child card, map, screen time and blocked apps">
+    </div>
+  </div>
+</section>
+
+<section class="section soft" id="location" style="scroll-margin-top:64px">
+  <div class="wrap split reverse">
+    <div>
+      <span class="eyebrow">Location</span>
+      <h2>Know where your child is</h2>
+      <p class="lead" style="margin-top:16px">Your child's location is shown on a map. You don't need to call or text them to check.</p>
+      <ul class="feature-list">
+        <li>A live map based on OpenStreetMap.</li>
+        <li>The time of the last update is shown next to the map.</li>
+        <li>Location updates automatically, with no action from your child, even indoors.</li>
+        <li>24-hour history: your child's route is drawn as a line on the map.</li>
+        <li>Safe places: add “Home” or “School” and see where your child is.</li>
+        <li>Your child's phone battery level on their card.</li>
+      </ul>
+    </div>
+    <div class="screen">
+      <img src="/static/images/mockup_map.png" width="335" height="210" alt="Map showing the child's location">
+    </div>
+  </div>
+</section>
+
+<section class="section" id="chat" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Communication</span>
+      <h2>Family chat built into the app</h2>
+      <p class="lead" style="margin-top:16px">Parent and child can talk directly in NIGOH Family. No other app needed.</p>
+      <ul class="feature-list">
+        <li>Text messages between parent and child, with “Read” receipts.</li>
+        <li>Quick replies for your child: “I've arrived”, “I'm on my way”, “Pick me up”.</li>
+        <li>SOS button: your child holds it, and the parent gets a red alert with their location.</li>
+        <li>Voice calls over the internet between parent and child.</li>
+        <li>Notifications even when the app is closed; SOS comes with a loud alarm.</li>
+      </ul>
+    </div>
+    <div class="grid-2">
+      <div class="card flat">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h4>Messages</h4>
+        <p class="small">Short and instant, just within the family.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </div>
+        <h4>SOS</h4>
+        <p class="small">An instant alert with location and battery level.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <h4>Voice calls</h4>
+        <p class="small">Calls like in a messenger, no phone number needed.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>Family only</h4>
+        <p class="small">Chat only between the parent and the linked child.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft" id="protection" style="scroll-margin-top:64px">
+  <div class="wrap split reverse">
+    <div>
+      <span class="eyebrow">Protection</span>
+      <h2>Rules keep working, even offline</h2>
+      <p class="lead" style="margin-top:16px">When your child opens a blocked app, the NIGOH screen covers it. Rules are stored on the phone itself.</p>
+      <ul class="feature-list">
+        <li>A block screen on your child's phone in place of the blocked app.</li>
+        <li>Works offline: the rules are saved on the phone.</li>
+        <li>While online, rules sync from the server roughly every 15 seconds.</li>
+        <li>The parent PIN protects settings changes and removing a child.</li>
+        <li>Without the PIN, your child can't uninstall the app from the phone.</li>
+        <li>“Bedtime”: for example, from 21:30 to 07:00 all apps except “Always allowed” ones are blocked.</li>
+        <li>“Study mode”: during school hours, games, social and video apps are blocked automatically; calls, SMS and educational apps stay available.</li>
+        <li>Alerts when the battery is low and when your child's phone goes offline.</li>
+        <li>In “My rules”, your child can see which apps are blocked and how long limits last.</li>
+      </ul>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        </div>
+        <h4>Block screen</h4>
+        <p class="small">A blocked app won't open.</p>
+      </div>
+      <div class="card">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </div>
+        <h4>Every ~15 seconds</h4>
+        <p class="small">Your changes reach your child's phone quickly.</p>
+      </div>
+      <div class="card">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h4>Parent PIN</h4>
+        <p class="small">Important settings only with your code.</p>
+      </div>
+      <div class="card">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h4>Uninstall protection</h4>
+        <p class="small">Powered by Android Device Admin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="setup" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Setup and updates</span>
+      <h2>Set up in minutes</h2>
+      <p class="lead" style="margin-top:16px">The app guides you through every step. No need to dig through Android settings yourself.</p>
+      <ul class="feature-list">
+        <li>The permission center on your child's phone explains, step by step, why each permission is needed.</li>
+        <li>Link with a QR code or a 6-digit code in less than a minute.</li>
+        <li>One parent can add several children.</li>
+        <li>The app finds new versions on its own and offers to download them.</li>
+        <li>Light and dark themes.</li>
+      </ul>
+    </div>
+    <div class="grid-2">
+      <div class="card flat">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+        </div>
+        <h4>QR code</h4>
+        <p class="small">Point the camera at your child's screen.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h4>Permission center</h4>
+        <p class="small">Each permission with a short explanation.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <h4>Automatic updates</h4>
+        <p class="small">New versions are offered automatically.</p>
+      </div>
+      <div class="card flat">
+        <div class="icon ink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </div>
+        <h4>Light and dark</h4>
+        <p class="small">A comfortable look for day and night.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Install the app today</h2>
+        <p>The download is free. The same APK for the parent's and the child's phone. Version {{ app_version }}.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="{{ lang_prefix }}/get">Download</a>
+        <a class="btn btn-ghost" href="{{ lang_prefix }}/how-it-works">How it works</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
