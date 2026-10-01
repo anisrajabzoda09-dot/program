@@ -147,10 +147,7 @@ class _SosButtonState extends State<SosButton>
                   ? 'Фиристода мешавад…'
                   : 'Дар ҳолати хатар пахш карда нигоҳ доред',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: scheme.onSurfaceVariant,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
             ),
           ],
         ),
@@ -182,6 +179,43 @@ class BedtimeNotice extends StatelessWidget {
           Expanded(
             child: Text(
               'Вақти хоб — барномаҳо то ${bedtime.end} баста ҳастанд',
+              style: TextStyle(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w600,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Calm notice while «Тамаркузи дарс» is active.
+class StudyNotice extends StatelessWidget {
+  const StudyNotice({super.key, required this.study});
+  final StudyMode study;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    const color = NigohDesign.mint;
+    return Container(
+      key: const ValueKey('study-notice'),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: .30)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.school_rounded, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Тамаркузи дарс — бозиҳо ва шабакаҳо то ${study.end} баста ҳастанд',
               style: TextStyle(
                 color: scheme.onSurface,
                 fontWeight: FontWeight.w600,
@@ -276,8 +310,7 @@ class ScreenTimeCard extends StatelessWidget {
                                 value: app.usageMinutesToday / most,
                                 minHeight: 5,
                                 color: NigohDesign.accentFor(app.packageName),
-                                backgroundColor:
-                                    scheme.surfaceContainerHighest,
+                                backgroundColor: scheme.surfaceContainerHighest,
                               ),
                             ),
                           ],

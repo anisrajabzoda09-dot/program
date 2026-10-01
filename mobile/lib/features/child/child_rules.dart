@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
+import '../../core/app_categories.dart';
 import '../../core/models.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'child_sync.dart';
+import 'child_widgets.dart' show StudyNotice;
 
 const _weekdayShort = {
   1: 'Дш',
@@ -18,12 +20,23 @@ const _weekdayShort = {
 
 /// «Дш, Сш, Чш» — or «Ҳар рӯз» for all seven days.
 String weekdaysLabel(List<int> days) {
-  final sorted = days.toSet().where(_weekdayShort.containsKey).toList()
-    ..sort();
+  final sorted = days.toSet().where(_weekdayShort.containsKey).toList()..sort();
   if (sorted.length == 7) return 'Ҳар рӯз';
   if (sorted.isEmpty) return 'Ягон рӯз';
   return sorted.map((d) => _weekdayShort[d]).join(', ');
 }
+
+/// Apps closed by «Тамаркузи дарс»: games, social and video — never
+/// essentials (phone, SMS), «always allowed» or apps the parent already
+/// blocked (those are listed separately).
+List<ChildApp> studyClosedApps(List<ChildApp> apps) => [
+  for (final a in apps)
+    if (!a.alwaysAllowed &&
+        !a.blocked &&
+        !isEssentialApp(a.packageName) &&
+        studyBlockedCategories.contains(categoryOf(a)))
+      a,
+];
 
 /// «45/60 дақ» plus «, +15 бонус» when the parent gave bonus time today.
 String limitUsageLabel(ChildApp app) {
@@ -161,12 +174,18 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     final allowed = apps.where((a) => a.alwaysAllowed).toList();
     final bedtime = child?.bedtime ?? const Bedtime();
     final bedtimeActive = bedtime.activeAt(sync.now());
+    final study = child?.study ?? const StudyMode();
+    final studyActive = study.activeAt(sync.now());
+    final studyApps = study.enabled
+        ? studyClosedApps(apps)
+        : const <ChildApp>[];
     final empty =
         blocked.isEmpty &&
         limited.isEmpty &&
         scheduled.isEmpty &&
         allowed.isEmpty &&
-        !bedtime.enabled;
+        !bedtime.enabled &&
+        !study.enabled;
 
     var index = 0;
     final children = <Widget>[
@@ -180,6 +199,11 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
         style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
       ),
       const SizedBox(height: 8),
+      if (studyActive) ...[
+        const SizedBox(height: 4),
+        StudyNotice(study: study),
+        const SizedBox(height: 4),
+      ],
       if (child == null)
         Padding(
           padding: const EdgeInsets.only(top: 40),
@@ -214,12 +238,49 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
                 color: NigohDesign.violet,
               ),
               title: '${bedtime.start} – ${bedtime.end}',
-              subtitle: 'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.',
+              subtitle:
+                  'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.',
               trailing: bedtimeActive
                   ? const Pill('Ҳозир фаъол', color: NigohDesign.violet)
                   : null,
             ),
           ),
+        ],
+        if (study.enabled) ...[
+          const SectionTitle('Тамаркузи дарс'),
+          FadeIn(
+            index: index++,
+            child: _RuleCard(
+              leading: _IconTile(
+                icon: Icons.school_rounded,
+                color: NigohDesign.mint,
+              ),
+              title:
+                  '${study.start} – ${study.end} · ${weekdaysLabel(study.weekdays)}',
+              subtitle:
+                  'Бозиҳо, шабакаҳо ва видео баста мешаванд. Занг, SMS ва '
+                  'барномаҳои таълимӣ кушода мемонанд.',
+              trailing: studyActive
+                  ? const Pill('Ҳозир фаъол', color: NigohDesign.mint)
+                  : null,
+            ),
+          ),
+          if (studyApps.isNotEmpty) ...[
+            SectionTitle('Дар соатҳои дарс баста (${studyApps.length})'),
+            for (final app in studyApps)
+              FadeIn(
+                index: index++,
+                child: _AppRule(
+                  key: ValueKey('study-app-${app.packageName}'),
+                  app: app,
+                  locked: studyActive,
+                  subtitle: categoryOf(app).label,
+                  pill: studyActive
+                      ? const Pill('Дарс', color: NigohDesign.mint)
+                      : null,
+                ),
+              ),
+          ],
         ],
         if (blocked.isNotEmpty) ...[
           SectionTitle('Баста (${blocked.length})'),
@@ -248,8 +309,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
                     (app.effectiveLimitMinutes == 0
                         ? 1
                         : app.effectiveLimitMinutes),
-                pill:
-                    app.usageMinutesToday >= app.effectiveLimitMinutes
+                pill: app.usageMinutesToday >= app.effectiveLimitMinutes
                     ? const Pill('Вақт тамом', color: NigohDesign.coral)
                     : null,
                 onAsk: () => _askTime(app),
@@ -393,6 +453,7 @@ class _RuleCard extends StatelessWidget {
 
 class _AppRule extends StatelessWidget {
   const _AppRule({
+    super.key,
     required this.app,
     required this.subtitle,
     this.locked = false,
@@ -544,9 +605,8 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
           FilledButton.icon(
             onPressed: () {
               final reason = _reason.text.trim();
-              Navigator.of(
-                context,
-              ).pop(_TimeAsk(_minutes, reason.isEmpty ? null : reason));
+              Navigator.of(context)
+                  .pop(_TimeAsk(_minutes, reason.isEmpty ? null : reason));
             },
             icon: const Icon(Icons.send_rounded),
             label: const Text('Фиристодан'),
