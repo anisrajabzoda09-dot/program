@@ -134,6 +134,12 @@ class MainActivity : FlutterActivity() {
                         openNextProtectionSetting()
                         result.success(true)
                     }
+                    "openAccessibilitySettingsDirect" -> {
+                        // Straight to Accessibility (the wizard handles the
+                        // other special permissions as separate steps).
+                        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        result.success(true)
+                    }
                     "openDeviceAdminSettings" -> {
                         val adminIntent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
                             putExtra(
