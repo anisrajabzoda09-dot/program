@@ -197,6 +197,23 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// «Тамаркузи дарс»: optimistic, rolled back when the server refuses.
+  Future<void> setStudyMode(FamilyChild child, StudyMode study) async {
+    final before = childById(child.id) ?? child;
+    _replaceChild(_copyChild(before, before.apps, study: study));
+    _pending++;
+    _notify();
+    try {
+      await _guard(() => api.setStudyMode(child.id, study.toJson()));
+    } catch (_) {
+      _replaceChild(before);
+      rethrow;
+    } finally {
+      _pending--;
+      _notify();
+    }
+  }
+
   /// Approve (with [minutes]) or deny an extra-time request, then reload so
   /// the badge and bonus minutes update.
   Future<void> decideRequest(
@@ -288,6 +305,19 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
       children.fold(0, (sum, c) => sum + c.pendingRequests);
 
   int get unreadTotal => children.fold(0, (sum, c) => sum + c.unreadFromChild);
+
+  /// Children needing attention first (SOS, low battery, offline), keeping
+  /// the server order otherwise.
+  List<FamilyChild> get sortedByAttention {
+    final indexed = [
+      for (var i = 0; i < children.length; i++) (i, children[i]),
+    ];
+    indexed.sort((a, b) {
+      final d = attentionRank(a.$2).compareTo(attentionRank(b.$2));
+      return d != 0 ? d : a.$1.compareTo(b.$1);
+    });
+    return [for (final e in indexed) e.$2];
+  }
 
   List<FamilyChild> get urgentChildren => [
     for (final c in children)
@@ -388,6 +418,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     FamilyChild c,
     List<ChildApp> apps, {
     Bedtime? bedtime,
+    StudyMode? study,
   }) => FamilyChild(
     id: c.id,
     name: c.name,
@@ -399,6 +430,8 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     location: c.location,
     parentName: c.parentName,
     bedtime: bedtime ?? c.bedtime,
+    study: study ?? c.study,
+    batteryLevel: c.batteryLevel,
     unreadFromChild: c.unreadFromChild,
     unreadFromParent: c.unreadFromParent,
     pendingRequests: c.pendingRequests,
@@ -416,6 +449,37 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     if (_started) WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
+}
+
+/// Battery % of the child's phone: the snapshot field, else the location's.
+int? batteryOf(FamilyChild child) =>
+    child.batteryLevel ?? child.location?.batteryLevel;
+
+/// Below this battery % the parent sees a red pill.
+const lowBatteryPercent = 15;
+
+/// The phone is «Офлайн» after this long without a location report.
+const offlineAfter = Duration(minutes: 20);
+
+bool isLowBattery(FamilyChild child) {
+  final b = batteryOf(child);
+  return b != null && b < lowBatteryPercent;
+}
+
+/// Paired child whose phone has not reported for [offlineAfter] (or never).
+bool isOfflineChild(FamilyChild child, [DateTime? now]) {
+  if (!child.paired) return false;
+  final at = child.location?.updatedAt;
+  if (at == null) return true;
+  return (now ?? DateTime.now()).toUtc().difference(at.toUtc()) > offlineAfter;
+}
+
+/// 0 = SOS, 1 = low battery, 2 = offline, 3 = fine.
+int attentionRank(FamilyChild child, [DateTime? now]) {
+  if (child.lastUrgent != null) return 0;
+  if (isLowBattery(child)) return 1;
+  if (isOfflineChild(child, now)) return 2;
+  return 3;
 }
 
 /// «1с 25д», «40 дақ».
