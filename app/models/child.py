@@ -20,6 +20,9 @@ class Child(Base):
     address = Column(String, default="ш. Душанбе, хиёбони Рӯдакӣ")
     location_updated_at = Column(DateTime, nullable=True)
     bedtime_json = Column(String, nullable=True)
+    study_json = Column(String, nullable=True)
+    low_battery_notified = Column(Integer, default=0)
+    offline_notified = Column(Integer, default=0)
     block_adult_content = Column(Integer, default=1)
     created_at = Column(DateTime, server_default=func.now())
 
