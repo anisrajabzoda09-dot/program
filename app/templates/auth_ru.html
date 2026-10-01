@@ -1,0 +1,396 @@
+{% set admin_required = request.query_params.get('admin') == 'required' %}<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход — NIGOH Family</title>
+  <meta name="description" content="Войдите в аккаунт родителя NIGOH Family или создайте новый.">
+  <link rel="canonical" href="https://nigohfamily.qobus.tj/auth?lang=ru">
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NIGOH Family">
+  <meta property="og:title" content="Вход — NIGOH Family">
+  <meta property="og:description" content="Войдите в аккаунт родителя NIGOH Family или создайте новый.">
+  <meta property="og:url" content="https://nigohfamily.qobus.tj/auth?lang=ru">
+  <meta property="og:image" content="https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" type="image/png" href="/static/images/nigoh_logo.png">
+  <link rel="apple-touch-icon" href="/static/images/nigoh_family_icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/site.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/css/auth.css?v={{ app_version }}">
+</head>
+<body class="auth-body">
+  <div class="auth">
+
+    <!-- Left: calm brand panel (desktop only) -->
+    <aside class="auth-aside" aria-label="О NIGOH Family">
+      <a class="brand" href="/ru">
+        <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
+        <span>NIGOH Family</span>
+      </a>
+
+      <div class="auth-aside-body">
+        <h1 class="rise">Вся семья рядом — спокойно и безопасно.</h1>
+        <p class="lead rise d1">Аккаунт родителя для управления устройством ребёнка со своего телефона.</p>
+
+        <ul class="benefits rise d2">
+          <li>
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+            </span>
+            <div>
+              <h3>Привязка по QR-коду</h3>
+              <p>Привяжите устройство ребёнка за несколько секунд, отсканировав QR-код.</p>
+            </div>
+          </li>
+          <li>
+            <span class="benefit-icon teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+            </span>
+            <div>
+              <h3>Правила и экранное время</h3>
+              <p>Ограничивайте приложения и задавайте дневное время использования.</p>
+            </div>
+          </li>
+          <li>
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            </span>
+            <div>
+              <h3>Местоположение и семейный чат</h3>
+              <p>Смотрите, где ребёнок, на карте и переписывайтесь с ним в чате.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="auth-aside-foot">
+        <a class="link-arrow" href="/ru/get">Скачать для Android</a>
+        <span class="muted">© 2026 NIGOH Family</span>
+      </div>
+    </aside>
+
+    <!-- Right: form -->
+    <main class="auth-main">
+      <div class="auth-top">
+        <a class="brand" href="/ru">
+          <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
+          <span>NIGOH Family</span>
+        </a>
+      </div>
+
+      <div class="auth-card rise">
+        <h2 id="authTitle">Вход</h2>
+        <p class="sub" id="authSub">Войдите в свой аккаунт родителя.</p>
+
+        {% if admin_required %}
+        <div class="notice" role="status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6l7-3z"/><path d="M12 8v4M12 15.5v.01"/></svg>
+          <span>Чтобы открыть панель управления, войдите с аккаунтом администратора.</span>
+        </div>
+        {% endif %}
+
+        <div class="segmented" role="tablist" aria-label="Способ входа" data-active="login" id="segmented">
+          <span class="segmented-indicator" aria-hidden="true"></span>
+          <button type="button" role="tab" id="tabLogin" aria-controls="loginForm" aria-selected="true">Вход</button>
+          <button type="button" role="tab" id="tabRegister" aria-controls="registerForm" aria-selected="false" tabindex="-1">Регистрация</button>
+        </div>
+
+        <button type="button" id="googleSignInBtn" class="btn btn-google">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span>Продолжить с Google</span>
+        </button>
+
+        <div class="divider">или по электронной почте</div>
+
+        <div class="alert-slot" id="alertSlot" aria-live="polite">
+          <div><div class="alert" id="alertBox" role="alert"></div></div>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="auth-form" role="tabpanel" aria-labelledby="tabLogin" novalidate>
+          <div class="field">
+            <label for="logEmail">Почта или логин</label>
+            <div class="control">
+              <input type="text" id="logEmail" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required aria-describedby="logEmailMsg">
+            </div>
+            <p class="field-msg" id="logEmailMsg"></p>
+          </div>
+          <div class="field">
+            <label for="logPassword">Пароль</label>
+            <div class="control has-toggle">
+              <input type="password" id="logPassword" name="password" autocomplete="current-password" required aria-describedby="logPasswordMsg">
+              <button type="button" class="pw-toggle" aria-controls="logPassword" aria-pressed="false" aria-label="Показать пароль">
+                <svg class="i-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="i-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.9 8.3 2 12 2 12s3.6 7 10 7c1.7 0 3.2-.5 4.5-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
+            </div>
+            <p class="field-msg" id="logPasswordMsg"></p>
+          </div>
+          <button type="submit" id="logSubmitBtn" class="btn btn-submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">Войти</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="form-foot">Нет аккаунта? <button type="button" data-switch="register">Зарегистрироваться</button></p>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="auth-form" role="tabpanel" aria-labelledby="tabRegister" novalidate hidden>
+          <div class="field">
+            <label for="regName">Имя и фамилия</label>
+            <div class="control">
+              <input type="text" id="regName" name="full_name" autocomplete="name" required minlength="2" maxlength="120" aria-describedby="regNameMsg">
+            </div>
+            <p class="field-msg" id="regNameMsg"></p>
+          </div>
+          <div class="field">
+            <label for="regEmail">Электронная почта</label>
+            <div class="control">
+              <input type="email" id="regEmail" name="email" autocomplete="email" autocapitalize="off" spellcheck="false" required aria-describedby="regEmailMsg">
+            </div>
+            <p class="field-msg" id="regEmailMsg"></p>
+          </div>
+          <div class="field">
+            <label for="regPassword">Пароль</label>
+            <div class="control has-toggle">
+              <input type="password" id="regPassword" name="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="regPasswordMsg">
+              <button type="button" class="pw-toggle" aria-controls="regPassword" aria-pressed="false" aria-label="Показать пароль">
+                <svg class="i-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="i-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.9 8.3 2 12 2 12s3.6 7 10 7c1.7 0 3.2-.5 4.5-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
+            </div>
+            <p class="field-msg" id="regPasswordMsg">Минимум 8 символов.</p>
+          </div>
+          <button type="submit" id="regSubmitBtn" class="btn btn-submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">Создать аккаунт</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="form-foot">Уже есть аккаунт? <button type="button" data-switch="login">Войти</button></p>
+        </form>
+
+        <div class="secure-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span>Ваши данные защищены зашифрованным соединением.</span>
+        </div>
+      </div>
+
+      <nav class="auth-back" aria-label="Ссылки">
+        <a href="/ru">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          <span>Главная страница</span>
+        </a>
+        <a href="/ru/get">Скачать для Android</a>
+      </nav>
+    </main>
+  </div>
+
+  <script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var segmented = document.getElementById('segmented');
+    var tabs = { login: document.getElementById('tabLogin'), register: document.getElementById('tabRegister') };
+    var forms = { login: document.getElementById('loginForm'), register: document.getElementById('registerForm') };
+    var title = document.getElementById('authTitle');
+    var sub = document.getElementById('authSub');
+    var alertSlot = document.getElementById('alertSlot');
+    var alertBox = document.getElementById('alertBox');
+    var googleBtn = document.getElementById('googleSignInBtn');
+    var copy = {
+      login: ['Вход', 'Войдите в свой аккаунт родителя.'],
+      register: ['Создание аккаунта', 'Создайте аккаунт родителя и привяжите устройство ребёнка.']
+    };
+    var current = 'login';
+
+    var ICON_ERR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16v.01"/></svg>';
+    var ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
+
+    function showAlert(msg, isError) {
+      alertBox.className = 'alert ' + (isError ? 'error' : 'success');
+      alertBox.innerHTML = (isError ? ICON_ERR : ICON_OK) + '<span></span>';
+      alertBox.querySelector('span').textContent = msg;
+      alertSlot.classList.remove('show');
+      void alertSlot.offsetWidth;
+      alertSlot.classList.add('show');
+    }
+    function hideAlert() { alertSlot.classList.remove('show'); }
+
+    function setMode(mode, focus) {
+      if (mode !== 'login' && mode !== 'register') return;
+      var changed = mode !== current;
+      current = mode;
+      segmented.setAttribute('data-active', mode);
+      Object.keys(tabs).forEach(function (k) {
+        var on = k === mode;
+        tabs[k].setAttribute('aria-selected', on ? 'true' : 'false');
+        tabs[k].tabIndex = on ? 0 : -1;
+        forms[k].hidden = !on;
+      });
+      title.textContent = copy[mode][0];
+      sub.textContent = copy[mode][1];
+      if (changed) {
+        forms[mode].classList.remove('enter');
+        void forms[mode].offsetWidth;
+        forms[mode].classList.add('enter');
+        hideAlert();
+      }
+      if (focus) tabs[mode].focus();
+    }
+
+    tabs.login.addEventListener('click', function () { setMode('login'); });
+    tabs.register.addEventListener('click', function () { setMode('register'); });
+    segmented.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') {
+        e.preventDefault();
+        var next = (e.key === 'ArrowLeft' || e.key === 'Home') ? 'login' : 'register';
+        setMode(next, true);
+      }
+    });
+    document.querySelectorAll('[data-switch]').forEach(function (b) {
+      b.addEventListener('click', function () { setMode(b.getAttribute('data-switch'), true); });
+    });
+
+    if (params.get('mode') === 'register' || window.location.hash === '#register') setMode('register');
+
+    // Password visibility
+    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var input = document.getElementById(btn.getAttribute('aria-controls'));
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+        btn.setAttribute('aria-label', show ? 'Скрыть пароль' : 'Показать пароль');
+      });
+    });
+
+    // Inline validation
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var rules = {
+      regName: function (v) { return v.trim().length >= 2 ? '' : 'Введите имя и фамилию (минимум 2 буквы).'; },
+      regEmail: function (v) { return EMAIL_RE.test(v.trim()) ? '' : 'Введите корректный адрес электронной почты.'; },
+      regPassword: function (v) { return v.length >= 8 ? '' : 'Пароль должен содержать не менее 8 символов.'; },
+      logEmail: function (v) { return v.trim() ? '' : 'Введите почту или логин.'; },
+      logPassword: function (v) { return v ? '' : 'Введите пароль.'; }
+    };
+    var hints = { regPassword: 'Минимум 8 символов.' };
+    var touched = {};
+
+    function validate(id) {
+      var input = document.getElementById(id);
+      var field = input.closest('.field');
+      var msgEl = document.getElementById(id + 'Msg');
+      var err = rules[id](input.value);
+      field.classList.toggle('invalid', !!err);
+      input.setAttribute('aria-invalid', err ? 'true' : 'false');
+      msgEl.textContent = err || hints[id] || '';
+      return !err;
+    }
+    Object.keys(rules).forEach(function (id) {
+      var input = document.getElementById(id);
+      input.addEventListener('blur', function () { if (input.value) { touched[id] = true; validate(id); } });
+      input.addEventListener('input', function () { if (touched[id]) validate(id); });
+    });
+    function validateForm(ids) {
+      var firstBad = null;
+      ids.forEach(function (id) {
+        touched[id] = true;
+        if (!validate(id) && !firstBad) firstBad = id;
+      });
+      if (firstBad) document.getElementById(firstBad).focus();
+      return !firstBad;
+    }
+
+    function setLoading(btn, on) {
+      btn.disabled = on;
+      btn.classList.toggle('loading', on);
+      btn.setAttribute('aria-busy', on ? 'true' : 'false');
+      var label = btn.querySelector('.label');
+      if (on) { btn.dataset.label = label.textContent; label.textContent = 'Подождите...'; }
+      else if (btn.dataset.label) { label.textContent = btn.dataset.label; }
+    }
+
+    function errorText(data, fallback) {
+      if (!data || data.detail == null) return fallback;
+      return typeof data.detail === 'string' ? data.detail : fallback;
+    }
+
+    async function submitAuth(url, payload, btn, okMsg, failMsg) {
+      setLoading(btn, true);
+      hideAlert();
+      try {
+        var res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var data = null;
+        try { data = await res.json(); } catch (e) { data = null; }
+        if (res.ok && data && data.status === 'success') {
+          showAlert(okMsg, false);
+          setTimeout(function () { window.location.href = data.redirect || '/get'; }, 800);
+        } else {
+          showAlert(errorText(data, failMsg), true);
+          setLoading(btn, false);
+        }
+      } catch (err) {
+        showAlert('Ошибка подключения к серверу', true);
+        setLoading(btn, false);
+      }
+    }
+
+    forms.register.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validateForm(['regName', 'regEmail', 'regPassword'])) return;
+      submitAuth('/api/auth/register', {
+        full_name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
+      }, document.getElementById('regSubmitBtn'),
+        'Вы успешно зарегистрировались! Переходим на сайт...',
+        'Ошибка при регистрации');
+    });
+
+    forms.login.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validateForm(['logEmail', 'logPassword'])) return;
+      submitAuth('/api/auth/login', {
+        email: document.getElementById('logEmail').value,
+        password: document.getElementById('logPassword').value
+      }, document.getElementById('logSubmitBtn'),
+        'Добро пожаловать! Выполняется вход...',
+        'Неверная почта или пароль');
+    });
+
+    // Google (server redirects back with ?google=not_configured if not set up)
+    googleBtn.addEventListener('click', function () {
+      googleBtn.disabled = true;
+      googleBtn.querySelector('span').textContent = 'Переход в Google...';
+      window.location.assign('/auth/google/login?next=%2F');
+    });
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) {
+        googleBtn.disabled = false;
+        googleBtn.querySelector('span').textContent = 'Продолжить с Google';
+      }
+    });
+
+    var oauthStatus = params.get('google');
+    if (oauthStatus === 'not_configured') {
+      showAlert('Вход через Google пока не настроен на сервере. Администратору нужно добавить учётные данные (credentials).', true);
+    } else if (oauthStatus === 'cancelled') {
+      showAlert('Вход через Google отменён.', true);
+    }
+  })();
+  </script>
+</body>
+</html>
