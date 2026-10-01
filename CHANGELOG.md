@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.14.0 — 2026-10-01
+- Step-by-step permissions wizard after sign-up (child: location, notifications, usage access, overlay, Accessibility, device admin, microphone, battery; parent: notifications, full-screen, camera, microphone, battery). Each step has an «Allow» button, a fallback button to the exact settings screen and expandable instructions.
+- Profile photos for parents and children (settings, cards, chat, calls, map marker).
+- Removing a child always requires the parent PIN (created first if missing).
+- Fixed: map info card text was laid out one letter per line.
+
 ## 2.13.0 — 2026-10-01
 - Notifications even when the app is closed (native long-poll service, no Firebase): messages, SOS, extra-time requests and answers, new apps, missed calls.
 - SOS rings a looping alarm on the parent phone until it is silenced.
