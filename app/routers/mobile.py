@@ -174,6 +174,8 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
         "child_user_id": child.user_id,
         "parent_user_id": child.parent_id,
         "parent_name": parent_user.full_name if parent_user else None,
+        "parent_avatar": parent_user.avatar if parent_user else None,
+        "child_avatar": child_user.avatar if child_user else None,
         "child_email": child_user.email if child_user else None,
         "location": {
             "latitude": child.latitude,
