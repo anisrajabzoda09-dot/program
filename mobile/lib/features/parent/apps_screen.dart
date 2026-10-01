@@ -7,6 +7,7 @@ import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import 'parent_logic.dart';
 import 'parent_sheets.dart';
+import 'study_sheet.dart';
 import 'weekly_report.dart';
 
 const _weekdayLabels = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
@@ -184,6 +185,15 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  void _openStudy(FamilyChild child) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => StudySheet(controller: controller, child: child),
+    );
+  }
+
   bool _matchesFilter(ChildApp app) {
     final filter = _filter;
     if (filter == null) return true;
@@ -270,6 +280,10 @@ class _AppsScreenState extends State<AppsScreen> {
             bedtime: child.bedtime,
             onReport: () => _openReport(child),
             onBedtime: () => _openBedtime(child),
+            study: _StudyButton(
+              study: child.study,
+              onTap: () => _openStudy(child),
+            ),
           ),
           const SizedBox(height: 12),
           _PauseCard(
@@ -405,11 +419,13 @@ class _ToolsRow extends StatelessWidget {
     required this.bedtime,
     required this.onReport,
     required this.onBedtime,
+    required this.study,
   });
 
   final Bedtime bedtime;
   final VoidCallback onReport;
   final VoidCallback onBedtime;
+  final Widget study;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +462,46 @@ class _ToolsRow extends StatelessWidget {
             ),
           ),
         ),
+        const SizedBox(width: 10),
+        Expanded(child: study),
       ],
+    );
+  }
+}
+
+/// «Тамаркузи дарс» entry under the bedtime shortcut.
+class _StudyButton extends StatelessWidget {
+  const _StudyButton({required this.study, required this.onTap});
+
+  final StudyMode study;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = study.activeAt(DateTime.now());
+    return Tooltip(
+      message: study.enabled
+          ? '${studyLabel(study)}${active ? ' · Ҳозир фаъол' : ''}'
+          : 'Тамаркузи дарс',
+      child: FilledButton.tonalIcon(
+        key: const ValueKey('open-study'),
+        style: FilledButton.styleFrom(
+          backgroundColor: study.enabled
+              ? NigohDesign.mint.withValues(alpha: .14)
+              : null,
+          foregroundColor: study.enabled ? NigohDesign.mint : null,
+        ),
+        onPressed: onTap,
+        icon: Icon(
+          active ? Icons.school_rounded : Icons.school_outlined,
+          size: 18,
+        ),
+        label: Text(
+          study.enabled ? '${study.start}–${study.end}' : 'Дарс',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     );
   }
 }
