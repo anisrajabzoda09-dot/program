@@ -19,6 +19,7 @@ class Child(Base):
     longitude = Column(Float, default=68.7870)
     address = Column(String, default="ш. Душанбе, хиёбони Рӯдакӣ")
     location_updated_at = Column(DateTime, nullable=True)
+    bedtime_json = Column(String, nullable=True)
     block_adult_content = Column(Integer, default=1)
     created_at = Column(DateTime, server_default=func.now())
 

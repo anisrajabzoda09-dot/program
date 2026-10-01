@@ -14,6 +14,10 @@ class AppRule(Base):
     daily_limit_minutes = Column(Integer, default=60)
     schedule_json = Column(String, nullable=True)
     last_synced_at = Column(DateTime, nullable=True)
+    first_seen_at = Column(DateTime, nullable=True)
+    always_allowed = Column(Integer, default=0)
+    bonus_minutes = Column(Integer, default=0)
+    bonus_date = Column(String, nullable=True)  # ISO date the bonus applies to
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     __table_args__ = (

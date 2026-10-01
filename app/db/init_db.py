@@ -13,6 +13,7 @@ from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.mobile_session import MobileSession  # noqa: F401  (create_all)
+from app.models.family_extras import LocationPoint, SafePlace  # noqa: F401  (create_all)
 from app.crud.crud_bundle import ensure_initial_bundle
 from app.core.security import hash_password
 
@@ -44,6 +45,18 @@ def init_db():
             conn.commit()
         if "last_synced_at" not in app_rule_cols:
             conn.execute(text("ALTER TABLE app_rules ADD COLUMN last_synced_at DATETIME"))
+            conn.commit()
+        for column, ddl in (
+            ("first_seen_at", "DATETIME"),
+            ("always_allowed", "INTEGER DEFAULT 0"),
+            ("bonus_minutes", "INTEGER DEFAULT 0"),
+            ("bonus_date", "TEXT"),
+        ):
+            if column not in app_rule_cols:
+                conn.execute(text(f"ALTER TABLE app_rules ADD COLUMN {column} {ddl}"))
+                conn.commit()
+        if "bedtime_json" not in cols:
+            conn.execute(text("ALTER TABLE children ADD COLUMN bedtime_json TEXT"))
             conn.commit()
 
     db = SessionLocal()
