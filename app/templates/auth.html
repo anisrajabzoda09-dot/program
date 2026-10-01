@@ -1,487 +1,396 @@
-<!DOCTYPE html>
+{% set admin_required = request.query_params.get('admin') == 'required' %}<!DOCTYPE html>
 <html lang="tg">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/static/css/site-fixes.css">
-  <title>Бақайдгирӣ ва Воридшавӣ — НИГОҲ Family</title>
-  
-  <!-- Canonical, Favicon & Meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ворид шудан — NIGOH Family</title>
+  <meta name="description" content="Ба ҳисоби волидайни NIGOH Family ворид шавед ё ҳисоби нав созед.">
   <link rel="canonical" href="https://nigohfamily.qobus.tj/auth">
-  <link rel="icon" type="image/png" href="/static/images/nigoh_family_icon.png">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#246bd5">
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#ffffff">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Бақайдгирӣ ва Воридшавӣ — НИГОҲ Family">
-  <meta property="og:description" content="Платформаи назорати оқилона ва ҳифзи амнияти оила дар Тоҷикистон">
+  <meta property="og:site_name" content="NIGOH Family">
+  <meta property="og:title" content="Ворид шудан — NIGOH Family">
+  <meta property="og:description" content="Ба ҳисоби волидайни NIGOH Family ворид шавед ё ҳисоби нав созед.">
   <meta property="og:url" content="https://nigohfamily.qobus.tj/auth">
   <meta property="og:image" content="https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png">
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Fonts -->
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="icon" type="image/png" href="/static/images/nigoh_logo.png">
+  <link rel="apple-touch-icon" href="/static/images/nigoh_family_icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  
-  <style>
-    * {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    body {
-      background-color: #f8fafc;
-      background-image: 
-        radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-        radial-gradient(at 90% 90%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
-        linear-gradient(to bottom, #ffffff, #f8fafc);
-      color: #0f172a;
-    }
-    
-    .white-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(226, 232, 240, 0.8);
-    }
-    .white-input {
-      background: #ffffff;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      transition: all 0.2s ease;
-    }
-    .white-input:focus-within {
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-      color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.35);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
-      box-shadow: 0 12px 25px -4px rgba(79, 70, 229, 0.45);
-      transform: translateY(-1.5px);
-    }
-    .btn-primary:active {
-      transform: translateY(0);
-    }
-  </style>
-  <link rel="stylesheet" href="/static/css/dashboard.css?v=20260930">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/site.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/css/auth.css?v={{ app_version }}">
 </head>
-<body class="auth-page min-h-screen flex flex-col justify-center items-center p-4 selection:bg-indigo-600 selection:text-white">
+<body class="auth-body">
+  <div class="auth">
 
-  <!-- Main Container -->
-  <div class="w-full max-w-[420px] my-auto py-6">
-    
-    <!-- Brand Header -->
-    <div class="text-center mb-6">
-      <a href="/" class="inline-flex flex-col items-center group">
-        <!-- Logo Badge -->
-        <div class="w-20 h-20 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center p-2 mb-3 group-hover:scale-105 transition-transform ring-4 ring-indigo-50/50">
-          <img src="/static/images/nigoh_family_icon.png" alt="Нигоҳ Family" class="w-full h-full object-contain">
-        </div>
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-[10px] font-black uppercase tracking-wider mb-1.5 shadow-2xs">
-          <span>🇹🇯 Тоҷикистон</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-2xl font-black tracking-tight text-slate-900">
-            НИГОҲ <span class="text-indigo-600 font-extrabold">FAMILY</span>
-          </h1>
-        </div>
+    <!-- Left: calm brand panel (desktop only) -->
+    <aside class="auth-aside" aria-label="Дар бораи NIGOH Family">
+      <a class="brand" href="/">
+        <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
+        <span>NIGOH Family</span>
       </a>
-      <p class="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-        Назорати оқилона ва ҳифзи амнияти фарзанд
-      </p>
-    </div>
 
-    <!-- Main White Card -->
-    <div class="white-card p-6 sm:p-8">
-      
-      <!-- Google Sign-In Button -->
-      <button type="button" id="googleSignInBtn" class="w-full bg-white hover:bg-slate-50 border border-slate-200/90 py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 text-slate-800 font-black text-sm mb-6 shadow-xs hover:shadow-md transition duration-200 cursor-pointer">
-        <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
-          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
-          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-        </svg>
-        <span>Воридшавӣ бо ҳисоби Google</span>
-      </button>
+      <div class="auth-aside-body">
+        <h1 class="rise">Оила дар як ҷо, ором ва бехатар.</h1>
+        <p class="lead rise d1">Ҳисоби волидайн барои идораи дастгоҳи фарзанд аз телефони худ.</p>
 
-      <!-- Divider -->
-      <div class="flex items-center gap-3 my-6">
-        <div class="h-px flex-1 bg-slate-200"></div>
-        <span class="text-slate-400 text-[11px] uppercase tracking-wider font-bold">ё бо почтаи электронӣ</span>
-        <div class="h-px flex-1 bg-slate-200"></div>
+        <ul class="benefits rise d2">
+          <li>
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+            </span>
+            <div>
+              <h3>Пайвастшавӣ бо рамзи QR</h3>
+              <p>Дастгоҳи фарзандро дар чанд сония бо скани QR пайваст кунед.</p>
+            </div>
+          </li>
+          <li>
+            <span class="benefit-icon teal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+            </span>
+            <div>
+              <h3>Қоидаҳо ва вақти экран</h3>
+              <p>Барномаҳоро маҳдуд кунед ва вақти истифодаи рӯзонаро муайян намоед.</p>
+            </div>
+          </li>
+          <li>
+            <span class="benefit-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            </span>
+            <div>
+              <h3>Ҷойгиршавӣ ва чати оилавӣ</h3>
+              <p>Ҷойи фарзандро дар харита бинед ва бо ӯ дар чат паём нависед.</p>
+            </div>
+          </li>
+        </ul>
       </div>
 
-      <!-- Tab Switcher -->
-      <div class="bg-slate-100 p-1 rounded-xl flex mb-6">
-        <button id="tabRegister" class="flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 bg-white shadow-xs text-indigo-600">
-          Бақайдгирӣ
-        </button>
-        <button id="tabLogin" class="flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 text-slate-500 hover:text-slate-900">
-          Воридшавӣ
-        </button>
+      <div class="auth-aside-foot">
+        <a class="link-arrow" href="/get">Боргирии Android</a>
+        <span class="muted">© 2026 NIGOH Family</span>
+      </div>
+    </aside>
+
+    <!-- Right: form -->
+    <main class="auth-main">
+      <div class="auth-top">
+        <a class="brand" href="/">
+          <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
+          <span>NIGOH Family</span>
+        </a>
       </div>
 
-      <!-- Alert Message Box -->
-      <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium border"></div>
+      <div class="auth-card rise">
+        <h2 id="authTitle">Ворид шудан</h2>
+        <p class="sub" id="authSub">Ба ҳисоби волидайни худ ворид шавед.</p>
 
-      <!-- REGISTER FORM -->
-      <form id="registerForm" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Ному насаб</label>
-          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
-            <i class="fa-solid fa-user text-slate-400 text-xs"></i>
-            <input type="text" id="regName" required placeholder="Муҳаммадҷон Раҳимов" class="w-full bg-transparent text-sm text-slate-900 outline-none">
-          </div>
+        {% if admin_required %}
+        <div class="notice" role="status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6l7-3z"/><path d="M12 8v4M12 15.5v.01"/></svg>
+          <span>Барои кушодани панели идоракунӣ бо ҳисоби администратор ворид шавед.</span>
+        </div>
+        {% endif %}
+
+        <div class="segmented" role="tablist" aria-label="Намуди ворид" data-active="login" id="segmented">
+          <span class="segmented-indicator" aria-hidden="true"></span>
+          <button type="button" role="tab" id="tabLogin" aria-controls="loginForm" aria-selected="true">Ворид шудан</button>
+          <button type="button" role="tab" id="tabRegister" aria-controls="registerForm" aria-selected="false" tabindex="-1">Бақайдгирӣ</button>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Почтаи электронӣ (Email)</label>
-          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
-            <i class="fa-solid fa-envelope text-slate-400 text-xs"></i>
-            <input type="email" id="regEmail" required placeholder="example@mail.tj" class="w-full bg-transparent text-sm text-slate-900 outline-none">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Парол</label>
-          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
-            <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
-            <input type="password" id="regPassword" required placeholder="Ҳадди ақал 6 рамз" minlength="6" class="w-full bg-transparent text-sm text-slate-900 outline-none">
-          </div>
-        </div>
-
-        <button type="submit" id="regSubmitBtn" class="w-full btn-primary font-bold py-3.5 px-4 flex items-center justify-center gap-2 mt-4 text-sm">
-          <span>Сабти ном кардан</span>
-          <i class="fa-solid fa-arrow-right text-xs"></i>
-        </button>
-      </form>
-
-      <!-- LOGIN FORM -->
-      <form id="loginForm" class="space-y-4 hidden">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Логин ё Почтаи электронӣ</label>
-          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
-            <i class="fa-solid fa-user-shield text-slate-400 text-xs"></i>
-            <input type="text" id="logEmail" required placeholder="Почта ё номи корбар" class="w-full bg-transparent text-sm text-slate-900 outline-none">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5 ml-1">Парол</label>
-          <div class="white-input px-3.5 py-2.5 flex items-center gap-3">
-            <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
-            <input type="password" id="logPassword" required placeholder="Пароли шумо" class="w-full bg-transparent text-sm text-slate-900 outline-none">
-          </div>
-        </div>
-
-        <button type="submit" id="logSubmitBtn" class="w-full btn-primary font-bold py-3.5 px-4 flex items-center justify-center gap-2 mt-4 text-sm">
-          <span>Ворид шудан ба система</span>
-          <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
-        </button>
-      </form>
-
-      <!-- Security Guarantee inside card -->
-      <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-500 font-medium">
-        <i class="fa-solid fa-shield-halved text-emerald-500"></i>
-        <span>Ҳифзи пурраи махфият ва амнияти маълумот</span>
-      </div>
-
-    </div>
-
-    <!-- Navigation Footers -->
-    <div class="flex items-center justify-between text-xs text-slate-500 mt-6 px-3 font-semibold">
-      <a href="/" class="hover:text-indigo-600 transition flex items-center gap-1.5">
-        <i class="fa-solid fa-arrow-left"></i>
-        <span>Саҳифаи асосӣ</span>
-      </a>
-      <a href="/download/android" class="hover:text-indigo-600 transition flex items-center gap-1.5">
-        <i class="fa-brands fa-android text-indigo-500"></i>
-        <span>Боргирии APK</span>
-        <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </div>
-
-  </div>
-
-  <!-- GOOGLE ACCOUNT CHOOSER MODAL -->
-  <div id="googleAccountModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-all">
-    <div class="bg-white rounded-3xl max-w-[420px] w-full p-6 sm:p-7 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
-      
-      <!-- Close Button -->
-      <button type="button" id="closeGoogleModalBtn" class="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer" title="Пӯшидан">
-        <i class="fa-solid fa-xmark text-base"></i>
-      </button>
-
-      <!-- Google Branding Header -->
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-white rounded-2xl border border-slate-100 shadow-xs">
-          <svg class="w-7 h-7" viewBox="0 0 24 24">
+        <button type="button" id="googleSignInBtn" class="btn btn-google">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
             <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"/>
             <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.14-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
             <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
           </svg>
-        </div>
-        <h3 class="text-xl font-black text-slate-900">Интихоби ҳисоби Google</h3>
-        <p class="text-xs text-slate-500 mt-1">Барои ворид шудан ба <span class="font-bold text-slate-700">НИГОҲ Family</span> ҳисобатонро интихоб кунед</p>
-      </div>
+          <span>Идома бо Google</span>
+        </button>
 
-      <!-- Account List -->
-      <div class="space-y-2.5 mb-5">
-        
-        <!-- Munis Rajabzoda Account Card -->
-        <button type="button" id="selectMunisGoogleBtn" class="w-full text-left p-3.5 rounded-2xl border-2 border-indigo-100 hover:border-indigo-500 bg-indigo-50/40 hover:bg-indigo-50/90 transition flex items-center justify-between group cursor-pointer shadow-xs">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white font-black flex items-center justify-center text-sm shadow-xs group-hover:scale-105 transition-transform">
-              M
+        <div class="divider">ё бо почтаи электронӣ</div>
+
+        <div class="alert-slot" id="alertSlot" aria-live="polite">
+          <div><div class="alert" id="alertBox" role="alert"></div></div>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" class="auth-form" role="tabpanel" aria-labelledby="tabLogin" novalidate>
+          <div class="field">
+            <label for="logEmail">Почта ё логин</label>
+            <div class="control">
+              <input type="text" id="logEmail" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required aria-describedby="logEmailMsg">
             </div>
-            <div>
-              <div class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                <span>Ҳисоби Google</span>
-                <span class="text-[10px] font-extrabold px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">Ҳисоби ман</span>
-              </div>
-              <div class="text-xs text-slate-500 font-medium">Ҳисоби интихобшудаи Google</div>
+            <p class="field-msg" id="logEmailMsg"></p>
+          </div>
+          <div class="field">
+            <label for="logPassword">Парол</label>
+            <div class="control has-toggle">
+              <input type="password" id="logPassword" name="password" autocomplete="current-password" required aria-describedby="logPasswordMsg">
+              <button type="button" class="pw-toggle" aria-controls="logPassword" aria-pressed="false" aria-label="Нишон додани парол">
+                <svg class="i-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="i-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.9 8.3 2 12 2 12s3.6 7 10 7c1.7 0 3.2-.5 4.5-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
             </div>
+            <p class="field-msg" id="logPasswordMsg"></p>
           </div>
-          <div class="w-7 h-7 rounded-full bg-white border border-indigo-200 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition shadow-2xs">
-            <i class="fa-solid fa-arrow-right text-xs"></i>
-          </div>
-        </button>
+          <button type="submit" id="logSubmitBtn" class="btn btn-submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">Ворид шудан</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="form-foot">Ҳисоб надоред? <button type="button" data-switch="register">Бақайдгирӣ</button></p>
+        </form>
 
-        <!-- Use another Google Account -->
-        <button type="button" id="toggleCustomGoogleBtn" class="w-full text-left p-3 rounded-2xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition flex items-center gap-3 group text-slate-700 cursor-pointer">
-          <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center text-xs group-hover:bg-white transition">
-            <i class="fa-solid fa-user-plus"></i>
+        <!-- REGISTER FORM -->
+        <form id="registerForm" class="auth-form" role="tabpanel" aria-labelledby="tabRegister" novalidate hidden>
+          <div class="field">
+            <label for="regName">Ному насаб</label>
+            <div class="control">
+              <input type="text" id="regName" name="full_name" autocomplete="name" required minlength="2" maxlength="120" aria-describedby="regNameMsg">
+            </div>
+            <p class="field-msg" id="regNameMsg"></p>
           </div>
-          <div class="flex-1">
-            <div class="text-xs font-bold text-slate-800">Истифодаи ҳисоби дигар</div>
-            <div class="text-[11px] text-slate-400">Почтаи дигари Google (@gmail.com)</div>
+          <div class="field">
+            <label for="regEmail">Почтаи электронӣ</label>
+            <div class="control">
+              <input type="email" id="regEmail" name="email" autocomplete="email" autocapitalize="off" spellcheck="false" required aria-describedby="regEmailMsg">
+            </div>
+            <p class="field-msg" id="regEmailMsg"></p>
           </div>
-          <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform" id="customGoogleChevron"></i>
-        </button>
+          <div class="field">
+            <label for="regPassword">Парол</label>
+            <div class="control has-toggle">
+              <input type="password" id="regPassword" name="password" autocomplete="new-password" required minlength="8" maxlength="128" aria-describedby="regPasswordMsg">
+              <button type="button" class="pw-toggle" aria-controls="regPassword" aria-pressed="false" aria-label="Нишон додани парол">
+                <svg class="i-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="i-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.9 8.3 2 12 2 12s3.6 7 10 7c1.7 0 3.2-.5 4.5-1.2M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
+            </div>
+            <p class="field-msg" id="regPasswordMsg">Ҳадди ақал 8 аломат.</p>
+          </div>
+          <button type="submit" id="regSubmitBtn" class="btn btn-submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">Сохтани ҳисоб</span>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          <p class="form-foot">Аллакай ҳисоб доред? <button type="button" data-switch="login">Ворид шудан</button></p>
+        </form>
 
+        <div class="secure-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span>Маълумоти шумо тавассути пайвасти рамзгузошта ҳифз мешавад.</span>
+        </div>
       </div>
 
-      <!-- Expandable Custom Account Form -->
-      <form id="customGoogleForm" class="hidden p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5 mb-4">
-        <div>
-          <label class="block text-[11px] font-bold text-slate-600 mb-1">Ному насаб:</label>
-          <input type="text" id="customGoogleName" placeholder="Масалан: Munis Rajabzoda" class="w-full px-3 py-2 text-xs rounded-xl bg-white border border-slate-200 outline-none focus:border-indigo-500">
-        </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-600 mb-1">Google Email:</label>
-          <input type="email" id="customGoogleEmail" required placeholder="example@gmail.com" class="w-full px-3 py-2 text-xs rounded-xl bg-white border border-slate-200 outline-none focus:border-indigo-500">
-        </div>
-        <button type="submit" id="customGoogleSubmitBtn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5">
-          <span>Воридшавӣ бо ин ҳисоб</span>
-          <i class="fa-solid fa-arrow-right text-xs"></i>
-        </button>
-      </form>
-
-      <!-- Security & Privacy Notice -->
-      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col items-center gap-1.5 text-center">
-        <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold">
-          <i class="fa-solid fa-shield-halved text-emerald-500"></i>
-          <span>Пайвасти бехатар бо ҳисоби Google</span>
-        </div>
-        <p class="text-[11px] text-slate-400 leading-relaxed max-w-[340px]">
-          Барои идома додани кор, Google маълумоти ном ва почтаро бо <span class="font-bold text-slate-600">НИГОҲ Family</span> мубодила мекунад.
-        </p>
-      </div>
-
-    </div>
+      <nav class="auth-back" aria-label="Пайвандҳо">
+        <a href="/">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          <span>Саҳифаи асосӣ</span>
+        </a>
+        <a href="/get">Боргирии Android</a>
+      </nav>
+    </main>
   </div>
 
-  <!-- SCRIPT LOGIC -->
   <script>
-    const tabRegister = document.getElementById('tabRegister');
-    const tabLogin = document.getElementById('tabLogin');
-    const registerForm = document.getElementById('registerForm');
-    const loginForm = document.getElementById('loginForm');
-    const alertBox = document.getElementById('alertBox');
-    const googleSignInBtn = document.getElementById('googleSignInBtn');
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var segmented = document.getElementById('segmented');
+    var tabs = { login: document.getElementById('tabLogin'), register: document.getElementById('tabRegister') };
+    var forms = { login: document.getElementById('loginForm'), register: document.getElementById('registerForm') };
+    var title = document.getElementById('authTitle');
+    var sub = document.getElementById('authSub');
+    var alertSlot = document.getElementById('alertSlot');
+    var alertBox = document.getElementById('alertBox');
+    var googleBtn = document.getElementById('googleSignInBtn');
+    var copy = {
+      login: ['Ворид шудан', 'Ба ҳисоби волидайни худ ворид шавед.'],
+      register: ['Сохтани ҳисоб', 'Ҳисоби волидайн созед ва дастгоҳи фарзандро пайваст кунед.']
+    };
+    var current = 'login';
 
-    // Switch Tabs
-    tabRegister.addEventListener('click', () => {
-      tabRegister.className = 'flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 bg-white shadow-xs text-indigo-600';
-      tabLogin.className = 'flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 text-slate-500 hover:text-slate-900';
-      registerForm.classList.remove('hidden');
-      loginForm.classList.add('hidden');
-      hideAlert();
+    var ICON_ERR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16v.01"/></svg>';
+    var ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
+
+    function showAlert(msg, isError) {
+      alertBox.className = 'alert ' + (isError ? 'error' : 'success');
+      alertBox.innerHTML = (isError ? ICON_ERR : ICON_OK) + '<span></span>';
+      alertBox.querySelector('span').textContent = msg;
+      alertSlot.classList.remove('show');
+      void alertSlot.offsetWidth;
+      alertSlot.classList.add('show');
+    }
+    function hideAlert() { alertSlot.classList.remove('show'); }
+
+    function setMode(mode, focus) {
+      if (mode !== 'login' && mode !== 'register') return;
+      var changed = mode !== current;
+      current = mode;
+      segmented.setAttribute('data-active', mode);
+      Object.keys(tabs).forEach(function (k) {
+        var on = k === mode;
+        tabs[k].setAttribute('aria-selected', on ? 'true' : 'false');
+        tabs[k].tabIndex = on ? 0 : -1;
+        forms[k].hidden = !on;
+      });
+      title.textContent = copy[mode][0];
+      sub.textContent = copy[mode][1];
+      if (changed) {
+        forms[mode].classList.remove('enter');
+        void forms[mode].offsetWidth;
+        forms[mode].classList.add('enter');
+        hideAlert();
+      }
+      if (focus) tabs[mode].focus();
+    }
+
+    tabs.login.addEventListener('click', function () { setMode('login'); });
+    tabs.register.addEventListener('click', function () { setMode('register'); });
+    segmented.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End') {
+        e.preventDefault();
+        var next = (e.key === 'ArrowLeft' || e.key === 'Home') ? 'login' : 'register';
+        setMode(next, true);
+      }
+    });
+    document.querySelectorAll('[data-switch]').forEach(function (b) {
+      b.addEventListener('click', function () { setMode(b.getAttribute('data-switch'), true); });
     });
 
-    function switchToLogin() {
-      tabLogin.className = 'flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 bg-white shadow-xs text-indigo-600';
-      tabRegister.className = 'flex-1 py-2.5 rounded-lg text-xs font-black transition duration-200 text-slate-500 hover:text-slate-900';
-      loginForm.classList.remove('hidden');
-      registerForm.classList.add('hidden');
-    }
+    if (params.get('mode') === 'register' || window.location.hash === '#register') setMode('register');
 
-    tabLogin.addEventListener('click', () => {
-      switchToLogin();
-      hideAlert();
+    // Password visibility
+    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var input = document.getElementById(btn.getAttribute('aria-controls'));
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+        btn.setAttribute('aria-label', show ? 'Пинҳон кардани парол' : 'Нишон додани парол');
+      });
     });
 
-    if (window.location.search.includes('admin')) {
-      switchToLogin();
-      const emailField = document.getElementById('logEmail');
-      if (emailField) emailField.value = 'admin';
+    // Inline validation
+    var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var rules = {
+      regName: function (v) { return v.trim().length >= 2 ? '' : 'Ному насабро ворид кунед (ҳадди ақал 2 ҳарф).'; },
+      regEmail: function (v) { return EMAIL_RE.test(v.trim()) ? '' : 'Почтаи электронии дурустро ворид кунед.'; },
+      regPassword: function (v) { return v.length >= 8 ? '' : 'Парол бояд ҳадди ақал 8 аломат бошад.'; },
+      logEmail: function (v) { return v.trim() ? '' : 'Почта ё логинро ворид кунед.'; },
+      logPassword: function (v) { return v ? '' : 'Паролро ворид кунед.'; }
+    };
+    var hints = { regPassword: 'Ҳадди ақал 8 аломат.' };
+    var touched = {};
+
+    function validate(id) {
+      var input = document.getElementById(id);
+      var field = input.closest('.field');
+      var msgEl = document.getElementById(id + 'Msg');
+      var err = rules[id](input.value);
+      field.classList.toggle('invalid', !!err);
+      input.setAttribute('aria-invalid', err ? 'true' : 'false');
+      msgEl.textContent = err || hints[id] || '';
+      return !err;
+    }
+    Object.keys(rules).forEach(function (id) {
+      var input = document.getElementById(id);
+      input.addEventListener('blur', function () { if (input.value) { touched[id] = true; validate(id); } });
+      input.addEventListener('input', function () { if (touched[id]) validate(id); });
+    });
+    function validateForm(ids) {
+      var firstBad = null;
+      ids.forEach(function (id) {
+        touched[id] = true;
+        if (!validate(id) && !firstBad) firstBad = id;
+      });
+      if (firstBad) document.getElementById(firstBad).focus();
+      return !firstBad;
     }
 
-    function showAlert(msg, isError = false) {
-      alertBox.textContent = msg;
-      alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium border ${
-        isError 
-          ? 'bg-rose-50 text-rose-700 border-rose-200' 
-          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-      }`;
-      alertBox.classList.remove('hidden');
+    function setLoading(btn, on) {
+      btn.disabled = on;
+      btn.classList.toggle('loading', on);
+      btn.setAttribute('aria-busy', on ? 'true' : 'false');
+      var label = btn.querySelector('.label');
+      if (on) { btn.dataset.label = label.textContent; label.textContent = 'Интизор шавед...'; }
+      else if (btn.dataset.label) { label.textContent = btn.dataset.label; }
     }
 
-    function hideAlert() {
-      alertBox.classList.add('hidden');
+    function errorText(data, fallback) {
+      if (!data || data.detail == null) return fallback;
+      return typeof data.detail === 'string' ? data.detail : fallback;
     }
 
-    // Google Account Chooser Modal Elements
-    const googleAccountModal = document.getElementById('googleAccountModal');
-    const closeGoogleModalBtn = document.getElementById('closeGoogleModalBtn');
-    const selectMunisGoogleBtn = document.getElementById('selectMunisGoogleBtn');
-    const toggleCustomGoogleBtn = document.getElementById('toggleCustomGoogleBtn');
-    const customGoogleForm = document.getElementById('customGoogleForm');
-    const customGoogleChevron = document.getElementById('customGoogleChevron');
-    const customGoogleSubmitBtn = document.getElementById('customGoogleSubmitBtn');
-
-    function openGoogleModal() {
-      window.location.assign('/auth/google/login?next=%2F');
-    }
-
-    function closeGoogleModal() {
-      if (googleAccountModal) {
-        googleAccountModal.classList.add('hidden');
+    async function submitAuth(url, payload, btn, okMsg, failMsg) {
+      setLoading(btn, true);
+      hideAlert();
+      try {
+        var res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        var data = null;
+        try { data = await res.json(); } catch (e) { data = null; }
+        if (res.ok && data && data.status === 'success') {
+          showAlert(okMsg, false);
+          setTimeout(function () { window.location.href = data.redirect || '/get'; }, 800);
+        } else {
+          showAlert(errorText(data, failMsg), true);
+          setLoading(btn, false);
+        }
+      } catch (err) {
+        showAlert('Хатогии пайвастшавӣ ба сервер', true);
+        setLoading(btn, false);
       }
     }
 
-    if (googleSignInBtn) {
-      googleSignInBtn.addEventListener('click', () => {
-        googleSignInBtn.disabled = true;
-        googleSignInBtn.classList.add('opacity-75');
-        googleSignInBtn.querySelector('span').textContent = 'Гузаштан ба Google...';
-        openGoogleModal();
-      });
-    }
+    forms.register.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validateForm(['regName', 'regEmail', 'regPassword'])) return;
+      submitAuth('/api/auth/register', {
+        full_name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
+      }, document.getElementById('regSubmitBtn'),
+        'Шумо бомуваффақият сабти ном шудед! Ба сомона гузашта истодаед...',
+        'Хатогӣ ҳангоми сабти ном');
+    });
 
-    if (closeGoogleModalBtn) {
-      closeGoogleModalBtn.addEventListener('click', closeGoogleModal);
-    }
+    forms.login.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!validateForm(['logEmail', 'logPassword'])) return;
+      submitAuth('/api/auth/login', {
+        email: document.getElementById('logEmail').value,
+        password: document.getElementById('logPassword').value
+      }, document.getElementById('logSubmitBtn'),
+        'Хуш омадед! Ворид шуда истодаед...',
+        'Почта ё пароли нодуруст');
+    });
 
-    if (googleAccountModal) {
-      googleAccountModal.addEventListener('click', (e) => {
-        if (e.target === googleAccountModal) {
-          closeGoogleModal();
-        }
-      });
-    }
+    // Google (server redirects back with ?google=not_configured if not set up)
+    googleBtn.addEventListener('click', function () {
+      googleBtn.disabled = true;
+      googleBtn.querySelector('span').textContent = 'Гузаштан ба Google...';
+      window.location.assign('/auth/google/login?next=%2F');
+    });
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) {
+        googleBtn.disabled = false;
+        googleBtn.querySelector('span').textContent = 'Идома бо Google';
+      }
+    });
 
-    if (toggleCustomGoogleBtn) {
-      toggleCustomGoogleBtn.addEventListener('click', () => {
-        const isHidden = customGoogleForm.classList.contains('hidden');
-        if (isHidden) {
-          customGoogleForm.classList.remove('hidden');
-          customGoogleChevron.classList.add('rotate-180');
-        } else {
-          customGoogleForm.classList.add('hidden');
-          customGoogleChevron.classList.remove('rotate-180');
-        }
-      });
-    }
-
-    const oauthStatus = new URLSearchParams(window.location.search).get('google');
+    var oauthStatus = params.get('google');
     if (oauthStatus === 'not_configured') {
       showAlert('Google Sign-In ҳоло дар сервер танзим нашудааст. Администратор бояд credential-ҳоро илова кунад.', true);
     } else if (oauthStatus === 'cancelled') {
       showAlert('Воридшавӣ тавассути Google бекор карда шуд.', true);
     }
-
-    // Form Submissions
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('regSubmitBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Интизор шавед...</span>';
-      hideAlert();
-
-      try {
-        const res = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            full_name: document.getElementById('regName').value,
-            email: document.getElementById('regEmail').value,
-            password: document.getElementById('regPassword').value
-          })
-        });
-        const data = await res.json();
-        if (res.ok && data.status === 'success') {
-          showAlert("Шумо бомуваффақият сабти ном шудед! Ба сомона гузашта истодаед...", false);
-          setTimeout(() => {
-            window.location.href = data.redirect || '/#download';
-          }, 800);
-        } else {
-          showAlert(data.detail || "Хатогӣ ҳангоми сабти ном", true);
-          btn.disabled = false;
-          btn.innerHTML = '<span>Сабти ном кардан</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-        }
-      } catch (err) {
-        showAlert("Хатогии пайвастшавӣ ба сервер", true);
-        btn.disabled = false;
-        btn.innerHTML = '<span>Сабти ном кардан</span><i class="fa-solid fa-arrow-right text-xs"></i>';
-      }
-    });
-
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('logSubmitBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Интизор шавед...</span>';
-      hideAlert();
-
-      try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: document.getElementById('logEmail').value,
-            password: document.getElementById('logPassword').value
-          })
-        });
-        const data = await res.json();
-        if (res.ok && data.status === 'success') {
-          showAlert("Хуш омадед! Ворид шуда истодаед...", false);
-          setTimeout(() => {
-            window.location.href = data.redirect || '/#download';
-          }, 800);
-        } else {
-          showAlert(data.detail || "Почта ё пароли нодуруст", true);
-          btn.disabled = false;
-          btn.innerHTML = '<span>Ворид шудан ба система</span><i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>';
-        }
-      } catch (err) {
-        showAlert("Хатогии пайвастшавӣ ба сервер", true);
-        btn.disabled = false;
-        btn.innerHTML = '<span>Ворид шудан ба система</span><i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>';
-      }
-    });
+  })();
   </script>
-
 </body>
 </html>
