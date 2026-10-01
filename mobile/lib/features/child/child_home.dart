@@ -7,14 +7,16 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import '../chat/chat_screen.dart';
 import '../settings/settings_screen.dart';
+import 'child_rules.dart';
 import 'child_sync.dart';
+import 'child_widgets.dart';
 
 /// QR payload read by the parent's scanner (`UserJourneyLogic.pairingCode`
 /// keeps only the 6 digits).
 String pairingQrData(String code) => 'nigoh://pair/$code';
 
-/// Home of the child's phone: pairing / status, chat with the parent and
-/// settings. Owns the [ChildSync] background engine.
+/// Home of the child's phone: pairing / status (with SOS, bedtime and screen
+/// time), «Қоидаҳои ман», chat with the parent and settings. Owns the [ChildSync] background engine.
 class ChildHome extends StatefulWidget {
   const ChildHome({super.key, this.sync});
 
@@ -94,6 +96,16 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     final Widget page;
     switch (_tab) {
       case 1:
+        page = sync.paired
+            ? ChildRulesScreen(sync: sync)
+            : const SafeArea(
+                child: StateMessage(
+                  icon: Icons.rule_rounded,
+                  title: 'Ҳоло қоида нест',
+                  text: 'Аввал телефонро бо волидайн пайваст кунед.',
+                ),
+              );
+      case 2:
         final id = sync.childId;
         page = id == null
             ? Scaffold(
@@ -114,11 +126,13 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
                 childId: id,
                 title: sync.parentName ?? 'Волидайн',
               );
-      case 2:
+      case 3:
         page = const SettingsScreen();
       default:
         page = _HomeTab(sync: sync, onOpenAccess: _openAccess);
     }
+    // The chat marks messages read while open, so no badge on that tab.
+    final unread = _tab == 2 ? 0 : (sync.child?.unreadFromParent ?? 0);
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
@@ -127,18 +141,27 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home_rounded),
             label: 'Асосӣ',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline_rounded),
-            selectedIcon: Icon(Icons.chat_bubble_rounded),
-            label: 'Чат',
+          const NavigationDestination(
+            icon: Icon(Icons.rule_outlined),
+            selectedIcon: Icon(Icons.rule_rounded),
+            label: 'Қоидаҳо',
           ),
           NavigationDestination(
+            icon: Badge(
+              isLabelVisible: unread > 0,
+              label: Text('$unread'),
+              child: const Icon(Icons.chat_bubble_outline_rounded),
+            ),
+            selectedIcon: const Icon(Icons.chat_bubble_rounded),
+            label: 'Чат',
+          ),
+          const NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings_rounded),
             label: 'Танзимот',
@@ -371,11 +394,15 @@ class _PairedView extends StatelessWidget {
   final ChildSync sync;
   final VoidCallback onOpenAccess;
 
+  Future<void> _sendSos(BuildContext context) => sendChildSos(context, sync);
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final missing = sync.missingPermissions;
     final protectionOk = sync.protectionKnown && missing.isEmpty;
+    final child = sync.child;
+    final bedtimeActive = child?.bedtime.activeAt(sync.now()) ?? false;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -413,12 +440,25 @@ class _PairedView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
+        if (bedtimeActive) ...[
+          FadeIn(child: BedtimeNotice(bedtime: child!.bedtime)),
+          const SizedBox(height: 12),
+        ],
         if (sync.lastError != null) ...[
           FadeIn(
             child: _ErrorCard(text: sync.lastError!, onRetry: sync.forceSync),
           ),
           const SizedBox(height: 12),
         ],
+        FadeIn(
+          child: SosButton(onTriggered: () => _sendSos(context)),
+        ),
+        const SectionTitle('Вақти экрани ман'),
+        FadeIn(
+          index: 1,
+          child: ScreenTimeCard(apps: child?.apps ?? const []),
+        ),
+        const SectionTitle('Ҳолати телефон'),
         FadeIn(
           index: 1,
           child: _StatusCard(
@@ -471,6 +511,32 @@ class _PairedView extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Sends the SOS (message_type 'urgent') with the latest coordinates and
+/// battery level; the result is always shown.
+Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
+  final id = sync.childId;
+  if (id == null) {
+    showMessage(context, 'Ҳоло ба сервер пайваст нестем.', error: true);
+    return;
+  }
+  final position = sync.lastPosition;
+  final server = sync.child?.location;
+  final battery = await sync.readBattery() ?? sync.batteryLevel;
+  final text = sosMessageText(
+    latitude: position?.latitude ?? server?.latitude,
+    longitude: position?.longitude ?? server?.longitude,
+    battery: battery,
+  );
+  try {
+    await sync.api.sendChat(id, text, messageType: 'urgent');
+    if (context.mounted) {
+      showMessage(context, 'SOS фиристода шуд. Волидайн огоҳ карда шуданд.');
+    }
+  } catch (e) {
+    if (context.mounted) showMessage(context, e, error: true);
   }
 }
 
