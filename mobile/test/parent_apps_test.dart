@@ -32,8 +32,14 @@ void main() {
   testWidgets('shows the app cards for the child', (tester) async {
     await pumpApps(tester, (_) async => jsonResponse(snapshotJson()));
     expect(find.text('Roblox'), findsOneWidget);
-    expect(find.text('Telegram'), findsOneWidget);
     expect(find.text('Ҳолати танаффус'), findsOneWidget);
+    // The header grew (report, bedtime, filters): scroll to the second card.
+    await tester.scrollUntilVisible(
+      find.text('08:00–13:00'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Telegram'), findsOneWidget);
     expect(find.text('08:00–13:00'), findsOneWidget);
   });
 
@@ -83,9 +89,7 @@ void main() {
   });
 
   Future<void> pumpHome(WidgetTester tester, Map<String, dynamic> snap) async {
-    final api = NigohApi(
-      client: MockClient((_) async => jsonResponse(snap)),
-    );
+    final api = NigohApi(client: MockClient((_) async => jsonResponse(snap)));
     final c = FamilyController(api, pollInterval: null);
     addTearDown(c.dispose);
     await tester.runAsync(c.refresh);

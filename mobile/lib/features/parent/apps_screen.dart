@@ -5,6 +5,9 @@ import '../../core/user_journey_logic.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
+import 'parent_logic.dart';
+import 'parent_sheets.dart';
+import 'weekly_report.dart';
 
 const _weekdayLabels = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
 
@@ -20,6 +23,9 @@ class AppsScreen extends StatefulWidget {
 class _AppsScreenState extends State<AppsScreen> {
   final _search = TextEditingController();
   String _query = '';
+
+  /// Filter chip: null = all, 'new' = installed in the last 24 h, or a category.
+  Object? _filter;
 
   /// Slider position while dragging (package → limit index).
   final Map<String, int> _draftLimit = {};
@@ -44,19 +50,45 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
-  Future<void> _bulk(FamilyChild child, bool block) async {
-    final targets = child.apps.where((a) => a.blocked != block).toList();
+  /// Blocks/unblocks every app (quick pause) or only [category].
+  Future<void> _bulk(
+    FamilyChild child,
+    bool block, {
+    AppCategory? category,
+  }) async {
+    final targets = child.apps
+        .where(
+          (a) =>
+              a.blocked != block &&
+              (category == null ||
+                  (categoryOf(a) == category && !(block && a.alwaysAllowed))),
+        )
+        .toList();
     if (targets.isEmpty) {
       showMessage(
         context,
-        block ? 'Ҳамаи барномаҳо аллакай баста.' : 'Ҳамаи барномаҳо кушода.',
+        category != null
+            ? (block
+                  ? 'Ҳамаи ${category.pluralLower} аллакай баста.'
+                  : 'Ҳамаи ${category.pluralLower} кушода.')
+            : block
+            ? 'Ҳамаи барномаҳо аллакай баста.'
+            : 'Ҳамаи барномаҳо кушода.',
       );
       return;
     }
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(block ? 'Ҳамаро бастан?' : 'Ҳамаро кушодан?'),
+        title: Text(
+          category != null
+              ? (block
+                    ? 'Ҳамаи ${category.pluralLower}ро бастан?'
+                    : 'Ҳамаи ${category.pluralLower}ро кушодан?')
+              : block
+              ? 'Ҳамаро бастан?'
+              : 'Ҳамаро кушодан?',
+        ),
         content: Text(
           block
               ? '${targets.length} барнома дар телефони ${child.name} баста мешавад.'
@@ -108,6 +140,57 @@ class _AppsScreenState extends State<AppsScreen> {
     await _run(() => controller.setSchedule(fresh, app, result));
   }
 
+  void _openOptions(FamilyChild child, ChildApp app) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => AppOptionsSheet(
+        controller: controller,
+        childId: child.id,
+        packageName: app.packageName,
+      ),
+    );
+  }
+
+  Future<void> _bonus(FamilyChild child, ChildApp app, int minutes) async {
+    try {
+      await controller.giveBonus(
+        controller.childById(child.id) ?? child,
+        app,
+        minutes,
+      );
+      if (!mounted) return;
+      showMessage(context, '${app.name}: +$minutes дақ барои имрӯз');
+    } catch (e) {
+      if (mounted) showMessage(context, e, error: true);
+    }
+  }
+
+  void _openReport(FamilyChild child) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => WeeklyReportScreen(api: controller.api, child: child),
+      ),
+    );
+  }
+
+  void _openBedtime(FamilyChild child) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => BedtimeSheet(controller: controller, child: child),
+    );
+  }
+
+  bool _matchesFilter(ChildApp app) {
+    final filter = _filter;
+    if (filter == null) return true;
+    if (filter == 'new') return app.isNew;
+    return categoryOf(app) == filter;
+  }
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
@@ -156,11 +239,18 @@ class _AppsScreenState extends State<AppsScreen> {
     final apps = child.apps
         .where(
           (a) =>
-              needle.isEmpty ||
-              a.name.toLowerCase().contains(needle) ||
-              a.packageName.toLowerCase().contains(needle),
+              (needle.isEmpty ||
+                  a.name.toLowerCase().contains(needle) ||
+                  a.packageName.toLowerCase().contains(needle)) &&
+              _matchesFilter(a),
         )
         .toList();
+    final newCount = child.newAppsCount;
+    final counts = <AppCategory, int>{};
+    for (final a in child.apps) {
+      counts.update(categoryOf(a), (v) => v + 1, ifAbsent: () => 1);
+    }
+    final category = _filter is AppCategory ? _filter as AppCategory : null;
     final limits = child.apps
         .where((a) => a.dailyLimitMinutes > 0)
         .fold<int>(0, (sum, a) => sum + a.dailyLimitMinutes);
@@ -174,6 +264,12 @@ class _AppsScreenState extends State<AppsScreen> {
             limitMinutes: limits,
             blockedCount: child.blockedCount,
             appCount: child.apps.length,
+          ),
+          const SizedBox(height: 10),
+          _ToolsRow(
+            bedtime: child.bedtime,
+            onReport: () => _openReport(child),
+            onBedtime: () => _openBedtime(child),
           ),
           const SizedBox(height: 12),
           _PauseCard(
@@ -201,6 +297,30 @@ class _AppsScreenState extends State<AppsScreen> {
                     ),
             ),
           ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _chip('Ҳама', null),
+                if (newCount > 0)
+                  _chip('Нав ($newCount)', 'new', color: NigohDesign.mint),
+                for (final c in AppCategory.values)
+                  if ((counts[c] ?? 0) > 0)
+                    _chip('${c.label} (${counts[c]})', c),
+              ],
+            ),
+          ),
+          if (category != null && (counts[category] ?? 0) > 0) ...[
+            const SizedBox(height: 10),
+            _CategoryActions(
+              category: category,
+              busy: _bulkDone != null,
+              onBlock: () => _bulk(child, true, category: category),
+              onUnblock: () => _bulk(child, false, category: category),
+            ),
+          ],
           SectionTitle('Барномаҳо (${apps.length})'),
           if (apps.isEmpty)
             const Padding(
@@ -259,8 +379,115 @@ class _AppsScreenState extends State<AppsScreen> {
         if (mounted) setState(() => _draftLimit.remove(app.packageName));
       },
       onSchedule: () => _editSchedule(child, app),
+      onOptions: () => _openOptions(child, app),
+      onBonus: (m) => _bonus(child, app, m),
     );
   }
+
+  Widget _chip(String label, Object? value, {Color? color}) => Padding(
+    padding: const EdgeInsets.only(right: 8),
+    child: ChoiceChip(
+      key: ValueKey('filter-$label'),
+      label: Text(label),
+      selected: _filter == value,
+      showCheckmark: false,
+      avatar: color == null
+          ? null
+          : Icon(Icons.fiber_new_rounded, size: 18, color: color),
+      onSelected: (_) => setState(() => _filter = value),
+    ),
+  );
+}
+
+/// «Ҳисобот» and «Вақти хоб» shortcuts above the rules.
+class _ToolsRow extends StatelessWidget {
+  const _ToolsRow({
+    required this.bedtime,
+    required this.onReport,
+    required this.onBedtime,
+  });
+
+  final Bedtime bedtime;
+  final VoidCallback onReport;
+  final VoidCallback onBedtime;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = bedtime.activeAt(DateTime.now());
+    return Row(
+      children: [
+        Expanded(
+          child: FilledButton.tonalIcon(
+            key: const ValueKey('open-report'),
+            onPressed: onReport,
+            icon: const Icon(Icons.bar_chart_rounded, size: 18),
+            label: const Text('Ҳисобот'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: FilledButton.tonalIcon(
+            key: const ValueKey('open-bedtime'),
+            style: FilledButton.styleFrom(
+              backgroundColor: bedtime.enabled
+                  ? NigohDesign.violet.withValues(alpha: .14)
+                  : null,
+              foregroundColor: bedtime.enabled ? NigohDesign.violet : null,
+            ),
+            onPressed: onBedtime,
+            icon: Icon(
+              active ? Icons.bedtime_rounded : Icons.bedtime_outlined,
+              size: 18,
+            ),
+            label: Text(
+              bedtime.enabled ? '${bedtime.start}–${bedtime.end}' : 'Вақти хоб',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// «Бастани ҳамаи бозиҳо» for the selected category.
+class _CategoryActions extends StatelessWidget {
+  const _CategoryActions({
+    required this.category,
+    required this.busy,
+    required this.onBlock,
+    required this.onUnblock,
+  });
+
+  final AppCategory category;
+  final bool busy;
+  final VoidCallback onBlock;
+  final VoidCallback onUnblock;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: FilledButton.tonalIcon(
+          key: const ValueKey('category-block'),
+          onPressed: busy ? null : onBlock,
+          icon: const Icon(Icons.lock_rounded, size: 18),
+          label: Text(
+            'Бастани ҳамаи ${category.pluralLower}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+      const SizedBox(width: 8),
+      IconButton.outlined(
+        tooltip: 'Ҳамаро кушодан',
+        onPressed: busy ? null : onUnblock,
+        icon: const Icon(Icons.lock_open_rounded, size: 18),
+      ),
+    ],
+  );
 }
 
 /// Soft summary of today's screen time (ported from the old overview).
@@ -332,7 +559,10 @@ class _ScreenTimeSummary extends StatelessWidget {
               children: [
                 Text(
                   'Вақти экран имрӯз',
-                  style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+                  style: TextStyle(
+                    color: scheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -501,7 +731,15 @@ class AppRuleCard extends StatelessWidget {
     required this.onLimitChanged,
     required this.onLimitDone,
     required this.onSchedule,
+    this.onOptions,
+    this.onBonus,
   });
+
+  /// Opens «Ҳамеша иҷозат» / bonus sheet.
+  final VoidCallback? onOptions;
+
+  /// Adds today's extra minutes (shown when the app has a limit).
+  final ValueChanged<int>? onBonus;
 
   final ChildApp app;
   final int limitIndex;
@@ -555,15 +793,33 @@ class AppRuleCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      app.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            app.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        if (app.isNew) ...[
+                          const SizedBox(width: 6),
+                          const Pill('Нав', color: NigohDesign.mint),
+                        ],
+                      ],
                     ),
+                    if (app.alwaysAllowed) ...[
+                      const SizedBox(height: 3),
+                      const Pill(
+                        'Ҳамеша иҷозат',
+                        color: NigohDesign.mint,
+                        icon: Icons.verified_user_rounded,
+                      ),
+                    ],
                     const SizedBox(height: 2),
                     Text(
                       minutes > 0
@@ -608,7 +864,7 @@ class AppRuleCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   app.dailyLimitMinutes > 0
-                      ? '$minutesд / ${UserJourneyLogic.limitLabel(app.dailyLimitMinutes)}'
+                      ? '$minutesд / ${UserJourneyLogic.limitLabel(app.effectiveLimitMinutes)}'
                       : '$minutesд',
                   style: TextStyle(
                     color: barColor,
@@ -676,8 +932,37 @@ class AppRuleCard extends StatelessWidget {
                 ),
                 label: Text(scheduleLabel ?? 'Вақти дарс'),
               ),
+              if (onOptions != null)
+                IconButton(
+                  key: ValueKey('options-${app.packageName}'),
+                  tooltip: 'Бештар',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: onOptions,
+                  icon: const Icon(Icons.tune_rounded, size: 20),
+                ),
             ],
           ),
+          if (onBonus != null && app.dailyLimitMinutes > 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Вақти иловагӣ',
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: BonusButtons(app: app, onBonus: onBonus!),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
