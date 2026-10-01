@@ -56,7 +56,7 @@ class NigohApi {
         'X-NIGOH-Device': 'android',
         if (body != null) 'Content-Type': 'application/json',
         if (auth && token != null) 'Authorization': 'Bearer $token',
-        if (role != null) 'X-NIGOH-Role': role!,
+        'X-NIGOH-Role': ?role,
       });
     if (body != null) request.body = jsonEncode(body);
     http.Response response;
