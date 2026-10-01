@@ -22,7 +22,9 @@ class ChildSync extends ChangeNotifier {
     Future<ChildProfile?> Function()? loadProfile,
     this.trackLocation = true,
     this.listenPackageEvents = true,
-  }) : device = deviceChannel ?? const MethodChannel('tj.nigoh/device_control'),
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now,
+       device = deviceChannel ?? const MethodChannel('tj.nigoh/device_control'),
        _packageEventsChannel =
            packageEvents ?? const EventChannel('tj.nigoh/package_events'),
        _loadProfile = loadProfile ?? ChildProfile.load;
@@ -33,11 +35,20 @@ class ChildSync extends ChangeNotifier {
   final Future<ChildProfile?> Function() _loadProfile;
   final bool trackLocation;
   final bool listenPackageEvents;
+  final DateTime Function() _clock;
+
+  /// Current time (injectable for tests).
+  DateTime now() => _clock();
 
   static const pollInterval = Duration(seconds: 15);
   static const appsInterval = Duration(minutes: 10);
   static const locationThrottle = Duration(seconds: 60);
   static const locationHeartbeat = Duration(minutes: 5);
+
+  /// A one-shot fix is requested when nothing was posted for this long,
+  /// independent of the GPS stream (indoors the stream may stay silent).
+  static const locationFixEvery = Duration(seconds: 60);
+  static const locationFixTimeLimit = Duration(seconds: 20);
 
   /// Server usage values must stay inside the schema (0..1440) or the whole
   /// batch is rejected.
@@ -57,6 +68,15 @@ class ChildSync extends ChangeNotifier {
   DateTime? lastRulesSync;
   int appsCount = 0;
   int rulesCount = 0;
+
+  /// The latest child record from the server (rules, bedtime, unread count).
+  FamilyChild? child;
+
+  /// Last battery level read from the phone (0..100), if known.
+  int? batteryLevel;
+
+  /// The newest GPS position this phone knows (posted or not).
+  Position? get lastPosition => _lastPosition;
 
   /// Raw native protection status (usage, overlay, accessibility, location…).
   Map<String, dynamic> protection = const {};
@@ -89,6 +109,8 @@ class ChildSync extends ChangeNotifier {
   Future<void>? _tickInFlight;
   Future<void>? _appsInFlight;
   Future<void>? _locationInFlight;
+  Future<void>? _fixInFlight;
+  bool _triedLastKnown = false;
 
   static const _requiredPermissions = <String, String>{
     'location': 'Ҷойгиршавӣ',
@@ -140,6 +162,7 @@ class ChildSync extends ChangeNotifier {
     _timer = null;
     _positions?.cancel();
     _positions = null;
+    _triedLastKnown = false;
     _packageSub?.cancel();
     _packageSub = null;
   }
@@ -220,6 +243,7 @@ class ChildSync extends ChangeNotifier {
 
   Future<void> _applyChild(Map<String, dynamic> raw) async {
     final child = FamilyChild.fromJson(raw);
+    this.child = child;
     final wasPaired = paired;
     childId = child.id;
     pairingCode = child.pairingCode.isEmpty ? pairingCode : child.pairingCode;
@@ -229,14 +253,24 @@ class ChildSync extends ChangeNotifier {
         : child.parentName!.trim();
     if (paired && !wasPaired) _appsDirty = true;
     // After an unlink the phone must stop enforcing old rules.
-    await pushRules(paired ? child.apps : const []);
+    await pushRules(
+      paired ? child.apps : const [],
+      bedtime: paired ? child.bedtime : const Bedtime(),
+    );
   }
 
-  /// Sends the parent's rules to the native blocker.
-  Future<void> pushRules(List<ChildApp> apps) async {
+  /// Sends the parent's rules to the native blocker. Bonus time, «always
+  /// allowed» and an active [bedtime] are folded in by [ChildApp.toNativeRule].
+  Future<void> pushRules(
+    List<ChildApp> apps, {
+    Bedtime bedtime = const Bedtime(),
+  }) async {
+    final bedtimeActive = bedtime.activeAt(now());
     try {
       await device.invokeMethod<void>('setAppControlRules', {
-        'rules': apps.map((a) => a.toNativeRule()).toList(),
+        'rules': apps
+            .map((a) => a.toNativeRule(bedtimeActive: bedtimeActive))
+            .toList(),
       });
       rulesCount = apps.length;
       lastRulesSync = DateTime.now();
@@ -267,6 +301,7 @@ class ChildSync extends ChangeNotifier {
         } else {
           childId = null;
           paired = false;
+          this.child = null;
           await pushRules(const []);
           await ensureChild();
         }
@@ -283,10 +318,7 @@ class ChildSync extends ChangeNotifier {
           DateTime.now().difference(last) >= appsInterval) {
         unawaited(syncApps());
       }
-      if (trackLocation) {
-        if (_positions == null) unawaited(startLocation());
-        _maybePostLocation();
-      }
+      if (trackLocation) await startLocation();
     }
     _notify();
   }
@@ -392,23 +424,65 @@ class ChildSync extends ChangeNotifier {
 
   // ---------- Location ----------
 
+  static const _gpsOffText =
+      'GPS хомӯш аст — ҷойгиршавӣ фиристода намешавад. Онро дар танзимоти телефон фаъол кунед.';
+  static const _noPermissionText =
+      'Иҷозати ҷойгиршавӣ дода нашудааст — волидайн ҷои шуморо намебинанд.';
+  static const _noFixText =
+      'Ҷойгиршавӣ ҳоло муайян нашуд (сигнали GPS нест). Боз кӯшиш мекунем.';
+
+  /// One location step (run by every tick). It never depends on the GPS
+  /// stream alone — indoors the stream can stay silent for hours:
+  /// 1. GPS and permission are checked; a clear error is kept otherwise;
+  /// 2. the stream is (re)started and its moves are posted once a minute;
+  /// 3. when nothing was posted for [locationFixEvery], a one-shot fix is
+  ///    requested: the last known position first (only once, right after
+  ///    start), then a medium-accuracy fix limited to 20 seconds.
   Future<void> startLocation() async {
-    if (!trackLocation || _positions != null || _locationStarting) return;
+    if (!trackLocation || _locationStarting) return;
     _locationStarting = true;
     try {
+      if (!await _locationAllowed()) return;
+      if (_positions == null) _startStream();
+      _maybePostLocation();
+      if (_fixDue) unawaited(requestFix());
+    } finally {
+      _locationStarting = false;
+    }
+  }
+
+  bool get _fixDue {
+    final last = lastLocationSync;
+    return last == null || now().difference(last) >= locationFixEvery;
+  }
+
+  /// The running one-shot fix, if any (tests await it).
+  @visibleForTesting
+  Future<void>? get pendingFix => _fixInFlight;
+
+  Future<bool> _locationAllowed() async {
+    try {
       if (!await Geolocator.isLocationServiceEnabled()) {
-        _setError(
-          'location',
-          'GPS хомӯш аст — ҷойгиршавӣ фиристода намешавад.',
-        );
-        return;
+        _setError('location', _gpsOffText);
+        return false;
       }
       final permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        _setError('location', 'Иҷозати ҷойгиршавӣ дода нашудааст.');
-        return;
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        _setError('location', _noPermissionText);
+        return false;
       }
+      return true;
+    } on MissingPluginException {
+      return false; // Not on Android.
+    } catch (e) {
+      _setError('location', 'Ҷойгиршавӣ санҷида нашуд: ${_text(e)}');
+      return false;
+    }
+  }
+
+  void _startStream() {
+    try {
       final settings = defaultTargetPlatform == TargetPlatform.android
           ? AndroidSettings(
               accuracy: LocationAccuracy.high,
@@ -430,7 +504,7 @@ class ChildSync extends ChangeNotifier {
           .listen(
             onPosition,
             onError: (Object e) {
-              _setError('location', 'Ҷойгиршавӣ муайян нашуд: ${_text(e)}');
+              _setError('location', _fixErrorText(e));
               _positions?.cancel();
               _positions = null; // the next tick restarts the stream
               _notify();
@@ -439,15 +513,73 @@ class ChildSync extends ChangeNotifier {
     } on MissingPluginException {
       // Not on Android.
     } catch (e) {
+      // The one-shot fixes keep working without the stream.
       _setError('location', 'Ҷойгиршавӣ оғоз нашуд: ${_text(e)}');
+    }
+  }
+
+  static String _fixErrorText(Object e) {
+    if (e is LocationServiceDisabledException) return _gpsOffText;
+    if (e is PermissionDeniedException) return _noPermissionText;
+    if (e is TimeoutException) return _noFixText;
+    return 'Ҷойгиршавӣ муайян нашуд: ${_text(e)}';
+  }
+
+  /// One-shot fix, guarded so two never overlap.
+  Future<void> requestFix() {
+    return _fixInFlight ??= _requestFix().whenComplete(
+      () => _fixInFlight = null,
+    );
+  }
+
+  Future<void> _requestFix() async {
+    if (childId == null) return;
+    try {
+      if (!_triedLastKnown) {
+        _triedLastKnown = true;
+        Position? last;
+        try {
+          last = await Geolocator.getLastKnownPosition();
+        } on MissingPluginException {
+          rethrow;
+        } catch (e) {
+          // A fresh fix is requested right below; its error is shown.
+          debugPrint('getLastKnownPosition: $e');
+        }
+        if (last != null) {
+          if (_lastPosition == null) {
+            _lastPosition = last;
+            _lastPositionSent = false;
+          }
+          await _post(last);
+        }
+      }
+      final settings = defaultTargetPlatform == TargetPlatform.android
+          ? AndroidSettings(
+              accuracy: LocationAccuracy.medium,
+              timeLimit: locationFixTimeLimit,
+            )
+          : const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+              timeLimit: locationFixTimeLimit,
+            );
+      final p = await Geolocator.getCurrentPosition(
+        locationSettings: settings,
+      ).timeout(locationFixTimeLimit + const Duration(seconds: 5));
+      _lastPosition = p;
+      _lastPositionSent = false;
+      await _post(p);
+    } on MissingPluginException {
+      // Not on Android.
+    } catch (e) {
+      _setError('location', _fixErrorText(e));
     } finally {
-      _locationStarting = false;
       _notify();
     }
   }
 
-  /// New GPS fix: posted at once when allowed by the throttle, otherwise
-  /// kept and posted by a later tick.
+  /// New GPS fix from the stream: posted at once when allowed by the
+  /// throttle, otherwise kept and posted by a later tick.
   void onPosition(Position p) {
     _lastPosition = p;
     _lastPositionSent = false;
@@ -458,35 +590,60 @@ class ChildSync extends ChangeNotifier {
     final p = _lastPosition;
     if (p == null || childId == null) return;
     final last = _lastLocationPost;
-    final since = last == null ? null : DateTime.now().difference(last);
+    final since = last == null ? null : now().difference(last);
     final due =
         since == null ||
         (!_lastPositionSent && since >= locationThrottle) ||
         since >= locationHeartbeat;
     if (!due) return;
-    _locationInFlight ??= _postLocation(p)
-        .whenComplete(() => _locationInFlight = null);
+    unawaited(_post(p));
+  }
+
+  /// Posts [p] unless another post is running (then waits for that one).
+  Future<void> _post(Position p) {
+    return _locationInFlight ??= _postLocation(p).whenComplete(
+      () => _locationInFlight = null,
+    );
+  }
+
+  /// Battery level 0..100 from the phone, or null when unknown.
+  Future<int?> readBattery() async {
+    try {
+      final level = await device.invokeMethod<int>('getBatteryLevel');
+      if (level == null || level < 0 || level > 100) return null;
+      batteryLevel = level;
+      return level;
+    } catch (e) {
+      // Optional detail — location is still sent without it.
+      debugPrint('getBatteryLevel: $e');
+      return null;
+    }
   }
 
   Future<void> _postLocation(Position p) async {
     final id = childId;
     if (id == null) return;
-    _lastLocationPost = DateTime.now();
+    _lastLocationPost = now();
     try {
+      final battery = await readBattery();
       await api.syncLocation(id, {
         'latitude': p.latitude,
         'longitude': p.longitude,
         if (p.accuracy >= 0 && p.accuracy <= 100000) 'accuracy': p.accuracy,
         if (p.speed >= 0 && p.speed <= 1000) 'speed': p.speed,
+        'battery_level': ?battery,
         'is_online': true,
       });
       if (identical(_lastPosition, p)) _lastPositionSent = true;
-      lastLocationSync = DateTime.now();
+      lastLocationSync = now();
       _clearError('location');
     } catch (e) {
       // Allow a retry on the next tick instead of waiting the full minute.
       _lastLocationPost = null;
-      _setError('location', 'Ҷойгиршавӣ фиристода нашуд: ${_text(e)}');
+      _setError(
+        'location',
+        'Ҷойгиршавӣ ба сервер фиристода нашуд: ${_text(e)}',
+      );
     } finally {
       _notify();
     }
