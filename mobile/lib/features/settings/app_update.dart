@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -78,6 +80,10 @@ abstract final class AppUpdate {
     );
   }
 
+  static const progressChannel = EventChannel('tj.nigoh/update_progress');
+
+  /// One tap: download → verify signature → install over the current app.
+  /// Data, sign-in and permissions stay. Progress is shown in a dialog.
   static Future<void> install(
     BuildContext context,
     String url,
@@ -88,28 +94,117 @@ abstract final class AppUpdate {
       showMessage(context, 'Пайванди навсозӣ дастрас нест.', error: true);
       return;
     }
+    final events = progressChannel
+        .receiveBroadcastStream()
+        .map((e) => UpdateProgress.fromEvent(e))
+        .asBroadcastStream();
+    String? status;
     try {
-      final status = await channel.invokeMethod<String>('installUpdate', {
+      // Listen before starting so no early progress event is lost.
+      final first = events.first.catchError((_) => const UpdateProgress('error'));
+      status = await channel.invokeMethod<String>('installUpdate', {
         'downloadUrl': url,
         'version': version,
       });
-      if (!context.mounted) return;
-      showMessage(
-        context,
-        status == 'download_started'
-            ? 'Навсозӣ зеркашӣ мешавад. Баъд равзанаи насб худкор кушода мешавад.'
-            : status == 'install_permission_required'
-            ? 'Иҷозати «Install unknown apps»-ро фаъол кунед ва ба NIGOH баргардед.'
-            : 'Навсозӣ омода мешавад.',
-      );
+      unawaited(first);
     } catch (_) {
       if (context.mounted) {
-        showMessage(
-          context,
-          'Зеркашии навсозӣ оғоз нашуд. Интернетро санҷед.',
-          error: true,
-        );
+        showMessage(context, 'Навсозӣ оғоз нашуд. Интернетро санҷед.', error: true);
       }
+      return;
     }
+    if (!context.mounted) return;
+    if (status == 'install_permission_required') {
+      showMessage(
+        context,
+        'Як бор иҷозат диҳед: «Иҷозати насб аз ин манбаъ»-ро фаъол кунед ва ба NIGOH баргардед — навсозӣ худаш идома меёбад.',
+      );
+    }
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => UpdateProgressDialog(version: version, events: events),
+    );
   }
+}
+
+/// State reported by the native updater.
+class UpdateProgress {
+  const UpdateProgress(this.state, {this.progress, this.message});
+
+  /// downloading | verifying | installing | done | error
+  final String state;
+  final double? progress;
+  final String? message;
+
+  factory UpdateProgress.fromEvent(Object? raw) {
+    if (raw is! Map) return const UpdateProgress('error');
+    return UpdateProgress(
+      raw['state']?.toString() ?? 'error',
+      progress: (raw['progress'] as num?)?.toDouble(),
+      message: raw['message']?.toString(),
+    );
+  }
+
+  String get label => switch (state) {
+    'downloading' => 'Боргирӣ… ${((progress ?? 0) * 100).round()}%',
+    'verifying' => 'Санҷиши имзо…',
+    'installing' => message ?? 'Насб…',
+    'done' => 'Навсозӣ насб шуд.',
+    _ => message ?? 'Навсозӣ насб нашуд.',
+  };
+}
+
+class UpdateProgressDialog extends StatelessWidget {
+  const UpdateProgressDialog({super.key, required this.version, required this.events});
+
+  final String version;
+  final Stream<UpdateProgress> events;
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<UpdateProgress>(
+    stream: events,
+    initialData: const UpdateProgress('downloading', progress: 0),
+    builder: (context, snap) {
+      final p = snap.data!;
+      final failed = p.state == 'error';
+      final finished = failed || p.state == 'done';
+      final scheme = Theme.of(context).colorScheme;
+      return AlertDialog(
+        icon: Icon(
+          failed ? Icons.error_outline_rounded : Icons.system_update_rounded,
+          size: 36,
+          color: failed ? scheme.error : scheme.primary,
+        ),
+        title: Text('Навсозӣ то $version'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(p.label, textAlign: TextAlign.center),
+            if (!finished) ...[
+              const SizedBox(height: 16),
+              LinearProgressIndicator(
+                value: p.state == 'downloading' ? p.progress : null,
+                minHeight: 6,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Маълумот, воридшавӣ ва иҷозатҳо нигоҳ дошта мешаванд.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          if (finished || p.state == 'installing')
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(failed ? 'Пӯшидан' : 'Хуб'),
+            ),
+        ],
+      );
+    },
+  );
 }
