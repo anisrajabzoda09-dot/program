@@ -20,7 +20,7 @@ ANDROID_PROJECT = Path(os.environ.get(
     "NIGOH_ANDROID_PROJECT",
     "/home/munis/Documents/Codex/2026-09-17/macbook-android-ios-ubuntu-26-04-3/work/nigoh-family-build/apps/nigoh_family_parent",
 ))
-APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.9.18.apk")
+APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.9.19.apk")
 
 
 def build_and_verify_release_apk():
