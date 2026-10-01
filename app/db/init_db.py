@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from sqlalchemy import text
 from app.db.base import Base
@@ -15,7 +16,7 @@ from app.crud.crud_bundle import ensure_initial_bundle
 from app.core.security import hash_password
 
 def init_db():
-    """Initialize database tables using SQLAlchemy ORM and seed default admin/reviews."""
+    """Create tables, apply additive migrations and ensure the admin account."""
     Base.metadata.create_all(bind=engine)
 
     # Lightweight migration check for legacy sqlite columns
@@ -46,45 +47,23 @@ def init_db():
 
     db = SessionLocal()
     try:
-        # 1. Seed Reviews if empty
-        if db.query(Review).count() == 0:
-            default_reviews = [
-                Review(author_name="Фарҳод Қосимов", role_title="Падари 2 фарзанд (Душанбе)", rating=5, comment="Барномаи бисёр олиҷаноб! Писарам пештар тамоми рӯз бозиҳои телефонӣ мекард. Ҳоло вақти бозиро маҳдуд кардам ва сайтҳои хатарнокро бастам. Муҳимтар аз ҳама, бе интернет ҳам қоидаҳо кор мекунанд!", date="15 Сентябр 2026"),
-                Review(author_name="Мадина Саидова", role_title="Модари як писару як духтар (Хуҷанд)", rating=5, comment="Пайвастшавӣ тавассути QR-код хеле осон ва тез аст. Барои ман донистани макони фарзандонам ва муҳофизати онҳо аз сайтҳои хатарноки интернет хеле муҳим буд. Ташаккур ба созандагон!", date="12 Сентябр 2026"),
-                Review(author_name="Рустам Назаров", role_title="Падар (Бохтар)", rating=5, comment="Суръати кор ва интерфейси зебои тоҷикӣ маро мафтун кард. Дигар хавотир нестам, ки писарам дар мактаб телефонро барои бозӣ истифода мебарад ё не. Тавсия медиҳам!", date="08 Сентябр 2026"),
-                Review(author_name="Шаҳноза Алиева", role_title="Омӯзгор ва модар (Душанбе)", rating=5, comment="Дар давраи интернет барои тарбияи дурусти кӯдакон чунин барнома ҳаётан муҳим аст. Хусусан функсияи бастани барномаҳои беҳуда ва муҳофизати интернети бехатар баҳои баланд дорад.", date="02 Сентябр 2026")
-            ]
-            db.add_all(default_reviews)
-            db.commit()
-
-        # 2. Seed Admin: admin and admin@nigohfamily.tj with password 'admin321'
-        admin_pwd_hash = hash_password("admin321")
-        for admin_email in ["admin", "admin@nigohfamily.tj"]:
+        # Admin account: the password comes only from the ADMIN_PASSWORD
+        # environment variable (server .env), never from source code. Without
+        # it the existing admin keeps its current password.
+        admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
+        if admin_password:
+            admin_email = os.getenv("ADMIN_EMAIL", "admin").strip() or "admin"
             admin_user = db.query(User).filter(User.email == admin_email).first()
-            if not admin_user:
-                new_admin = User(
+            if admin_user is None:
+                db.add(User(
                     email=admin_email,
-                    password_hash=admin_pwd_hash,
-                    full_name="Администратор (Admin)",
+                    password_hash=hash_password(admin_password),
+                    full_name="Администратор",
                     role="admin",
-                    avatar="https://ui-avatars.com/api/?name=Admin&background=4f46e5&color=fff"
-                )
-                db.add(new_admin)
+                ))
             else:
-                admin_user.password_hash = admin_pwd_hash
+                admin_user.password_hash = hash_password(admin_password)
                 admin_user.role = "admin"
-        db.commit()
-
-        # 3. Seed demo devices/children if empty
-        if db.query(Child).count() == 0:
-            demo_children = [
-                Child(name="Анушервон", gender="boy", age=12, device_name="Samsung Galaxy A54", pairing_code="NIGOH-7412-X", is_paired=1, is_online=1, battery_level=88, latitude=38.5601, longitude=68.7885, address="ш. Душанбе, хиёбони Рӯдакӣ 45"),
-                Child(name="Малика", gender="girl", age=9, device_name="Xiaomi Redmi Note 12", pairing_code="NIGOH-3918-X", is_paired=1, is_online=1, battery_level=94, latitude=38.5420, longitude=68.7750, address="ш. Душанбе, кӯчаи Исмоили Сомонӣ"),
-                Child(name="Беҳрӯз", gender="boy", age=14, device_name="iPhone 13 (Android Client)", pairing_code="NIGOH-8821-X", is_paired=1, is_online=0, battery_level=42, latitude=38.5710, longitude=68.8010, address="ш. Душанбе, маҳаллаи 82"),
-                Child(name="Сабрина", gender="girl", age=11, device_name="Samsung Galaxy A33", pairing_code="NIGOH-1049-X", is_paired=1, is_online=1, battery_level=76, latitude=40.2850, longitude=69.6230, address="ш. Хуҷанд, маҳаллаи 19"),
-                Child(name="Муҳаммадҷон", gender="boy", age=10, device_name="Honor X8b", pairing_code="NIGOH-5524-X", is_paired=1, is_online=1, battery_level=65, latitude=37.8380, longitude=68.7740, address="ш. Бохтар, кӯчаи Борбад")
-            ]
-            db.add_all(demo_children)
             db.commit()
 
         # 4. Seed the first dynamic configuration bundle. Later bundles are
