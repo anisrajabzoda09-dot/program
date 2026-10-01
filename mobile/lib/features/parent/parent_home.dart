@@ -11,6 +11,10 @@ import 'add_child_screen.dart';
 import 'apps_screen.dart';
 import 'family_controller.dart';
 import 'map_screen.dart';
+import 'parent_logic.dart';
+import 'parent_sheets.dart';
+import 'requests_screen.dart';
+import 'weekly_report.dart';
 
 const _deviceChannel = MethodChannel('tj.nigoh/device_control');
 
@@ -30,7 +34,54 @@ class _ParentHomeState extends State<ParentHome> {
   bool _owned = false;
   int _tab = 0;
 
+  /// Last «mark read» attempt (child-unread-urgent) so it isn't repeated.
+  String? _readMarked;
+
   FamilyController get controller => _controller!;
+
+  /// When a child's chat is visible and has unread messages (or an SOS),
+  /// tell the server they were seen; this also clears the SOS banner.
+  void _markReadIfNeeded() {
+    if (_tab != 3) return;
+    final child = controller.selected;
+    if (child == null) return;
+    if (child.unreadFromChild == 0 && child.lastUrgent == null) return;
+    final key = '${child.id}-${child.unreadFromChild}-${child.lastUrgent?.id}';
+    if (key == _readMarked) return;
+    _readMarked = key;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await controller.markChatRead(child.id);
+      } catch (e) {
+        if (mounted) showMessage(context, e, error: true);
+      }
+    });
+  }
+
+  void _openRequests() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TimeRequestsScreen(controller: controller),
+      ),
+    );
+  }
+
+  void _openReport(FamilyChild child) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => WeeklyReportScreen(api: controller.api, child: child),
+      ),
+    );
+  }
+
+  void _openBedtime(FamilyChild child) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => BedtimeSheet(controller: controller, child: child),
+    );
+  }
 
   @override
   void didChangeDependencies() {
@@ -53,9 +104,7 @@ class _ParentHomeState extends State<ParentHome> {
 
   Future<void> _addChild() async {
     final ok = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => AddChildScreen(controller: controller),
-      ),
+      MaterialPageRoute(builder: (_) => AddChildScreen(controller: controller)),
     );
     if (ok == true && mounted) showMessage(context, 'Фарзанд пайваст шуд');
   }
@@ -203,7 +252,9 @@ class _ParentHomeState extends State<ParentHome> {
           body = _EmptyFamily(onAdd: _addChild);
         } else {
           body = _tabBody(session.displayName);
+          _markReadIfNeeded();
         }
+        final unread = controller.unreadTotal;
         return Scaffold(
           // Chat and Settings bring their own app bar.
           appBar: _tab >= 3 ? null : AppBar(title: Text(_titles[_tab])),
@@ -221,28 +272,46 @@ class _ParentHomeState extends State<ParentHome> {
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
             onDestinationSelected: (i) => setState(() => _tab = i),
-            destinations: const [
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.family_restroom_outlined),
-                selectedIcon: Icon(Icons.family_restroom_rounded),
+                icon: Badge(
+                  isLabelVisible:
+                      controller.urgentChildren.isNotEmpty ||
+                      controller.pendingRequestsTotal > 0,
+                  backgroundColor: controller.urgentChildren.isNotEmpty
+                      ? null
+                      : NigohDesign.amber,
+                  smallSize: 9,
+                  child: const Icon(Icons.family_restroom_outlined),
+                ),
+                selectedIcon: const Icon(Icons.family_restroom_rounded),
                 label: 'Оила',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.apps_outlined),
                 selectedIcon: Icon(Icons.apps_rounded),
                 label: 'Барномаҳо',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.map_outlined),
                 selectedIcon: Icon(Icons.map_rounded),
                 label: 'Харита',
               ),
               NavigationDestination(
-                icon: Icon(Icons.chat_bubble_outline_rounded),
-                selectedIcon: Icon(Icons.chat_bubble_rounded),
+                key: const ValueKey('nav-chat'),
+                icon: Badge.count(
+                  count: unread,
+                  isLabelVisible: unread > 0,
+                  child: const Icon(Icons.chat_bubble_outline_rounded),
+                ),
+                selectedIcon: Badge.count(
+                  count: unread,
+                  isLabelVisible: unread > 0,
+                  child: const Icon(Icons.chat_bubble_rounded),
+                ),
                 label: 'Чат',
               ),
-              NavigationDestination(
+              const NavigationDestination(
                 icon: Icon(Icons.settings_outlined),
                 selectedIcon: Icon(Icons.settings_rounded),
                 label: 'Танзимот',
@@ -262,6 +331,9 @@ class _ParentHomeState extends State<ParentHome> {
         onAdd: _addChild,
         onOpen: _open,
         onRemove: _removeChild,
+        onRequests: _openRequests,
+        onReport: _openReport,
+        onBedtime: _openBedtime,
       );
     }
     final selected = controller.selected!;
@@ -280,6 +352,7 @@ class _ParentHomeState extends State<ParentHome> {
             children: controller.children,
             selectedId: selected.id,
             onSelect: controller.select,
+            showUnread: _tab == 3,
           ),
         Expanded(child: content),
       ],
@@ -322,11 +395,13 @@ class _ChildSelector extends StatelessWidget {
     required this.children,
     required this.selectedId,
     required this.onSelect,
+    this.showUnread = false,
   });
 
   final List<FamilyChild> children;
   final int selectedId;
   final ValueChanged<int> onSelect;
+  final bool showUnread;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -340,7 +415,12 @@ class _ChildSelector extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
               avatar: _Avatar(name: child.name, size: 24),
-              label: Text(child.name),
+              label: Badge.count(
+                count: child.unreadFromChild,
+                isLabelVisible: showUnread && child.unreadFromChild > 0,
+                offset: const Offset(14, -6),
+                child: Text(child.name),
+              ),
               selected: child.id == selectedId,
               showCheckmark: false,
               onSelected: (_) => onSelect(child.id),
@@ -386,6 +466,9 @@ class _Overview extends StatelessWidget {
     required this.onAdd,
     required this.onOpen,
     required this.onRemove,
+    required this.onRequests,
+    required this.onReport,
+    required this.onBedtime,
   });
 
   final FamilyController controller;
@@ -393,6 +476,9 @@ class _Overview extends StatelessWidget {
   final VoidCallback onAdd;
   final void Function(int tab, FamilyChild child) onOpen;
   final ValueChanged<FamilyChild> onRemove;
+  final VoidCallback onRequests;
+  final ValueChanged<FamilyChild> onReport;
+  final ValueChanged<FamilyChild> onBedtime;
 
   @override
   Widget build(BuildContext context) {
@@ -403,6 +489,16 @@ class _Overview extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
         children: [
+          for (final child in controller.urgentChildren)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: SosBanner(
+                key: ValueKey('sos-${child.id}'),
+                child: child,
+                onChat: () => onOpen(3, child),
+                onMap: () => onOpen(2, child),
+              ),
+            ),
           Text(
             name.isEmpty ? 'Салом!' : 'Салом, $name!',
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
@@ -419,6 +515,13 @@ class _Overview extends StatelessWidget {
               onRetry: controller.refresh,
             ),
           ],
+          if (controller.children.any((c) => c.paired)) ...[
+            const SizedBox(height: 14),
+            _RequestsTile(
+              count: controller.pendingRequestsTotal,
+              onTap: onRequests,
+            ),
+          ],
           const SizedBox(height: 8),
           for (final (index, child) in controller.children.indexed)
             FadeIn(
@@ -426,8 +529,11 @@ class _Overview extends StatelessWidget {
               index: index,
               child: _ChildCard(
                 child: child,
+                places: controller.placesFor(child.id),
                 onOpen: (tab) => onOpen(tab, child),
                 onRemove: () => onRemove(child),
+                onReport: () => onReport(child),
+                onBedtime: () => onBedtime(child),
               ),
             ),
           const SizedBox(height: 16),
@@ -477,19 +583,71 @@ class _ErrorBanner extends StatelessWidget {
 class _ChildCard extends StatelessWidget {
   const _ChildCard({
     required this.child,
+    required this.places,
     required this.onOpen,
     required this.onRemove,
+    required this.onReport,
+    required this.onBedtime,
   });
 
   final FamilyChild child;
+  final List<SafePlace> places;
   final ValueChanged<int> onOpen;
   final VoidCallback onRemove;
+  final VoidCallback onReport;
+  final VoidCallback onBedtime;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final online = child.online;
     final seen = child.location?.updatedAt;
+    final battery = child.location?.batteryLevel;
+    final status = placeStatus(child.location, places);
+    final inside =
+        status != null &&
+        placeContaining(
+              child.location!.latitude,
+              child.location!.longitude,
+              places,
+            ) !=
+            null;
+    final bedtimeActive = child.bedtime.activeAt(DateTime.now());
+    final newApps = child.newAppsCount;
+    final chips = <Widget>[
+      if (battery != null)
+        Pill(
+          '$battery%',
+          color: battery <= 15 ? NigohDesign.coral : NigohDesign.mint,
+          icon: battery <= 15
+              ? Icons.battery_alert_rounded
+              : Icons.battery_std_rounded,
+        ),
+      if (status != null)
+        Pill(
+          status,
+          color: inside ? NigohDesign.mint : NigohDesign.amber,
+          icon: inside ? Icons.shield_rounded : Icons.shield_outlined,
+        ),
+      if (child.unreadFromChild > 0)
+        Pill(
+          '${child.unreadFromChild} паёми нав',
+          color: NigohDesign.blue,
+          icon: Icons.mark_chat_unread_rounded,
+        ),
+      if (child.pendingRequests > 0)
+        Pill(
+          '${child.pendingRequests} дархост',
+          color: NigohDesign.amber,
+          icon: Icons.more_time_rounded,
+        ),
+      if (newApps > 0)
+        Pill(
+          '$newApps барномаи нав',
+          color: NigohDesign.violet,
+          icon: Icons.fiber_new_rounded,
+        ),
+    ];
     return Card(
       margin: const EdgeInsets.only(top: 12),
       clipBehavior: Clip.antiAlias,
@@ -558,6 +716,10 @@ class _ChildCard extends StatelessWidget {
                   ),
                 ],
               ),
+              if (chips.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(spacing: 6, runSpacing: 6, children: chips),
+              ],
               const SizedBox(height: 14),
               Row(
                 children: [
@@ -606,6 +768,37 @@ class _ChildCard extends StatelessWidget {
                       icon: Icons.chat_bubble_rounded,
                       label: 'Чат',
                       onTap: () => onOpen(3),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _LinkRow(
+                        key: ValueKey('report-${child.id}'),
+                        icon: Icons.bar_chart_rounded,
+                        color: NigohDesign.blue,
+                        label: 'Ҳисобот',
+                        onTap: onReport,
+                      ),
+                    ),
+                    Expanded(
+                      child: _LinkRow(
+                        key: ValueKey('bedtime-${child.id}'),
+                        icon: bedtimeActive
+                            ? Icons.bedtime_rounded
+                            : Icons.bedtime_outlined,
+                        color: NigohDesign.violet,
+                        label: child.bedtime.enabled
+                            ? bedtimeLabel(child.bedtime)
+                            : 'Вақти хоб',
+                        trailing: bedtimeActive ? 'Ҳозир фаъол' : null,
+                        onTap: onBedtime,
+                      ),
                     ),
                   ],
                 ),
@@ -696,4 +889,264 @@ class _QuickAction extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Small text link with an icon (report, bedtime) under the quick actions.
+class _LinkRow extends StatelessWidget {
+  const _LinkRow({
+    super.key,
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.onTap,
+    this.trailing,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String? trailing;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    borderRadius: BorderRadius.circular(12),
+    onTap: onTap,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 17, color: color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                  ),
+                ),
+                if (trailing != null)
+                  Text(
+                    trailing!,
+                    style: const TextStyle(
+                      color: NigohDesign.violet,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Entry to the extra-time requests inbox, with the pending count.
+class _RequestsTile extends StatelessWidget {
+  const _RequestsTile({required this.count, required this.onTap});
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final active = count > 0;
+    return Material(
+      color: active ? NigohDesign.amber.withValues(alpha: .10) : scheme.surface,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        key: const ValueKey('open-requests'),
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: active
+                  ? NigohDesign.amber.withValues(alpha: .45)
+                  : scheme.outlineVariant,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: NigohDesign.amber.withValues(alpha: .14),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.more_time_rounded,
+                  color: NigohDesign.amber,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Дархостҳои вақт',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      active
+                          ? 'Фарзанд вақти иловагӣ мепурсад'
+                          : 'Дархости нав нест',
+                      style: TextStyle(
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (active)
+                Badge.count(
+                  key: const ValueKey('requests-badge'),
+                  count: count,
+                  backgroundColor: NigohDesign.amber,
+                  textColor: Colors.black,
+                  largeSize: 22,
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Prominent red SOS alert from a child (unread urgent message).
+class SosBanner extends StatelessWidget {
+  const SosBanner({
+    super.key,
+    required this.child,
+    required this.onChat,
+    required this.onMap,
+  });
+
+  final FamilyChild child;
+  final VoidCallback onChat;
+  final VoidCallback onMap;
+
+  @override
+  Widget build(BuildContext context) {
+    final urgent = child.lastUrgent!;
+    const red = Color(0xFFD32F2F);
+    final text = urgent.content.trim();
+    final time = urgent.createdAt;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: red,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: red.withValues(alpha: .28),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: .18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.sos_rounded, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${child.name} кӯмак мехоҳад',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      time == null
+                          ? 'Сигнали SOS'
+                          : 'SOS · ${hhmm(time.toLocal())} · ${timeAgo(time)}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: .85),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (text.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white, height: 1.35),
+            ),
+          ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton.icon(
+                  key: ValueKey('sos-chat-${child.id}'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: red,
+                  ),
+                  onPressed: onChat,
+                  icon: const Icon(Icons.chat_bubble_rounded, size: 18),
+                  label: const Text('Кушодани чат'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  key: ValueKey('sos-map-${child.id}'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white70),
+                  ),
+                  onPressed: onMap,
+                  icon: const Icon(Icons.location_on_rounded, size: 18),
+                  label: const Text('Ҷойгиршавӣ'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
