@@ -60,6 +60,7 @@ class AppControlUpdateRequest(BaseModel):
     is_blocked: Optional[bool] = None
     daily_limit_minutes: Optional[int] = Field(default=None, ge=0, le=1440)
     schedule: Optional[AppSchedule] = None
+    always_allowed: Optional[bool] = None
 
 
 class UsageReportItem(BaseModel):
