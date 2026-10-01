@@ -478,6 +478,10 @@ def sync_mobile_apps_v2(
                 daily_limit_minutes=0,
             )
             db.add(rule)
+        elif rule.last_synced_at is None:
+            # A seeded placeholder rule: the parent never chose it.
+            rule.is_blocked = 0
+            rule.daily_limit_minutes = 0
         rule.app_name = item.app_name or rule.app_name
         rule.app_icon = item.icon_base64 or rule.app_icon
         rule.last_synced_at = datetime.now(timezone.utc)
