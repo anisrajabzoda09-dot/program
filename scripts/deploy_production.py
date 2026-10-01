@@ -119,7 +119,7 @@ def deploy():
     # 1. Sync entire app/ directory (core, crud, db, models, routers, schemas, templates, static, etc.)
     # Keep production data on the server. Schema initialization is additive and
     # must never replace the live SQLite database with a local copy.
-    run_ssh(f'rsync -avz --exclude "__pycache__" --exclude "*.pyc" --exclude "nigoh.db" --exclude "*.bak" -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/')
+    run_ssh(f'rsync -avzL --exclude "__pycache__" --exclude "*.pyc" --exclude "nigoh.db" --exclude "*.bak" -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/')
 
     # 2. Sync root APK and documentation
     run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" {APK_FILENAME} TECH_STACK.md requirements.txt {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
