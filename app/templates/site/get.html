@@ -1,0 +1,136 @@
+{% extends "site/base.html" %}
+
+{% block title %}Боргирӣ барои Android — NIGOH Family{% endblock %}
+
+{% block description %}NIGOH Family {{ app_version }} барои Android-ро ройгон боргирӣ кунед. Файли APK, рамзи QR ва дастури насб барои телефони волидайн ва фарзанд.{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Боргирӣ</span>
+    <h1>NIGOH Family барои Android</h1>
+    <p class="lead">Як барнома барои ҳарду телефон. Файли APK-ро мустақиман аз сомонаи мо боргирӣ кунед — ройгон ва бе реклама.</p>
+    <div class="btn-row" style="margin-top:30px;align-items:center">
+      <a class="btn btn-primary" href="/download/android">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+        Боргирии APK
+      </a>
+      <span class="tag blue">Версияи {{ app_version }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="qr">
+  <div class="wrap split">
+    <div class="center">
+      <img class="qr-big" src="/api/qr/download" width="240" height="240" alt="Рамзи QR барои боргирии NIGOH Family" style="margin:0 auto">
+      <p class="muted small" style="margin:18px auto 0;max-width:320px">Бо камераи телефон скан кунед. Рамзи QR ҳамеша ба версияи навтарини барнома мебарад.</p>
+    </div>
+    <div>
+      <h2>Маълумот дар бораи файл</h2>
+      <table class="meta-table" style="margin-top:24px">
+        <tr><th>Версия</th><td>{{ app_version }}</td></tr>
+        <tr><th>Андоза</th><td>~77 МБ</td></tr>
+        <tr><th>Система</th><td>Android 8.0 ва навтар</td></tr>
+        <tr><th>Нарх</th><td>Ройгон</td></tr>
+        <tr><th>Package</th><td style="word-break:break-all">tj.nigoh.nigoh_family_parent</td></tr>
+        <tr><th>Манбаъ</th><td>nigohfamily.qobus.tj</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Насб</span>
+      <h2>Чӣ тавр насб кардан</h2>
+      <p class="lead">Барнома дар Google Play нест, бинобар ин Android як иҷозати иловагӣ мепурсад.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Файлро боргирӣ кунед</h3>
+          <p>Тугмаи «Боргирии APK»-ро пахш кунед ё рамзи QR-ро скан кунед.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Насбро иҷозат диҳед</h3>
+          <p>Android мепурсад, ки ба браузер «Насби барномаҳои номаълум» иҷозат диҳед. Иҷозат диҳед ва баргардед.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Барномаро насб кунед</h3>
+          <p>Файли боргиришударо кушоед ва «Насб»-ро пахш кунед.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Кушоед ва нақшро интихоб кунед</h3>
+          <p>Дар телефони худ «Волидайн», дар телефони фарзанд «Фарзанд»-ро интихоб кунед.</p>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:32px">
+      <div class="callout amber">
+        <p><strong>Android 13 ва навтар.</strong> Дар телефони фарзанд пеш аз фаъол кардани Accessibility шояд лозим шавад: Маълумот дар бораи барнома → ⋮ → «Allow restricted settings».</p>
+      </div>
+      <div class="callout">
+        <p>Як файли APK дар ҳарду телефон насб мешавад. Нақш — волидайн ё фарзанд — ҳангоми кушодани аввал интихоб мешавад.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Версияи {{ app_version }}</span>
+      <h2>Навигариҳо дар {{ app_version }}</h2>
+      <p class="lead" style="margin-top:16px">Барнома худаш версияи навро месанҷад ва боргирии онро пешниҳод мекунад.</p>
+    </div>
+    <ul class="feature-list" style="margin-top:0">
+      <li>Волидайн рӯйхати барномаҳои фарзандро бе хато мебинад.</li>
+      <li>Рӯйхати барномаҳо худкор ҳамоҳанг мешавад ва ҳангоми хато такрор мекунад.</li>
+      <li>Кортҳои барномаҳо рангинтар ва соддатар шуданд.</li>
+      <li>Нишонаҳои барномаҳо дуруст нишон дода мешаванд.</li>
+      <li>Рақамҳои вақти экран дақиқтар шуданд.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Баъд аз насб</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+        <h3>Телефони волидайн</h3>
+        <ul class="feature-list">
+          <li>Нақши «Волидайн»-ро интихоб кунед.</li>
+          <li>Бо Google ё почтаи электронӣ ворид шавед.</li>
+          <li>Дар танзимот PIN-и волидайнро гузоред.</li>
+          <li>Рамзи QR-и фарзандро скан кунед ё рамзи 6-рақамаро ворид кунед.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+        <h3>Телефони фарзанд</h3>
+        <ul class="feature-list">
+          <li>Нақши «Фарзанд»-ро интихоб кунед.</li>
+          <li>Иҷозатҳоро қадам ба қадам дар маркази иҷозатҳо фаъол кунед.</li>
+          <li>Рамзи QR ё рамзи 6-рақамаро ба волидайн нишон диҳед.</li>
+          <li>Рамз як маротиба кор мекунад ва пас аз 15 дақиқа беэътибор мешавад.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted" style="margin-top:28px">Савол доред? <a class="link-arrow" href="/faq">Саволу ҷавоб</a></p>
+  </div>
+</section>
+
+{% endblock %}

@@ -169,6 +169,11 @@ def faq_page(request: Request):
     return _site_page(request, "faq", "faq")
 
 
+@router.head("/get", include_in_schema=False)
+@router.get("/get", response_class=HTMLResponse)
+def get_app_page(request: Request):
+    return _site_page(request, "get", "get")
+
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
 @router.get("/3d", response_class=HTMLResponse)
