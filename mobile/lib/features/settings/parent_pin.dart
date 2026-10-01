@@ -30,6 +30,20 @@ abstract final class ParentPin {
         : 'Рамз нигоҳ дошта нашуд. Дубора кӯшиш кунед.';
   }
 
+  /// Opens [PinSetupDialog] to create a PIN (or change it when [hasPin]);
+  /// true when a new PIN was saved.
+  static Future<bool> setUp(
+    BuildContext context, {
+    bool hasPin = false,
+    String? text,
+  }) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => PinSetupDialog(hasPin: hasPin, text: text),
+    );
+    return ok == true;
+  }
+
   /// Asks for the PIN in a dialog; true when it was correct.
   static Future<bool> ask(
     BuildContext context, {
@@ -118,6 +132,124 @@ class _PinDialogState extends State<_PinDialog> {
         style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
         onPressed: busy ? null : submit,
         child: const Text('Тасдиқ'),
+      ),
+    ],
+  );
+}
+
+/// Set (first time) or change the parent PIN — legacy SecurityCodePage flow.
+class PinSetupDialog extends StatefulWidget {
+  const PinSetupDialog({super.key, required this.hasPin, this.text});
+  final bool hasPin;
+
+  /// Optional reason shown above the fields (e.g. why a PIN is needed now).
+  final String? text;
+
+  @override
+  State<PinSetupDialog> createState() => _PinSetupDialogState();
+}
+
+class _PinSetupDialogState extends State<PinSetupDialog> {
+  final current = TextEditingController();
+  final next = TextEditingController();
+  final confirm = TextEditingController();
+  String? error;
+  bool saving = false;
+
+  @override
+  void dispose() {
+    current.dispose();
+    next.dispose();
+    confirm.dispose();
+    super.dispose();
+  }
+
+  Future<void> save() async {
+    final newPin = next.text.trim();
+    if (!UserJourneyLogic.validPin(newPin)) {
+      return setState(() => error = 'PIN бояд аз 4 рақам иборат бошад.');
+    }
+    if (newPin != confirm.text.trim()) {
+      return setState(() => error = 'Такрори PIN мувофиқ нест.');
+    }
+    setState(() {
+      saving = true;
+      error = null;
+    });
+    try {
+      final failure = await ParentPin.change(
+        currentPin: widget.hasPin ? current.text.trim() : '',
+        newPin: newPin,
+      );
+      if (!mounted) return;
+      if (failure == null) return Navigator.pop(context, true);
+      setState(() => error = failure);
+    } on PlatformException catch (e) {
+      if (mounted) {
+        setState(() => error = e.message ?? 'PIN нигоҳ дошта нашуд.');
+      }
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  Widget field(
+    TextEditingController controller,
+    String label, {
+    bool focus = false,
+  }) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: TextField(
+      controller: controller,
+      autofocus: focus,
+      obscureText: true,
+      maxLength: 4,
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      decoration: InputDecoration(labelText: label, counterText: ''),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    icon: const Icon(Icons.pin_outlined),
+    title: Text(widget.hasPin ? 'Иваз кардани PIN' : 'Гузоштани PIN'),
+    content: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            widget.text ?? 'PIN дар ҳамин телефон нигоҳ дошта мешавад ва барои амалҳои муҳим лозим аст.',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 14),
+          if (widget.hasPin) field(current, 'PIN-и ҷорӣ', focus: true),
+          field(
+            next,
+            widget.hasPin ? 'PIN-и нав' : 'PIN (4 рақам)',
+            focus: !widget.hasPin,
+          ),
+          field(confirm, 'Такрори PIN'),
+          if (error != null)
+            Text(
+              error!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+        ],
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: saving ? null : () => Navigator.pop(context, false),
+        child: const Text('Бекор'),
+      ),
+      FilledButton(
+        style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
+        onPressed: saving ? null : save,
+        child: const Text('Нигоҳ доштан'),
       ),
     ],
   );
