@@ -263,7 +263,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.11.0: ҷойгиршавӣ ислоҳ шуд; SOS, вақти иловагӣ, вақти хоб, ҷойҳои бехатар, таърихи 24 соат, ҳисоботи ҳафтаина ва «Қоидаҳои ман» барои фарзанд.",
+        "release_notes": "v2.12.0: навсозӣ бо як тугма — бе нест кардани барнома; маълумот ва иҷозатҳо мемонанд.",
         "download_url": download_url
     }
 
