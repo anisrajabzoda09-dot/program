@@ -146,14 +146,18 @@ def _mobile_child(db: Session, user: dict, child_id: Optional[int] = None) -> Ch
 
 
 def _mobile_child_payload(db: Session, child: Child) -> dict:
-    ensure_default_child_apps(db, child.id)
+    # The mobile app shows only apps really reported by the child's phone;
+    # placeholder defaults (never synced) must not appear or block anything.
     today = date.today()
     usage_rows = db.query(AppUsageDaily).filter(
         AppUsageDaily.child_id == child.id,
         AppUsageDaily.usage_date == today,
     ).all()
     usage_by_package = {row.package_name: row for row in usage_rows}
-    rules = db.query(AppRule).filter(AppRule.child_id == child.id).order_by(AppRule.app_name.asc()).all()
+    rules = db.query(AppRule).filter(
+        AppRule.child_id == child.id,
+        AppRule.last_synced_at.isnot(None),
+    ).order_by(AppRule.app_name.asc()).all()
     child_user = db.query(User).filter(User.id == child.user_id).first() if child.user_id else None
     parent_user = db.query(User).filter(User.id == child.parent_id).first() if child.parent_id else None
     return {
@@ -602,7 +606,10 @@ def list_child_apps_v1(child_id: int, request: Request, db: Session = Depends(ge
         AppUsageDaily.usage_date == today,
     ).all()
     usage_by_package = {row.package_name: row for row in usage_rows}
-    rules = db.query(AppRule).filter(AppRule.child_id == child.id).order_by(AppRule.app_name.asc()).all()
+    rules = db.query(AppRule).filter(
+        AppRule.child_id == child.id,
+        AppRule.last_synced_at.isnot(None),
+    ).order_by(AppRule.app_name.asc()).all()
     return {
         "status": "success",
         "child": child.to_dict(),
