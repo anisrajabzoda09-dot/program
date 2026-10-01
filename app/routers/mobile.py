@@ -54,6 +54,7 @@ from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.chat import ChatMessage
 from app.models.family_extras import LocationPoint
+from app.core import events as family_events
 from app.models.user import User
 from app.core.firebase_mobile import find_user_by_firebase_uid
 from app.core.mobile_auth import require_mobile_user
@@ -184,6 +185,8 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
         } if child.location_updated_at else None,
         "apps": [_rule_payload(rule, usage_by_package.get(rule.package_name)) for rule in rules],
         "bedtime": _json_or_none(child.bedtime_json),
+        "study": _json_or_none(child.study_json),
+        "battery_level": child.battery_level if child.location_updated_at else None,
         "unread_from_child": _unread(db, child.id, "child"),
         "unread_from_parent": _unread(db, child.id, "parent"),
         "pending_requests": db.query(AppExtensionRequest).filter(
@@ -516,6 +519,8 @@ def sync_mobile_apps_v2(
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад рӯйхати барномаҳоро фиристад")
     child = _mobile_child(db, user, child_id)
     today = date.today()
+    had_synced = db.query(AppRule.id).filter(AppRule.child_id == child.id, AppRule.last_synced_at.isnot(None)).first() is not None
+    new_names = []
     for item in payload.apps:
         rule = db.query(AppRule).filter(
             AppRule.child_id == child.id,
@@ -530,6 +535,7 @@ def sync_mobile_apps_v2(
                 first_seen_at=datetime.now(timezone.utc),
             )
             db.add(rule)
+            new_names.append(item.app_name or item.package_name)
         elif rule.last_synced_at is None:
             # A seeded placeholder rule: the parent never chose it.
             rule.is_blocked = 0
@@ -552,6 +558,11 @@ def sync_mobile_apps_v2(
         usage.minutes = item.usage_minutes
         usage.last_used_at = item.last_used_at
     child.is_online = 1
+    family_events.on_seen(child)
+    if had_synced and new_names and child.parent_id:
+        names = ", ".join(new_names[:3]) + ("…" if len(new_names) > 3 else "")
+        family_events.emit(db, child, "parent", "new_app", f"{child.name} барномаи нав насб кард", names,
+                           {"apps": new_names[:10]})
     db.commit()
     return {"status": "success", "child": _mobile_child_payload(db, child)}
 
@@ -604,6 +615,8 @@ def update_mobile_location_v2(
     child.is_online = 1 if payload.is_online else 0
     if payload.battery_level is not None:
         child.battery_level = payload.battery_level
+    family_events.on_battery(db, child, payload.battery_level)
+    family_events.on_seen(child)
     child.location_updated_at = datetime.now(timezone.utc)
     db.add(LocationPoint(
         child_id=child.id,
@@ -652,6 +665,14 @@ def send_mobile_chat_v2(
         message_type=payload.message_type,
         duration_sec=payload.duration_sec,
     )
+    sender = user.get("full_name") or ("Волидайн" if role == "parent" else child.name)
+    target = "child" if role == "parent" else "parent"
+    if payload.message_type == "urgent":
+        family_events.emit(db, child, "parent", "sos", f"SOS — {child.name}", payload.content.strip(),
+                           {"message_id": message.get("id") if isinstance(message, dict) else None})
+    else:
+        family_events.emit(db, child, target, "message", sender, payload.content.strip())
+    db.commit()
     return {"status": "success", "message": message}
 
 
