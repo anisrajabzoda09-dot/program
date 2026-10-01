@@ -150,7 +150,9 @@ def create_time_request(child_id: int, payload: TimeRequestCreate, request: Requ
     rule = db.query(AppRule).filter(AppRule.child_id == child.id, AppRule.package_name == payload.package_name).first()
     app_name = rule.app_name if rule else payload.package_name
     family_events.emit(db, child, "parent", "time_request", f"{child.name}: +{payload.minutes} дақ барои {app_name}",
-                       row.reason or "Фарзанд вақти иловагӣ мепурсад.", {"package_name": payload.package_name})
+                       row.reason or "Фарзанд вақти иловагӣ мепурсад.",
+                       {"package_name": payload.package_name, "app_name": app_name,
+                        "minutes": payload.minutes, "reason": row.reason})
     db.commit()
     db.refresh(row)
     return {"status": "success", "request": _request_payload(db, row)}
@@ -204,6 +206,8 @@ def decide_time_request(
         db, child, "child", "time_decision",
         "Иҷозат дода шуд" if payload.approve else "Дархост рад шуд",
         f"{rule_name}: +{payload.minutes or row.requested_minutes} дақ" if payload.approve else rule_name,
+        {"approved": payload.approve, "app_name": rule_name,
+         "minutes": (payload.minutes or row.requested_minutes) if payload.approve else 0},
     )
     db.commit()
     return {"status": "success", "request": _request_payload(db, row)}

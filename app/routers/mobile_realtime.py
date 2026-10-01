@@ -180,12 +180,12 @@ def _set_status(db: Session, user: dict, call_id: int, action: str) -> dict:
             raise HTTPException(status_code=409, detail="Ин занг дигар фаъол нест")
         call.status = "declined"
         call.ended_at = now
-        family_events.emit(db, child, other, "call_end", "Занг рад шуд", "", {"call_id": call.id})
+        family_events.emit(db, child, other, "call_end", "Занг рад шуд", "", {"call_id": call.id, "reason": "declined"})
     else:  # end
         if call.status in ("ringing", "active"):
             call.status = "ended"
             call.ended_at = now
-            family_events.emit(db, child, other, "call_end", "Занг тамом шуд", "", {"call_id": call.id})
+            family_events.emit(db, child, other, "call_end", "Занг тамом шуд", "", {"call_id": call.id, "reason": "ended"})
     db.commit()
     return {"status": "success", "call": call.to_dict()}
 

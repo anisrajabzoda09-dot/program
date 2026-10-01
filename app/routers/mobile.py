@@ -671,9 +671,10 @@ def send_mobile_chat_v2(
     target = "child" if role == "parent" else "parent"
     if payload.message_type == "urgent":
         family_events.emit(db, child, "parent", "sos", f"SOS — {child.name}", payload.content.strip(),
-                           {"message_id": message.get("id") if isinstance(message, dict) else None})
+                           {"message_id": message.get("id") if isinstance(message, dict) else None,
+                            "content": payload.content.strip()})
     else:
-        family_events.emit(db, child, target, "message", sender, payload.content.strip())
+        family_events.emit(db, child, target, "message", sender, payload.content.strip(), {"sender": sender})
     db.commit()
     return {"status": "success", "message": message}
 
