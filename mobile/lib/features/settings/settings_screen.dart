@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/child_profile.dart';
+import '../../core/notify_bridge.dart';
 import '../../core/session.dart';
 import '../../core/user_journey_logic.dart';
 import '../../pages/access_center_page.dart';
@@ -20,8 +21,11 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen>
+    with WidgetsBindingObserver {
   bool? hasPin;
+  NotifyPermissions? notifyStatus;
+  bool notifyLoaded = false;
   String? pinError;
   String version = '';
   bool checkingUpdate = false;
@@ -29,6 +33,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    loadNotifyStatus();
     loadPin();
     PackageInfo.fromPlatform()
         .then((info) {
@@ -37,6 +43,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }
         })
         .catchError((_) {});
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Permissions are granted in Android settings; refresh on return.
+    if (state == AppLifecycleState.resumed) loadNotifyStatus();
+  }
+
+  Future<void> loadNotifyStatus() async {
+    final status = await NotifyBridge.permissionStatus();
+    if (!mounted) return;
+    setState(() {
+      notifyStatus = status;
+      notifyLoaded = true;
+    });
+  }
+
+  Future<void> fixNotifications() async {
+    final status = notifyStatus;
+    if (status != null && status.notifications && !status.fullScreen) {
+      await NotifyBridge.openFullScreenSettings();
+    } else {
+      await NotifyBridge.ensurePermissions(context);
+    }
+    await loadNotifyStatus();
   }
 
   Future<void> loadPin() async {
@@ -292,6 +329,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         : const Icon(Icons.chevron_right_rounded),
                     onTap: checkingUpdate ? null : () => checkUpdate(session),
                   ),
+                ),
+                const Divider(height: 1),
+                ValueListenableBuilder<String?>(
+                  valueListenable: NotifyBridge.lastError,
+                  builder: (_, error, _) {
+                    final status = notifyStatus;
+                    final ok = status?.all == true;
+                    final subtitle =
+                        error ??
+                        (!notifyLoaded
+                            ? 'Санҷида мешавад…'
+                            : status == null
+                            ? 'Ҳолат маълум нашуд'
+                            : !status.notifications
+                            ? 'Хомӯш аст — паёмҳо ва SOS намерасанд'
+                            : !status.fullScreen
+                            ? 'Барои SOS ва зангҳо иҷозати экрани пурра лозим'
+                            : 'Фаъол: паёмҳо, SOS ва зангҳо');
+                    return _Tile(
+                      icon: Icons.notifications_active_outlined,
+                      color: NigohDesign.coral,
+                      title: 'Огоҳиномаҳо',
+                      subtitle: subtitle,
+                      subtitleColor: error != null || (status != null && !ok)
+                          ? scheme.error
+                          : null,
+                      trailing: ok || status == null
+                          ? null
+                          : Text(
+                              status.notifications ? 'Кушодан' : 'Иҷозат додан',
+                              style: TextStyle(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                      onTap: status == null
+                          ? loadNotifyStatus
+                          : ok
+                          ? null
+                          : fixNotifications,
+                    );
+                  },
                 ),
               ],
             ),

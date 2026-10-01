@@ -101,7 +101,9 @@ abstract final class AppUpdate {
     String? status;
     try {
       // Listen before starting so no early progress event is lost.
-      final first = events.first.catchError((_) => const UpdateProgress('error'));
+      final first = events.first.catchError(
+        (_) => const UpdateProgress('error'),
+      );
       status = await channel.invokeMethod<String>('installUpdate', {
         'downloadUrl': url,
         'version': version,
@@ -109,7 +111,11 @@ abstract final class AppUpdate {
       unawaited(first);
     } catch (_) {
       if (context.mounted) {
-        showMessage(context, 'Навсозӣ оғоз нашуд. Интернетро санҷед.', error: true);
+        showMessage(
+          context,
+          'Навсозӣ оғоз нашуд. Интернетро санҷед.',
+          error: true,
+        );
       }
       return;
     }
@@ -156,7 +162,11 @@ class UpdateProgress {
 }
 
 class UpdateProgressDialog extends StatelessWidget {
-  const UpdateProgressDialog({super.key, required this.version, required this.events});
+  const UpdateProgressDialog({
+    super.key,
+    required this.version,
+    required this.events,
+  });
 
   final String version;
   final Stream<UpdateProgress> events;
@@ -192,7 +202,10 @@ class UpdateProgressDialog extends StatelessWidget {
               Text(
                 'Маълумот, воридшавӣ ва иҷозатҳо нигоҳ дошта мешаванд.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant),
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ],
           ],
