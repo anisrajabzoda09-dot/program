@@ -141,5 +141,5 @@ class MobileLocationRequest(BaseModel):
 
 class MobileChatRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=4_000)
-    message_type: str = Field(default="text", pattern="^(text|voice|urgent)$")
+    message_type: str = Field(default="text", pattern="^(text|voice|urgent|call)$")
     duration_sec: int = Field(default=0, ge=0, le=3_600)

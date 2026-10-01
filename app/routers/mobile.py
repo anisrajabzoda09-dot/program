@@ -54,7 +54,8 @@ from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.chat import ChatMessage
 from app.models.user import User
-from app.core.firebase_mobile import require_firebase_user, find_user_by_firebase_uid
+from app.core.firebase_mobile import find_user_by_firebase_uid
+from app.core.mobile_auth import require_mobile_user
 from app.crud.crud_bundle import create_bundle, ensure_initial_bundle, list_after
 
 router = APIRouter(tags=["Mobile API & OTA"])
@@ -164,6 +165,10 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
         **child.to_dict(),
         "firebase_uid": child_user.firebase_uid if child_user else None,
         "parent_firebase_uid": parent_user.firebase_uid if parent_user else None,
+        "child_user_id": child.user_id,
+        "parent_user_id": child.parent_id,
+        "parent_name": parent_user.full_name if parent_user else None,
+        "child_email": child_user.email if child_user else None,
         "location": {
             "latitude": child.latitude,
             "longitude": child.longitude,
@@ -185,12 +190,12 @@ def _mobile_snapshot(db: Session, user: dict) -> dict:
             "user": user,
             "children": [_mobile_child_payload(db, child) for child in children],
         }
-    child = _mobile_child(db, user)
+    child = db.query(Child).filter(Child.user_id == user["id"]).order_by(Child.id.desc()).first()
     return {
         "status": "success",
         "source": "nigoh-api",
         "user": user,
-        "child": _mobile_child_payload(db, child),
+        "child": _mobile_child_payload(db, child) if child else None,
     }
 
 # --- Core Mobile Endpoints ---
@@ -368,7 +373,7 @@ def pair_device(payload: PairRequest, request: Request, db: Session = Depends(ge
 
 @router.get("/api/mobile/v2/snapshot")
 def mobile_snapshot_v2(request: Request, db: Session = Depends(get_db)):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     return _mobile_snapshot(db, user)
 
 
@@ -378,7 +383,7 @@ def create_mobile_pair_code_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Коди пайвастшавиро танҳо телефони фарзанд месозад")
     child = db.query(Child).filter(Child.user_id == user["id"]).first()
@@ -417,7 +422,7 @@ def pair_mobile_device_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн метавонад дастгоҳ пайваст кунад")
     code = payload.pairing_code.strip().upper()
@@ -440,7 +445,7 @@ def link_existing_mobile_family_v2(
     db: Session = Depends(get_db),
 ):
     """Bridge a family paired by the previous Firebase-only build."""
-    child_user = require_firebase_user(request, db)
+    child_user = require_mobile_user(request, db)
     if child_user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо ҳисоби фарзанд метавонад пайваст шавад")
     child = _mobile_child(db, child_user)
@@ -460,7 +465,7 @@ def sync_mobile_apps_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад рӯйхати барномаҳоро фиристад")
     child = _mobile_child(db, user, child_id)
@@ -512,7 +517,7 @@ def update_mobile_app_rule_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн қоида гузошта метавонад")
     child = _mobile_child(db, user, child_id)
@@ -540,7 +545,7 @@ def update_mobile_location_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад ҷойгиршавиро фиристад")
     child = _mobile_child(db, user, child_id)
@@ -562,12 +567,13 @@ def get_mobile_chat_v2(
     db: Session = Depends(get_db),
     after_id: int = Query(default=0, ge=0),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     child = _mobile_child(db, user, child_id)
-    rows = db.query(ChatMessage).filter(
-        ChatMessage.child_id == child.id,
-        ChatMessage.id > after_id,
-    ).order_by(ChatMessage.id.asc()).limit(200).all()
+    query = db.query(ChatMessage).filter(ChatMessage.child_id == child.id, ChatMessage.id > after_id)
+    if after_id == 0:
+        rows = list(reversed(query.order_by(ChatMessage.id.desc()).limit(200).all()))
+    else:
+        rows = query.order_by(ChatMessage.id.asc()).limit(200).all()
     return {"status": "success", "messages": [item.to_dict() for item in rows]}
 
 
@@ -578,7 +584,7 @@ def send_mobile_chat_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    user = require_firebase_user(request, db)
+    user = require_mobile_user(request, db)
     child = _mobile_child(db, user, child_id)
     role = "parent" if user.get("role") == "parent" else "child"
     message = send_message(
@@ -591,6 +597,19 @@ def send_mobile_chat_v2(
         duration_sec=payload.duration_sec,
     )
     return {"status": "success", "message": message}
+
+
+@router.delete("/api/mobile/v2/children/{child_id}")
+def unlink_mobile_child_v2(child_id: int, request: Request, db: Session = Depends(get_db)):
+    """Parent removes a child from the family. The child's phone keeps its profile."""
+    user = require_mobile_user(request, db)
+    if user.get("role") != "parent":
+        raise HTTPException(status_code=403, detail="Танҳо волидайн фарзандро хориҷ карда метавонад")
+    child = _mobile_child(db, user, child_id)
+    child.parent_id = None
+    child.is_paired = 0
+    db.commit()
+    return {"status": "success"}
 
 
 # --- Application Control v1: parent rules + child telemetry ---
