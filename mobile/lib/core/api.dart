@@ -205,7 +205,7 @@ class NigohApi {
         .toList();
   }
 
-  /// message_type: 'text' | 'call' (call request shown to the other side).
+  /// message_type: 'text' | 'call' (call request) | 'urgent' (SOS from the child).
   Future<Map<String, dynamic>> sendChat(
     int childId,
     String content, {
@@ -215,6 +215,104 @@ class NigohApi {
     '/api/mobile/v2/children/$childId/chat',
     body: {'content': content, 'message_type': messageType, 'duration_sec': 0},
   );
+
+  Future<void> markChatRead(int childId) =>
+      _send('POST', '/api/mobile/v2/children/$childId/chat/read');
+
+  // ---------- History ----------
+
+  Future<List<Map<String, dynamic>>> locationHistory(int childId, {int hours = 24}) async {
+    final data = await _send(
+      'GET',
+      '/api/mobile/v2/children/$childId/locations',
+      query: {'hours': '$hours'},
+    );
+    return _list(data['points']);
+  }
+
+  /// [{date, minutes, top: [{package_name, app_name, minutes}]}], oldest first.
+  Future<List<Map<String, dynamic>>> usageHistory(int childId, {int days = 7}) async {
+    final data = await _send(
+      'GET',
+      '/api/mobile/v2/children/$childId/usage',
+      query: {'days': '$days'},
+    );
+    return _list(data['days']);
+  }
+
+  // ---------- Extra time ----------
+
+  Future<Map<String, dynamic>> requestTime(
+    int childId,
+    String packageName, {
+    int minutes = 15,
+    String? reason,
+  }) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/requests',
+    body: {'package_name': packageName, 'minutes': minutes, 'reason': ?reason},
+  );
+
+  /// Requests with app_name, requested_minutes, reason, status
+  /// ('pending' | 'approved' | 'denied'), created_at.
+  Future<List<Map<String, dynamic>>> timeRequests(int childId, {bool pendingOnly = false}) async {
+    final data = await _send(
+      'GET',
+      '/api/mobile/v2/children/$childId/requests',
+      query: {'status': pendingOnly ? 'pending' : 'all'},
+    );
+    return _list(data['requests']);
+  }
+
+  Future<void> decideTimeRequest(int childId, int requestId, {required bool approve, int? minutes}) =>
+      _send(
+        'POST',
+        '/api/mobile/v2/children/$childId/requests/$requestId/decision',
+        body: {'approve': approve, 'minutes': ?minutes},
+      );
+
+  Future<void> giveBonus(int childId, String packageName, int minutes) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/apps/${Uri.encodeComponent(packageName)}/bonus',
+    body: {'minutes': minutes},
+  );
+
+  // ---------- Bedtime & places ----------
+
+  /// bedtime: {enabled, start 'HH:mm', end 'HH:mm'}
+  Future<void> setBedtime(int childId, Map<String, dynamic> bedtime) => _send(
+    'PUT',
+    '/api/mobile/v2/children/$childId/settings',
+    body: {'bedtime': bedtime},
+  );
+
+  Future<List<Map<String, dynamic>>> safePlaces(int childId) async =>
+      _list((await _send('GET', '/api/mobile/v2/children/$childId/places'))['places']);
+
+  Future<Map<String, dynamic>> addSafePlace(
+    int childId, {
+    required String name,
+    required double latitude,
+    required double longitude,
+    int radiusMeters = 150,
+  }) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/places',
+    body: {
+      'name': name,
+      'latitude': latitude,
+      'longitude': longitude,
+      'radius_meters': radiusMeters,
+    },
+  );
+
+  Future<void> deleteSafePlace(int childId, int placeId) =>
+      _send('DELETE', '/api/mobile/v2/children/$childId/places/$placeId');
+
+  static List<Map<String, dynamic>> _list(Object? raw) => (raw as List? ?? const [])
+      .whereType<Map>()
+      .map((m) => Map<String, dynamic>.from(m))
+      .toList();
 
   // ---------- Updates ----------
 
