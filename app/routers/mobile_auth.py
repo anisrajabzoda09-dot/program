@@ -1,0 +1,127 @@
+"""Sign-in endpoints for the NIGOH Android app (no Firebase)."""
+
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from app.core.mobile_auth import (
+    bearer_token,
+    issue_token,
+    require_mobile_user,
+    revoke_token,
+    upsert_google_user,
+    verify_google_id_token,
+)
+from app.core.security import check_rate_limit, hash_password, verify_password
+from app.db.session import get_db
+from app.models.user import User
+
+router = APIRouter(prefix="/api/mobile/v3", tags=["Mobile auth"])
+
+
+class RegisterRequest(BaseModel):
+    email: str = Field(..., min_length=3, max_length=254)
+    password: str = Field(..., min_length=8, max_length=128)
+    full_name: str = Field(..., min_length=1, max_length=120)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., min_length=1, max_length=254)
+    password: str = Field(..., min_length=1, max_length=128)
+
+
+class GoogleRequest(BaseModel):
+    id_token: str = Field(..., min_length=20)
+
+
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = Field(default=None, min_length=1, max_length=120)
+    role: Optional[str] = Field(default=None, pattern="^(parent|child)$")
+
+
+def _device(request: Request) -> str:
+    return request.headers.get("X-NIGOH-Device") or request.headers.get("user-agent", "")
+
+
+def _auth_response(db: Session, user: User, request: Request) -> dict:
+    return {
+        "status": "success",
+        "token": issue_token(db, user, _device(request)),
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "avatar": user.avatar,
+            "role": user.role if user.role in ("parent", "child") else None,
+        },
+    }
+
+
+@router.post("/auth/register")
+def register(payload: RegisterRequest, request: Request, db: Session = Depends(get_db)):
+    check_rate_limit(request, "mobile_register", max_requests=10, window_seconds=600)
+    email = payload.email.strip().lower()
+    if "@" not in email or "." not in email.split("@")[-1]:
+        raise HTTPException(status_code=400, detail="Почтаи электронӣ нодуруст аст")
+    if db.query(User).filter(User.email == email).first():
+        raise HTTPException(status_code=400, detail="Ин почта аллакай сабт шудааст. Ворид шавед")
+    user = User(
+        email=email,
+        full_name=payload.full_name.strip(),
+        password_hash=hash_password(payload.password),
+        role="unassigned",
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return _auth_response(db, user, request)
+
+
+@router.post("/auth/login")
+def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
+    check_rate_limit(request, "mobile_login", max_requests=20, window_seconds=300)
+    user = db.query(User).filter(User.email == payload.email.strip().lower()).first()
+    if user is None or not user.password_hash or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Почта ё рамз нодуруст аст")
+    if user.role == "admin":
+        raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
+    if not user.password_hash.startswith("scrypt$"):
+        user.password_hash = hash_password(payload.password)
+        db.commit()
+    return _auth_response(db, user, request)
+
+
+@router.post("/auth/google")
+def google(payload: GoogleRequest, request: Request, db: Session = Depends(get_db)):
+    check_rate_limit(request, "mobile_google", max_requests=20, window_seconds=300)
+    user = upsert_google_user(db, verify_google_id_token(payload.id_token))
+    if user.role == "admin":
+        raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
+    return _auth_response(db, user, request)
+
+
+@router.post("/auth/logout")
+def logout(request: Request, db: Session = Depends(get_db)):
+    revoke_token(db, bearer_token(request))
+    return {"status": "success"}
+
+
+@router.get("/me")
+def me(request: Request, db: Session = Depends(get_db)):
+    user = require_mobile_user(request, db)
+    return {"status": "success", "user": user}
+
+
+@router.put("/me")
+def update_me(payload: ProfileUpdate, request: Request, db: Session = Depends(get_db)):
+    current = require_mobile_user(request, db)
+    user = db.query(User).filter(User.id == current["id"]).first()
+    if payload.full_name:
+        user.full_name = payload.full_name.strip()
+    if payload.role and user.role != "admin":
+        user.role = payload.role
+    db.commit()
+    db.refresh(user)
+    return {"status": "success", "user": user.to_dict()}

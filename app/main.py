@@ -13,6 +13,7 @@ from app.routers.public import router as public_router
 from app.routers.auth import router as auth_router
 from app.routers.admin import router as admin_router
 from app.routers.mobile import router as mobile_router
+from app.routers.mobile_auth import router as mobile_auth_router
 from app.routers.download import router as download_router
 
 app = FastAPI(
@@ -88,4 +89,5 @@ app.include_router(public_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(mobile_router)
+app.include_router(mobile_auth_router)
 app.include_router(download_router)
