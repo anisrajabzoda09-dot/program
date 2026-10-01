@@ -1,0 +1,649 @@
+package tj.nigoh.nigoh_family_parent
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+
+/**
+ * Firebase-free push: a foreground service that long-polls
+ * GET /api/mobile/v3/events and turns server events into Android
+ * notifications (messages, SOS alarm, incoming calls, family alerts).
+ *
+ * Token/role are read from Flutter's SharedPreferences on every request, so
+ * sign-out in Dart (which clears them) stops the loop on its own.
+ */
+class NotifyService : Service() {
+
+    companion object {
+        private const val TAG = "NotifyService"
+        const val PREFS = "nigoh_notify"
+        const val KEY_BASE_URL = "nigoh_notify_base_url"
+        private const val KEY_CURSOR = "cursor"
+        private const val KEY_CURSOR_OWNER = "cursor_owner"
+        const val DEFAULT_BASE_URL = "https://nigohfamily.qobus.tj"
+
+        private const val FLUTTER_PREFS = "FlutterSharedPreferences"
+        private const val FLUTTER_TOKEN = "flutter.nigoh.token"
+        private const val FLUTTER_ROLE = "flutter.nigoh.role"
+
+        const val ACTION_START = "tj.nigoh.notify.START"
+        const val ACTION_STOP_ALARM = "tj.nigoh.notify.STOP_ALARM"
+        const val ACTION_DECLINE_CALL = "tj.nigoh.notify.DECLINE_CALL"
+        const val ACTION_CALL_TIMEOUT = "tj.nigoh.notify.CALL_TIMEOUT"
+        const val EXTRA_BASE_URL = "baseUrl"
+
+        // Launch extras read by MainActivity → Dart LaunchAction.
+        const val EXTRA_KIND = "nigoh_kind"
+        const val EXTRA_CHILD_ID = "nigoh_child_id"
+        const val EXTRA_CALL_ID = "nigoh_call_id"
+        const val EXTRA_PEER_NAME = "nigoh_peer_name"
+        const val EXTRA_ACCEPT = "nigoh_accept"
+        const val EXTRA_FULL_SCREEN = "nigoh_full_screen"
+
+        const val CH_SERVICE = "nigoh_service"
+        const val CH_MESSAGES = "nigoh_messages"
+        const val CH_SOS = "nigoh_sos"
+        const val CH_CALLS = "nigoh_calls"
+        const val CH_FAMILY = "nigoh_family"
+
+        private const val ID_FOREGROUND = 7301
+        private const val CALL_TIMEOUT_MS = 45_000L
+
+        @Volatile
+        var instance: NotifyService? = null
+            private set
+
+        fun hasToken(context: Context): Boolean =
+            !context.getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
+                .getString(FLUTTER_TOKEN, null).isNullOrBlank()
+
+        /** Starts (or refreshes) the service. [baseUrl] null keeps the stored one. */
+        fun start(context: Context, baseUrl: String? = null) {
+            if (!baseUrl.isNullOrBlank()) {
+                context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                    .putString(KEY_BASE_URL, baseUrl.trimEnd('/')).apply()
+            }
+            val intent = Intent(context, NotifyService::class.java).setAction(ACTION_START)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
+
+        /** Boot / update / app launch: start only when someone is signed in. */
+        fun startIfSignedIn(context: Context) {
+            if (hasToken(context)) runCatching { start(context) }
+                .onFailure { Log.w(TAG, "start failed", it) }
+        }
+
+        fun stop(context: Context) {
+            instance?.stopRinging()
+            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .remove(KEY_CURSOR).remove(KEY_CURSOR_OWNER).apply()
+            context.stopService(Intent(context, NotifyService::class.java))
+        }
+
+        fun createChannels(context: Context) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+            val nm = context.getSystemService(NotificationManager::class.java)
+            val service = NotificationChannel(
+                CH_SERVICE, "Хизмати огоҳиномаҳо", NotificationManager.IMPORTANCE_MIN
+            ).apply { setShowBadge(false) }
+            val messages = NotificationChannel(
+                CH_MESSAGES, "Паёмҳо", NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val family = NotificationChannel(
+                CH_FAMILY, "Оила", NotificationManager.IMPORTANCE_DEFAULT
+            ).apply { description = "Дархостҳои вақт, батарея, барномаҳои нав, зангҳои ҷавобнадода" }
+            // SOS and calls: the service plays the looping sound itself
+            // (USAGE_ALARM / ringtone), so the channel stays silent to avoid
+            // two overlapping copies of the same sound.
+            val sos = NotificationChannel(
+                CH_SOS, "SOS", NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Ҳушдори SOS аз фарзанд"
+                setSound(null, null)
+                enableVibration(false)
+                enableLights(true)
+                lightColor = Color.RED
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                if (nm.isNotificationPolicyAccessGranted) setBypassDnd(true)
+            }
+            val calls = NotificationChannel(
+                CH_CALLS, "Зангҳо", NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Зангҳои воридшаванда"
+                setSound(null, null)
+                enableVibration(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            nm.createNotificationChannels(listOf(service, messages, family, sos, calls))
+        }
+    }
+
+    private val main = Handler(Looper.getMainLooper())
+    @Volatile private var running = false
+    private var worker: Thread? = null
+
+    // Ringing state (main thread only).
+    private var player: MediaPlayer? = null
+    private var vibrator: Vibrator? = null
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var savedAlarmVolume: Int? = null
+    @Volatile private var ringingCallId: Int? = null
+    private var ringingSosChild: Int? = null
+    private var callWatcher: Thread? = null
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+        createChannels(this)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        goForeground()
+        intent?.getStringExtra(EXTRA_BASE_URL)?.takeIf { it.isNotBlank() }?.let {
+            prefs().edit().putString(KEY_BASE_URL, it.trimEnd('/')).apply()
+        }
+        when (intent?.action) {
+            ACTION_STOP_ALARM -> {
+                stopRinging()
+                val child = intent.getIntExtra(EXTRA_CHILD_ID, -1)
+                if (child >= 0) NotificationManagerCompat.from(this).cancel(sosId(child))
+            }
+            ACTION_DECLINE_CALL -> {
+                val callId = intent.getIntExtra(EXTRA_CALL_ID, -1)
+                if (callId >= 0) declineCall(callId)
+            }
+            ACTION_CALL_TIMEOUT -> {
+                val callId = intent.getIntExtra(EXTRA_CALL_ID, -1)
+                if (callId >= 0) endCallUi(callId)
+            }
+        }
+        if (!hasToken(this)) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        if (!running) {
+            running = true
+            worker = Thread(::loop, "nigoh-events").also { it.start() }
+        }
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        running = false
+        worker?.interrupt()
+        stopRinging()
+        instance = null
+        super.onDestroy()
+    }
+
+    private fun prefs() = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private fun flutterPrefs() = getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
+
+    private fun goForeground() {
+        val open = PendingIntent.getActivity(
+            this, 7300,
+            Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val notification = NotificationCompat.Builder(this, CH_SERVICE)
+            .setSmallIcon(R.drawable.ic_stat_nigoh)
+            .setContentTitle("NIGOH Family фаъол аст")
+            .setContentText("Паёмҳо, SOS ва зангҳо фавран мерасанд")
+            .setOngoing(true)
+            .setSilent(true)
+            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setContentIntent(open)
+            .build()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(ID_FOREGROUND, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        } else {
+            startForeground(ID_FOREGROUND, notification)
+        }
+    }
+
+    // ---------------------------------------------------------------- polling
+
+    private class HttpStatus(val code: Int) : Exception("HTTP $code")
+
+    private fun request(method: String, path: String, timeoutMs: Int): JSONObject {
+        val token = flutterPrefs().getString(FLUTTER_TOKEN, null)
+            ?: throw HttpStatus(401)
+        val role = flutterPrefs().getString(FLUTTER_ROLE, null)
+        val base = prefs().getString(KEY_BASE_URL, null) ?: DEFAULT_BASE_URL
+        val conn = URL(base + path).openConnection() as HttpURLConnection
+        try {
+            conn.requestMethod = method
+            conn.connectTimeout = 15_000
+            conn.readTimeout = timeoutMs
+            conn.setRequestProperty("Authorization", "Bearer $token")
+            if (!role.isNullOrBlank()) conn.setRequestProperty("X-NIGOH-Role", role)
+            conn.setRequestProperty("X-NIGOH-Device", "android")
+            conn.setRequestProperty("Accept", "application/json")
+            if (method == "POST") {
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.outputStream.use { it.write("{}".toByteArray()) }
+            }
+            val code = conn.responseCode
+            if (code !in 200..299) throw HttpStatus(code)
+            val text = conn.inputStream.bufferedReader().use { it.readText() }
+            return if (text.isBlank()) JSONObject() else JSONObject(text)
+        } finally {
+            conn.disconnect()
+        }
+    }
+
+    private fun loop() {
+        var backoff = 5_000L
+        while (running) {
+            val token = flutterPrefs().getString(FLUTTER_TOKEN, null)
+            if (token.isNullOrBlank()) break
+            val owner = "${flutterPrefs().getString(FLUTTER_ROLE, "")}:${token.hashCode()}"
+            try {
+                var cursor = prefs().getLong(KEY_CURSOR, -1)
+                if (cursor < 0 || prefs().getString(KEY_CURSOR_OWNER, null) != owner) {
+                    // First run for this account: start at "now", no backlog.
+                    val first = request("GET", "/api/mobile/v3/events?after_id=0", 40_000)
+                    cursor = first.optLong("latest_id", 0)
+                    prefs().edit().putLong(KEY_CURSOR, cursor).putString(KEY_CURSOR_OWNER, owner).apply()
+                }
+                val data = request("GET", "/api/mobile/v3/events?after_id=$cursor&wait=25", 40_000)
+                val events = data.optJSONArray("events")
+                var next = cursor
+                if (events != null) {
+                    for (i in 0 until events.length()) {
+                        val event = events.optJSONObject(i) ?: continue
+                        next = maxOf(next, event.optLong("id", next))
+                        runCatching { handleEvent(event) }
+                            .onFailure { Log.w(TAG, "event failed", it) }
+                    }
+                }
+                next = maxOf(next, data.optLong("latest_id", next))
+                if (next != cursor) prefs().edit().putLong(KEY_CURSOR, next).apply()
+                backoff = 5_000L
+            } catch (e: HttpStatus) {
+                if (e.code == 401) {
+                    Log.i(TAG, "unauthorized, stopping")
+                    break
+                }
+                if (!sleep(backoff)) break
+                backoff = (backoff * 2).coerceAtMost(60_000L)
+            } catch (e: InterruptedException) {
+                break
+            } catch (e: Exception) {
+                Log.w(TAG, "poll failed: ${e.message}")
+                if (!sleep(backoff)) break
+                backoff = (backoff * 2).coerceAtMost(60_000L)
+            }
+        }
+        running = false
+        main.post {
+            if (instance === this && !running) {
+                stopForegroundCompat()
+                stopSelf()
+            }
+        }
+    }
+
+    private fun sleep(ms: Long): Boolean = try {
+        Thread.sleep(ms); running
+    } catch (_: InterruptedException) {
+        false
+    }
+
+    @Suppress("DEPRECATION")
+    private fun stopForegroundCompat() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            stopForeground(true)
+        }
+    }
+
+    // ---------------------------------------------------------- notifications
+
+    private fun sosId(childId: Int) = 20_000 + childId
+    private fun callNotifId(callId: Int) = 30_000 + (callId % 100_000)
+    private fun messageId(childId: Int) = 10_000 + childId
+
+    private fun launchIntent(
+        requestCode: Int,
+        kind: String,
+        childId: Int?,
+        callId: Int? = null,
+        peerName: String? = null,
+        accept: Boolean = false,
+        fullScreen: Boolean = false,
+    ): PendingIntent {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            action = "tj.nigoh.notify.OPEN.$requestCode"
+            putExtra(EXTRA_KIND, kind)
+            if (childId != null) putExtra(EXTRA_CHILD_ID, childId)
+            if (callId != null) putExtra(EXTRA_CALL_ID, callId)
+            if (peerName != null) putExtra(EXTRA_PEER_NAME, peerName)
+            putExtra(EXTRA_ACCEPT, accept)
+            putExtra(EXTRA_FULL_SCREEN, fullScreen)
+        }
+        return PendingIntent.getActivity(
+            this, requestCode, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun serviceIntent(requestCode: Int, action: String, childId: Int? = null, callId: Int? = null): PendingIntent {
+        val intent = Intent(this, NotifyService::class.java).apply {
+            this.action = action
+            if (childId != null) putExtra(EXTRA_CHILD_ID, childId)
+            if (callId != null) putExtra(EXTRA_CALL_ID, callId)
+        }
+        val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PendingIntent.getForegroundService(this, requestCode, intent, flags)
+        } else {
+            PendingIntent.getService(this, requestCode, intent, flags)
+        }
+    }
+
+    private fun post(id: Int, notification: Notification) {
+        try {
+            NotificationManagerCompat.from(this).notify(id, notification)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "POST_NOTIFICATIONS not granted")
+        }
+    }
+
+    private fun handleEvent(event: JSONObject) {
+        val kind = event.optString("kind")
+        val eventId = event.optLong("id").toInt()
+        val childId = if (event.isNull("child_id")) null else event.optInt("child_id")
+        val childName = event.optString("child_name").takeIf { it.isNotBlank() && it != "null" }
+        val title = event.optString("title").takeIf { it.isNotBlank() && it != "null" } ?: "NIGOH Family"
+        val body = event.optString("body").takeIf { it != "null" } ?: ""
+        val data = event.optJSONObject("data") ?: JSONObject()
+        when (kind) {
+            "message" -> showMessage(eventId, childId, childName, title, body)
+            "sos" -> main.post { showSos(childId ?: 0, title, body, childName) }
+            "call" -> {
+                val callId = data.optInt("call_id", -1)
+                if (callId < 0) return
+                // Skip calls that already stopped ringing (e.g. after an outage).
+                val status = runCatching {
+                    request("GET", "/api/mobile/v3/calls/$callId", 10_000)
+                        .let { it.optJSONObject("call") ?: it }.optString("status", "ringing")
+                }.getOrDefault("ringing")
+                if (status != "ringing") return
+                val peer = data.optString("caller_name").takeIf { it.isNotBlank() && it != "null" }
+                    ?: childName ?: title
+                main.post { showCall(callId, childId ?: 0, peer, body) }
+            }
+            "call_end" -> {
+                val callId = data.optInt("call_id", -1)
+                if (callId >= 0) main.post { endCallUi(callId) }
+            }
+            "missed_call" -> {
+                val callId = data.optInt("call_id", -1)
+                if (callId >= 0) main.post { endCallUi(callId) }
+                showFamily(eventId, kind, childId, title, body, childName)
+            }
+            else -> showFamily(eventId, kind, childId, title, body, childName)
+        }
+    }
+
+    private fun showMessage(eventId: Int, childId: Int?, childName: String?, sender: String, text: String) {
+        val key = childId ?: 0
+        val notification = NotificationCompat.Builder(this, CH_MESSAGES)
+            .setSmallIcon(R.drawable.ic_stat_nigoh)
+            .setContentTitle(sender)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setGroup("nigoh_chat_$key")
+            .setAutoCancel(true)
+            .setSubText(childName)
+            .setContentIntent(launchIntent(100_000 + (eventId % 100_000), "message", childId, peerName = childName ?: sender))
+            .build()
+        post(messageId(key), notification)
+    }
+
+    private fun showFamily(eventId: Int, kind: String, childId: Int?, title: String, body: String, childName: String?) {
+        val notification = NotificationCompat.Builder(this, CH_FAMILY)
+            .setSmallIcon(R.drawable.ic_stat_nigoh)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setAutoCancel(true)
+            .setCategory(
+                if (kind == "missed_call") NotificationCompat.CATEGORY_MISSED_CALL
+                else NotificationCompat.CATEGORY_STATUS
+            )
+            .setContentIntent(launchIntent(200_000 + (eventId % 100_000), kind, childId, peerName = childName))
+            .build()
+        post(40_000 + (eventId % 100_000), notification)
+    }
+
+    private fun showSos(childId: Int, title: String, body: String, childName: String?) {
+        val text = body.ifBlank { "Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед." }
+        val notification = NotificationCompat.Builder(this, CH_SOS)
+            .setSmallIcon(R.drawable.ic_stat_nigoh)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setColor(Color.RED)
+            .setColorized(true)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(true)
+            .setAutoCancel(true)
+            .setContentIntent(launchIntent(300_000 + childId, "sos", childId, peerName = childName))
+            .setFullScreenIntent(launchIntent(310_000 + childId, "sos", childId, peerName = childName, fullScreen = true), true)
+            .setDeleteIntent(serviceIntent(320_000 + childId, ACTION_STOP_ALARM, childId = childId))
+            .addAction(0, "Хомӯш кардан", serviceIntent(330_000 + childId, ACTION_STOP_ALARM, childId = childId))
+            .build()
+        post(sosId(childId), notification)
+        stopRinging()
+        ringingSosChild = childId
+        startRinging(alarm = true)
+    }
+
+    private fun showCall(callId: Int, childId: Int, peer: String, body: String) {
+        val notification = NotificationCompat.Builder(this, CH_CALLS)
+            .setSmallIcon(R.drawable.ic_stat_nigoh)
+            .setContentTitle(peer)
+            .setContentText(body.ifBlank { "Занги овозӣ" })
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(true)
+            .setAutoCancel(true)
+            .setTimeoutAfter(CALL_TIMEOUT_MS)
+            .setContentIntent(launchIntent(400_000 + (callId % 100_000), "call", childId, callId, peer))
+            .setFullScreenIntent(
+                launchIntent(500_000 + (callId % 100_000), "call", childId, callId, peer, fullScreen = true), true
+            )
+            .addAction(0, "Рад", serviceIntent(600_000 + (callId % 100_000), ACTION_DECLINE_CALL, callId = callId))
+            .addAction(0, "Қабул", launchIntent(700_000 + (callId % 100_000), "call", childId, callId, peer, accept = true))
+            .build()
+        post(callNotifId(callId), notification)
+        stopRinging()
+        ringingCallId = callId
+        startRinging(alarm = false)
+        main.postDelayed({ if (ringingCallId == callId) endCallUi(callId) }, CALL_TIMEOUT_MS)
+        watchCall(callId)
+    }
+
+    /** Stops ringing once the call is answered/declined anywhere (e.g. in the app). */
+    private fun watchCall(callId: Int) {
+        callWatcher?.interrupt()
+        callWatcher = Thread({
+            while (ringingCallId == callId) {
+                try {
+                    Thread.sleep(2_000)
+                } catch (_: InterruptedException) {
+                    return@Thread
+                }
+                val status = runCatching {
+                    request("GET", "/api/mobile/v3/calls/$callId", 10_000)
+                        .let { it.optJSONObject("call") ?: it }.optString("status", "ringing")
+                }.getOrNull() ?: continue
+                if (status != "ringing") {
+                    // Accepted on this phone: just stop ringing. Otherwise drop the card too.
+                    main.post {
+                        if (status == "active" || status == "accepted") {
+                            if (ringingCallId == callId) stopRinging()
+                            NotificationManagerCompat.from(this).cancel(callNotifId(callId))
+                        } else {
+                            endCallUi(callId)
+                        }
+                    }
+                    return@Thread
+                }
+            }
+        }, "nigoh-call-watch").also { it.start() }
+    }
+
+    fun endCallUi(callId: Int) {
+        if (ringingCallId == callId) stopRinging()
+        NotificationManagerCompat.from(this).cancel(callNotifId(callId))
+    }
+
+    private fun declineCall(callId: Int) {
+        endCallUi(callId)
+        Thread {
+            runCatching { request("POST", "/api/mobile/v3/calls/$callId/decline", 15_000) }
+                .onFailure { Log.w(TAG, "decline failed: ${it.message}") }
+        }.start()
+    }
+
+    // ---------------------------------------------------------------- ringing
+
+    private fun startRinging(alarm: Boolean) {
+        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val uri = RingtoneManager.getDefaultUri(
+            if (alarm) RingtoneManager.TYPE_ALARM else RingtoneManager.TYPE_RINGTONE
+        ) ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        if (alarm) {
+            runCatching {
+                savedAlarmVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM)
+                audio.setStreamVolume(
+                    AudioManager.STREAM_ALARM, audio.getStreamMaxVolume(AudioManager.STREAM_ALARM), 0
+                )
+            }
+        }
+        val silentMode = !alarm && audio.ringerMode != AudioManager.RINGER_MODE_NORMAL
+        if (uri != null && !silentMode) {
+            player = runCatching {
+                MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(
+                                if (alarm) AudioAttributes.USAGE_ALARM
+                                else AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+                            )
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
+                    setDataSource(this@NotifyService, uri)
+                    isLooping = true
+                    prepare()
+                    start()
+                }
+            }.onFailure { Log.w(TAG, "ringtone failed", it) }.getOrNull()
+        }
+        if (alarm || audio.ringerMode != AudioManager.RINGER_MODE_SILENT) {
+            vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            }
+            val pattern = if (alarm) longArrayOf(0, 800, 400, 800, 400) else longArrayOf(0, 1000, 1000)
+            runCatching {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator?.vibrate(VibrationEffect.createWaveform(pattern, 0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator?.vibrate(pattern, 0)
+                }
+            }
+        }
+        runCatching {
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "nigoh:ringing").apply {
+                acquire(if (alarm) 10 * 60_000L else CALL_TIMEOUT_MS + 5_000L)
+            }
+        }
+    }
+
+    /** Stops any alarm/ringtone + vibration. Safe to call from any thread. */
+    fun stopRinging() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            main.post { stopRinging() }
+            return
+        }
+        player?.let { runCatching { it.stop() }; it.release() }
+        player = null
+        vibrator?.cancel()
+        vibrator = null
+        savedAlarmVolume?.let { volume ->
+            runCatching {
+                (getSystemService(Context.AUDIO_SERVICE) as AudioManager)
+                    .setStreamVolume(AudioManager.STREAM_ALARM, volume, 0)
+            }
+        }
+        savedAlarmVolume = null
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
+        ringingCallId = null
+        ringingSosChild = null
+        callWatcher?.interrupt()
+        callWatcher = null
+    }
+
+    /** Opened from the SOS notification: silence the alarm, keep the card. */
+    fun stopAlarm() {
+        main.post {
+            if (ringingSosChild != null) stopRinging()
+        }
+    }
+
+    /** Ringing stops when the call UI is opened (tap or «Қабул»). */
+    fun stopCallRinging(callId: Int?) {
+        main.post {
+            if (ringingCallId != null && (callId == null || ringingCallId == callId)) stopRinging()
+            if (callId != null) NotificationManagerCompat.from(this).cancel(callNotifId(callId))
+        }
+    }
+}
