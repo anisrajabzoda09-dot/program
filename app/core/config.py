@@ -37,6 +37,13 @@ class Settings:
     # This is the public Firebase Web API key from google-services.json. It is
     # used only to validate Firebase ID tokens through Google's Identity
     # Toolkit endpoint; no Firebase database write is performed by the API.
+    # OAuth client IDs whose Google ID tokens the Android app may send
+    # (web client used as serverClientId, plus the Android client).
+    GOOGLE_MOBILE_CLIENT_IDS: str = os.getenv(
+        "GOOGLE_MOBILE_CLIENT_IDS",
+        "708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com,"
+        "708817646656-g5854pqbq7oiitabo57538t5eiak8gqj.apps.googleusercontent.com",
+    )
     FIREBASE_PROJECT_ID: str = os.getenv("FIREBASE_PROJECT_ID", "nigoh-family")
     FIREBASE_WEB_API_KEY: str = os.getenv(
         "FIREBASE_WEB_API_KEY", "AIzaSyAJyW9g2_r_arrDz9jpuemJVu6ZYzD50ao"
