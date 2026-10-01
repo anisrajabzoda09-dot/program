@@ -110,8 +110,15 @@ abstract final class NigohTheme {
         backgroundColor: scheme.surface,
         indicatorColor: scheme.primary.withValues(alpha: .12),
         elevation: 0,
+        height: 68,
+        // Five tabs on a 360 dp phone leave ~72 dp per label («Барномаҳо»).
         labelTextStyle: WidgetStatePropertyAll(
-          TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: scheme.onSurface),
+          TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -.1,
+            color: scheme.onSurface,
+          ),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
