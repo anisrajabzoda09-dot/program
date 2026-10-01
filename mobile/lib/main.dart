@@ -9,6 +9,7 @@ import 'features/auth/brand_logo.dart';
 import 'features/call/call_screen.dart';
 import 'features/child/child_home.dart';
 import 'features/onboarding/child_setup_screen.dart';
+import 'features/onboarding/permissions_wizard.dart';
 import 'features/onboarding/role_screen.dart';
 import 'features/parent/parent_home.dart';
 import 'features/settings/app_update.dart';
@@ -49,7 +50,8 @@ class NigohApp extends StatelessWidget {
 
 /// Picks the screen for the current state:
 /// loading → splash, signed out → [AuthScreen], no role → [RoleScreen],
-/// child without a local profile → [ChildSetupScreen], else the home.
+/// child without a local profile → [ChildSetupScreen], permissions not set
+/// up yet for this role → [PermissionsWizard] (once), else the home.
 class RootGate extends StatefulWidget {
   const RootGate({super.key});
 
@@ -62,6 +64,11 @@ class _RootGateState extends State<RootGate> {
   bool profileLoaded = false;
   bool profileLoading = false;
   bool updateChecked = false;
+
+  /// Role whose `nigoh.wizard_done.<role>` flag is loaded / loading.
+  String? wizardRole;
+  bool wizardDone = false;
+  bool wizardLoading = false;
 
   /// Token and role (as `token|role`) the notification service was started for.
   String? notifyKey;
@@ -176,6 +183,28 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
+  Future<void> loadWizardFlag(String role) async {
+    wizardRole = role;
+    wizardLoading = true;
+    var done = false;
+    try {
+      done = await PermissionsWizard.isDone(role);
+    } catch (_) {
+      done = false; // Unreadable flag: show the wizard again.
+    }
+    if (!mounted || wizardRole != role) return;
+    setState(() {
+      wizardDone = done;
+      wizardLoading = false;
+    });
+  }
+
+  void onWizardDone() {
+    // The wizard covered notifications; do not ask again right away.
+    notifyPermissionsAsked = true;
+    setState(() => wizardDone = true);
+  }
+
   void scheduleUpdateCheck(Session session) {
     if (updateChecked) return;
     updateChecked = true;
@@ -193,10 +222,22 @@ class _RootGateState extends State<RootGate> {
       childProfile = null;
     }
     if (session.isChild && !profileLoaded && !profileLoading) loadProfile();
+    final role = session.signedIn ? session.role : null;
+    if (role != wizardRole) {
+      if (role == null) {
+        wizardRole = null;
+        wizardDone = false;
+        wizardLoading = false;
+      } else {
+        loadWizardFlag(role);
+      }
+    }
 
     final String state;
     final Widget screen;
-    if (session.loading || (session.isChild && !profileLoaded)) {
+    if (session.loading ||
+        (session.isChild && !profileLoaded) ||
+        (role != null && wizardLoading)) {
       state = 'loading';
       screen = const _Splash();
     } else if (!session.signedIn) {
@@ -209,6 +250,12 @@ class _RootGateState extends State<RootGate> {
       state = 'child-setup';
       screen = ChildSetupScreen(
         onDone: (profile) => setState(() => childProfile = profile),
+      );
+    } else if (!wizardDone) {
+      state = 'wizard-$role';
+      screen = PermissionsWizard(
+        childMode: session.isChild,
+        onDone: onWizardDone,
       );
     } else if (session.isParent) {
       state = 'parent';
