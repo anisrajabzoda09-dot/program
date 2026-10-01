@@ -310,3 +310,13 @@ p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ---------- Language switch ---------- */
+.lang-switch { display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 2px; gap: 2px; }
+.lang-switch a { font-size: .75rem; font-weight: 600; color: var(--muted); padding: 4px 8px; border-radius: 999px; letter-spacing: .02em; }
+.lang-switch a:hover { color: var(--ink); }
+.lang-switch a[aria-current="true"] { background: var(--ink); color: #fff; }
+@media (max-width: 860px) {
+  .site-header.open .nav-actions { flex-wrap: wrap; }
+  .site-header.open .lang-switch { order: -1; width: 100%; justify-content: center; margin-bottom: 4px; }
+}

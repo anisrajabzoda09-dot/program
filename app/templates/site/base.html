@@ -1,10 +1,35 @@
+{%- set lang = lang | default('tg') -%}
+{%- set P = lang_prefix | default('') -%}
+{%- set L = {
+  'tg': {'features': 'Имкониятҳо', 'how': 'Чӣ тавр кор мекунад', 'security': 'Амният', 'faq': 'Саволҳо',
+         'login': 'Ворид шудан', 'logout': 'Баромад', 'panel': 'Панел', 'download': 'Боргирӣ', 'menu': 'Меню',
+         'nav': 'Асосӣ', 'about': 'Барномаи назорати волидайн, ки дар Тоҷикистон сохта шудааст. Барои оилаҳое, ки ба амнияти фарзанд аҳамият медиҳанд.',
+         'product': 'Маҳсулот', 'support': 'Дастгирӣ', 'install': 'Насб', 'android': 'Боргирии Android',
+         'faqlong': 'Саволу ҷавоб', 'privacy': 'Амният ва махфият', 'account': 'Ҳисоби волидайн', 'qr': 'Рамзи QR',
+         'default_desc': 'NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.',
+         'locale': 'tg_TJ'},
+  'ru': {'features': 'Возможности', 'how': 'Как это работает', 'security': 'Безопасность', 'faq': 'Вопросы',
+         'login': 'Войти', 'logout': 'Выйти', 'panel': 'Панель', 'download': 'Скачать', 'menu': 'Меню',
+         'nav': 'Главное', 'about': 'Приложение родительского контроля, созданное в Таджикистане. Для семей, которым важна безопасность детей.',
+         'product': 'Продукт', 'support': 'Поддержка', 'install': 'Установка', 'android': 'Скачать для Android',
+         'faqlong': 'Вопросы и ответы', 'privacy': 'Безопасность и приватность', 'account': 'Аккаунт родителя', 'qr': 'QR-код',
+         'default_desc': 'NIGOH Family — родительский контроль для Android: местоположение, чат, экранное время и правила для приложений.',
+         'locale': 'ru_RU'},
+  'en': {'features': 'Features', 'how': 'How it works', 'security': 'Security', 'faq': 'FAQ',
+         'login': 'Sign in', 'logout': 'Sign out', 'panel': 'Dashboard', 'download': 'Download', 'menu': 'Menu',
+         'nav': 'Main', 'about': 'A parental control app made in Tajikistan, for families who care about their children\'s safety.',
+         'product': 'Product', 'support': 'Support', 'install': 'Install', 'android': 'Download for Android',
+         'faqlong': 'Questions & answers', 'privacy': 'Security & privacy', 'account': 'Parent account', 'qr': 'QR code',
+         'default_desc': 'NIGOH Family — parental control for Android: location, chat, screen time and app rules.',
+         'locale': 'en_US'},
+}[lang] -%}
 <!DOCTYPE html>
-<html lang="tg">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}NIGOH Family{% endblock %}</title>
-  <meta name="description" content="{% block description %}NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.{% endblock %}">
+  <meta name="description" content="{% block description %}{{ L.default_desc }}{% endblock %}">
   <link rel="canonical" href="https://nigohfamily.qobus.tj{{ page_path }}">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="google-site-verification" content="ee0fc42c18bef62a">
@@ -16,7 +41,12 @@
   <meta property="og:description" content="{{ self.description() }}">
   <meta property="og:url" content="https://nigohfamily.qobus.tj{{ page_path }}">
   <meta property="og:image" content="https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png">
-  <meta property="og:locale" content="tg_TJ">
+  <meta property="og:locale" content="{{ L.locale }}">
+  {%- set bp = base_path | default(page_path) %}
+  <link rel="alternate" hreflang="tg" href="https://nigohfamily.qobus.tj{{ bp }}">
+  <link rel="alternate" hreflang="ru" href="https://nigohfamily.qobus.tj/ru{{ '' if bp == '/' else bp }}">
+  <link rel="alternate" hreflang="en" href="https://nigohfamily.qobus.tj/en{{ '' if bp == '/' else bp }}">
+  <link rel="alternate" hreflang="x-default" href="https://nigohfamily.qobus.tj{{ bp }}">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="manifest" href="/static/manifest.json">
@@ -30,30 +60,37 @@
 </head>
 <body>
   <header class="site-header" id="top">
-    <nav class="wrap nav" aria-label="Асосӣ">
-      <a class="brand" href="/">
+    <nav class="wrap nav" aria-label="{{ L.nav }}">
+      <a class="brand" href="{{ P or '/' }}">
         <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
         <span>NIGOH Family</span>
       </a>
-      <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false"><span></span></button>
+      <button class="nav-toggle" type="button" aria-label="{{ L.menu }}" aria-expanded="false"><span></span></button>
       <ul class="nav-links">
-        {% for href, key, label in [
-          ('/features', 'features', 'Имкониятҳо'),
-          ('/how-it-works', 'how', 'Чӣ тавр кор мекунад'),
-          ('/security', 'security', 'Амният'),
-          ('/faq', 'faq', 'Саволҳо'),
+        {% for href, key in [
+          ('/features', 'features'),
+          ('/how-it-works', 'how'),
+          ('/security', 'security'),
+          ('/faq', 'faq'),
         ] %}
-        <li><a href="{{ href }}"{% if active == key %} aria-current="page"{% endif %}>{{ label }}</a></li>
+        {%- set label = L[key] %}
+        <li><a href="{{ P }}{{ href }}"{% if active == key %} aria-current="page"{% endif %}>{{ label }}</a></li>
         {% endfor %}
       </ul>
       <div class="nav-actions">
         {% if user %}
-          {% if user.role == 'admin' %}<a class="btn btn-ghost btn-sm" href="/admin">Панел</a>{% endif %}
-          <a class="btn btn-ghost btn-sm" href="/logout">Баромад</a>
+          {% if user.role == 'admin' %}<a class="btn btn-ghost btn-sm" href="/admin">{{ L.panel }}</a>{% endif %}
+          <a class="btn btn-ghost btn-sm" href="/logout">{{ L.logout }}</a>
         {% else %}
-          <a class="btn btn-ghost btn-sm" href="/auth">Ворид шудан</a>
+          <a class="btn btn-ghost btn-sm" href="/auth{{ '?lang=' ~ lang if lang != 'tg' else '' }}">{{ L.login }}</a>
         {% endif %}
-        <a class="btn btn-primary btn-sm" href="/get">Боргирӣ</a>
+        <div class="lang-switch" role="group" aria-label="Language">
+          {%- set bp = base_path | default(page_path) %}
+          {% for code, label in [('tg', 'TJ'), ('ru', 'RU'), ('en', 'EN')] %}
+          <a href="{{ bp if code == 'tg' else '/' ~ code ~ ('' if bp == '/' else bp) }}" hreflang="{{ code }}"{% if code == lang %} aria-current="true"{% endif %}>{{ label }}</a>
+          {% endfor %}
+        </div>
+        <a class="btn btn-primary btn-sm" href="{{ P }}/get">{{ L.download }}</a>
       </div>
     </nav>
   </header>
@@ -66,33 +103,33 @@
     <div class="wrap">
       <div class="footer-grid">
         <div>
-          <a class="brand" href="/">
+          <a class="brand" href="{{ P or '/' }}">
             <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
             <span>NIGOH Family</span>
           </a>
-          <p class="muted" style="margin-top:14px;max-width:320px">Барномаи назорати волидайн, ки дар Тоҷикистон сохта шудааст. Барои оилаҳое, ки ба амнияти фарзанд аҳамият медиҳанд.</p>
+          <p class="muted" style="margin-top:14px;max-width:320px">{{ L.about }}</p>
         </div>
         <div>
-          <h4>Маҳсулот</h4>
+          <h4>{{ L.product }}</h4>
           <ul>
-            <li><a href="/features">Имкониятҳо</a></li>
-            <li><a href="/how-it-works">Чӣ тавр кор мекунад</a></li>
-            <li><a href="/get">Боргирии Android</a></li>
+            <li><a href="{{ P }}/features">{{ L.features }}</a></li>
+            <li><a href="{{ P }}/how-it-works">{{ L.how }}</a></li>
+            <li><a href="{{ P }}/get">{{ L.android }}</a></li>
           </ul>
         </div>
         <div>
-          <h4>Дастгирӣ</h4>
+          <h4>{{ L.support }}</h4>
           <ul>
-            <li><a href="/faq">Саволу ҷавоб</a></li>
-            <li><a href="/security">Амният ва махфият</a></li>
-            <li><a href="/auth">Ҳисоби волидайн</a></li>
+            <li><a href="{{ P }}/faq">{{ L.faqlong }}</a></li>
+            <li><a href="{{ P }}/security">{{ L.privacy }}</a></li>
+            <li><a href="/auth{{ '?lang=' ~ lang if lang != 'tg' else '' }}">{{ L.account }}</a></li>
           </ul>
         </div>
         <div>
-          <h4>Насб</h4>
+          <h4>{{ L.install }}</h4>
           <ul>
             <li><a href="/download/android">APK v{{ app_version }}</a></li>
-            <li><a href="/get#qr">Рамзи QR</a></li>
+            <li><a href="{{ P }}/get#qr">{{ L.qr }}</a></li>
           </ul>
         </div>
       </div>
