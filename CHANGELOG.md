@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.15.0 — 2026-10-02
+- App in Tajik, Russian and English (language picker on the sign-in screen and in settings); server error messages and notifications follow the chosen language.
+- Website in three languages: / (Tajik), /ru, /en with hreflang and a language switch.
+- Incoming calls and SOS open full-screen even while the phone is in use (with the «display over other apps» permission; new wizard step for parents).
+- Native block screen, PIN screen and updater texts translated (blocking logic unchanged).
+
 ## 2.14.0 — 2026-10-01
 - Step-by-step permissions wizard after sign-up (child: location, notifications, usage access, overlay, Accessibility, device admin, microphone, battery; parent: notifications, full-screen, camera, microphone, battery). Each step has an «Allow» button, a fallback button to the exact settings screen and expandable instructions.
 - Profile photos for parents and children (settings, cards, chat, calls, map marker).
