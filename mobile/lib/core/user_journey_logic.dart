@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../l10n/l10n.dart';
 
 /// Pure, deterministic rules shared by the UI and the 100-point regression
 /// suite. Keeping these decisions outside widgets makes the real user flows
@@ -35,11 +36,13 @@ abstract final class UserJourneyLogic {
   }
 
   static String limitLabel(int minutes) {
-    if (minutes <= 0) return 'Бе лимит';
-    if (minutes < 60) return '$minutesд';
+    if (minutes <= 0) return tr('Бе лимит');
+    if (minutes < 60) return tr('{m}д', {'m': minutes});
     final hours = minutes ~/ 60;
     final rest = minutes % 60;
-    return rest == 0 ? '$hoursс' : '$hoursс $restд';
+    return rest == 0
+        ? tr('{h}с', {'h': hours})
+        : tr('{h}с {m}д', {'h': hours, 'm': rest});
   }
 
   static double usageProgress(int used, int limit) =>

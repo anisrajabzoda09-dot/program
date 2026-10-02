@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../l10n/l10n.dart';
+
 const nigohApiBaseUrl = String.fromEnvironment(
   'NIGOH_API_BASE_URL',
   defaultValue: 'https://nigohfamily.qobus.tj',
@@ -55,6 +57,7 @@ class NigohApi {
       ..headers.addAll({
         'Accept': 'application/json',
         'X-NIGOH-Device': 'android',
+        'X-NIGOH-Lang': appLanguage.value,
         if (body != null) 'Content-Type': 'application/json',
         if (auth && token != null) 'Authorization': 'Bearer $token',
         'X-NIGOH-Role': ?role,
@@ -65,11 +68,11 @@ class NigohApi {
       final streamed = await _client.send(request).timeout(timeout);
       response = await http.Response.fromStream(streamed).timeout(timeout);
     } on TimeoutException {
-      throw const ApiException('Сервер ҷавоб надод. Интернетро санҷед.');
+      throw ApiException(tr('Сервер ҷавоб надод. Интернетро санҷед.'));
     } on SocketException {
-      throw const ApiException('Интернет нест. Пайвастшавиро санҷед.');
+      throw ApiException(tr('Интернет нест. Пайвастшавиро санҷед.'));
     } on http.ClientException {
-      throw const ApiException('Пайвастшавӣ ба сервер нашуд.');
+      throw ApiException(tr('Пайвастшавӣ ба сервер нашуд.'));
     }
     Map<String, dynamic> decoded = const {};
     if (response.body.isNotEmpty) {
@@ -84,7 +87,10 @@ class NigohApi {
     if (response.statusCode == 401 && auth) onUnauthorized?.call();
     throw ApiException(
       _detail(decoded['detail']) ??
-          'Хатогӣ дар сервер (${response.statusCode}). Баъдтар кӯшиш кунед.',
+          tr(
+            'Хатогӣ дар сервер ({code}). Баъдтар кӯшиш кунед.',
+            {'code': response.statusCode},
+          ),
       statusCode: response.statusCode,
     );
   }
@@ -94,9 +100,9 @@ class NigohApi {
     if (detail is List && detail.isNotEmpty) {
       final first = detail.first;
       final loc = first is Map ? (first['loc'] as List?)?.last : null;
-      if (loc == 'password') return 'Рамз бояд ақаллан 8 аломат бошад.';
-      if (loc == 'email') return 'Почтаи электронӣ нодуруст аст.';
-      return 'Маълумот нодуруст аст.';
+      if (loc == 'password') return tr('Рамз бояд ақаллан 8 аломат бошад.');
+      if (loc == 'email') return tr('Почтаи электронӣ нодуруст аст.');
+      return tr('Маълумот нодуруст аст.');
     }
     return null;
   }

@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import '../l10n/l10n.dart';
 
 const googleServerClientId = String.fromEnvironment(
   'NIGOH_GOOGLE_WEB_CLIENT_ID',
@@ -74,7 +75,7 @@ class Session extends ChangeNotifier {
   Future<void> _store(Map<String, dynamic> response) async {
     final token = response['token']?.toString();
     if (token == null || token.isEmpty) {
-      throw const ApiException('Сервер токен надод. Аз нав кӯшиш кунед.');
+      throw ApiException(tr('Сервер токен надод. Аз нав кӯшиш кунед.'));
     }
     api.token = token;
     final u = response['user'];
@@ -103,7 +104,7 @@ class Session extends ChangeNotifier {
     final account = await google.authenticate();
     final idToken = account.authentication.idToken;
     if (idToken == null) {
-      throw const ApiException('Google токен надод. Аз нав кӯшиш кунед.');
+      throw ApiException(tr('Google токен надод. Аз нав кӯшиш кунед.'));
     }
     await _store(await api.google(idToken));
   }

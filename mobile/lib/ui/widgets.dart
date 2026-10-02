@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/api.dart';
+import '../l10n/l10n.dart';
 
 /// Small shared building blocks so every screen looks the same.
 
@@ -160,9 +161,9 @@ class FadeIn extends StatelessWidget {
 String timeAgo(DateTime? time) {
   if (time == null) return '—';
   final diff = DateTime.now().difference(time.toLocal());
-  if (diff.inMinutes < 1) return 'ҳозир';
-  if (diff.inMinutes < 60) return '${diff.inMinutes} дақ пеш';
-  if (diff.inHours < 24) return '${diff.inHours} соат пеш';
+  if (diff.inMinutes < 1) return tr('ҳозир');
+  if (diff.inMinutes < 60) return tr('{n} дақ пеш', {'n': diff.inMinutes});
+  if (diff.inHours < 24) return tr('{n} соат пеш', {'n': diff.inHours});
   final t = time.toLocal();
   String two(int v) => v.toString().padLeft(2, '0');
   return '${two(t.day)}.${two(t.month)} ${two(t.hour)}:${two(t.minute)}';

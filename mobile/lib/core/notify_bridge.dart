@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'api.dart';
+import '../l10n/l10n.dart';
 
 /// What the user tapped in a notification posted by the native NotifyService.
 ///
@@ -110,7 +111,7 @@ abstract final class NotifyBridge {
     } on MissingPluginException {
       // Not running inside the Android app (tests / other platforms).
     } on PlatformException catch (e) {
-      lastError.value = e.message ?? 'Огоҳиномаҳо кор накарданд.';
+      lastError.value = e.message ?? tr('Огоҳиномаҳо кор накарданд.');
     }
   }
 
@@ -125,7 +126,7 @@ abstract final class NotifyBridge {
     } on MissingPluginException {
       // Not running inside the Android app.
     } on PlatformException catch (e) {
-      lastError.value = e.message ?? 'Хизмати огоҳиномаҳо оғоз нашуд.';
+      lastError.value = e.message ?? tr('Хизмати огоҳиномаҳо оғоз нашуд.');
     }
   }
 
@@ -136,7 +137,7 @@ abstract final class NotifyBridge {
     } on MissingPluginException {
       // Not running inside the Android app.
     } on PlatformException catch (e) {
-      lastError.value = e.message ?? 'Хизмати огоҳиномаҳо қатъ нашуд.';
+      lastError.value = e.message ?? tr('Хизмати огоҳиномаҳо қатъ нашуд.');
     }
   }
 
@@ -167,7 +168,7 @@ abstract final class NotifyBridge {
     } on MissingPluginException {
       return null;
     } on PlatformException catch (e) {
-      lastError.value = e.message ?? 'Ҳолати огоҳиномаҳо маълум нашуд.';
+      lastError.value = e.message ?? tr('Ҳолати огоҳиномаҳо маълум нашуд.');
       return null;
     }
   }
@@ -178,7 +179,7 @@ abstract final class NotifyBridge {
     } on MissingPluginException {
       // Not running inside the Android app.
     } on PlatformException catch (e) {
-      lastError.value = e.message ?? 'Танзимот кушода нашуд.';
+      lastError.value = e.message ?? tr('Танзимот кушода нашуд.');
     }
   }
 
@@ -196,7 +197,7 @@ abstract final class NotifyBridge {
       } on MissingPluginException {
         return false;
       } on PlatformException catch (e) {
-        lastError.value = e.message ?? 'Иҷозати огоҳиномаҳо дода нашуд.';
+        lastError.value = e.message ?? tr('Иҷозати огоҳиномаҳо дода нашуд.');
       }
       status = await permissionStatus() ?? status;
     }
@@ -205,19 +206,19 @@ abstract final class NotifyBridge {
         context: context,
         builder: (dialogContext) => AlertDialog(
           icon: const Icon(Icons.notifications_active_outlined),
-          title: const Text('Огоҳиномаҳо дар экрани пурра'),
-          content: const Text(
-            'Барои он ки ҳушдори SOS ва зангҳо ҳатто дар экрани қулфшуда '
-            'намоён шаванд, ба NIGOH иҷозати «огоҳиномаҳои экрани пурра» диҳед.',
+          title: Text(tr('Огоҳиномаҳо дар экрани пурра')),
+          content: Text(
+            tr('Барои он ки ҳушдори SOS ва зангҳо ҳатто дар экрани қулфшуда '
+            'намоён шаванд, ба NIGOH иҷозати «огоҳиномаҳои экрани пурра» диҳед.'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Баъдтар'),
+              child: Text(tr('Баъдтар')),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Кушодани танзимот'),
+              child: Text(tr('Кушодани танзимот')),
             ),
           ],
         ),

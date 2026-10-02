@@ -1,4 +1,5 @@
 import 'models.dart';
+import '../l10n/l10n.dart';
 
 /// App categories shared by the parent (filters) and the child (study mode).
 
@@ -7,20 +8,20 @@ enum AppCategory { games, social, education, video, other }
 extension AppCategoryLabel on AppCategory {
   /// Chip label.
   String get label => switch (this) {
-    AppCategory.games => 'Бозиҳо',
-    AppCategory.social => 'Шабакаҳо',
-    AppCategory.education => 'Маориф',
-    AppCategory.video => 'Видео',
-    AppCategory.other => 'Дигар',
+    AppCategory.games => tr('Бозиҳо'),
+    AppCategory.social => tr('Шабакаҳо'),
+    AppCategory.education => tr('Маориф'),
+    AppCategory.video => tr('Видео'),
+    AppCategory.other => tr('Дигар'),
   };
 
   /// Used in «Бастани ҳамаи …».
   String get pluralLower => switch (this) {
-    AppCategory.games => 'бозиҳо',
-    AppCategory.social => 'шабакаҳои иҷтимоӣ',
-    AppCategory.education => 'барномаҳои таълимӣ',
-    AppCategory.video => 'барномаҳои видео',
-    AppCategory.other => 'барномаҳои дигар',
+    AppCategory.games => tr('бозиҳо'),
+    AppCategory.social => tr('шабакаҳои иҷтимоӣ'),
+    AppCategory.education => tr('барномаҳои таълимӣ'),
+    AppCategory.video => tr('барномаҳои видео'),
+    AppCategory.other => tr('барномаҳои дигар'),
   };
 }
 

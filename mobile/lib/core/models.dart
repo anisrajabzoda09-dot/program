@@ -1,5 +1,6 @@
 import '../ui/widgets.dart' show parseServerTime;
 import 'app_categories.dart';
+import '../l10n/l10n.dart';
 
 /// Typed views over the server snapshot JSON (see app/routers/mobile.py
 /// `_mobile_child_payload`).
@@ -201,7 +202,7 @@ class FamilyChild {
 
   factory FamilyChild.fromJson(Map<String, dynamic> j) => FamilyChild(
     id: (j['id'] as num).toInt(),
-    name: j['name']?.toString() ?? 'Фарзанд',
+    name: j['name']?.toString() ?? tr('Фарзанд'),
     gender: j['gender']?.toString() ?? 'boy',
     age: (j['age'] as num?)?.toInt() ?? 0,
     paired: j['is_paired'] == true || j['is_paired'] == 1,
