@@ -11,6 +11,6 @@ class TamperDeviceAdminReceiver : DeviceAdminReceiver() {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             })
         }
-        return "Барои ғайрифаъол ва нест кардани NIGOH Family ворид намудани рамзи PIN-и волидайн ҳатмист."
+        return UiStrings.pinRequired(context)
     }
 }

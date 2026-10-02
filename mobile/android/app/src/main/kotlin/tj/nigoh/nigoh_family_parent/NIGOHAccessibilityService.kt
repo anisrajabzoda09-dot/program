@@ -36,9 +36,9 @@ class NIGOHAccessibilityService : AccessibilityService() {
         val limitExceeded = limit > 0 && usedSeconds >= limit * 60L
 
         val reason = when {
-            blocked -> "Ин барнома аз ҷониби волидайн маҳкам шудааст"
-            scheduleActive -> "Ҳоло вақти маҳдудшудаи барнома аст"
-            limitExceeded -> "Лимити вақти имрӯз ба охир расид"
+            blocked -> UiStrings.reasonBlocked(this)
+            scheduleActive -> UiStrings.reasonSchedule(this)
+            limitExceeded -> UiStrings.reasonLimit(this)
             else -> null
         } ?: return
 

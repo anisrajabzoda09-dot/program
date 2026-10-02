@@ -47,7 +47,7 @@ object AppUpdater {
                 emit("installing", 1.0)
                 install(app, apk)
             } catch (error: Exception) {
-                emit("error", message = error.message ?: "Навсозӣ насб нашуд")
+                emit("error", message = error.message ?: UiStrings.updateNotInstalled(app))
             }
         }.start()
     }
@@ -70,7 +70,7 @@ object AppUpdater {
                 redirects++
                 continue
             }
-            if (code !in 200..299) throw IllegalStateException("Сервер навсозиро надод ($code)")
+            if (code !in 200..299) throw IllegalStateException(UiStrings.updateServerError(context, code))
             break
         }
         val total = connection.contentLengthLong.takeIf { it > 0 }
@@ -95,7 +95,7 @@ object AppUpdater {
             }
         }
         connection.disconnect()
-        if (target.length() < 1_000_000) throw IllegalStateException("Файли навсозӣ нопурра боргирӣ шуд")
+        if (target.length() < 1_000_000) throw IllegalStateException(UiStrings.updateIncomplete(context))
         return target
     }
 
@@ -121,18 +121,18 @@ object AppUpdater {
             PackageManager.GET_SIGNATURES
         }
         val archive = pm.getPackageArchiveInfo(apk.absolutePath, flags)
-            ?: throw IllegalStateException("Файли навсозӣ вайрон аст")
+            ?: throw IllegalStateException(UiStrings.updateBroken(context))
         if (archive.packageName != context.packageName) {
-            throw SecurityException("Ин файл навсозии NIGOH Family нест")
+            throw SecurityException(UiStrings.updateWrongPackage(context))
         }
         val installed = pm.getPackageInfo(context.packageName, flags)
         val newCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) archive.longVersionCode else archive.versionCode.toLong()
         val oldCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) installed.longVersionCode else installed.versionCode.toLong()
-        if (newCode <= oldCode) throw IllegalStateException("Шумо аллакай версияи охиринро доред")
+        if (newCode <= oldCode) throw IllegalStateException(UiStrings.updateAlreadyLatest(context))
         val mine = signatureDigests(installed)
         val theirs = signatureDigests(archive)
         if (mine.isEmpty() || theirs.isEmpty() || mine.intersect(theirs).isEmpty()) {
-            throw SecurityException("Имзои файл бо барнома мувофиқ нест — насб манъ шуд")
+            throw SecurityException(UiStrings.updateBadSignature(context))
         }
     }
 
@@ -176,13 +176,13 @@ object AppUpdater {
                     confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(confirm)
                 }
-                emit("installing", 1.0, "Дар равзанаи Android «Навсозӣ»-ро пахш кунед")
+                emit("installing", 1.0, UiStrings.updateConfirmPrompt(context))
             }
             PackageInstaller.STATUS_SUCCESS -> emit("done", 1.0)
-            PackageInstaller.STATUS_FAILURE_ABORTED -> emit("error", message = "Навсозӣ бекор карда шуд")
+            PackageInstaller.STATUS_FAILURE_ABORTED -> emit("error", message = UiStrings.updateCancelled(context))
             else -> emit(
                 "error",
-                message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "Навсозӣ насб нашуд",
+                message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: UiStrings.updateNotInstalled(context),
             )
         }
     }

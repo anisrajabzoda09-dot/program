@@ -61,8 +61,8 @@ class BlockedActivity : Activity() {
         header.addView(text("‹", 34f, Color.rgb(0, 229, 255), true),
             LinearLayout.LayoutParams(dp(34), dp(42)))
         val headerTitle = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        headerTitle.addView(text("🛡  Emergency Lock", 17f, Color.WHITE, true))
-        headerTitle.addView(text("NIGOH SHIELD • НАЗОРАТИ ВОЛИДАЙН", 10f, Color.rgb(0, 229, 255), true))
+        headerTitle.addView(text(UiStrings.lockTitle(this), 17f, Color.WHITE, true))
+        headerTitle.addView(text(UiStrings.shieldCaption(this), 10f, Color.rgb(0, 229, 255), true))
         header.addView(headerTitle, LinearLayout.LayoutParams(0, -2, 1f))
         header.addView(text("👨", 28f, Color.WHITE), LinearLayout.LayoutParams(dp(42), dp(42)))
         root.addView(header)
@@ -74,9 +74,9 @@ class BlockedActivity : Activity() {
         }
         lock.addView(text("🔒", 64f, Color.rgb(230, 57, 70), true),
             LinearLayout.LayoutParams(-1, dp(90)))
-        lock.addView(text("Ин барнома аз ҷониби волидайн маҳкам шудааст", 23f, Color.WHITE, true))
+        lock.addView(text(UiStrings.reasonBlocked(this), 23f, Color.WHITE, true))
         addSpace(lock, 8)
-        lock.addView(text("This application is restricted by parental controls", 13f, Color.rgb(141, 153, 174)))
+        lock.addView(text(UiStrings.restrictedSubtitle(this), 13f, Color.rgb(141, 153, 174)))
         root.addView(lock)
         addSpace(root, 20)
 
@@ -90,15 +90,15 @@ class BlockedActivity : Activity() {
             LinearLayout.LayoutParams(dp(48), dp(48)))
         val appInfo = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         appInfo.addView(text(label, 18f, Color.WHITE, true))
-        appInfo.addView(text("Фароғат ва наворҳо", 12f, Color.rgb(141, 153, 174)))
+        appInfo.addView(text(UiStrings.categoryEntertainment(this), 12f, Color.rgb(141, 153, 174)))
         appRow.addView(appInfo, LinearLayout.LayoutParams(0, -2, 1f))
-        appRow.addView(text("МАҲКАМ", 11f, Color.rgb(230, 57, 70), true),
+        appRow.addView(text(UiStrings.blockedBadge(this), 11f, Color.rgb(230, 57, 70), true),
             LinearLayout.LayoutParams(-2, -2))
         summary.addView(appRow)
         addSpace(summary, 14)
-        summary.addView(text("●  Лимити рӯзона пур шуд  |  1 соат 30 дақ / 1 соат 30 дақ", 12f, Color.rgb(24, 144, 255)))
+        summary.addView(text(UiStrings.dailyLimitLine(this), 12f, Color.rgb(24, 144, 255)))
         addSpace(summary, 8)
-        summary.addView(text("●  Ҳолати дарсӣ фаъол аст  |  16:00 — 18:00", 12f, Color.rgb(6, 214, 160)))
+        summary.addView(text(UiStrings.studyLine(this), 12f, Color.rgb(6, 214, 160)))
         root.addView(summary)
         addSpace(root, 20)
 
@@ -108,15 +108,15 @@ class BlockedActivity : Activity() {
             setPadding(dp(16), dp(14), dp(16), dp(14))
             background = rounded(Color.rgb(17, 28, 48), 16, Color.rgb(34, 51, 84))
         }
-        countdown.addView(text("Кушодашавии навбатӣ пас аз:", 12f, Color.rgb(141, 153, 174)))
+        countdown.addView(text(UiStrings.nextUnlock(this), 12f, Color.rgb(141, 153, 174)))
         addSpace(countdown, 5)
         countdown.addView(text("01 : 24 : 58", 31f, Color.rgb(0, 229, 255), true))
-        countdown.addView(text("Пагоҳ соати 08:00", 12f, Color.rgb(141, 153, 174)))
+        countdown.addView(text(UiStrings.tomorrowAt8(this), 12f, Color.rgb(141, 153, 174)))
         root.addView(countdown)
         addSpace(root, 18)
 
         val home = Button(this).apply {
-            text = "⌂  Бозгашт ба экрани асосӣ"
+            text = UiStrings.backHome(this@BlockedActivity)
             textSize = 15f
             setTextColor(Color.rgb(7, 13, 24))
             typeface = Typeface.DEFAULT_BOLD
@@ -126,7 +126,7 @@ class BlockedActivity : Activity() {
         root.addView(home, LinearLayout.LayoutParams(-1, dp(54)))
         addSpace(root, 10)
         val request = Button(this).apply {
-            text = "Дархости вақти иловагӣ (+15 дақ)"
+            text = UiStrings.askExtraTime(this@BlockedActivity)
             textSize = 14f
             setTextColor(Color.WHITE)
             background = rounded(Color.rgb(22, 34, 56), 14, Color.rgb(34, 51, 84))
@@ -134,10 +134,10 @@ class BlockedActivity : Activity() {
         }
         root.addView(request, LinearLayout.LayoutParams(-1, dp(52)))
         addSpace(root, 8)
-        root.addView(text("Пайём барои тасдиқ ба волидайн фиристода мешавад", 11f, Color.rgb(141, 153, 174)))
+        root.addView(text(UiStrings.requestGoesToParent(this), 11f, Color.rgb(141, 153, 174)))
         addSpace(root, 20)
-        root.addView(text("☎  Зангҳои таъҷилӣ ҳамеша дастрасанд (SOS)", 12f, Color.rgb(230, 57, 70), true))
-        root.addView(text("Хидмати 112 ё занг ба падар ва модар маҳдуд намешавад", 11f, Color.rgb(141, 153, 174)))
+        root.addView(text(UiStrings.emergencyCalls(this), 12f, Color.rgb(230, 57, 70), true))
+        root.addView(text(UiStrings.emergencyCallsNote(this), 11f, Color.rgb(141, 153, 174)))
 
         setContentView(scroll)
     }

@@ -99,7 +99,7 @@ class AppBlockMonitorService : Service() {
             NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("NIGOH Family")
-                .setContentText("Муҳофизати барномаҳо фаъол аст")
+                .setContentText(UiStrings.protectionActive(this))
                 .setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build()
@@ -115,7 +115,7 @@ class AppBlockMonitorService : Service() {
     private fun handleAccessibilityRequest(intent: Intent?) {
         val target = intent?.getStringExtra(EXTRA_OVERLAY_PACKAGE) ?: return
         val reason = intent.getStringExtra(EXTRA_OVERLAY_REASON)
-            ?: "Ин барнома аз ҷониби волидайн маҳкам шудааст"
+            ?: UiStrings.reasonBlocked(this)
         if (target.isBlank() || target == packageName || target in SAFE_PACKAGES) return
         // Accessibility may be enabled before Android grants overlay access.
         // Do not let a TYPE_APPLICATION_OVERLAY exception crash the service.
@@ -163,9 +163,9 @@ class AppBlockMonitorService : Service() {
             it > 0 && todayUsageMillis(prefs, openedPackage) >= it * 60_000L
         } == true
         when {
-            isBlocked -> showOverlay(openedPackage, "Ин барнома аз ҷониби волидайн маҳкам шудааст")
-            scheduleActive -> showOverlay(openedPackage, "Ҳоло вақти маҳдудшудаи барнома аст")
-            limitExceeded -> showOverlay(openedPackage, "Лимити вақти имрӯз ба охир расид")
+            isBlocked -> showOverlay(openedPackage, UiStrings.reasonBlocked(this))
+            scheduleActive -> showOverlay(openedPackage, UiStrings.reasonSchedule(this))
+            limitExceeded -> showOverlay(openedPackage, UiStrings.reasonLimit(this))
             else -> removeOverlay()
         }
     }
@@ -388,7 +388,7 @@ class AppBlockMonitorService : Service() {
                 setPadding(0, dp(18), 0, dp(10))
             })
             addView(TextView(context).apply {
-                text = "Барномаи «$label» аз тарафи волидайн назорат мешавад."
+                text = UiStrings.overlayManaged(this@AppBlockMonitorService, label)
                 textSize = 16f
                 setTextColor(Color.rgb(190, 205, 221))
                 gravity = Gravity.CENTER
@@ -396,26 +396,26 @@ class AppBlockMonitorService : Service() {
             })
             if (tamper) {
                 val pin = EditText(context).apply {
-                    hint = "PIN-и волидайн"
+                    hint = UiStrings.parentPinHint(this@AppBlockMonitorService)
                     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
                     setTextColor(Color.WHITE)
                     setHintTextColor(Color.LTGRAY)
                 }
                 addView(pin, LinearLayout.LayoutParams(-1, dp(54)))
                 addView(Button(context).apply {
-                    text = "Тасдиқи PIN"
+                    text = UiStrings.confirmPin(this@AppBlockMonitorService)
                     setOnClickListener {
                         if (verifyParentPin(pin.text.toString())) {
                             goHome()
                         } else {
-                            pin.error = "PIN нодуруст аст"
-                            Toast.makeText(context, "PIN нодуруст аст", Toast.LENGTH_SHORT).show()
+                            pin.error = UiStrings.wrongPinShort(this@AppBlockMonitorService)
+                            Toast.makeText(context, UiStrings.wrongPinShort(context), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }, LinearLayout.LayoutParams(-1, dp(52)))
             } else {
                 addView(Button(context).apply {
-                    text = "Ба экрани асосӣ"
+                    text = UiStrings.toHome(this@AppBlockMonitorService)
                     setOnClickListener { goHome() }
                 }, LinearLayout.LayoutParams(-1, dp(52)))
             }
@@ -460,7 +460,7 @@ class AppBlockMonitorService : Service() {
             manager.createNotificationChannel(
                 NotificationChannel(
                     CHANNEL_ID,
-                    "Муҳофизати NIGOH",
+                    UiStrings.protectionChannel(this),
                     NotificationManager.IMPORTANCE_LOW
                 )
             )

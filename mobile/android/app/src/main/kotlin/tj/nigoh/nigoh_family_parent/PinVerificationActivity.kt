@@ -39,19 +39,19 @@ class PinVerificationActivity : Activity() {
             gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(-1, dp(82)))
         root.addView(TextView(this).apply {
-            text = "Тасдиқи волидайн"
+            text = UiStrings.pinTitle(this@PinVerificationActivity)
             textSize = 25f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(-1, dp(52)))
         root.addView(TextView(this).apply {
-            text = "Барои ғайрифаъол ва нест кардани NIGOH Family ворид намудани рамзи PIN-и волидайн ҳатмист."
+            text = UiStrings.pinRequired(this@PinVerificationActivity)
             textSize = 16f
             setTextColor(Color.rgb(220, 230, 242))
             gravity = Gravity.CENTER
         }, LinearLayout.LayoutParams(-1, dp(92)))
         val pin = EditText(this).apply {
-            hint = "PIN-и 4-рақама"
+            hint = UiStrings.pinHint4(this@PinVerificationActivity)
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
             setTextColor(Color.WHITE)
             setHintTextColor(Color.rgb(150, 165, 185))
@@ -66,7 +66,7 @@ class PinVerificationActivity : Activity() {
         }
         root.addView(error, LinearLayout.LayoutParams(-1, dp(45)))
         root.addView(Button(this).apply {
-            text = "Тасдиқ кардан"
+            text = UiStrings.confirm(this@PinVerificationActivity)
             setOnClickListener { verify(pin.text.toString(), error) }
         }, LinearLayout.LayoutParams(-1, dp(54)))
         setContentView(root)
@@ -81,11 +81,11 @@ class PinVerificationActivity : Activity() {
             mainHandler.postDelayed({ launchUninstall() }, 350L)
         } else {
             error.text = if (result.error == "locked") {
-                "Кӯшишҳо баста шуданд. Баъд аз ${result.remainingSeconds} сония дубора кӯшиш кунед."
+                UiStrings.pinLocked(this, result.remainingSeconds)
             } else if (!PinSecurity.hasPin(this)) {
-                "Аввал PIN-и волидайнро дар барнома гузоред."
+                UiStrings.pinNotSet(this)
             } else {
-                "Рамзи PIN нодуруст аст"
+                UiStrings.pinWrong(this)
             }
         }
     }
