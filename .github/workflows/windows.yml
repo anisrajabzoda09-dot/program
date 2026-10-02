@@ -45,7 +45,20 @@ jobs:
       - run: flutter config --enable-windows-desktop
       - run: flutter pub get
       - run: flutter test
-      - run: flutter build windows --release
+      - name: Build Windows app
+        shell: pwsh
+        run: |
+          flutter build windows --release 2>&1 | Tee-Object -FilePath build-windows.log
+          $code = $LASTEXITCODE
+          if ($code -ne 0) {
+            # Surface the real error as public annotations (job logs need sign-in).
+            $lines = Get-Content build-windows.log
+            $errs = $lines | Select-String -Pattern 'error|Error|FAILED|fatal|CMake' | Select-Object -Last 25
+            foreach ($e in $errs) { Write-Host "::error::$($e.Line.Trim())" }
+            $tail = ($lines | Select-Object -Last 30) -join '%0A'
+            Write-Host "::error title=Build log tail::$tail"
+            exit $code
+          }
 
       - name: Installer (Inno Setup)
         shell: pwsh
