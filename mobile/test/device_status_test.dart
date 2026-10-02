@@ -122,7 +122,7 @@ void main() {
   testWidgets('notification target selects the child and the map tab', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final server = FakeServer({

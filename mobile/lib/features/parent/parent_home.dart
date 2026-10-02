@@ -30,6 +30,12 @@ class ParentHome extends StatefulWidget {
   /// Injected in tests; otherwise created from the session's API.
   final FamilyController? controller;
 
+  /// From this window width a side [NavigationRail] replaces the bottom bar.
+  static const wideBreakpoint = 900.0;
+
+  /// Content column limit on wide windows, so cards don't stretch.
+  static const maxContentWidth = 1100.0;
+
   @override
   State<ParentHome> createState() => _ParentHomeState();
 }
@@ -261,68 +267,133 @@ class _ParentHomeState extends State<ParentHome> {
           _markReadIfNeeded();
         }
         final unread = controller.unreadTotal;
-        return Scaffold(
+        final familyBadge =
+            controller.urgentChildren.isNotEmpty ||
+            controller.pendingRequestsTotal > 0;
+        final familyBadgeColor = controller.urgentChildren.isNotEmpty
+            ? null
+            : NigohDesign.amber;
+        final items = <_NavItem>[
+          _NavItem(
+            icon: Badge(
+              isLabelVisible: familyBadge,
+              backgroundColor: familyBadgeColor,
+              smallSize: 9,
+              child: const Icon(Icons.family_restroom_outlined),
+            ),
+            selectedIcon: const Icon(Icons.family_restroom_rounded),
+            label: tr('Оила'),
+          ),
+          _NavItem(
+            icon: const Icon(Icons.apps_outlined),
+            selectedIcon: const Icon(Icons.apps_rounded),
+            label: tr('Барномаҳо'),
+          ),
+          _NavItem(
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map_rounded),
+            label: tr('Харита'),
+          ),
+          _NavItem(
+            key: const ValueKey('nav-chat'),
+            icon: Badge.count(
+              count: unread,
+              isLabelVisible: unread > 0,
+              child: const Icon(Icons.chat_bubble_outline_rounded),
+            ),
+            selectedIcon: Badge.count(
+              count: unread,
+              isLabelVisible: unread > 0,
+              child: const Icon(Icons.chat_bubble_rounded),
+            ),
+            label: tr('Чат'),
+          ),
+          _NavItem(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings_rounded),
+            label: tr('Танзимот'),
+          ),
+        ];
+        // Wide windows (desktop app, tablets): side rail and a centered,
+        // width-limited content column. Phones keep the bottom bar.
+        final wide =
+            MediaQuery.sizeOf(context).width >= ParentHome.wideBreakpoint;
+        Widget content = AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          child: KeyedSubtree(
+            key: ValueKey('tab-$_tab-${children.isEmpty}'),
+            child: body,
+          ),
+        );
+        if (wide && _tab != 2) {
+          content = Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: ParentHome.maxContentWidth,
+              ),
+              child: content,
+            ),
+          );
+        }
+        final page = Scaffold(
           // Chat and Settings bring their own app bar.
           appBar: _tab >= 3 ? null : AppBar(title: Text(tr(_titles[_tab]))),
-          body: SafeArea(
-            top: _tab >= 3,
-            bottom: false,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              child: KeyedSubtree(
-                key: ValueKey('tab-$_tab-${children.isEmpty}'),
-                child: body,
-              ),
+          body: SafeArea(top: _tab >= 3, bottom: false, child: content),
+          bottomNavigationBar: wide
+              ? null
+              : NavigationBar(
+                  selectedIndex: _tab,
+                  onDestinationSelected: (i) => setState(() => _tab = i),
+                  destinations: [
+                    for (final item in items)
+                      NavigationDestination(
+                        key: item.key,
+                        icon: item.icon,
+                        selectedIcon: item.selectedIcon,
+                        label: item.label,
+                      ),
+                  ],
+                ),
+        );
+        if (!wide) return page;
+        return Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(
+            child: Row(
+              children: [
+                NavigationRail(
+                  selectedIndex: _tab,
+                  onDestinationSelected: (i) => setState(() => _tab = i),
+                  labelType: NavigationRailLabelType.all,
+                  groupAlignment: -0.9,
+                  minWidth: 88,
+                  leading: Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 16),
+                    child: Tooltip(
+                      message: tr('Илова кардани фарзанд'),
+                      child: FloatingActionButton.small(
+                        heroTag: 'rail-add-child',
+                        elevation: 0,
+                        onPressed: _addChild,
+                        child: const Icon(Icons.person_add_alt_1_rounded),
+                      ),
+                    ),
+                  ),
+                  destinations: [
+                    for (final item in items)
+                      NavigationRailDestination(
+                        icon: KeyedSubtree(key: item.key, child: item.icon),
+                        selectedIcon: item.selectedIcon,
+                        label: Text(item.label),
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                      ),
+                  ],
+                ),
+                const VerticalDivider(width: 1),
+                Expanded(child: page),
+              ],
             ),
-          ),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
-            destinations: [
-              NavigationDestination(
-                icon: Badge(
-                  isLabelVisible:
-                      controller.urgentChildren.isNotEmpty ||
-                      controller.pendingRequestsTotal > 0,
-                  backgroundColor: controller.urgentChildren.isNotEmpty
-                      ? null
-                      : NigohDesign.amber,
-                  smallSize: 9,
-                  child: const Icon(Icons.family_restroom_outlined),
-                ),
-                selectedIcon: const Icon(Icons.family_restroom_rounded),
-                label: tr('Оила'),
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.apps_outlined),
-                selectedIcon: Icon(Icons.apps_rounded),
-                label: tr('Барномаҳо'),
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.map_outlined),
-                selectedIcon: Icon(Icons.map_rounded),
-                label: tr('Харита'),
-              ),
-              NavigationDestination(
-                key: const ValueKey('nav-chat'),
-                icon: Badge.count(
-                  count: unread,
-                  isLabelVisible: unread > 0,
-                  child: const Icon(Icons.chat_bubble_outline_rounded),
-                ),
-                selectedIcon: Badge.count(
-                  count: unread,
-                  isLabelVisible: unread > 0,
-                  child: const Icon(Icons.chat_bubble_rounded),
-                ),
-                label: tr('Чат'),
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings_rounded),
-                label: tr('Танзимот'),
-              ),
-            ],
           ),
         );
       },
@@ -371,6 +442,21 @@ class _ParentHomeState extends State<ParentHome> {
       ],
     );
   }
+}
+
+/// One main destination, shared by the bottom bar and the side rail.
+class _NavItem {
+  const _NavItem({
+    this.key,
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
+
+  final Key? key;
+  final Widget icon;
+  final Widget selectedIcon;
+  final String label;
 }
 
 class _EmptyFamily extends StatelessWidget {
