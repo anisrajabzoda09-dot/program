@@ -6,6 +6,7 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import 'parent_logic.dart';
+import '../../l10n/l10n.dart';
 
 /// New safe place: name, radius 50–1000 m, position from the map tap or the
 /// child's current location. Closes with `true` once saved.
@@ -57,7 +58,7 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
         radiusMeters: _radius.round(),
       );
       if (!mounted) return;
-      showMessage(context, '«$name» илова шуд');
+      showMessage(context, tr('«{name}» илова шуд', {'name': name}));
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
@@ -82,14 +83,15 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Ҷойи бехатар',
+            Text(
+              tr('Ҷойи бехатар'),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Масалан, хона ё мактаб. Дар корти фарзанд нишон дода мешавад, '
-              'ки ӯ дар куҷост.',
+              tr(
+                'Масалан, хона ё мактаб. Дар корти фарзанд нишон дода мешавад, ки ӯ дар куҷост.',
+              ),
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 14),
@@ -100,9 +102,9 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
               textCapitalization: TextCapitalization.sentences,
               maxLength: 40,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'Ном',
-                hintText: 'Хона, Мактаб…',
+              decoration: InputDecoration(
+                labelText: tr('Ном'),
+                hintText: tr('Хона, Мактаб…'),
               ),
             ),
             const SizedBox(height: 4),
@@ -113,14 +115,14 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
                 if (widget.tapped != null)
                   ChoiceChip(
                     avatar: const Icon(Icons.touch_app_rounded, size: 18),
-                    label: const Text('Нуқтаи интихобшуда'),
+                    label: Text(tr('Нуқтаи интихобшуда')),
                     selected: !_useChild,
                     showCheckmark: false,
                     onSelected: (_) => setState(() => _useChild = false),
                   ),
                 ChoiceChip(
                   avatar: const Icon(Icons.my_location_rounded, size: 18),
-                  label: const Text('Ҷойи ҳозираи фарзанд'),
+                  label: Text(tr('Ҷойи ҳозираи фарзанд')),
                   selected: _useChild,
                   showCheckmark: false,
                   onSelected: widget.childPosition == null
@@ -133,19 +135,24 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  'Ҷойи фарзанд маълум нест. Дар харита нуқтаро дароз пахш кунед.',
+                  tr(
+                    'Ҷойи фарзанд маълум нест. Дар харита нуқтаро дароз пахш кунед.',
+                  ),
                   style: TextStyle(color: scheme.error, fontSize: 12),
                 ),
               ),
             const SizedBox(height: 14),
             Row(
               children: [
-                const Text(
-                  'Радиус',
+                Text(
+                  tr('Радиус'),
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
-                Pill('${_radius.round()} м', color: NigohDesign.mint),
+                Pill(
+                  tr('{meters} м', {'meters': _radius.round()}),
+                  color: NigohDesign.mint,
+                ),
               ],
             ),
             Slider(
@@ -154,7 +161,7 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
               min: 50,
               max: 1000,
               divisions: 19,
-              label: '${_radius.round()} м',
+              label: tr('{meters} м', {'meters': _radius.round()}),
               onChanged: (v) => setState(() => _radius = v),
             ),
             const SizedBox(height: 8),
@@ -172,7 +179,7 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Нигоҳ доштан'),
+                    : Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],
@@ -206,16 +213,16 @@ class _PlacesSheetState extends State<PlacesSheet> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('«${place.name}»-ро нест кунем?'),
+        title: Text(tr('«{name}»-ро нест кунем?', {'name': place.name})),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Бекор'),
+            child: Text(tr('Бекор')),
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Нест кардан'),
+            child: Text(tr('Нест кардан')),
           ),
         ],
       ),
@@ -245,14 +252,15 @@ class _PlacesSheetState extends State<PlacesSheet> {
             shrinkWrap: true,
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             children: [
-              const Text(
-                'Ҷойҳои бехатар',
+              Text(
+                tr('Ҷойҳои бехатар'),
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
               Text(
-                'Барои илова дар харита нуқтаро дароз пахш кунед ё ҷойи '
-                'ҳозираи фарзандро истифода баред.',
+                tr(
+                  'Барои илова дар харита нуқтаро дароз пахш кунед ё ҷойи ҳозираи фарзандро истифода баред.',
+                ),
                 style: TextStyle(color: scheme.onSurfaceVariant),
               ),
               if (widget.controller.placesError != null) ...[
@@ -263,13 +271,13 @@ class _PlacesSheetState extends State<PlacesSheet> {
                 ),
                 TextButton(
                   onPressed: () => widget.controller.loadPlaces(widget.childId),
-                  child: const Text('Аз нав кӯшиш'),
+                  child: Text(tr('Аз нав кӯшиш')),
                 ),
               ],
               const SizedBox(height: 12),
               if (places.isEmpty)
                 Text(
-                  'Ҳоло ҷой нест.',
+                  tr('Ҳоло ҷой нест.'),
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               for (final place in places)
@@ -291,7 +299,7 @@ class _PlacesSheetState extends State<PlacesSheet> {
                 key: const ValueKey('place-add'),
                 onPressed: widget.onAdd,
                 icon: const Icon(Icons.add_location_alt_rounded),
-                label: const Text('Илова кардан'),
+                label: Text(tr('Илова кардан')),
               ),
             ],
           ),
@@ -346,17 +354,17 @@ class _PlaceTile extends StatelessWidget {
         ),
         subtitle: Text(
           [
-            'Радиус ${place.radiusMeters} м',
+            tr('Радиус {radiusMeters} м', {'radiusMeters': place.radiusMeters}),
             if (inside)
-              'фарзанд дар ин ҷост'
+              tr('фарзанд дар ин ҷост')
             else if (d != null)
               d >= 1000
-                  ? '${(d / 1000).toStringAsFixed(1)} км дур'
-                  : '${d.round()} м дур',
+                  ? tr('{km} км дур', {'km': (d / 1000).toStringAsFixed(1)})
+                  : tr('{meters} м дур', {'meters': d.round()}),
           ].join(' · '),
         ),
         trailing: IconButton(
-          tooltip: 'Нест кардан',
+          tooltip: tr('Нест кардан'),
           onPressed: onDelete,
           icon: const Icon(Icons.delete_outline_rounded),
         ),
@@ -392,7 +400,7 @@ class HistoryTimelineSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
               child: Text(
-                'Таърихи 24 соат · ${points.length} нуқта',
+                tr('Таърихи 24 соат · {count} нуқта', {'count': points.length}),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,

@@ -10,6 +10,7 @@ import '../../core/api.dart';
 import 'family_controller.dart';
 import 'parent_logic.dart';
 import 'places_sheets.dart';
+import '../../l10n/l10n.dart';
 
 /// Last known location of the selected child on an OpenStreetMap map.
 class MapScreen extends StatefulWidget {
@@ -80,11 +81,13 @@ class _MapScreenState extends State<MapScreen> {
         _historyChild = child.id;
       });
       if (_history!.isEmpty) {
-        showMessage(context, 'Дар 24 соати охир нуқтаҳо нестанд');
+        showMessage(context, tr('Дар 24 соати охир нуқтаҳо нестанд'));
       }
     } catch (e) {
       if (!mounted) return;
-      final text = e is ApiException ? e.message : 'Таърих гирифта нашуд: $e';
+      final text = e is ApiException
+          ? e.message
+          : tr('Таърих гирифта нашуд: {e}', {'e': e});
       setState(() {
         _historyError = text;
         _showHistory = false;
@@ -155,20 +158,20 @@ class _MapScreenState extends State<MapScreen> {
     builder: (context, _) {
       final child = widget.controller.selected;
       if (child == null) {
-        return const StateMessage(
+        return StateMessage(
           icon: Icons.family_restroom_rounded,
-          title: 'Фарзанд ҳоло нест',
+          title: tr('Фарзанд ҳоло нест'),
         );
       }
       final location = child.location;
       if (location == null) {
         return StateMessage(
           icon: Icons.location_searching_rounded,
-          title: 'Ҷойгиршавии ${child.name} ҳоло нест',
-          text:
-              'Дар телефони фарзанд интернет, GPS ва иҷозати ҷойгиршавиро '
-              'фаъол кунед. Харита пас аз аввалин навсозӣ пайдо мешавад.',
-          actionLabel: 'Навсозӣ',
+          title: tr('Ҷойгиршавии {name} ҳоло нест', {'name': child.name}),
+          text: tr(
+            'Дар телефони фарзанд интернет, GPS ва иҷозати ҷойгиршавиро фаъол кунед. Харита пас аз аввалин навсозӣ пайдо мешавад.',
+          ),
+          actionLabel: tr('Навсозӣ'),
           onAction: _refresh,
           error: widget.controller.error != null,
         );
@@ -284,7 +287,7 @@ class _MapScreenState extends State<MapScreen> {
                     _MapChip(
                       key: const ValueKey('history-toggle'),
                       icon: Icons.timeline_rounded,
-                      label: 'Таърихи 24 соат',
+                      label: tr('Таърихи 24 соат'),
                       selected: _showHistory,
                       busy: _historyLoading,
                       onTap: () => _toggleHistory(child),
@@ -293,7 +296,9 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(width: 8),
                       _MapChip(
                         icon: Icons.list_rounded,
-                        label: 'Нуқтаҳо (${history.length})',
+                        label: tr('Нуқтаҳо ({count})', {
+                          'count': history.length,
+                        }),
                         onTap: () => _openTimeline(history),
                       ),
                     ],
@@ -302,8 +307,8 @@ class _MapScreenState extends State<MapScreen> {
                       key: const ValueKey('places-open'),
                       icon: Icons.shield_outlined,
                       label: places.isEmpty
-                          ? 'Ҷойҳои бехатар'
-                          : 'Ҷойҳо (${places.length})',
+                          ? tr('Ҷойҳои бехатар')
+                          : tr('Ҷойҳо ({count})', {'count': places.length}),
                       onTap: () => _openPlaces(child),
                     ),
                   ],
@@ -470,7 +475,9 @@ class _LocationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Навсозӣ: ${timeAgo(location.updatedAt)}',
+                        tr('Навсозӣ: {ago}', {
+                          'ago': timeAgo(location.updatedAt),
+                        }),
                         key: const ValueKey('map-updated'),
                         maxLines: 1,
                         softWrap: false,
@@ -486,7 +493,7 @@ class _LocationCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 IconButton.filledTonal(
                   key: const ValueKey('map-refresh'),
-                  tooltip: 'Навсозӣ',
+                  tooltip: tr('Навсозӣ'),
                   onPressed: refreshing ? null : onRefresh,
                   icon: refreshing
                       ? const SizedBox(
@@ -514,7 +521,7 @@ class _LocationCard extends StatelessWidget {
                     ),
                   if (battery != null)
                     Pill(
-                      'Батарея $battery%',
+                      tr('Батарея {battery}%', {'battery': battery}),
                       color: battery <= 15
                           ? NigohDesign.coral
                           : NigohDesign.mint,

@@ -21,6 +21,7 @@ import 'parent_sheets.dart';
 import 'requests_screen.dart';
 import 'study_sheet.dart';
 import 'weekly_report.dart';
+import '../../l10n/l10n.dart';
 
 /// Parent side: family overview, app rules, map, chat and settings.
 class ParentHome extends StatefulWidget {
@@ -145,7 +146,7 @@ class _ParentHomeState extends State<ParentHome> {
     final ok = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => AddChildScreen(controller: controller)),
     );
-    if (ok == true && mounted) showMessage(context, 'Фарзанд пайваст шуд');
+    if (ok == true && mounted) showMessage(context, tr('Фарзанд пайваст шуд'));
   }
 
   void _open(int tab, FamilyChild child) {
@@ -163,7 +164,9 @@ class _ParentHomeState extends State<ParentHome> {
       if (mounted) {
         showMessage(
           context,
-          'PIN санҷида нашуд: ${e is PlatformException ? e.message ?? e.code : e}',
+          tr('PIN санҷида нашуд: {error}', {
+            'error': e is PlatformException ? e.message ?? e.code : e,
+          }),
           error: true,
         );
       }
@@ -173,16 +176,18 @@ class _ParentHomeState extends State<ParentHome> {
     if (!hasPin) {
       final created = await ParentPin.setUp(
         context,
-        text:
-            'Барои хориҷ кардани фарзанд аввал PIN-и волидайнро гузоред. '
-            'Ин PIN дар ҳамин телефон нигоҳ дошта мешавад.',
+        text: tr(
+          'Барои хориҷ кардани фарзанд аввал PIN-и волидайнро гузоред. Ин PIN дар ҳамин телефон нигоҳ дошта мешавад.',
+        ),
       );
       if (!created || !mounted) return false;
     }
     final ok = await ParentPin.ask(
       context,
-      title: 'PIN-ро ворид кунед',
-      text: 'Барои хориҷ кардани ${child.name} PIN-и волидайн лозим аст.',
+      title: tr('PIN-ро ворид кунед'),
+      text: tr('Барои хориҷ кардани {name} PIN-и волидайн лозим аст.', {
+        'name': child.name,
+      }),
     );
     return ok && mounted;
   }
@@ -192,15 +197,16 @@ class _ParentHomeState extends State<ParentHome> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('${child.name}-ро хориҷ кунем?'),
-        content: const Text(
-          'Қоидаҳо ва чат барои ин фарзанд дигар дастрас намешаванд. '
-          'Барои пайвасти дубора коди навро скан кунед.',
+        title: Text(tr('{name}-ро хориҷ кунем?', {'name': child.name})),
+        content: Text(
+          tr(
+            'Қоидаҳо ва чат барои ин фарзанд дигар дастрас намешаванд. Барои пайвасти дубора коди навро скан кунед.',
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Бекор'),
+            child: Text(tr('Бекор')),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -209,7 +215,7 @@ class _ParentHomeState extends State<ParentHome> {
               foregroundColor: Theme.of(dialogContext).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Хориҷ кардан'),
+            child: Text(tr('Хориҷ кардан')),
           ),
         ],
       ),
@@ -217,7 +223,9 @@ class _ParentHomeState extends State<ParentHome> {
     if (confirm != true || !mounted) return;
     try {
       await controller.unlink(child);
-      if (mounted) showMessage(context, '${child.name} хориҷ шуд');
+      if (mounted) {
+        showMessage(context, tr('{name} хориҷ шуд', {'name': child.name}));
+      }
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     }
@@ -240,9 +248,9 @@ class _ParentHomeState extends State<ParentHome> {
         } else if (children.isEmpty && controller.error != null) {
           body = StateMessage(
             icon: Icons.cloud_off_rounded,
-            title: 'Маълумот гирифта нашуд',
+            title: tr('Маълумот гирифта нашуд'),
             text: controller.error,
-            actionLabel: 'Аз нав кӯшиш',
+            actionLabel: tr('Аз нав кӯшиш'),
             onAction: controller.refresh,
             error: true,
           );
@@ -255,7 +263,7 @@ class _ParentHomeState extends State<ParentHome> {
         final unread = controller.unreadTotal;
         return Scaffold(
           // Chat and Settings bring their own app bar.
-          appBar: _tab >= 3 ? null : AppBar(title: Text(_titles[_tab])),
+          appBar: _tab >= 3 ? null : AppBar(title: Text(tr(_titles[_tab]))),
           body: SafeArea(
             top: _tab >= 3,
             bottom: false,
@@ -283,17 +291,17 @@ class _ParentHomeState extends State<ParentHome> {
                   child: const Icon(Icons.family_restroom_outlined),
                 ),
                 selectedIcon: const Icon(Icons.family_restroom_rounded),
-                label: 'Оила',
+                label: tr('Оила'),
               ),
-              const NavigationDestination(
+              NavigationDestination(
                 icon: Icon(Icons.apps_outlined),
                 selectedIcon: Icon(Icons.apps_rounded),
-                label: 'Барномаҳо',
+                label: tr('Барномаҳо'),
               ),
-              const NavigationDestination(
+              NavigationDestination(
                 icon: Icon(Icons.map_outlined),
                 selectedIcon: Icon(Icons.map_rounded),
-                label: 'Харита',
+                label: tr('Харита'),
               ),
               NavigationDestination(
                 key: const ValueKey('nav-chat'),
@@ -307,12 +315,12 @@ class _ParentHomeState extends State<ParentHome> {
                   isLabelVisible: unread > 0,
                   child: const Icon(Icons.chat_bubble_rounded),
                 ),
-                label: 'Чат',
+                label: tr('Чат'),
               ),
-              const NavigationDestination(
+              NavigationDestination(
                 icon: Icon(Icons.settings_outlined),
                 selectedIcon: Icon(Icons.settings_rounded),
-                label: 'Танзимот',
+                label: tr('Танзимот'),
               ),
             ],
           ),
@@ -376,18 +384,18 @@ class _EmptyFamily extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const StateMessage(
+          StateMessage(
             icon: Icons.family_restroom_rounded,
-            title: 'Ҳоло фарзанд пайваст нашудааст',
-            text:
-                'Телефони фарзандро пайваст кунед, то барномаҳо, ҷойгиршавӣ '
-                'ва чатро бинед.',
+            title: tr('Ҳоло фарзанд пайваст нашудааст'),
+            text: tr(
+              'Телефони фарзандро пайваст кунед, то барномаҳо, ҷойгиршавӣ ва чатро бинед.',
+            ),
           ),
           FilledButton.icon(
             style: FilledButton.styleFrom(minimumSize: const Size(260, 56)),
             onPressed: onAdd,
             icon: const Icon(Icons.person_add_alt_1_rounded),
-            label: const Text('Илова кардани фарзанд'),
+            label: Text(tr('Илова кардани фарзанд')),
           ),
         ],
       ),
@@ -510,7 +518,9 @@ class _Overview extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name.isEmpty ? 'Салом!' : 'Салом, $name!',
+                      name.isEmpty
+                          ? tr('Салом!')
+                          : tr('Салом, {name}!', {'name': name}),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -521,7 +531,7 @@ class _Overview extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Ҳолати имрӯзаи оилаи шумо',
+                      tr('Ҳолати имрӯзаи оилаи шумо'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: scheme.onSurfaceVariant),
@@ -553,7 +563,7 @@ class _Overview extends StatelessWidget {
             ),
           ],
           SectionTitle(
-            'Фарзандон',
+            tr('Фарзандон'),
             trailing: Text(
               '${sorted.length}',
               style: TextStyle(
@@ -583,7 +593,7 @@ class _Overview extends StatelessWidget {
             ),
             onPressed: onAdd,
             icon: const Icon(Icons.person_add_alt_1_rounded),
-            label: const Text('Илова кардани фарзанд'),
+            label: Text(tr('Илова кардани фарзанд')),
           ),
         ],
       ),
@@ -613,7 +623,7 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(message, style: TextStyle(color: scheme.error)),
           ),
-          TextButton(onPressed: onRetry, child: const Text('Аз нав')),
+          TextButton(onPressed: onRetry, child: Text(tr('Аз нав'))),
         ],
       ),
     );
@@ -665,7 +675,9 @@ class _ChildCard extends StatelessWidget {
       if (offline)
         Pill(
           key: ValueKey('offline-${child.id}'),
-          seen == null ? 'Офлайн — маълумот нест' : 'Офлайн — ${timeAgo(seen)}',
+          seen == null
+              ? tr('Офлайн — маълумот нест')
+              : tr('Офлайн — {ago}', {'ago': timeAgo(seen)}),
           color: scheme.outline,
           icon: Icons.cloud_off_rounded,
         ),
@@ -674,7 +686,9 @@ class _ChildCard extends StatelessWidget {
           key: ValueKey(
             lowBattery ? 'battery-low-${child.id}' : 'battery-${child.id}',
           ),
-          lowBattery ? 'Батарея кам: $battery%' : '$battery%',
+          lowBattery
+              ? tr('Батарея кам: {battery}%', {'battery': battery})
+              : '$battery%',
           color: lowBattery ? scheme.error : NigohDesign.mint,
           icon: lowBattery
               ? Icons.battery_alert_rounded
@@ -688,19 +702,23 @@ class _ChildCard extends StatelessWidget {
         ),
       if (child.unreadFromChild > 0)
         Pill(
-          '${child.unreadFromChild} паёми нав',
+          tr('{unreadFromChild} паёми нав', {
+            'unreadFromChild': child.unreadFromChild,
+          }),
           color: NigohDesign.blue,
           icon: Icons.mark_chat_unread_rounded,
         ),
       if (child.pendingRequests > 0)
         Pill(
-          '${child.pendingRequests} дархост',
+          tr('{pendingRequests} дархост', {
+            'pendingRequests': child.pendingRequests,
+          }),
           color: NigohDesign.amber,
           icon: Icons.more_time_rounded,
         ),
       if (newApps > 0)
         Pill(
-          '$newApps барномаи нав',
+          tr('{newApps} барномаи нав', {'newApps': newApps}),
           color: NigohDesign.violet,
           icon: Icons.fiber_new_rounded,
         ),
@@ -736,10 +754,11 @@ class _ChildCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           [
-                            if (child.age > 0) '${child.age} сола',
+                            if (child.age > 0)
+                              tr('{age} сола', {'age': child.age}),
                             seen != null
-                                ? 'дида шуд ${timeAgo(seen)}'
-                                : 'ҳоло маълумот нест',
+                                ? tr('дида шуд {ago}', {'ago': timeAgo(seen)})
+                                : tr('ҳоло маълумот нест'),
                           ].join(' · '),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -752,22 +771,22 @@ class _ChildCard extends StatelessWidget {
                     ),
                   ),
                   if (!child.paired)
-                    const Pill('Интизор', color: NigohDesign.amber)
+                    Pill(tr('Интизор'), color: NigohDesign.amber)
                   else
                     Pill(
-                      offline ? 'Офлайн' : 'Онлайн',
+                      offline ? tr('Офлайн') : tr('Онлайн'),
                       color: offline ? scheme.outline : NigohDesign.mint,
                       icon: Icons.circle,
                     ),
                   PopupMenuButton<String>(
-                    tooltip: 'Бештар',
+                    tooltip: tr('Бештар'),
                     onSelected: (value) {
                       if (value == 'remove') onRemove();
                     },
-                    itemBuilder: (_) => const [
+                    itemBuilder: (_) => [
                       PopupMenuItem(
                         value: 'remove',
-                        child: Text('Хориҷ кардан'),
+                        child: Text(tr('Хориҷ кардан')),
                       ),
                     ],
                   ),
@@ -792,7 +811,7 @@ class _ChildCard extends StatelessWidget {
                       icon: Icons.schedule_rounded,
                       color: NigohDesign.blue,
                       value: formatMinutes(child.usageMinutesToday),
-                      label: 'Вақти экран',
+                      label: tr('Вақти экран'),
                     ),
                   ),
                   Expanded(
@@ -800,7 +819,7 @@ class _ChildCard extends StatelessWidget {
                       icon: Icons.lock_outline_rounded,
                       color: NigohDesign.coral,
                       value: '${child.blockedCount}',
-                      label: 'Баста',
+                      label: tr('Баста'),
                     ),
                   ),
                   Expanded(
@@ -808,7 +827,7 @@ class _ChildCard extends StatelessWidget {
                       icon: Icons.apps_rounded,
                       color: NigohDesign.violet,
                       value: '${child.apps.length}',
-                      label: 'Барнома',
+                      label: tr('Барнома'),
                     ),
                   ),
                 ],
@@ -820,23 +839,23 @@ class _ChildCard extends StatelessWidget {
                   children: [
                     _QuickAction(
                       icon: Icons.apps_rounded,
-                      label: 'Барномаҳо',
+                      label: tr('Барномаҳо'),
                       onTap: () => onOpen(1),
                     ),
                     _QuickAction(
                       icon: Icons.map_rounded,
-                      label: 'Харита',
+                      label: tr('Харита'),
                       onTap: () => onOpen(2),
                     ),
                     _QuickAction(
                       icon: Icons.chat_bubble_rounded,
-                      label: 'Чат',
+                      label: tr('Чат'),
                       onTap: () => onOpen(3),
                     ),
                     if (child.paired)
                       IconButton.filled(
                         key: ValueKey('call-${child.id}'),
-                        tooltip: 'Занг',
+                        tooltip: tr('Занг'),
                         style: IconButton.styleFrom(
                           backgroundColor: NigohDesign.mint,
                           foregroundColor: Colors.white,
@@ -862,7 +881,7 @@ class _ChildCard extends StatelessWidget {
                         key: ValueKey('report-${child.id}'),
                         icon: Icons.bar_chart_rounded,
                         color: NigohDesign.blue,
-                        label: 'Ҳисобот',
+                        label: tr('Ҳисобот'),
                         onTap: onReport,
                       ),
                     ),
@@ -875,8 +894,8 @@ class _ChildCard extends StatelessWidget {
                         color: NigohDesign.violet,
                         label: child.bedtime.enabled
                             ? bedtimeLabel(child.bedtime)
-                            : 'Вақти хоб',
-                        trailing: bedtimeActive ? 'Ҳозир фаъол' : null,
+                            : tr('Вақти хоб'),
+                        trailing: bedtimeActive ? tr('Ҳозир фаъол') : null,
                         onTap: onBedtime,
                       ),
                     ),
@@ -889,11 +908,11 @@ class _ChildCard extends StatelessWidget {
                               ? Icons.school_rounded
                               : Icons.school_outlined,
                           color: NigohDesign.mint,
-                          label: 'Тамаркузи дарс',
+                          label: tr('Тамаркузи дарс'),
                           trailing: !child.study.enabled
                               ? null
                               : studyActive
-                              ? 'Ҳозир фаъол'
+                              ? tr('Ҳозир фаъол')
                               : '${child.study.start}–${child.study.end}',
                           onTap: onStudy,
                         ),
@@ -928,7 +947,7 @@ class _InternetRow extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          online ? 'Интернет: пайваст' : 'Интернет: пайваст нест',
+          online ? tr('Интернет: пайваст') : tr('Интернет: пайваст нест'),
           style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
         ),
       ],
@@ -968,9 +987,12 @@ class _DeviceAlerts extends StatelessWidget {
                 ),
                 subtitle: Text(
                   [
-                    if (isLowBattery(c)) 'Батарея кам: ${batteryOf(c)}%',
+                    if (isLowBattery(c))
+                      tr('Батарея кам: {battery}%', {'battery': batteryOf(c)}),
                     if (isOfflineChild(c))
-                      'Офлайн — ${timeAgo(c.location?.updatedAt)}',
+                      tr('Офлайн — {ago}', {
+                        'ago': timeAgo(c.location?.updatedAt),
+                      }),
                   ].join(' · '),
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
@@ -1167,14 +1189,14 @@ class _RequestsTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Дархостҳои вақт',
+                    Text(
+                      tr('Дархостҳои вақт'),
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       active
-                          ? 'Фарзанд вақти иловагӣ мепурсад'
-                          : 'Дархости нав нест',
+                          ? tr('Фарзанд вақти иловагӣ мепурсад')
+                          : tr('Дархости нав нест'),
                       style: TextStyle(
                         color: scheme.onSurfaceVariant,
                         fontSize: 12,
@@ -1256,7 +1278,7 @@ class SosBanner extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${child.name} кӯмак мехоҳад',
+                      tr('{name} кӯмак мехоҳад', {'name': child.name}),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -1265,7 +1287,7 @@ class SosBanner extends StatelessWidget {
                     ),
                     Text(
                       time == null
-                          ? 'Сигнали SOS'
+                          ? tr('Сигнали SOS')
                           : 'SOS · ${hhmm(time.toLocal())} · ${timeAgo(time)}',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: .85),
@@ -1298,7 +1320,7 @@ class SosBanner extends StatelessWidget {
                   ),
                   onPressed: onChat,
                   icon: const Icon(Icons.chat_bubble_rounded, size: 18),
-                  label: const Text('Кушодани чат'),
+                  label: Text(tr('Кушодани чат')),
                 ),
               ),
               const SizedBox(width: 10),
@@ -1311,7 +1333,7 @@ class SosBanner extends StatelessWidget {
                   ),
                   onPressed: onMap,
                   icon: const Icon(Icons.location_on_rounded, size: 18),
-                  label: const Text('Ҷойгиршавӣ'),
+                  label: Text(tr('Ҷойгиршавӣ')),
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import '../../core/models.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
+import '../../l10n/l10n.dart';
 
 class _Entry {
   const _Entry(this.child, this.request);
@@ -59,7 +60,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
       setState(
         () => _error = e is ApiException
             ? e.message
-            : 'Дархостҳо гирифта нашуд: $e',
+            : tr('Дархостҳо гирифта нашуд: {e}', {'e': e}),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -93,8 +94,11 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
       showMessage(
         context,
         approve
-            ? '${entry.request.appName}: +$minutes дақ иҷозат дода шуд'
-            : 'Дархост рад карда шуд',
+            ? tr('{appName}: +{minutes} дақ иҷозат дода шуд', {
+                'appName': entry.request.appName,
+                'minutes': minutes,
+              })
+            : tr('Дархост рад карда шуд'),
       );
       await _load();
     } catch (e) {
@@ -113,9 +117,9 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     } else if (entries == null) {
       body = StateMessage(
         icon: Icons.cloud_off_rounded,
-        title: 'Дархостҳо гирифта нашуд',
+        title: tr('Дархостҳо гирифта нашуд'),
         text: _error,
-        actionLabel: 'Аз нав кӯшиш',
+        actionLabel: tr('Аз нав кӯшиш'),
         onAction: _load,
         error: true,
       );
@@ -140,13 +144,15 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-            SectionTitle('Интизори ҷавоб (${pending.length})'),
+            SectionTitle(
+              tr('Интизори ҷавоб ({count})', {'count': pending.length}),
+            ),
             if (pending.isEmpty)
-              const _EmptyNote(
+              _EmptyNote(
                 icon: Icons.inbox_rounded,
-                text:
-                    'Дархости нав нест. Вақте фарзанд вақти иловагӣ '
-                    'пурсад, он дар ин ҷо пайдо мешавад.',
+                text: tr(
+                  'Дархости нав нест. Вақте фарзанд вақти иловагӣ пурсад, он дар ин ҷо пайдо мешавад.',
+                ),
               ),
             for (final (index, entry) in pending.indexed)
               FadeIn(
@@ -160,7 +166,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
                 ),
               ),
             if (decided.isNotEmpty) ...[
-              const SectionTitle('Ҷавобҳои охирин'),
+              SectionTitle(tr('Ҷавобҳои охирин')),
               for (final entry in decided) _DecidedTile(entry: entry),
             ],
           ],
@@ -169,10 +175,10 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Дархостҳои вақт'),
+        title: Text(tr('Дархостҳои вақт')),
         actions: [
           IconButton(
-            tooltip: 'Навсозӣ',
+            tooltip: tr('Навсозӣ'),
             onPressed: _loading ? null : _load,
             icon: const Icon(Icons.refresh_rounded),
           ),
@@ -277,7 +283,7 @@ class _RequestCard extends StatelessWidget {
                 ),
               ),
               Pill(
-                '+${r.minutes} дақ',
+                tr('+{minutes} дақ', {'minutes': r.minutes}),
                 color: NigohDesign.amber,
                 icon: Icons.more_time_rounded,
               ),
@@ -308,7 +314,7 @@ class _RequestCard extends StatelessWidget {
                           key: ValueKey('deny-${r.id}'),
                           onPressed: onDeny,
                           icon: const Icon(Icons.close_rounded, size: 18),
-                          label: const Text('Рад кардан'),
+                          label: Text(tr('Рад кардан')),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -317,7 +323,7 @@ class _RequestCard extends StatelessWidget {
                           key: ValueKey('approve-${r.id}'),
                           onPressed: onApprove,
                           icon: const Icon(Icons.check_rounded, size: 18),
-                          label: const Text('Иҷозат'),
+                          label: Text(tr('Иҷозат')),
                         ),
                       ),
                     ],
@@ -345,12 +351,17 @@ class _ApproveSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Чанд дақиқа барои ${entry.request.appName}?',
+              tr('Чанд дақиқа барои {appName}?', {
+                'appName': entry.request.appName,
+              }),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              '${entry.child.name} $requested дақ пурсид. Вақт танҳо барои имрӯз илова мешавад.',
+              tr(
+                '{name} {requested} дақ пурсид. Вақт танҳо барои имрӯз илова мешавад.',
+                {'name': entry.child.name, 'requested': requested},
+              ),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -365,12 +376,12 @@ class _ApproveSheet extends StatelessWidget {
                       ? FilledButton(
                           key: ValueKey('grant-$m'),
                           onPressed: () => Navigator.pop(context, m),
-                          child: Text('+$m дақ (дархост)'),
+                          child: Text(tr('+{m} дақ (дархост)', {'m': m})),
                         )
                       : FilledButton.tonal(
                           key: ValueKey('grant-$m'),
                           onPressed: () => Navigator.pop(context, m),
-                          child: Text('+$m дақ'),
+                          child: Text(tr('+{m} дақ', {'m': m})),
                         ),
               ],
             ),
@@ -409,7 +420,9 @@ class _DecidedTile extends StatelessWidget {
             ),
           ),
           Text(
-            '${approved ? 'Иҷозат' : 'Рад'} · ${timeAgo(r.createdAt)}',
+            approved
+                ? tr('Иҷозат · {ago}', {'ago': timeAgo(r.createdAt)})
+                : tr('Рад · {ago}', {'ago': timeAgo(r.createdAt)}),
             style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
           ),
         ],

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import '../../core/models.dart';
 
 export '../../core/app_categories.dart';
+import '../../l10n/l10n.dart';
 
 /// Pure helpers for the parent side (no widgets, easy to test).
 
@@ -50,7 +51,9 @@ SafePlace? placeContaining(
 String? placeStatus(ChildLocation? location, List<SafePlace> places) {
   if (location == null || places.isEmpty) return null;
   final inside = placeContaining(location.latitude, location.longitude, places);
-  return inside != null ? 'Дар ${inside.name}' : 'Берун аз ҷойҳои бехатар';
+  return inside != null
+      ? tr('Дар {name}', {'name': inside.name})
+      : tr('Берун аз ҷойҳои бехатар');
 }
 
 // ---------- Small formatting ----------
@@ -61,7 +64,8 @@ String two(int v) => v.toString().padLeft(2, '0');
 String hhmm(DateTime t) => '${two(t.hour)}:${two(t.minute)}';
 
 /// «Вақти хоб: 21:30–07:00».
-String bedtimeLabel(Bedtime b) => 'Вақти хоб: ${b.start}–${b.end}';
+String bedtimeLabel(Bedtime b) =>
+    tr('Вақти хоб: {start}–{end}', {'start': b.start, 'end': b.end});
 
 /// One point of the 24 h location history.
 class HistoryPoint {
@@ -155,3 +159,15 @@ class UsageTopApp {
 }
 
 const weekdayShort = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
+
+/// Translated daily-limit label («Бе лимит», «45д», «1с», «1с 30д»); same
+/// Tajik output as UserJourneyLogic.limitLabel.
+String limitLabelText(int minutes) {
+  if (minutes <= 0) return tr('Бе лимит');
+  if (minutes < 60) return tr('{minutes}д', {'minutes': minutes});
+  final hours = minutes ~/ 60;
+  final rest = minutes % 60;
+  return rest == 0
+      ? tr('{hours}с', {'hours': hours})
+      : tr('{hours}с {rest}д', {'hours': hours, 'rest': rest});
+}

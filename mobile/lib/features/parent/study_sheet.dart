@@ -4,19 +4,23 @@ import '../../core/models.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import 'parent_sheets.dart';
+import '../../l10n/l10n.dart';
 
 /// Short weekday labels, Monday (1) … Sunday (7).
 const studyWeekdayLabels = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
 
 /// Explanation shown in the sheet.
-const studyExplanation =
-    'Бозиҳо, шабакаҳо ва видео дар соатҳои дарс баста мешаванд. Занг, SMS, '
-    'барномаҳои таълимӣ ва «Ҳамеша иҷозат» кушода мемонанд.';
+String get studyExplanation => tr(
+  'Бозиҳо, шабакаҳо ва видео дар соатҳои дарс баста мешаванд. Занг, SMS, барномаҳои таълимӣ ва «Ҳамеша иҷозат» кушода мемонанд.',
+);
 
 /// «Тамаркузи дарс: 08:00–13:00» (or «хомӯш»).
 String studyLabel(StudyMode study) => study.enabled
-    ? 'Тамаркузи дарс: ${study.start}–${study.end}'
-    : 'Тамаркузи дарс: хомӯш';
+    ? tr('Тамаркузи дарс: {start}–{end}', {
+        'start': study.start,
+        'end': study.end,
+      })
+    : tr('Тамаркузи дарс: хомӯш');
 
 /// «Тамаркузи дарс»: switch, start/end and weekdays. Saves through the
 /// controller and closes with `true`; errors are shown and the sheet stays.
@@ -90,8 +94,8 @@ class _StudySheetState extends State<StudySheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Тамаркузи дарс',
+            Text(
+              tr('Тамаркузи дарс'),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
@@ -103,7 +107,7 @@ class _StudySheetState extends State<StudySheet> {
             SwitchListTile(
               key: const ValueKey('study-switch'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Тамаркузи дарс фаъол'),
+              title: Text(tr('Тамаркузи дарс фаъол')),
               value: enabled,
               onChanged: (v) => setState(() => enabled = v),
             ),
@@ -112,7 +116,7 @@ class _StudySheetState extends State<StudySheet> {
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('study-start'),
-                    label: 'Оғоз',
+                    label: tr('Оғоз'),
                     value: formatHhmm(start),
                     enabled: enabled,
                     onTap: () => _pick(true),
@@ -122,7 +126,7 @@ class _StudySheetState extends State<StudySheet> {
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('study-end'),
-                    label: 'Анҷом',
+                    label: tr('Анҷом'),
                     value: formatHhmm(end),
                     enabled: enabled,
                     onTap: () => _pick(false),
@@ -138,7 +142,7 @@ class _StudySheetState extends State<StudySheet> {
                 for (var day = 1; day <= 7; day++)
                   FilterChip(
                     key: ValueKey('study-day-$day'),
-                    label: Text(studyWeekdayLabels[day - 1]),
+                    label: Text(tr(studyWeekdayLabels[day - 1])),
                     selected: weekdays.contains(day),
                     onSelected: enabled
                         ? (v) => setState(
@@ -153,8 +157,8 @@ class _StudySheetState extends State<StudySheet> {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   same
-                      ? 'Оғоз ва анҷом бояд гуногун бошанд.'
-                      : 'Ақаллан як рӯзро интихоб кунед.',
+                      ? tr('Оғоз ва анҷом бояд гуногун бошанд.')
+                      : tr('Ақаллан як рӯзро интихоб кунед.'),
                   style: TextStyle(color: scheme.error, fontSize: 12),
                 ),
               ),
@@ -170,7 +174,7 @@ class _StudySheetState extends State<StudySheet> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Нигоҳ доштан'),
+                    : Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],

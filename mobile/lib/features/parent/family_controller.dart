@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../core/api.dart';
 import '../../core/models.dart';
+import '../../l10n/l10n.dart';
 
 /// Parent-side state: the list of children from the server snapshot.
 ///
@@ -114,7 +115,9 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
         }
       }
     } catch (e) {
-      error = e is ApiException ? e.message : 'Маълумот гирифта нашуд: $e';
+      error = e is ApiException
+          ? e.message
+          : tr('Маълумот гирифта нашуд: {e}', {'e': e});
     } finally {
       _refreshing = false;
       loading = false;
@@ -257,7 +260,9 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
       places[childId] = raw.map(SafePlace.fromJson).toList();
       placesError = null;
     } catch (e) {
-      placesError = e is ApiException ? e.message : 'Ҷойҳо гирифта нашуд: $e';
+      placesError = e is ApiException
+          ? e.message
+          : tr('Ҷойҳо гирифта нашуд: {e}', {'e': e});
       ok = false;
     }
     _notify();
@@ -390,7 +395,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException('Амал иҷро нашуд: $e');
+      throw ApiException(tr('Амал иҷро нашуд: {e}', {'e': e}));
     }
   }
 
@@ -484,8 +489,10 @@ int attentionRank(FamilyChild child, [DateTime? now]) {
 
 /// «1с 25д», «40 дақ».
 String formatMinutes(int minutes) {
-  if (minutes < 60) return '$minutes дақ';
+  if (minutes < 60) return tr('{minutes} дақ', {'minutes': minutes});
   final hours = minutes ~/ 60;
   final rest = minutes % 60;
-  return rest == 0 ? '$hours соат' : '$hoursс $restд';
+  return rest == 0
+      ? tr('{hours} соат', {'hours': hours})
+      : tr('{hours}с {rest}д', {'hours': hours, 'rest': rest});
 }

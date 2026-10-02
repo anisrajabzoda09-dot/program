@@ -9,6 +9,7 @@ import 'parent_logic.dart';
 import 'parent_sheets.dart';
 import 'study_sheet.dart';
 import 'weekly_report.dart';
+import '../../l10n/l10n.dart';
 
 const _weekdayLabels = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
 
@@ -70,11 +71,15 @@ class _AppsScreenState extends State<AppsScreen> {
         context,
         category != null
             ? (block
-                  ? 'Ҳамаи ${category.pluralLower} аллакай баста.'
-                  : 'Ҳамаи ${category.pluralLower} кушода.')
+                  ? tr('Ҳамаи {group} аллакай баста.', {
+                      'group': tr(category.pluralLower),
+                    })
+                  : tr('Ҳамаи {group} кушода.', {
+                      'group': tr(category.pluralLower),
+                    }))
             : block
-            ? 'Ҳамаи барномаҳо аллакай баста.'
-            : 'Ҳамаи барномаҳо кушода.',
+            ? tr('Ҳамаи барномаҳо аллакай баста.')
+            : tr('Ҳамаи барномаҳо кушода.'),
       );
       return;
     }
@@ -84,26 +89,36 @@ class _AppsScreenState extends State<AppsScreen> {
         title: Text(
           category != null
               ? (block
-                    ? 'Ҳамаи ${category.pluralLower}ро бастан?'
-                    : 'Ҳамаи ${category.pluralLower}ро кушодан?')
+                    ? tr('Ҳамаи {group}ро бастан?', {
+                        'group': tr(category.pluralLower),
+                      })
+                    : tr('Ҳамаи {group}ро кушодан?', {
+                        'group': tr(category.pluralLower),
+                      }))
               : block
-              ? 'Ҳамаро бастан?'
-              : 'Ҳамаро кушодан?',
+              ? tr('Ҳамаро бастан?')
+              : tr('Ҳамаро кушодан?'),
         ),
         content: Text(
           block
-              ? '${targets.length} барнома дар телефони ${child.name} баста мешавад.'
-              : '${targets.length} барнома дар телефони ${child.name} кушода мешавад.',
+              ? tr('{count} барнома дар телефони {name} баста мешавад.', {
+                  'count': targets.length,
+                  'name': child.name,
+                })
+              : tr('{count} барнома дар телефони {name} кушода мешавад.', {
+                  'count': targets.length,
+                  'name': child.name,
+                }),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Бекор'),
+            child: Text(tr('Бекор')),
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(block ? 'Бастан' : 'Кушодан'),
+            child: Text(block ? tr('Бастан') : tr('Кушодан')),
           ),
         ],
       ),
@@ -121,7 +136,10 @@ class _AppsScreenState extends State<AppsScreen> {
         setState(() => _bulkDone = (_bulkDone ?? 0) + 1);
       }
       if (mounted) {
-        showMessage(context, block ? 'Ҳама баста шуд.' : 'Ҳама кушода шуд.');
+        showMessage(
+          context,
+          block ? tr('Ҳама баста шуд.') : tr('Ҳама кушода шуд.'),
+        );
       }
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
@@ -163,7 +181,13 @@ class _AppsScreenState extends State<AppsScreen> {
         minutes,
       );
       if (!mounted) return;
-      showMessage(context, '${app.name}: +$minutes дақ барои имрӯз');
+      showMessage(
+        context,
+        tr('{name}: +{minutes} дақ барои имрӯз', {
+          'name': app.name,
+          'minutes': minutes,
+        }),
+      );
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     }
@@ -208,9 +232,9 @@ class _AppsScreenState extends State<AppsScreen> {
     builder: (context, _) {
       final child = controller.selected;
       if (child == null) {
-        return const StateMessage(
+        return StateMessage(
           icon: Icons.family_restroom_rounded,
-          title: 'Фарзанд ҳоло нест',
+          title: tr('Фарзанд ҳоло нест'),
         );
       }
       return _buildFor(context, child);
@@ -226,11 +250,12 @@ class _AppsScreenState extends State<AppsScreen> {
             const SizedBox(height: 40),
             StateMessage(
               icon: Icons.apps_rounded,
-              title: 'Рӯйхати барномаҳо ҳоло нест',
-              text:
-                  'Рӯйхат худкор пайдо мешавад: телефони ${child.name} бояд ба интернет '
-                  'пайваст бошад ва ҳамаи иҷозатҳо дода шуда бошанд. Одатан то як дақиқа.',
-              actionLabel: 'Навсозӣ',
+              title: tr('Рӯйхати барномаҳо ҳоло нест'),
+              text: tr(
+                'Рӯйхат худкор пайдо мешавад: телефони {name} бояд ба интернет пайваст бошад ва ҳамаи иҷозатҳо дода шуда бошанд. Одатан то як дақиқа.',
+                {'name': child.name},
+              ),
+              actionLabel: tr('Навсозӣ'),
               onAction: () => _refresh(),
             ),
             if (controller.error != null)
@@ -299,7 +324,7 @@ class _AppsScreenState extends State<AppsScreen> {
             controller: _search,
             onChanged: (v) => setState(() => _query = v),
             decoration: InputDecoration(
-              hintText: 'Ҷустуҷӯи барнома',
+              hintText: tr('Ҷустуҷӯи барнома'),
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: _query.isEmpty
                   ? null
@@ -318,12 +343,16 @@ class _AppsScreenState extends State<AppsScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _chip('Ҳама', null),
+                _chip(tr('Ҳама'), null),
                 if (newCount > 0)
-                  _chip('Нав ($newCount)', 'new', color: NigohDesign.mint),
+                  _chip(
+                    tr('Нав ({newCount})', {'newCount': newCount}),
+                    'new',
+                    color: NigohDesign.mint,
+                  ),
                 for (final c in AppCategory.values)
                   if ((counts[c] ?? 0) > 0)
-                    _chip('${c.label} (${counts[c]})', c),
+                    _chip('${tr(c.label)} (${counts[c]})', c),
               ],
             ),
           ),
@@ -336,11 +365,11 @@ class _AppsScreenState extends State<AppsScreen> {
               onUnblock: () => _bulk(child, false, category: category),
             ),
           ],
-          SectionTitle('Барномаҳо (${apps.length})'),
+          SectionTitle(tr('Барномаҳо ({count})', {'count': apps.length})),
           if (apps.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(24),
-              child: Center(child: Text('Чизе ёфт нашуд')),
+              child: Center(child: Text(tr('Чизе ёфт нашуд'))),
             ),
           for (final (index, app) in apps.indexed)
             FadeIn(
@@ -438,7 +467,7 @@ class _ToolsRow extends StatelessWidget {
             key: const ValueKey('open-report'),
             onPressed: onReport,
             icon: const Icon(Icons.bar_chart_rounded, size: 18),
-            label: const Text('Ҳисобот'),
+            label: Text(tr('Ҳисобот')),
           ),
         ),
         const SizedBox(width: 10),
@@ -457,7 +486,9 @@ class _ToolsRow extends StatelessWidget {
               size: 18,
             ),
             label: Text(
-              bedtime.enabled ? '${bedtime.start}–${bedtime.end}' : 'Вақти хоб',
+              bedtime.enabled
+                  ? '${bedtime.start}–${bedtime.end}'
+                  : tr('Вақти хоб'),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -482,8 +513,8 @@ class _StudyButton extends StatelessWidget {
     final active = study.activeAt(DateTime.now());
     return Tooltip(
       message: study.enabled
-          ? '${studyLabel(study)}${active ? ' · Ҳозир фаъол' : ''}'
-          : 'Тамаркузи дарс',
+          ? '${studyLabel(study)}${active ? ' · ${tr('Ҳозир фаъол')}' : ''}'
+          : tr('Тамаркузи дарс'),
       child: FilledButton.tonalIcon(
         key: const ValueKey('open-study'),
         style: FilledButton.styleFrom(
@@ -498,7 +529,7 @@ class _StudyButton extends StatelessWidget {
           size: 18,
         ),
         label: Text(
-          study.enabled ? '${study.start}–${study.end}' : 'Дарс',
+          study.enabled ? '${study.start}–${study.end}' : tr('Дарс'),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -530,7 +561,7 @@ class _CategoryActions extends StatelessWidget {
           onPressed: busy ? null : onBlock,
           icon: const Icon(Icons.lock_rounded, size: 18),
           label: Text(
-            'Бастани ҳамаи ${category.pluralLower}',
+            tr('Бастани ҳамаи {group}', {'group': tr(category.pluralLower)}),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -538,7 +569,7 @@ class _CategoryActions extends StatelessWidget {
       ),
       const SizedBox(width: 8),
       IconButton.outlined(
-        tooltip: 'Ҳамаро кушодан',
+        tooltip: tr('Ҳамаро кушодан'),
         onPressed: busy ? null : onUnblock,
         icon: const Icon(Icons.lock_open_rounded, size: 18),
       ),
@@ -614,7 +645,7 @@ class _ScreenTimeSummary extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Вақти экран имрӯз',
+                  tr('Вақти экран имрӯз'),
                   style: TextStyle(
                     color: scheme.onSurfaceVariant,
                     fontSize: 12,
@@ -631,8 +662,10 @@ class _ScreenTimeSummary extends StatelessWidget {
                 ),
                 Text(
                   limitMinutes > 0
-                      ? 'Лимитҳо: ${formatMinutes(limitMinutes)}'
-                      : 'Лимит гузошта нашудааст',
+                      ? tr('Лимитҳо: {time}', {
+                          'time': formatMinutes(limitMinutes),
+                        })
+                      : tr('Лимит гузошта нашудааст'),
                   style: TextStyle(
                     color: ringColor,
                     fontSize: 12,
@@ -645,12 +678,14 @@ class _ScreenTimeSummary extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     Pill(
-                      '$blockedCount баста',
+                      tr('{blockedCount} баста', {
+                        'blockedCount': blockedCount,
+                      }),
                       color: NigohDesign.coral,
                       icon: Icons.lock_outline_rounded,
                     ),
                     Pill(
-                      '$appCount барнома',
+                      tr('{appCount} барнома', {'appCount': appCount}),
                       color: NigohDesign.blue,
                       icon: Icons.apps_rounded,
                     ),
@@ -708,12 +743,12 @@ class _PauseCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Ҳолати танаффус',
+                      Text(
+                        tr('Ҳолати танаффус'),
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
                       Text(
-                        'Ҳамаи барномаҳоро якбора бандед ё кушоед',
+                        tr('Ҳамаи барномаҳоро якбора бандед ё кушоед'),
                         style: TextStyle(
                           color: scheme.onSurfaceVariant,
                           fontSize: 12,
@@ -754,7 +789,7 @@ class _PauseCard extends StatelessWidget {
                           child: FilledButton.tonalIcon(
                             onPressed: onBlockAll,
                             icon: const Icon(Icons.lock_rounded, size: 18),
-                            label: const Text('Ҳамаро бастан'),
+                            label: Text(tr('Ҳамаро бастан')),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -762,7 +797,7 @@ class _PauseCard extends StatelessWidget {
                           child: OutlinedButton.icon(
                             onPressed: onUnblockAll,
                             icon: const Icon(Icons.lock_open_rounded, size: 18),
-                            label: const Text('Ҳамаро кушодан'),
+                            label: Text(tr('Ҳамаро кушодан')),
                           ),
                         ),
                       ],
@@ -820,7 +855,7 @@ class AppRuleCard extends StatelessWidget {
     );
     final barColor = progress >= 1 ? NigohDesign.coral : accent;
     final count = UserJourneyLogic.limitChoices.length;
-    final limitText = UserJourneyLogic.limitLabel(shownLimit);
+    final limitText = limitLabelText(shownLimit);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -864,14 +899,14 @@ class AppRuleCard extends StatelessWidget {
                         ),
                         if (app.isNew) ...[
                           const SizedBox(width: 6),
-                          const Pill('Нав', color: NigohDesign.mint),
+                          Pill(tr('Нав'), color: NigohDesign.mint),
                         ],
                       ],
                     ),
                     if (app.alwaysAllowed) ...[
                       const SizedBox(height: 3),
-                      const Pill(
-                        'Ҳамеша иҷозат',
+                      Pill(
+                        tr('Ҳамеша иҷозат'),
                         color: NigohDesign.mint,
                         icon: Icons.verified_user_rounded,
                       ),
@@ -879,8 +914,8 @@ class AppRuleCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       minutes > 0
-                          ? 'Имрӯз ${formatMinutes(minutes)}'
-                          : 'Имрӯз истифода нашудааст',
+                          ? tr('Имрӯз {time}', {'time': formatMinutes(minutes)})
+                          : tr('Имрӯз истифода нашудааст'),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -892,7 +927,7 @@ class AppRuleCard extends StatelessWidget {
                 ),
               ),
               Pill(
-                blocked ? 'Баста' : 'Фаъол',
+                blocked ? tr('Баста') : tr('Фаъол'),
                 color: blocked ? NigohDesign.coral : NigohDesign.mint,
               ),
               Switch(
@@ -920,8 +955,8 @@ class AppRuleCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   app.dailyLimitMinutes > 0
-                      ? '$minutesд / ${UserJourneyLogic.limitLabel(app.effectiveLimitMinutes)}'
-                      : '$minutesд',
+                      ? '${tr('{minutes}д', {'minutes': minutes})} / ${limitLabelText(app.effectiveLimitMinutes)}'
+                      : tr('{minutes}д', {'minutes': minutes}),
                   style: TextStyle(
                     color: barColor,
                     fontWeight: FontWeight.w700,
@@ -957,7 +992,7 @@ class AppRuleCard extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Лимит: $limitText',
+                  tr('Лимит: {limit}', {'limit': limitText}),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -986,12 +1021,12 @@ class AppRuleCard extends StatelessWidget {
                       : Icons.menu_book_rounded,
                   size: 18,
                 ),
-                label: Text(scheduleLabel ?? 'Вақти дарс'),
+                label: Text(scheduleLabel ?? tr('Вақти дарс')),
               ),
               if (onOptions != null)
                 IconButton(
                   key: ValueKey('options-${app.packageName}'),
-                  tooltip: 'Бештар',
+                  tooltip: tr('Бештар'),
                   visualDensity: VisualDensity.compact,
                   onPressed: onOptions,
                   icon: const Icon(Icons.tune_rounded, size: 20),
@@ -1005,7 +1040,7 @@ class AppRuleCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Вақти иловагӣ',
+                    tr('Вақти иловагӣ'),
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontSize: 12.5,
@@ -1092,19 +1127,21 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Вақти дарс',
+            Text(
+              tr('Вақти дарс'),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Дар ин вақт ${widget.app.name} худкор баста мешавад.',
+              tr('Дар ин вақт {name} худкор баста мешавад.', {
+                'name': widget.app.name,
+              }),
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Ҷадвал фаъол'),
+              title: Text(tr('Ҷадвал фаъол')),
               value: enabled,
               onChanged: (v) => setState(() => enabled = v),
             ),
@@ -1112,7 +1149,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
               children: [
                 Expanded(
                   child: _TimeTile(
-                    label: 'Аз',
+                    label: tr('Аз'),
                     value: _format(start),
                     enabled: enabled,
                     onTap: () => _pick(true),
@@ -1121,7 +1158,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _TimeTile(
-                    label: 'То',
+                    label: tr('То'),
                     value: _format(end),
                     enabled: enabled,
                     onTap: () => _pick(false),
@@ -1136,7 +1173,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
               children: [
                 for (var day = 1; day <= 7; day++)
                   FilterChip(
-                    label: Text(_weekdayLabels[day - 1]),
+                    label: Text(tr(_weekdayLabels[day - 1])),
                     selected: weekdays.contains(day),
                     onSelected: enabled
                         ? (v) => setState(
@@ -1161,7 +1198,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                           weekdays: weekdays.toList()..sort(),
                         ),
                       ),
-                child: const Text('Нигоҳ доштан'),
+                child: Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],

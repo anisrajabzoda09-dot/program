@@ -6,6 +6,7 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import 'parent_logic.dart';
+import '../../l10n/l10n.dart';
 
 /// «Ҳисобот»: 7-day screen time, today vs average, top apps of a day.
 class WeeklyReportScreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       setState(
         () => _error = e is ApiException
             ? e.message
-            : 'Ҳисобот гирифта нашуд: $e',
+            : tr('Ҳисобот гирифта нашуд: {e}', {'e': e}),
       );
     }
   }
@@ -57,17 +58,17 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
     } else if (days == null) {
       body = StateMessage(
         icon: Icons.cloud_off_rounded,
-        title: 'Ҳисобот гирифта нашуд',
+        title: tr('Ҳисобот гирифта нашуд'),
         text: _error,
-        actionLabel: 'Аз нав кӯшиш',
+        actionLabel: tr('Аз нав кӯшиш'),
         onAction: _load,
         error: true,
       );
     } else if (days.isEmpty) {
-      body = const StateMessage(
+      body = StateMessage(
         icon: Icons.bar_chart_rounded,
-        title: 'Ҳоло маълумот нест',
-        text: 'Ҳисобот пас аз истифодаи телефони фарзанд пайдо мешавад.',
+        title: tr('Ҳоло маълумот нест'),
+        text: tr('Ҳисобот пас аз истифодаи телефони фарзанд пайдо мешавад.'),
       );
     } else {
       body = RefreshIndicator(
@@ -88,7 +89,9 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text('Ҳисобот · ${widget.child.name}')),
+      appBar: AppBar(
+        title: Text(tr('Ҳисобот · {name}', {'name': widget.child.name})),
+      ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 220),
         child: body,
@@ -130,7 +133,7 @@ class WeeklyReportView extends StatelessWidget {
           children: [
             Expanded(
               child: _SummaryTile(
-                label: 'Имрӯз',
+                label: tr('Имрӯз'),
                 value: formatMinutes(today),
                 color: NigohDesign.blue,
                 icon: Icons.today_rounded,
@@ -139,7 +142,7 @@ class WeeklyReportView extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: _SummaryTile(
-                label: 'Миёна дар рӯз',
+                label: tr('Миёна дар рӯз'),
                 value: formatMinutes(average),
                 color: NigohDesign.violet,
                 icon: Icons.timeline_rounded,
@@ -150,12 +153,16 @@ class WeeklyReportView extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           average == 0 && today == 0
-              ? 'Дар ин ҳафта вақти экран қайд нашудааст.'
+              ? tr('Дар ин ҳафта вақти экран қайд нашудааст.')
               : diff > 0
-              ? 'Имрӯз ${formatMinutes(diff)} зиёдтар аз миёна'
+              ? tr('Имрӯз {time} зиёдтар аз миёна', {
+                  'time': formatMinutes(diff),
+                })
               : diff < 0
-              ? 'Имрӯз ${formatMinutes(-diff)} камтар аз миёна'
-              : 'Имрӯз баробари миёна',
+              ? tr('Имрӯз {time} камтар аз миёна', {
+                  'time': formatMinutes(-diff),
+                })
+              : tr('Имрӯз баробари миёна'),
           style: TextStyle(
             color: diff > 0 ? NigohDesign.coral : NigohDesign.mint,
             fontWeight: FontWeight.w600,
@@ -173,7 +180,9 @@ class WeeklyReportView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '7 рӯзи охир · ҳамагӣ ${formatMinutes(total)}',
+                tr('7 рӯзи охир · ҳамагӣ {time}', {
+                  'time': formatMinutes(total),
+                }),
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
               ),
               const SizedBox(height: 12),
@@ -186,11 +195,13 @@ class WeeklyReportView extends StatelessWidget {
           ),
         ),
         SectionTitle(
-          'Барномаҳои асосӣ · ${_dayLabel(day.date, days.last.date)}',
+          tr('Барномаҳои асосӣ · {day}', {
+            'day': _dayLabel(day.date, days.last.date),
+          }),
         ),
         if (day.top.isEmpty)
           Text(
-            'Дар ин рӯз истифода қайд нашудааст.',
+            tr('Дар ин рӯз истифода қайд нашудааст.'),
             style: TextStyle(color: scheme.onSurfaceVariant),
           ),
         for (final (index, app) in day.top.take(5).indexed)
@@ -208,8 +219,8 @@ class WeeklyReportView extends StatelessWidget {
   }
 
   static String _dayLabel(DateTime date, DateTime last) {
-    if (date == last) return 'имрӯз';
-    return '${weekdayShort[date.weekday - 1]}, ${two(date.day)}.${two(date.month)}';
+    if (date == last) return tr('имрӯз');
+    return '${tr(weekdayShort[date.weekday - 1])}, ${two(date.day)}.${two(date.month)}';
   }
 }
 
@@ -274,7 +285,7 @@ class WeeklyBarChart extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      weekdayShort[day.date.weekday - 1],
+                      tr(weekdayShort[day.date.weekday - 1]),
                       style: TextStyle(
                         fontSize: 11,
                         color: i == selected
@@ -295,9 +306,11 @@ class WeeklyBarChart extends StatelessWidget {
   }
 
   static String _short(int minutes) {
-    if (minutes < 60) return '$minutesд';
+    if (minutes < 60) return tr('{minutes}д', {'minutes': minutes});
     final h = minutes / 60;
-    return h >= 10 ? '${h.round()}с' : '${h.toStringAsFixed(1)}с';
+    return tr('{hours}с', {
+      'hours': h >= 10 ? h.round() : h.toStringAsFixed(1),
+    });
   }
 }
 

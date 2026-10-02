@@ -5,6 +5,7 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import 'parent_logic.dart';
+import '../../l10n/l10n.dart';
 
 TimeOfDay parseHhmm(String value, TimeOfDay fallback) {
   final parts = value.split(':');
@@ -90,21 +91,23 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Вақти хоб',
+            Text(
+              tr('Вақти хоб'),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
-              'Дар ин вақт ҳамаи барномаҳои ${widget.child.name} баста '
-              'мешаванд, ба ғайр аз барномаҳои «Ҳамеша иҷозат».',
+              tr(
+                'Дар ин вақт ҳамаи барномаҳои {name} баста мешаванд, ба ғайр аз барномаҳои «Ҳамеша иҷозат».',
+                {'name': widget.child.name},
+              ),
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
             SwitchListTile(
               key: const ValueKey('bedtime-switch'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Вақти хоб фаъол'),
+              title: Text(tr('Вақти хоб фаъол')),
               value: enabled,
               onChanged: (v) => setState(() => enabled = v),
             ),
@@ -113,7 +116,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('bedtime-start'),
-                    label: 'Оғоз',
+                    label: tr('Оғоз'),
                     value: formatHhmm(start),
                     enabled: enabled,
                     onTap: () => _pick(true),
@@ -123,7 +126,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('bedtime-end'),
-                    label: 'Анҷом',
+                    label: tr('Анҷом'),
                     value: formatHhmm(end),
                     enabled: enabled,
                     onTap: () => _pick(false),
@@ -135,7 +138,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  'Оғоз ва анҷом бояд гуногун бошанд.',
+                  tr('Оғоз ва анҷом бояд гуногун бошанд.'),
                   style: TextStyle(color: scheme.error, fontSize: 12),
                 ),
               ),
@@ -151,7 +154,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Нигоҳ доштан'),
+                    : Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],
@@ -287,30 +290,34 @@ class _AppOptionsSheetState extends State<AppOptionsSheet> {
                   Icons.verified_user_rounded,
                   color: NigohDesign.mint,
                 ),
-                title: const Text('Ҳамеша иҷозат'),
-                subtitle: const Text(
-                  'Ин барнома ҳеҷ гоҳ бо танаффус ё вақти хоб баста '
-                  'намешавад. Масалан, барои занг ё харита.',
+                title: Text(tr('Ҳамеша иҷозат')),
+                subtitle: Text(
+                  tr(
+                    'Ин барнома ҳеҷ гоҳ бо танаффус ё вақти хоб баста намешавад. Масалан, барои занг ё харита.',
+                  ),
                 ),
                 value: app.alwaysAllowed,
                 onChanged: _busy
                     ? null
                     : (v) => _run(
                         () => widget.controller.setAlwaysAllowed(child, app, v),
-                        v ? 'Ҳамеша иҷозат дода шуд' : 'Қоидаи муқаррарӣ',
+                        v
+                            ? tr('Ҳамеша иҷозат дода шуд')
+                            : tr('Қоидаи муқаррарӣ'),
                       ),
               ),
               const Divider(height: 24),
-              const Text(
-                'Вақти иловагӣ',
+              Text(
+                tr('Вақти иловагӣ'),
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
               Text(
                 app.dailyLimitMinutes > 0
-                    ? 'Танҳо барои имрӯз ба лимит илова мешавад.'
-                    : 'Барои ин барнома лимит нест. Вақти иловагӣ пас аз '
-                          'гузоштани лимит кор мекунад.',
+                    ? tr('Танҳо барои имрӯз ба лимит илова мешавад.')
+                    : tr(
+                        'Барои ин барнома лимит нест. Вақти иловагӣ пас аз гузоштани лимит кор мекунад.',
+                      ),
                 style: TextStyle(
                   color: scheme.onSurfaceVariant,
                   fontSize: 12.5,
@@ -322,7 +329,10 @@ class _AppOptionsSheetState extends State<AppOptionsSheet> {
                 enabled: !_busy && app.dailyLimitMinutes > 0,
                 onBonus: (m) => _run(
                   () => widget.controller.giveBonus(child, app, m),
-                  '${app.name}: +$m дақ барои имрӯз',
+                  tr('{name}: +{m} дақ барои имрӯз', {
+                    'name': app.name,
+                    'm': m,
+                  }),
                 ),
               ),
             ],
@@ -360,7 +370,12 @@ class BonusButtons extends StatelessWidget {
           onPressed: enabled ? () => onBonus(m) : null,
         ),
       if (app.bonusMinutesToday > 0)
-        Pill('+${app.bonusMinutesToday} дақ имрӯз', color: NigohDesign.amber),
+        Pill(
+          tr('+{bonusMinutesToday} дақ имрӯз', {
+            'bonusMinutesToday': app.bonusMinutesToday,
+          }),
+          color: NigohDesign.amber,
+        ),
     ],
   );
 }

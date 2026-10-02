@@ -6,6 +6,7 @@ import '../../core/user_journey_logic.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
+import '../../l10n/l10n.dart';
 
 /// Pair a child's phone: scan its QR or type the 6-digit code.
 /// Pops with `true` after a successful pairing.
@@ -41,7 +42,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
     if (_busy) return;
     final code = extractCode(raw);
     if (code.isEmpty) {
-      setState(() => _error = 'Код бояд 6 рақам бошад.');
+      setState(() => _error = tr('Код бояд 6 рақам бошад.'));
       return;
     }
     setState(() {
@@ -66,27 +67,29 @@ class _AddChildScreenState extends State<AddChildScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Илова кардани фарзанд')),
+      appBar: AppBar(title: Text(tr('Илова кардани фарзанд'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
-          const _Step(
+          _Step(
             number: 1,
             color: NigohDesign.blue,
-            title: 'NIGOH Family-ро дар телефони фарзанд насб кунед',
-            text: 'Ворид шавед ва «Фарзанд»-ро интихоб кунед.',
+            title: tr('NIGOH Family-ро дар телефони фарзанд насб кунед'),
+            text: tr('Ворид шавед ва «Фарзанд»-ро интихоб кунед.'),
           ),
-          const _Step(
+          _Step(
             number: 2,
             color: NigohDesign.violet,
-            title: 'Ном ва синни фарзандро нависед',
-            text: 'Дар экран QR ва коди 6-рақама пайдо мешавад.',
+            title: tr('Ном ва синни фарзандро нависед'),
+            text: tr('Дар экран QR ва коди 6-рақама пайдо мешавад.'),
           ),
-          const _Step(
+          _Step(
             number: 3,
             color: NigohDesign.mint,
-            title: 'QR-ро скан кунед ё кодро ворид кунед',
-            text: 'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
+            title: tr('QR-ро скан кунед ё кодро ворид кунед'),
+            text: tr(
+              'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
+            ),
           ),
           const SizedBox(height: 12),
           AnimatedSwitcher(
@@ -110,7 +113,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                             top: 8,
                             right: 8,
                             child: IconButton.filledTonal(
-                              tooltip: 'Пӯшидан',
+                              tooltip: tr('Пӯшидан'),
                               onPressed: () =>
                                   setState(() => _scanning = false),
                               icon: const Icon(Icons.close_rounded),
@@ -131,13 +134,13 @@ class _AddChildScreenState extends State<AddChildScreen> {
                           ? null
                           : () => setState(() => _scanning = true),
                       icon: const Icon(Icons.qr_code_scanner_rounded),
-                      label: const Text('Скан кардани QR'),
+                      label: Text(tr('Скан кардани QR')),
                     ),
                   ),
           ),
           const SizedBox(height: 22),
           Text(
-            'Ё кодро дастӣ ворид кунед',
+            tr('Ё кодро дастӣ ворид кунед'),
             style: TextStyle(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
@@ -174,7 +177,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Пайваст кардан'),
+                  : Text(tr('Пайваст кардан')),
             ),
           ),
         ],
