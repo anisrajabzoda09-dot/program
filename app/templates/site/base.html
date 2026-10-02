@@ -192,6 +192,27 @@
       });
     })();
   </script>
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) return;
+      document.documentElement.classList.add('js-reveal');
+      var items = document.querySelectorAll('main section, main .cta');
+      items.forEach(function (el) { el.classList.add('reveal'); });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
+      items.forEach(function (el) { io.observe(el); });
+      // Anything already on screen (or if the observer never fires) stays visible.
+      setTimeout(function () {
+        items.forEach(function (el) { el.classList.add('in'); });
+      }, 1200);
+    })();
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
