@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../core/platform.dart';
 import '../../core/user_journey_logic.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
@@ -66,121 +67,138 @@ class _AddChildScreenState extends State<AddChildScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // No camera scanner on the desktop app: the code is typed in.
+    final desktop = isDesktop;
     return Scaffold(
       appBar: AppBar(title: Text(tr('Илова кардани фарзанд'))),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-        children: [
-          _Step(
-            number: 1,
-            color: NigohDesign.blue,
-            title: tr('NIGOH Family-ро дар телефони фарзанд насб кунед'),
-            text: tr('Ворид шавед ва «Фарзанд»-ро интихоб кунед.'),
-          ),
-          _Step(
-            number: 2,
-            color: NigohDesign.violet,
-            title: tr('Ном ва синни фарзандро нависед'),
-            text: tr('Дар экран QR ва коди 6-рақама пайдо мешавад.'),
-          ),
-          _Step(
-            number: 3,
-            color: NigohDesign.mint,
-            title: tr('QR-ро скан кунед ё кодро ворид кунед'),
-            text: tr(
-              'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
-            ),
-          ),
-          const SizedBox(height: 12),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            child: _scanning
-                ? ClipRRect(
-                    key: const ValueKey('scanner'),
-                    borderRadius: BorderRadius.circular(20),
-                    child: SizedBox(
-                      height: 280,
-                      child: Stack(
-                        children: [
-                          MobileScanner(
-                            onDetect: (capture) {
-                              final value =
-                                  capture.barcodes.firstOrNull?.rawValue;
-                              if (value != null && !_busy) _submit(value);
-                            },
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: IconButton.filledTonal(
-                              tooltip: tr('Пӯшидан'),
-                              onPressed: () =>
-                                  setState(() => _scanning = false),
-                              icon: const Icon(Icons.close_rounded),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            children: [
+              _Step(
+                number: 1,
+                color: NigohDesign.blue,
+                title: tr('NIGOH Family-ро дар телефони фарзанд насб кунед'),
+                text: tr('Ворид шавед ва «Фарзанд»-ро интихоб кунед.'),
+              ),
+              _Step(
+                number: 2,
+                color: NigohDesign.violet,
+                title: tr('Ном ва синни фарзандро нависед'),
+                text: tr('Дар экран QR ва коди 6-рақама пайдо мешавад.'),
+              ),
+              _Step(
+                number: 3,
+                color: NigohDesign.mint,
+                title: desktop
+                    ? tr('Кодро дар ин ҷо ворид кунед')
+                    : tr('QR-ро скан кунед ё кодро ворид кунед'),
+                text: tr(
+                  'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (!desktop) ...[
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: _scanning
+                      ? ClipRRect(
+                          key: const ValueKey('scanner'),
+                          borderRadius: BorderRadius.circular(20),
+                          child: SizedBox(
+                            height: 280,
+                            child: Stack(
+                              children: [
+                                MobileScanner(
+                                  onDetect: (capture) {
+                                    final value =
+                                        capture.barcodes.firstOrNull?.rawValue;
+                                    if (value != null && !_busy) _submit(value);
+                                  },
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: IconButton.filledTonal(
+                                    tooltip: tr('Пӯшидан'),
+                                    onPressed: () =>
+                                        setState(() => _scanning = false),
+                                    icon: const Icon(Icons.close_rounded),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox(
-                    key: const ValueKey('scan-button'),
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(54),
-                      ),
-                      onPressed: _busy
-                          ? null
-                          : () => setState(() => _scanning = true),
-                      icon: const Icon(Icons.qr_code_scanner_rounded),
-                      label: Text(tr('Скан кардани QR')),
-                    ),
-                  ),
-          ),
-          const SizedBox(height: 22),
-          Text(
-            tr('Ё кодро дастӣ ворид кунед'),
-            style: TextStyle(color: scheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _code,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            textAlign: TextAlign.center,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            style: const TextStyle(
-              fontSize: 26,
-              letterSpacing: 10,
-              fontWeight: FontWeight.w700,
-            ),
-            decoration: InputDecoration(
-              hintText: '000000',
-              counterText: '',
-              errorText: _error,
-              errorMaxLines: 3,
-            ),
-            onSubmitted: _submit,
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(50),
+                        )
+                      : SizedBox(
+                          key: const ValueKey('scan-button'),
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(54),
+                            ),
+                            onPressed: _busy
+                                ? null
+                                : () => setState(() => _scanning = true),
+                            icon: const Icon(Icons.qr_code_scanner_rounded),
+                            label: Text(tr('Скан кардани QR')),
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 22),
+              ],
+              Text(
+                desktop
+                    ? tr('Рамзи 6-рақамаро аз телефони фарзанд ворид кунед')
+                    : tr('Ё кодро дастӣ ворид кунед'),
+                key: const Key('add-child.code-hint'),
+                style: TextStyle(color: scheme.onSurfaceVariant),
               ),
-              onPressed: _busy ? null : () => _submit(_code.text),
-              child: _busy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(tr('Пайваст кардан')),
-            ),
+              const SizedBox(height: 8),
+              TextField(
+                key: const Key('add-child.code'),
+                controller: _code,
+                autofocus: desktop,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                textAlign: TextAlign.center,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                style: const TextStyle(
+                  fontSize: 26,
+                  letterSpacing: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+                decoration: InputDecoration(
+                  hintText: '000000',
+                  counterText: '',
+                  errorText: _error,
+                  errorMaxLines: 3,
+                ),
+                onSubmitted: _submit,
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                  onPressed: _busy ? null : () => _submit(_code.text),
+                  child: _busy
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(tr('Пайваст кардан')),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
