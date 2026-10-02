@@ -1,0 +1,81 @@
+name: Windows app
+
+# Builds the NIGOH Family Windows (parent) app from mobile/ and publishes an
+# installer + portable zip to the rolling GitHub release «windows-latest»
+# (plus a versioned release windows-v<version>).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.4
+          cache: true
+
+      - name: Version from pubspec
+        id: version
+        shell: pwsh
+        run: |
+          $line = Select-String -Path pubspec.yaml -Pattern '^version:\s*([0-9.]+)' | Select-Object -First 1
+          $v = $line.Matches[0].Groups[1].Value
+          "version=$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Version $v"
+
+      - run: flutter config --enable-windows-desktop
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build windows --release
+
+      - name: Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) {
+            choco install innosetup -y --no-progress
+            $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
+          }
+          iscc /DAppVersion=${{ steps.version.outputs.version }} windows\installer\nigoh_family.iss
+
+      - name: Portable zip
+        shell: pwsh
+        run: Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\installer\NIGOH_Family_Windows_Portable.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nigoh-family-windows-${{ steps.version.outputs.version }}
+          path: mobile/build/installer/*
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          $files = @("build/installer/NIGOH_Family_Windows_Setup.exe", "build/installer/NIGOH_Family_Windows_Portable.zip")
+          foreach ($tag in @("windows-latest", "windows-v$v")) {
+            gh release view $tag 2>$null
+            if ($LASTEXITCODE -ne 0) {
+              gh release create $tag --title "NIGOH Family for Windows $v" --notes "Windows (parent) app $v. Installer and portable zip." --target ${{ github.sha }} --latest=false
+            }
+            gh release upload $tag @files --clobber
+          }
