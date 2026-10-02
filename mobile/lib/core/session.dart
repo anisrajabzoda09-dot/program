@@ -3,12 +3,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import 'platform.dart';
 import '../l10n/l10n.dart';
 
 const googleServerClientId = String.fromEnvironment(
   'NIGOH_GOOGLE_WEB_CLIENT_ID',
-  defaultValue:
-      '708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com',
+  defaultValue: '708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com',
 );
 
 /// Signed-in state of the app. One instance lives for the whole app
@@ -62,14 +62,17 @@ class Session extends ChangeNotifier {
 
   /// Refresh the profile in the background; offline is fine.
   void unawaitedRefresh() {
-    api.me().then((data) {
-      final fresh = data['user'];
-      if (fresh is Map) {
-        user = Map<String, dynamic>.from(fresh);
-        _saveName();
-        notifyListeners();
-      }
-    }).catchError((_) {});
+    api
+        .me()
+        .then((data) {
+          final fresh = data['user'];
+          if (fresh is Map) {
+            user = Map<String, dynamic>.from(fresh);
+            _saveName();
+            notifyListeners();
+          }
+        })
+        .catchError((_) {});
   }
 
   Future<void> _store(Map<String, dynamic> response) async {
@@ -98,7 +101,13 @@ class Session extends ChangeNotifier {
       _store(await api.login(email.trim(), password));
 
   /// Google sign-in; the server verifies the ID token itself.
+  /// Google sign-in has no Windows/desktop implementation.
+  static bool get googleAvailable => !isDesktop;
+
   Future<void> signInWithGoogle() async {
+    if (!googleAvailable) {
+      throw ApiException(tr('Дар компютер бо почта ва рамз ворид шавед.'));
+    }
     final google = GoogleSignIn.instance;
     await google.initialize(serverClientId: googleServerClientId);
     final account = await google.authenticate();
@@ -134,9 +143,11 @@ class Session extends ChangeNotifier {
     try {
       await api.logout();
     } catch (_) {}
-    try {
-      await GoogleSignIn.instance.signOut();
-    } catch (_) {}
+    if (googleAvailable) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (_) {}
+    }
     await _clear();
   }
 
@@ -161,8 +172,11 @@ class Session extends ChangeNotifier {
 /// Gives every screen access to the [Session]: `SessionScope.of(context)`.
 /// Widgets that call `of` rebuild when the session changes.
 class SessionScope extends InheritedNotifier<Session> {
-  const SessionScope({super.key, required Session session, required super.child})
-    : super(notifier: session);
+  const SessionScope({
+    super.key,
+    required Session session,
+    required super.child,
+  }) : super(notifier: session);
 
   static Session of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<SessionScope>()!.notifier!;

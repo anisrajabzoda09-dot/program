@@ -4,11 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/child_profile.dart';
 import 'core/home_target.dart';
 import 'core/notify_bridge.dart';
+import 'core/platform.dart';
 import 'core/session.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/auth/brand_logo.dart';
 import 'features/call/call_screen.dart';
 import 'features/child/child_home.dart';
+import 'features/desktop/desktop_notifications.dart';
 import 'features/onboarding/child_setup_screen.dart';
 import 'features/onboarding/permissions_wizard.dart';
 import 'features/onboarding/role_screen.dart';
@@ -133,12 +135,14 @@ class _RootGateState extends State<RootGate> {
   @override
   void dispose() {
     NotifyBridge.launch.removeListener(onLaunch);
+    if (isDesktop) DesktopNotifications.stop();
     super.dispose();
   }
 
   /// Starts the notification service when signed in with a role, stops it on
   /// sign-out, and asks for notification permissions once.
   void syncNotifications(Session session, {required bool home}) {
+    if (isDesktop) return syncDesktopNotifications(session);
     final token = session.api.token;
     final key = session.signedIn && session.role != null
         ? '$token|${session.role}'
@@ -158,6 +162,21 @@ class _RootGateState extends State<RootGate> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) NotifyBridge.ensurePermissions(context);
       });
+    }
+  }
+
+  /// Desktop (parent only): a Dart long-poll of the events shows banners,
+  /// the SOS alarm and incoming calls while the app is open.
+  void syncDesktopNotifications(Session session) {
+    final key = session.signedIn && session.isParent
+        ? '${session.api.token}|parent'
+        : null;
+    if (key == notifyKey) return;
+    notifyKey = key;
+    if (key != null) {
+      DesktopNotifications.start(session.api, navigatorKey);
+    } else {
+      DesktopNotifications.stop();
     }
   }
 
@@ -199,7 +218,9 @@ class _RootGateState extends State<RootGate> {
           content: Text(
             action.peerName == null
                 ? tr('Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед.')
-                : tr('{name} ёрӣ мехоҳад. Ҷойгиршавиро бинед.', {'name': action.peerName}),
+                : tr('{name} ёрӣ мехоҳад. Ҷойгиршавиро бинед.', {
+                    'name': action.peerName,
+                  }),
           ),
           actions: [
             FilledButton(
@@ -268,9 +289,18 @@ class _RootGateState extends State<RootGate> {
       profileLoaded = false;
       childProfile = null;
     }
-    if (session.isChild && !profileLoaded && !profileLoading) loadProfile();
+    // The desktop app is parent-only: a stored 'child' role means the role
+    // still has to be chosen there.
+    final desktop = isDesktop;
+    final childHere = session.isChild && !desktop;
+    if (childHere && !profileLoaded && !profileLoading) loadProfile();
     final role = session.signedIn ? session.role : null;
-    if (role != wizardRole) {
+    if (desktop) {
+      // No Android permissions to set up on a computer.
+      wizardRole = role;
+      wizardDone = true;
+      wizardLoading = false;
+    } else if (role != wizardRole) {
       if (role == null) {
         wizardRole = null;
         wizardDone = false;
@@ -283,14 +313,14 @@ class _RootGateState extends State<RootGate> {
     final String state;
     final Widget screen;
     if (session.loading ||
-        (session.isChild && !profileLoaded) ||
+        (childHere && !profileLoaded) ||
         (role != null && wizardLoading)) {
       state = 'loading';
       screen = const _Splash();
     } else if (!session.signedIn) {
       state = 'auth';
       screen = const AuthScreen();
-    } else if (session.role == null) {
+    } else if (session.role == null || (desktop && !session.isParent)) {
       state = 'role';
       screen = const RoleScreen();
     } else if (session.isChild && childProfile == null) {

@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'api.dart';
+import 'platform.dart';
 import '../l10n/l10n.dart';
 
 /// What the user tapped in a notification posted by the native NotifyService.
@@ -87,8 +87,9 @@ abstract final class NotifyBridge {
 
   static bool _listening = false;
 
-  static bool get _supported =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  /// Android only: the desktop app runs its own Dart loop
+  /// (features/desktop/desktop_notifications.dart).
+  static bool get _supported => isAndroidApp;
 
   /// Starts listening for launches from notifications and picks up the one
   /// that cold-started the app. Idempotent; [start] calls it.
@@ -174,6 +175,7 @@ abstract final class NotifyBridge {
   }
 
   static Future<void> openFullScreenSettings() async {
+    if (!_supported) return;
     try {
       await channel.invokeMethod<Object?>('openFullScreenSettings');
     } on MissingPluginException {
@@ -208,8 +210,10 @@ abstract final class NotifyBridge {
           icon: const Icon(Icons.notifications_active_outlined),
           title: Text(tr('Огоҳиномаҳо дар экрани пурра')),
           content: Text(
-            tr('Барои он ки ҳушдори SOS ва зангҳо ҳатто дар экрани қулфшуда '
-            'намоён шаванд, ба NIGOH иҷозати «огоҳиномаҳои экрани пурра» диҳед.'),
+            tr(
+              'Барои он ки ҳушдори SOS ва зангҳо ҳатто дар экрани қулфшуда '
+              'намоён шаванд, ба NIGOH иҷозати «огоҳиномаҳои экрани пурра» диҳед.',
+            ),
           ),
           actions: [
             TextButton(
