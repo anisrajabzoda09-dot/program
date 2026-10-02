@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api.dart';
+import '../../core/platform.dart';
 import '../../core/user_journey_logic.dart';
 import '../../ui/widgets.dart';
 import '../../l10n/l10n.dart';
@@ -16,6 +18,13 @@ abstract final class AppUpdate {
 
   /// Last error of the automatic (silent) check, for a visible status.
   static final lastError = ValueNotifier<String?>(null);
+
+  /// Download page for the desktop app (no in-app installer there).
+  static final downloadPage = Uri.parse('https://nigohfamily.qobus.tj/get');
+
+  /// Opens [downloadPage] in the browser (replaced in tests).
+  static Future<bool> Function(Uri url) openUrl = (url) =>
+      launchUrl(url, mode: LaunchMode.externalApplication);
 
   static Future<int> installedCode() async =>
       int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0;
@@ -40,6 +49,7 @@ abstract final class AppUpdate {
       return;
     }
     if (!context.mounted) return;
+    if (isDesktop) return _desktop(context, release, current, silent: silent);
     final latest = (release['version_code'] as num?)?.toInt() ?? 0;
     final url = release['download_url']?.toString() ?? '';
     final available =
@@ -81,6 +91,69 @@ abstract final class AppUpdate {
     );
   }
 
+  /// Desktop: no APK installer; show the latest version and a link to the
+  /// download page. The silent start-up check only speaks up when newer.
+  static Future<void> _desktop(
+    BuildContext context,
+    Map<String, dynamic> release,
+    int current, {
+    required bool silent,
+  }) async {
+    final latest = (release['version_code'] as num?)?.toInt() ?? 0;
+    final newer =
+        release['update_available'] == true &&
+        UserJourneyLogic.shouldOfferUpdate(latest, current);
+    if (silent && !newer) return;
+    final version =
+        release['version']?.toString() ?? (latest > 0 ? '$latest' : '—');
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        key: const ValueKey('desktop-update'),
+        icon: const Icon(Icons.system_update_rounded, size: 36),
+        title: Text(tr('Версияи охирин: {version}', {'version': version})),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Text(
+            newer
+                ? tr(
+                    'Версияи нав дастрас аст. Онро аз сайт боргирӣ кунед ва насб кунед.',
+                  )
+                : tr('Барномаи нав аз сайти NIGOH Family боргирӣ мешавад.'),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(tr('Пӯшидан')),
+          ),
+          FilledButton.icon(
+            key: const ValueKey('desktop-update-open'),
+            style: FilledButton.styleFrom(minimumSize: const Size(130, 44)),
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              var ok = false;
+              try {
+                ok = await openUrl(downloadPage);
+              } catch (_) {
+                ok = false;
+              }
+              if (!ok && context.mounted) {
+                showMessage(
+                  context,
+                  tr('Саҳифа кушода нашуд: {url}', {'url': '$downloadPage'}),
+                  error: true,
+                );
+              }
+            },
+            icon: const Icon(Icons.open_in_new_rounded),
+            label: Text(tr('Кушодани саҳифаи боргирӣ')),
+          ),
+        ],
+      ),
+    );
+  }
+
   static const progressChannel = EventChannel('tj.nigoh/update_progress');
 
   /// One tap: download → verify signature → install over the current app.
@@ -90,6 +163,7 @@ abstract final class AppUpdate {
     String url,
     String version,
   ) async {
+    if (!isAndroidApp) return; // The APK installer exists only on Android.
     final uri = Uri.tryParse(url);
     if (uri == null || !uri.hasScheme) {
       showMessage(context, tr('Пайванди навсозӣ дастрас нест.'), error: true);
@@ -124,7 +198,9 @@ abstract final class AppUpdate {
     if (status == 'install_permission_required') {
       showMessage(
         context,
-        tr('Як бор иҷозат диҳед: «Иҷозати насб аз ин манбаъ»-ро фаъол кунед ва ба NIGOH баргардед — навсозӣ худаш идома меёбад.'),
+        tr(
+          'Як бор иҷозат диҳед: «Иҷозати насб аз ин манбаъ»-ро фаъол кунед ва ба NIGOH баргардед — навсозӣ худаш идома меёбад.',
+        ),
       );
     }
     await showDialog<void>(
@@ -154,7 +230,9 @@ class UpdateProgress {
   }
 
   String get label => switch (state) {
-    'downloading' => tr('Боргирӣ… {percent}%', {'percent': ((progress ?? 0) * 100).round()}),
+    'downloading' => tr('Боргирӣ… {percent}%', {
+      'percent': ((progress ?? 0) * 100).round(),
+    }),
     'verifying' => tr('Санҷиши имзо…'),
     'installing' => message ?? tr('Насб…'),
     'done' => tr('Навсозӣ насб шуд.'),

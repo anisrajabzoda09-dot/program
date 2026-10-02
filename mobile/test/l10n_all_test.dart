@@ -24,7 +24,7 @@ void main() {
   Set<String> usedKeys() {
     final keys = <String>{};
     for (final f in Directory('lib').listSync(recursive: true)) {
-      if (f is! File || !f.path.endsWith('.dart') || f.path.contains('/l10n/')) continue;
+      if (f is! File || !f.path.endsWith('.dart') || f.uri.pathSegments.contains('l10n')) continue;
       for (final m in call.allMatches(f.readAsStringSync())) {
         keys.add(join(m[1]!));
       }

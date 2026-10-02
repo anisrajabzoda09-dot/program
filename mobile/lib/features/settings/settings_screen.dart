@@ -4,8 +4,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/child_profile.dart';
 import '../../core/notify_bridge.dart';
+import '../../core/platform.dart';
 import '../../core/session.dart';
 import '../../core/user_journey_logic.dart';
+import '../desktop/desktop_notifications.dart';
 import '../onboarding/permissions_wizard.dart';
 import '../../ui/language_picker.dart';
 import '../../ui/nigoh_design.dart';
@@ -180,7 +182,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       builder: (_) => const _UninstallDialog(),
     );
     if (ok == true && mounted) {
-      showMessage(context, tr('Тасдиқ шуд. Android экрани несткуниро мекушояд.'));
+      showMessage(
+        context,
+        tr('Тасдиқ шуд. Android экрани несткуниро мекушояд.'),
+      );
     }
   }
 
@@ -189,6 +194,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     final session = SessionScope.of(context);
     final scheme = Theme.of(context).colorScheme;
     final child = session.isChild;
+    // Desktop app: no Android permissions, no native notification service.
+    final desktop = isDesktop;
     var i = 0;
     return Scaffold(
       appBar: AppBar(title: Text(tr('Танзимот'))),
@@ -228,26 +235,31 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   onTap: pinError != null ? loadPin : editPin,
                 ),
-                const Divider(height: 1),
-                _Tile(
-                  icon: Icons.verified_user_outlined,
-                  color: NigohDesign.mint,
-                  title: tr('Иҷозатҳо (устод)'),
-                  subtitle: child
-                      ? tr('Ҷойгиршавӣ, истифода ва бастани барномаҳо')
-                      : tr('Огоҳиномаҳо, камера, микрофон ва батарея'),
-                  onTap: () async {
-                    await PermissionsWizard.open(context, childMode: child);
-                    if (mounted) await loadNotifyStatus();
-                  },
-                ),
-                if (child) ...[
+                if (!desktop) ...[
+                  const Divider(height: 1),
+                  _Tile(
+                    key: const ValueKey('settings-wizard'),
+                    icon: Icons.verified_user_outlined,
+                    color: NigohDesign.mint,
+                    title: tr('Иҷозатҳо (устод)'),
+                    subtitle: child
+                        ? tr('Ҷойгиршавӣ, истифода ва бастани барномаҳо')
+                        : tr('Огоҳиномаҳо, камера, микрофон ва батарея'),
+                    onTap: () async {
+                      await PermissionsWizard.open(context, childMode: child);
+                      if (mounted) await loadNotifyStatus();
+                    },
+                  ),
+                ],
+                if (child && !desktop) ...[
                   const Divider(height: 1),
                   _Tile(
                     icon: Icons.shield_outlined,
                     color: NigohDesign.amber,
                     title: tr('Муҳофизат аз несткунӣ'),
-                    subtitle: tr('NIGOH-ро танҳо бо PIN-и волидайн нест кардан мумкин аст.'),
+                    subtitle: tr(
+                      'NIGOH-ро танҳо бо PIN-и волидайн нест кардан мумкин аст.',
+                    ),
                     trailing: Text(
                       tr('Нест кардан'),
                       style: TextStyle(
@@ -341,47 +353,54 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ),
                 const Divider(height: 1),
-                ValueListenableBuilder<String?>(
-                  valueListenable: NotifyBridge.lastError,
-                  builder: (_, error, _) {
-                    final status = notifyStatus;
-                    final ok = status?.all == true;
-                    final subtitle =
-                        error ??
-                        (!notifyLoaded
-                            ? tr('Санҷида мешавад…')
-                            : status == null
-                            ? tr('Ҳолат маълум нашуд')
-                            : !status.notifications
-                            ? tr('Хомӯш аст — паёмҳо ва SOS намерасанд')
-                            : !status.fullScreen
-                            ? tr('Барои SOS ва зангҳо иҷозати экрани пурра лозим')
-                            : tr('Фаъол: паёмҳо, SOS ва зангҳо'));
-                    return _Tile(
-                      icon: Icons.notifications_active_outlined,
-                      color: NigohDesign.coral,
-                      title: tr('Огоҳиномаҳо'),
-                      subtitle: subtitle,
-                      subtitleColor: error != null || (status != null && !ok)
-                          ? scheme.error
-                          : null,
-                      trailing: ok || status == null
-                          ? null
-                          : Text(
-                              status.notifications ? tr('Кушодан') : tr('Иҷозат додан'),
-                              style: TextStyle(
-                                color: scheme.primary,
-                                fontWeight: FontWeight.w600,
+                if (desktop)
+                  const _DesktopNotifyTile()
+                else
+                  ValueListenableBuilder<String?>(
+                    valueListenable: NotifyBridge.lastError,
+                    builder: (_, error, _) {
+                      final status = notifyStatus;
+                      final ok = status?.all == true;
+                      final subtitle =
+                          error ??
+                          (!notifyLoaded
+                              ? tr('Санҷида мешавад…')
+                              : status == null
+                              ? tr('Ҳолат маълум нашуд')
+                              : !status.notifications
+                              ? tr('Хомӯш аст — паёмҳо ва SOS намерасанд')
+                              : !status.fullScreen
+                              ? tr(
+                                  'Барои SOS ва зангҳо иҷозати экрани пурра лозим',
+                                )
+                              : tr('Фаъол: паёмҳо, SOS ва зангҳо'));
+                      return _Tile(
+                        icon: Icons.notifications_active_outlined,
+                        color: NigohDesign.coral,
+                        title: tr('Огоҳиномаҳо'),
+                        subtitle: subtitle,
+                        subtitleColor: error != null || (status != null && !ok)
+                            ? scheme.error
+                            : null,
+                        trailing: ok || status == null
+                            ? null
+                            : Text(
+                                status.notifications
+                                    ? tr('Дидан')
+                                    : tr('Иҷозат додан'),
+                                style: TextStyle(
+                                  color: scheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                      onTap: status == null
-                          ? loadNotifyStatus
-                          : ok
-                          ? null
-                          : fixNotifications,
-                    );
-                  },
-                ),
+                        onTap: status == null
+                            ? loadNotifyStatus
+                            : ok
+                            ? null
+                            : fixNotifications,
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -399,6 +418,38 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
     );
   }
+}
+
+/// Desktop: events arrive while NIGOH Family is open (no background service).
+class _DesktopNotifyTile extends StatelessWidget {
+  const _DesktopNotifyTile();
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: Listenable.merge([
+      DesktopNotifications.active,
+      DesktopNotifications.lastError,
+    ]),
+    builder: (context, _) {
+      final error = DesktopNotifications.lastError.value;
+      return _Tile(
+        key: const ValueKey('settings-desktop-notify'),
+        icon: Icons.notifications_active_outlined,
+        color: NigohDesign.coral,
+        title: tr('Огоҳиномаҳо'),
+        subtitle:
+            error ??
+            (DesktopNotifications.active.value
+                ? tr(
+                    'Фаъол: паёмҳо, SOS ва зангҳо, вақте NIGOH Family кушода аст',
+                  )
+                : tr('Хомӯш аст')),
+        subtitleColor: error != null
+            ? Theme.of(context).colorScheme.error
+            : null,
+      );
+    },
+  );
 }
 
 class _ProfileCard extends StatelessWidget {

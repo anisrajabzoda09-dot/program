@@ -461,4 +461,36 @@ const Map<String, List<String>> parentStrings = {
   'барномаҳои таълимӣ': ['учебные приложения', 'learning apps'],
   'барномаҳои видео': ['видеоприложения', 'video apps'],
   'барномаҳои дигар': ['другие приложения', 'other apps'],
+  // Desktop app (Windows) — v2.16.0
+  'Кодро дар ин ҷо ворид кунед': ['Введите код здесь', 'Enter the code here'],
+  'Рамзи 6-рақамаро аз телефони фарзанд ворид кунед': [
+    'Введите 6-значный код с телефона ребёнка',
+    'Enter the 6-digit code from your child\'s phone',
+  ],
+  '{name}: +{minutes} дақ барои {app}': [
+    '{name}: +{minutes} мин для {app}',
+    '{name}: +{minutes} min for {app}',
+  ],
+  'Фарзанд вақти иловагӣ мепурсад.': [
+    'Ребёнок просит дополнительное время.',
+    'Your child is asking for extra time.',
+  ],
+  '{name}: батарея {battery}%': [
+    '{name}: батарея {battery}%',
+    '{name}: battery {battery}%',
+  ],
+  'Телефони фарзанд ба зудӣ хомӯш мешавад.': [
+    'Телефон ребёнка скоро выключится.',
+    'Your child\'s phone will turn off soon.',
+  ],
+  '{name} офлайн аст': ['{name} не в сети', '{name} is offline'],
+  'Телефони фарзанд 20 дақиқа боз ба интернет пайваст нашудааст.': [
+    'Телефон ребёнка уже 20 минут не подключён к интернету.',
+    'Your child\'s phone has been offline for 20 minutes.',
+  ],
+  '{name} барномаи нав насб кард': [
+    '{name}: установлено новое приложение',
+    '{name} installed a new app',
+  ],
+  'Занги ҷавобнадода': ['Пропущенный звонок', 'Missed call'],
 };

@@ -702,4 +702,48 @@ const Map<String, List<String>> coreStrings = {
     'Чтобы удалить NIGOH, введите PIN-код родителя.',
     'Enter the parent PIN to uninstall NIGOH.',
   ],
+  // Desktop app (Windows, parent only) — v2.16.0
+  'NIGOH Family дар компютер барои волидайн аст.': [
+    'NIGOH Family на компьютере — для родителей.',
+    'NIGOH Family on a computer is for parents.',
+  ],
+  'Қисми фарзанд дар телефони Android кор мекунад: NIGOH Family-ро дар телефони фарзанд насб кунед ва «Фарзанд»-ро интихоб кунед.':
+      [
+        'Часть для ребёнка работает на Android-телефоне: установите NIGOH Family на телефон ребёнка и выберите «Ребёнок».',
+        'The child side runs on an Android phone: install NIGOH Family on your child\'s phone and choose “Child”.',
+      ],
+  'Дар компютер бо почта ва рамз ворид шавед.': [
+    'На компьютере входите по почте и паролю.',
+    'On a computer, sign in with email and password.',
+  ],
+  'Версияи охирин: {version}': [
+    'Последняя версия: {version}',
+    'Latest version: {version}',
+  ],
+  'Версияи нав дастрас аст. Онро аз сайт боргирӣ кунед ва насб кунед.': [
+    'Доступна новая версия. Скачайте её с сайта и установите.',
+    'A new version is available. Download it from the website and install it.',
+  ],
+  'Барномаи нав аз сайти NIGOH Family боргирӣ мешавад.': [
+    'Новая версия скачивается с сайта NIGOH Family.',
+    'New versions are downloaded from the NIGOH Family website.',
+  ],
+  'Кушодани саҳифаи боргирӣ': [
+    'Открыть страницу загрузки',
+    'Open download page',
+  ],
+  'Саҳифа кушода нашуд: {url}': [
+    'Не удалось открыть страницу: {url}',
+    'Could not open the page: {url}',
+  ],
+  'Огоҳиномаҳо гирифта нашуданд. Интернетро санҷед.': [
+    'Не удалось получить уведомления. Проверьте интернет.',
+    'Could not get notifications. Check your internet connection.',
+  ],
+  'Фаъол: паёмҳо, SOS ва зангҳо, вақте NIGOH Family кушода аст': [
+    'Включены: сообщения, SOS и звонки, пока NIGOH Family открыт',
+    'On: messages, SOS and calls while NIGOH Family is open',
+  ],
+  'Хомӯш аст': ['Выключены', 'Off'],
+  'Дидан': ['Открыть', 'Open'],
 };

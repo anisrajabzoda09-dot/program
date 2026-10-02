@@ -1,7 +1,10 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/platform.dart';
 import '../../core/session.dart';
 import '../../ui/avatar.dart';
 import '../../ui/nigoh_design.dart';
@@ -16,13 +19,38 @@ const maxAvatarBytes = 260 * 1024;
 
 Future<Uint8List?> _pickWithImagePicker(ImageSource source) async {
   final file = await ImagePicker().pickImage(
-    source: source,
+    source: isDesktop ? ImageSource.gallery : source,
     maxWidth: 512,
     maxHeight: 512,
     imageQuality: 80,
     preferredCameraDevice: CameraDevice.front,
   );
-  return file?.readAsBytes();
+  final bytes = await file?.readAsBytes();
+  // image_picker cannot resize on Windows: shrink big photos here.
+  if (bytes != null && isDesktop && bytes.length > maxAvatarBytes) {
+    return shrinkAvatar(bytes);
+  }
+  return bytes;
+}
+
+/// Re-encodes a big photo as a small square-ish PNG that fits
+/// [maxAvatarBytes]; returns the original bytes if it cannot be decoded.
+Future<Uint8List> shrinkAvatar(Uint8List bytes) async {
+  for (final size in const [512, 384, 256, 192]) {
+    try {
+      final codec = await ui.instantiateImageCodec(bytes, targetWidth: size);
+      final frame = await codec.getNextFrame();
+      final data = await frame.image.toByteData(format: ui.ImageByteFormat.png);
+      frame.image.dispose();
+      codec.dispose();
+      if (data == null) break;
+      final png = data.buffer.asUint8List();
+      if (png.length <= maxAvatarBytes) return png;
+    } catch (_) {
+      break; // Not an image Flutter can read: let the size check report it.
+    }
+  }
+  return bytes;
 }
 
 /// The profile photo in Settings: tap to pick from the gallery, take a
@@ -67,12 +95,14 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
                 title: Text(tr('Аз галерея')),
                 onTap: () => Navigator.pop(sheetContext, 'gallery'),
               ),
-              ListTile(
-                key: const ValueKey('avatar-camera'),
-                leading: const Icon(Icons.photo_camera_outlined),
-                title: Text(tr('Сурат гирифтан')),
-                onTap: () => Navigator.pop(sheetContext, 'camera'),
-              ),
+              // Desktop: image_picker only opens a file dialog, no camera.
+              if (!isDesktop)
+                ListTile(
+                  key: const ValueKey('avatar-camera'),
+                  leading: const Icon(Icons.photo_camera_outlined),
+                  title: Text(tr('Сурат гирифтан')),
+                  onTap: () => Navigator.pop(sheetContext, 'camera'),
+                ),
               if (hasPhoto)
                 ListTile(
                   key: const ValueKey('avatar-delete'),
@@ -111,9 +141,15 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
         context,
         denied
             ? (source == ImageSource.camera
-                  ? tr('Иҷозат дода нашуд. Дар танзимоти телефон иҷозати камераро диҳед.')
-                  : tr('Иҷозат дода нашуд. Дар танзимоти телефон иҷозати суратҳоро диҳед.'))
-            : tr('Сурат интихоб нашуд: {error}', {'error': e.message ?? e.code}),
+                  ? tr(
+                      'Иҷозат дода нашуд. Дар танзимоти телефон иҷозати камераро диҳед.',
+                    )
+                  : tr(
+                      'Иҷозат дода нашуд. Дар танзимоти телефон иҷозати суратҳоро диҳед.',
+                    ))
+            : tr('Сурат интихоб нашуд: {error}', {
+                'error': e.message ?? e.code,
+              }),
         error: true,
       );
       return;
