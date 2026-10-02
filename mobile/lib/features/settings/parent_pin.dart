@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/user_journey_logic.dart';
+import '../../l10n/l10n.dart';
 
 /// Parent PIN stored natively on this phone (`tj.nigoh/device_control`).
 abstract final class ParentPin {
@@ -26,8 +27,8 @@ abstract final class ParentPin {
     );
     if (result?['ok'] == true) return null;
     return result?['error'] == 'wrong_current_pin'
-        ? 'Рамзи ҷорӣ нодуруст аст.'
-        : 'Рамз нигоҳ дошта нашуд. Дубора кӯшиш кунед.';
+        ? tr('Рамзи ҷорӣ нодуруст аст.')
+        : tr('Рамз нигоҳ дошта нашуд. Дубора кӯшиш кунед.');
   }
 
   /// Opens [PinSetupDialog] to create a PIN (or change it when [hasPin]);
@@ -47,12 +48,12 @@ abstract final class ParentPin {
   /// Asks for the PIN in a dialog; true when it was correct.
   static Future<bool> ask(
     BuildContext context, {
-    String title = 'PIN-и волидайн',
+    String? title,
     String? text,
   }) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => _PinDialog(title: title, text: text),
+      builder: (_) => _PinDialog(title: title ?? tr('PIN-и волидайн'), text: text),
     );
     return ok == true;
   }
@@ -87,9 +88,9 @@ class _PinDialogState extends State<_PinDialog> {
       final ok = await ParentPin.verify(pin.text.trim());
       if (!mounted) return;
       if (ok) return Navigator.pop(context, true);
-      setState(() => error = 'PIN нодуруст аст.');
+      setState(() => error = tr('PIN нодуруст аст.'));
     } on PlatformException catch (e) {
-      if (mounted) setState(() => error = e.message ?? 'PIN санҷида нашуд.');
+      if (mounted) setState(() => error = e.message ?? tr('PIN санҷида нашуд.'));
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -116,7 +117,7 @@ class _PinDialogState extends State<_PinDialog> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onSubmitted: (_) => submit(),
           decoration: InputDecoration(
-            labelText: 'PIN (4 рақам)',
+            labelText: tr('PIN (4 рақам)'),
             counterText: '',
             errorText: error,
           ),
@@ -126,12 +127,12 @@ class _PinDialogState extends State<_PinDialog> {
     actions: [
       TextButton(
         onPressed: busy ? null : () => Navigator.pop(context, false),
-        child: const Text('Бекор'),
+        child: Text(tr('Бекор')),
       ),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
         onPressed: busy ? null : submit,
-        child: const Text('Тасдиқ'),
+        child: Text(tr('Тасдиқ')),
       ),
     ],
   );
@@ -167,10 +168,10 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
   Future<void> save() async {
     final newPin = next.text.trim();
     if (!UserJourneyLogic.validPin(newPin)) {
-      return setState(() => error = 'PIN бояд аз 4 рақам иборат бошад.');
+      return setState(() => error = tr('PIN бояд аз 4 рақам иборат бошад.'));
     }
     if (newPin != confirm.text.trim()) {
-      return setState(() => error = 'Такрори PIN мувофиқ нест.');
+      return setState(() => error = tr('Такрори PIN мувофиқ нест.'));
     }
     setState(() {
       saving = true;
@@ -186,7 +187,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
       setState(() => error = failure);
     } on PlatformException catch (e) {
       if (mounted) {
-        setState(() => error = e.message ?? 'PIN нигоҳ дошта нашуд.');
+        setState(() => error = e.message ?? tr('PIN нигоҳ дошта нашуд.'));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -213,26 +214,26 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     icon: const Icon(Icons.pin_outlined),
-    title: Text(widget.hasPin ? 'Иваз кардани PIN' : 'Гузоштани PIN'),
+    title: Text(widget.hasPin ? tr('Иваз кардани PIN') : tr('Гузоштани PIN')),
     content: SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            widget.text ?? 'PIN дар ҳамин телефон нигоҳ дошта мешавад ва барои амалҳои муҳим лозим аст.',
+            widget.text ?? tr('PIN дар ҳамин телефон нигоҳ дошта мешавад ва барои амалҳои муҳим лозим аст.'),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 14),
-          if (widget.hasPin) field(current, 'PIN-и ҷорӣ', focus: true),
+          if (widget.hasPin) field(current, tr('PIN-и ҷорӣ'), focus: true),
           field(
             next,
-            widget.hasPin ? 'PIN-и нав' : 'PIN (4 рақам)',
+            widget.hasPin ? tr('PIN-и нав') : tr('PIN (4 рақам)'),
             focus: !widget.hasPin,
           ),
-          field(confirm, 'Такрори PIN'),
+          field(confirm, tr('Такрори PIN')),
           if (error != null)
             Text(
               error!,
@@ -244,12 +245,12 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
     actions: [
       TextButton(
         onPressed: saving ? null : () => Navigator.pop(context, false),
-        child: const Text('Бекор'),
+        child: Text(tr('Бекор')),
       ),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
         onPressed: saving ? null : save,
-        child: const Text('Нигоҳ доштан'),
+        child: Text(tr('Нигоҳ доштан')),
       ),
     ],
   );

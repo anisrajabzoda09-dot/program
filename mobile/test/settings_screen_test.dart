@@ -59,9 +59,13 @@ void main() {
     expect(find.text('Модар'), findsOneWidget);
     expect(find.text('Волидайн'), findsOneWidget);
     expect(find.text('Фаъол аст'), findsOneWidget);
+    // The settings list is longer now (language, wizard rows): scroll to the
+    // version row, then back up to the appearance section.
+    await tester.scrollUntilVisible(find.text('2.10.0 (38)'), 200);
     expect(find.text('2.10.0 (38)'), findsOneWidget);
     expect(find.text('Иҷозатҳо'), findsNothing);
 
+    await tester.scrollUntilVisible(find.text('Торик'), -200);
     await tester.tap(find.text('Торик'));
     await tester.pumpAndSettle();
     expect(themeModeSetting.value, ThemeMode.dark);

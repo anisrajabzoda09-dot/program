@@ -6,6 +6,7 @@ import '../../core/session.dart';
 import '../../ui/avatar.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Returns the picked image bytes, or null when the user cancelled.
 typedef PhotoPicker = Future<Uint8List?> Function(ImageSource source);
@@ -63,13 +64,13 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
               ListTile(
                 key: const ValueKey('avatar-gallery'),
                 leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Аз галерея'),
+                title: Text(tr('Аз галерея')),
                 onTap: () => Navigator.pop(sheetContext, 'gallery'),
               ),
               ListTile(
                 key: const ValueKey('avatar-camera'),
                 leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Сурат гирифтан'),
+                title: Text(tr('Сурат гирифтан')),
                 onTap: () => Navigator.pop(sheetContext, 'camera'),
               ),
               if (hasPhoto)
@@ -80,7 +81,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
                     color: Theme.of(sheetContext).colorScheme.error,
                   ),
                   title: Text(
-                    'Нест кардан',
+                    tr('Нест кардан'),
                     style: TextStyle(
                       color: Theme.of(sheetContext).colorScheme.error,
                     ),
@@ -109,9 +110,10 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
       showMessage(
         context,
         denied
-            ? 'Иҷозат дода нашуд. Дар танзимоти телефон иҷозати '
-                  '${source == ImageSource.camera ? 'камера' : 'суратҳо'}ро диҳед.'
-            : 'Сурат интихоб нашуд: ${e.message ?? e.code}',
+            ? (source == ImageSource.camera
+                  ? tr('Иҷозат дода нашуд. Дар танзимоти телефон иҷозати камераро диҳед.')
+                  : tr('Иҷозат дода нашуд. Дар танзимоти телефон иҷозати суратҳоро диҳед.'))
+            : tr('Сурат интихоб нашуд: {error}', {'error': e.message ?? e.code}),
         error: true,
       );
       return;
@@ -120,7 +122,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     if (bytes.isEmpty) {
       showMessage(
         context,
-        'Сурат холӣ аст. Дигарашро интихоб кунед.',
+        tr('Сурат холӣ аст. Дигарашро интихоб кунед.'),
         error: true,
       );
       return;
@@ -128,7 +130,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     if (bytes.length > maxAvatarBytes) {
       showMessage(
         context,
-        'Сурат хеле калон аст. Сурати хурдтар интихоб кунед.',
+        tr('Сурат хеле калон аст. Сурати хурдтар интихоб кунед.'),
         error: true,
       );
       return;
@@ -143,7 +145,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
       } else {
         widget.session.setAvatar(path);
       }
-      showMessage(context, 'Сурат нигоҳ дошта шуд.');
+      showMessage(context, tr('Сурат нигоҳ дошта шуд.'));
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     } finally {
@@ -157,7 +159,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
       await widget.session.api.deleteAvatar();
       if (!mounted) return;
       widget.session.setAvatar(null);
-      showMessage(context, 'Сурат нест карда шуд.');
+      showMessage(context, tr('Сурат нест карда шуд.'));
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     } finally {
@@ -172,7 +174,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     final name = session.displayName.isEmpty ? '?' : session.displayName;
     return Semantics(
       button: true,
-      label: 'Сурати профил',
+      label: tr('Сурати профил'),
       child: InkWell(
         key: const ValueKey('profile-avatar'),
         customBorder: const CircleBorder(),

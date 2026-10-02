@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
+import '../l10n/l10n.dart';
 
 /// A friendly, step-by-step permission setup. Android still owns the final
 /// consent screen for special permissions; this page keeps the flow simple.
@@ -56,7 +57,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
       if (!mounted) return;
       setState(() {
         loading = false;
-        error = 'Ҳолати иҷозатҳо санҷида нашуд. Дубора кӯшиш кунед.';
+        error = tr('Ҳолати иҷозатҳо санҷида нашуд. Дубора кӯшиш кунед.');
       });
     }
   }
@@ -70,7 +71,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     } catch (_) {
       if (mounted) {
         setState(
-          () => error = 'Танзимот кушода нашуд. Аз Settings → Apps → NIGOH Family кушоед.',
+          () => error = tr('Танзимот кушода нашуд. Аз Settings → Apps → NIGOH Family кушоед.'),
         );
       }
     } finally {
@@ -152,57 +153,57 @@ class _AccessCenterPageState extends State<AccessCenterPage>
   List<_PermissionStepData> get steps => [
     _PermissionStepData(
       key: 'location',
-      title: 'Ҷойгиршавӣ',
-      description: 'Барои дидани ҷойи фарзанд дар харита.',
+      title: tr('Ҷойгиршавӣ'),
+      description: tr('Барои дидани ҷойи фарзанд дар харита.'),
       icon: Icons.location_on_rounded,
     ),
     _PermissionStepData(
       key: 'notifications',
-      title: 'Огоҳиномаҳо',
-      description: 'Барои паёмҳои оила ва дархостҳои нав.',
+      title: tr('Огоҳиномаҳо'),
+      description: tr('Барои паёмҳои оила ва дархостҳои нав.'),
       icon: Icons.notifications_rounded,
     ),
     if (widget.childMode)
       _PermissionStepData(
         key: 'usage',
-        title: 'Вақти истифодаи барномаҳо',
-        description: 'Барои ҳисоб кардани вақти ҳар барнома.',
+        title: tr('Вақти истифодаи барномаҳо'),
+        description: tr('Барои ҳисоб кардани вақти ҳар барнома.'),
         icon: Icons.bar_chart_rounded,
       ),
     if (widget.childMode)
       _PermissionStepData(
         key: 'overlay',
-        title: 'Экрани муҳофизат',
-        description: 'Барои нишон додани экрани маҳкамкунӣ.',
+        title: tr('Экрани муҳофизат'),
+        description: tr('Барои нишон додани экрани маҳкамкунӣ.'),
         icon: Icons.layers_rounded,
       ),
     if (widget.childMode)
       _PermissionStepData(
         key: 'accessibility',
-        title: 'Назорати барномаҳо',
-        description: 'Барои маҳкамкунии фаврии барномаи интихобшуда.',
+        title: tr('Назорати барномаҳо'),
+        description: tr('Барои маҳкамкунии фаврии барномаи интихобшуда.'),
         icon: Icons.accessibility_new_rounded,
       ),
     _PermissionStepData(
       key: 'camera',
-      title: 'Камера барои QR',
-      description: 'Ихтиёрӣ: пайвастшавӣ бо QR осонтар мешавад.',
+      title: tr('Камера барои QR'),
+      description: tr('Ихтиёрӣ: пайвастшавӣ бо QR осонтар мешавад.'),
       icon: Icons.qr_code_scanner_rounded,
       optional: true,
     ),
     if (widget.childMode)
       _PermissionStepData(
         key: 'backgroundLocation',
-        title: 'Ҷойгиршавӣ дар пасзамина',
-        description: 'Ихтиёрӣ: ҷой ҳангоми баста будани экран нав мешавад.',
+        title: tr('Ҷойгиршавӣ дар пасзамина'),
+        description: tr('Ихтиёрӣ: ҷой ҳангоми баста будани экран нав мешавад.'),
         icon: Icons.location_history_rounded,
         optional: true,
       ),
     if (widget.childMode)
       _PermissionStepData(
         key: 'deviceAdmin',
-        title: 'Муҳофизати несткунӣ',
-        description: 'Ихтиёрӣ: огоҳӣ пеш аз ғайрифаъолкунӣ.',
+        title: tr('Муҳофизати несткунӣ'),
+        description: tr('Ихтиёрӣ: огоҳӣ пеш аз ғайрифаъолкунӣ.'),
         icon: Icons.admin_panel_settings_rounded,
         optional: true,
       ),
@@ -236,7 +237,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
               ),
               Expanded(
                 child: Text(
-                  'Омодасозии NIGOH',
+                  tr('Омодасозии NIGOH'),
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
@@ -244,7 +245,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).maybePop(),
-                child: const Text('Баъдтар'),
+                child: Text(tr('Баъдтар')),
               ),
             ],
           ),
@@ -274,7 +275,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                       const Icon(Icons.shield_rounded, color: Colors.white),
                       const SizedBox(width: 8),
                       Text(
-                        'Қадам ба қадам',
+                        tr('Қадам ба қадам'),
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
@@ -284,7 +285,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Барои кори дурусти NIGOH чанд иҷозати Android лозим аст.',
+                    tr('Барои кори дурусти NIGOH чанд иҷозати Android лозим аст.'),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: .92),
                     ),
@@ -301,7 +302,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '$completed аз ${steps.length} омода',
+                    tr('{done} аз {total} омода', {'done': completed, 'total': steps.length}),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -326,7 +327,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
             OutlinedButton.icon(
               onPressed: busy ? null : () => act(() => open('openAppDetails')),
               icon: const Icon(Icons.settings_applications),
-              label: const Text('Кушодани App info'),
+              label: Text(tr('Кушодани App info')),
             ),
           ],
           const SizedBox(height: 16),
@@ -342,14 +343,14 @@ class _AccessCenterPageState extends State<AccessCenterPage>
           if (!loading && widget.childMode && protectionReady)
             Card(
               color: const Color(0xFFE7F8F3),
-              child: const ListTile(
+              child: ListTile(
                 leading: Icon(Icons.check_circle, color: Colors.teal),
                 title: Text(
-                  'Иҷозатҳои бастани барномаҳо дода шуданд',
+                  tr('Иҷозатҳои бастани барномаҳо дода шуданд'),
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
                 subtitle: Text(
-                  'Акнун волидайн метавонад вақт ва барномаҳоро идора кунад.',
+                  tr('Акнун волидайн метавонад вақт ва барномаҳоро идора кунад.'),
                 ),
               ),
             ),
@@ -360,22 +361,22 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Бастани барномаҳо ҳоло омода нест',
+                    Text(
+                      tr('Бастани барномаҳо ҳоло омода нест'),
                       style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 5),
-                    const Text(
-                      'Барои App Control се иҷозати Android лозим аст: Usage access, Accessibility ва Display over other apps.',
+                    Text(
+                      tr('Барои App Control се иҷозати Android лозим аст: Usage access, Accessibility ва Display over other apps.'),
                     ),
                     const SizedBox(height: 5),
-                    const Text(
-                      '«Restricted setting» ё «App was denied access»?',
+                    Text(
+                      tr('«Restricted setting» ё «App was denied access»?'),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 5),
-                    const Text(
-                      'Аввал қадамҳои кабуди болоиро иҷро кунед, баъд ҳар иҷозатро аз рӯйхати поён боз кунед.',
+                    Text(
+                      tr('Аввал қадамҳои кабуди болоиро иҷро кунед, баъд ҳар иҷозатро аз рӯйхати поён боз кунед.'),
                     ),
                   ],
                 ),
@@ -388,20 +389,20 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                 padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      'Агар Android «Controlled by restricted setting» гӯяд',
+                      tr('Агар Android «Controlled by restricted setting» гӯяд'),
                       style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '1. «App info»-ро кушоед.\n'
+                      tr('1. «App info»-ро кушоед.\n'
                       '2. Дар кунҷи боло ⋮ → «Allow restricted settings»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.\n'
-                      '3. Ба ин саҳифа баргардед ва Usage access, Display over other apps ва Accessibility-ро як-як фаъол кунед.',
+                      '3. Ба ин саҳифа баргардед ва Usage access, Display over other apps ва Accessibility-ро як-як фаъол кунед.'),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      'Ин танзимро танҳо соҳиби телефон дар Android дода метавонад; NIGOH онро худкор фаъол карда наметавонад.',
+                      tr('Ин танзимро танҳо соҳиби телефон дар Android дода метавонад; NIGOH онро худкор фаъол карда наметавонад.'),
                     ),
                   ],
                 ),
@@ -436,14 +437,14 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   )
                 : const Icon(Icons.arrow_forward_rounded),
             label: Text(
-              next == null ? 'Ҳамаи қадамҳои асосӣ тайёр' : 'Иҷозати навбатӣ',
+              next == null ? tr('Ҳамаи қадамҳои асосӣ тайёр') : tr('Иҷозати навбатӣ'),
             ),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
             onPressed: busy ? null : refresh,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Аз нав санҷидан'),
+            label: Text(tr('Аз нав санҷидан')),
           ),
           if (widget.childMode && !protectionReady)
             Card(
@@ -451,7 +452,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Text(
-                  'Агар Android иҷозатро боз ҳам маҳкам кунад, онро аз Settings → Apps → NIGOH Family фаъол кунед. Ин маҳдудияти худи Android аст.',
+                  tr('Агар Android иҷозатро боз ҳам маҳкам кунад, онро аз Settings → Apps → NIGOH Family фаъол кунед. Ин маҳдудияти худи Android аст.'),
                   style: TextStyle(color: Colors.brown.shade900),
                 ),
               ),
@@ -542,8 +543,8 @@ class _PermissionStepCard extends StatelessWidget {
                           ),
                         ),
                         if (data.optional)
-                          const Text(
-                            'ихтиёрӣ',
+                          Text(
+                            tr('ихтиёрӣ'),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey,
@@ -554,7 +555,7 @@ class _PermissionStepCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      done ? 'Иҷозат дода шуд' : data.description,
+                      done ? tr('Иҷозат дода шуд') : data.description,
                       style: TextStyle(
                         fontSize: 12.5,
                         color: done ? Colors.teal.shade800 : null,

@@ -7,12 +7,14 @@ import '../../core/notify_bridge.dart';
 import '../../core/session.dart';
 import '../../core/user_journey_logic.dart';
 import '../onboarding/permissions_wizard.dart';
+import '../../ui/language_picker.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'app_update.dart';
 import 'parent_pin.dart';
 import 'profile_photo.dart';
 import 'theme_mode.dart';
+import '../../l10n/l10n.dart';
 
 /// Settings tab shared by the parent and child homes. Has its own Scaffold.
 class SettingsScreen extends StatefulWidget {
@@ -90,8 +92,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (mounted) {
         setState(
           () => pinError = e is PlatformException
-              ? (e.message ?? 'Ҳолати PIN маълум нашуд.')
-              : 'Ҳолати PIN маълум нашуд.',
+              ? (e.message ?? tr('Ҳолати PIN маълум нашуд.'))
+              : tr('Ҳолати PIN маълум нашуд.'),
         );
       }
     }
@@ -105,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (name == null || name.trim().isEmpty || !mounted) return;
     try {
       await session.updateName(name);
-      if (mounted) showMessage(context, 'Ном нигоҳ дошта шуд.');
+      if (mounted) showMessage(context, tr('Ном нигоҳ дошта шуд.'));
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     }
@@ -119,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (changed == true && mounted) {
       showMessage(
         context,
-        hasPin == true ? 'PIN иваз шуд.' : 'PIN гузошта шуд.',
+        hasPin == true ? tr('PIN иваз шуд.') : tr('PIN гузошта шуд.'),
       );
       setState(() => hasPin = true);
     }
@@ -143,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (pinSet) {
         final ok = await ParentPin.ask(
           context,
-          text: 'Барои баромадан аз аккаунт PIN-и волидайн лозим аст.',
+          text: tr('Барои баромадан аз аккаунт PIN-и волидайн лозим аст.'),
         );
         if (!ok || !mounted) return;
       }
@@ -151,17 +153,17 @@ class _SettingsScreenState extends State<SettingsScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Аз аккаунт бароед?'),
-        content: const Text('Барои идома боз ворид шудан лозим мешавад.'),
+        title: Text(tr('Аз аккаунт бароед?')),
+        content: Text(tr('Барои идома боз ворид шудан лозим мешавад.')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Бекор'),
+            child: Text(tr('Бекор')),
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Баромадан'),
+            child: Text(tr('Баромадан')),
           ),
         ],
       ),
@@ -178,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       builder: (_) => const _UninstallDialog(),
     );
     if (ok == true && mounted) {
-      showMessage(context, 'Тасдиқ шуд. Android экрани несткуниро мекушояд.');
+      showMessage(context, tr('Тасдиқ шуд. Android экрани несткуниро мекушояд.'));
     }
   }
 
@@ -189,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     final child = session.isChild;
     var i = 0;
     return Scaffold(
-      appBar: AppBar(title: const Text('Танзимот')),
+      appBar: AppBar(title: Text(tr('Танзимот'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
         children: [
@@ -200,7 +202,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               onEdit: () => editName(session),
             ),
           ),
-          const SectionTitle('Амният'),
+          SectionTitle(tr('Амният')),
           FadeIn(
             index: i++,
             child: _Group(
@@ -208,17 +210,17 @@ class _SettingsScreenState extends State<SettingsScreen>
                 _Tile(
                   icon: Icons.pin_outlined,
                   color: NigohDesign.violet,
-                  title: 'PIN-и волидайн',
+                  title: tr('PIN-и волидайн'),
                   subtitle:
                       pinError ??
                       (hasPin == null
-                          ? 'Санҷида мешавад…'
+                          ? tr('Санҷида мешавад…')
                           : hasPin!
-                          ? 'Фаъол аст'
-                          : 'Гузошта нашудааст'),
+                          ? tr('Фаъол аст')
+                          : tr('Гузошта нашудааст')),
                   subtitleColor: pinError != null ? scheme.error : null,
                   trailing: Text(
-                    hasPin == true ? 'Иваз кардан' : 'Гузоштан',
+                    hasPin == true ? tr('Иваз кардан') : tr('Гузоштан'),
                     style: TextStyle(
                       color: scheme.primary,
                       fontWeight: FontWeight.w600,
@@ -230,10 +232,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                 _Tile(
                   icon: Icons.verified_user_outlined,
                   color: NigohDesign.mint,
-                  title: 'Иҷозатҳо (устод)',
+                  title: tr('Иҷозатҳо (устод)'),
                   subtitle: child
-                      ? 'Ҷойгиршавӣ, истифода ва бастани барномаҳо'
-                      : 'Огоҳиномаҳо, камера, микрофон ва батарея',
+                      ? tr('Ҷойгиршавӣ, истифода ва бастани барномаҳо')
+                      : tr('Огоҳиномаҳо, камера, микрофон ва батарея'),
                   onTap: () async {
                     await PermissionsWizard.open(context, childMode: child);
                     if (mounted) await loadNotifyStatus();
@@ -244,10 +246,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                   _Tile(
                     icon: Icons.shield_outlined,
                     color: NigohDesign.amber,
-                    title: 'Муҳофизат аз несткунӣ',
-                    subtitle: 'NIGOH-ро танҳо бо PIN-и волидайн нест кардан мумкин аст.',
+                    title: tr('Муҳофизат аз несткунӣ'),
+                    subtitle: tr('NIGOH-ро танҳо бо PIN-и волидайн нест кардан мумкин аст.'),
                     trailing: Text(
-                      'Нест кардан',
+                      tr('Нест кардан'),
                       style: TextStyle(
                         color: scheme.error,
                         fontWeight: FontWeight.w600,
@@ -259,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               ],
             ),
           ),
-          const SectionTitle('Намуд'),
+          SectionTitle(tr('Намуд')),
           FadeIn(
             index: i++,
             child: _Group(
@@ -272,21 +274,21 @@ class _SettingsScreenState extends State<SettingsScreen>
                       width: double.infinity,
                       child: SegmentedButton<ThemeMode>(
                         showSelectedIcon: false,
-                        segments: const [
+                        segments: [
                           ButtonSegment(
                             value: ThemeMode.system,
-                            icon: Icon(Icons.brightness_auto_outlined),
-                            label: Text('Система'),
+                            icon: const Icon(Icons.brightness_auto_outlined),
+                            label: Text(tr('Система')),
                           ),
                           ButtonSegment(
                             value: ThemeMode.light,
-                            icon: Icon(Icons.light_mode_outlined),
-                            label: Text('Равшан'),
+                            icon: const Icon(Icons.light_mode_outlined),
+                            label: Text(tr('Равшан')),
                           ),
                           ButtonSegment(
                             value: ThemeMode.dark,
-                            icon: Icon(Icons.dark_mode_outlined),
-                            label: Text('Торик'),
+                            icon: const Icon(Icons.dark_mode_outlined),
+                            label: Text(tr('Торик')),
                           ),
                         ],
                         selected: {mode},
@@ -296,10 +298,19 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                   ),
                 ),
+                const Divider(height: 1),
+                _Tile(
+                  key: const ValueKey('settings-language'),
+                  icon: Icons.language_rounded,
+                  color: NigohDesign.sky,
+                  title: tr('Забон'),
+                  subtitle: AppLanguage.names[appLanguage.value],
+                  onTap: () => showLanguageSheet(context),
+                ),
               ],
             ),
           ),
-          const SectionTitle('Барнома'),
+          SectionTitle(tr('Барнома')),
           FadeIn(
             index: i++,
             child: _Group(
@@ -307,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 _Tile(
                   icon: Icons.info_outline_rounded,
                   color: NigohDesign.sky,
-                  title: 'Версия',
+                  title: tr('Версия'),
                   subtitle: version.isEmpty ? '—' : version,
                 ),
                 const Divider(height: 1),
@@ -316,7 +327,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   builder: (_, error, _) => _Tile(
                     icon: Icons.system_update_outlined,
                     color: NigohDesign.blue,
-                    title: 'Санҷидани навсозӣ',
+                    title: tr('Санҷидани навсозӣ'),
                     subtitle: error,
                     subtitleColor: error != null ? scheme.error : null,
                     trailing: checkingUpdate
@@ -338,18 +349,18 @@ class _SettingsScreenState extends State<SettingsScreen>
                     final subtitle =
                         error ??
                         (!notifyLoaded
-                            ? 'Санҷида мешавад…'
+                            ? tr('Санҷида мешавад…')
                             : status == null
-                            ? 'Ҳолат маълум нашуд'
+                            ? tr('Ҳолат маълум нашуд')
                             : !status.notifications
-                            ? 'Хомӯш аст — паёмҳо ва SOS намерасанд'
+                            ? tr('Хомӯш аст — паёмҳо ва SOS намерасанд')
                             : !status.fullScreen
-                            ? 'Барои SOS ва зангҳо иҷозати экрани пурра лозим'
-                            : 'Фаъол: паёмҳо, SOS ва зангҳо');
+                            ? tr('Барои SOS ва зангҳо иҷозати экрани пурра лозим')
+                            : tr('Фаъол: паёмҳо, SOS ва зангҳо'));
                     return _Tile(
                       icon: Icons.notifications_active_outlined,
                       color: NigohDesign.coral,
-                      title: 'Огоҳиномаҳо',
+                      title: tr('Огоҳиномаҳо'),
                       subtitle: subtitle,
                       subtitleColor: error != null || (status != null && !ok)
                           ? scheme.error
@@ -357,7 +368,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       trailing: ok || status == null
                           ? null
                           : Text(
-                              status.notifications ? 'Кушодан' : 'Иҷозат додан',
+                              status.notifications ? tr('Кушодан') : tr('Иҷозат додан'),
                               style: TextStyle(
                                 color: scheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -381,7 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
               onPressed: () => signOut(session),
               icon: const Icon(Icons.logout_rounded),
-              label: const Text('Баромадан аз аккаунт'),
+              label: Text(tr('Баромадан аз аккаунт')),
             ),
           ),
         ],
@@ -399,7 +410,7 @@ class _ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final name = session.displayName.isEmpty
-        ? 'Истифодабаранда'
+        ? tr('Истифодабаранда')
         : session.displayName;
     final roleColor = session.isParent ? NigohDesign.blue : NigohDesign.mint;
     return Card(
@@ -433,7 +444,7 @@ class _ProfileCard extends StatelessWidget {
                   ],
                   const SizedBox(height: 8),
                   Pill(
-                    session.isParent ? 'Волидайн' : 'Фарзанд',
+                    session.isParent ? tr('Волидайн') : tr('Фарзанд'),
                     color: roleColor,
                     icon: session.isParent
                         ? Icons.family_restroom_rounded
@@ -443,7 +454,7 @@ class _ProfileCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Тағйири ном',
+              tooltip: tr('Тағйири ном'),
               onPressed: onEdit,
               icon: const Icon(Icons.edit_outlined),
             ),
@@ -467,6 +478,7 @@ class _Group extends StatelessWidget {
 
 class _Tile extends StatelessWidget {
   const _Tile({
+    super.key,
     required this.icon,
     required this.color,
     required this.title,
@@ -531,23 +543,23 @@ class _NameDialogState extends State<_NameDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Ном'),
+    title: Text(tr('Ном')),
     content: TextField(
       controller: name,
       autofocus: true,
       textCapitalization: TextCapitalization.words,
       onSubmitted: (_) => save(),
-      decoration: const InputDecoration(labelText: 'Номи шумо'),
+      decoration: InputDecoration(labelText: tr('Номи шумо')),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Бекор'),
+        child: Text(tr('Бекор')),
       ),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
         onPressed: save,
-        child: const Text('Нигоҳ доштан'),
+        child: Text(tr('Нигоҳ доштан')),
       ),
     ],
   );
@@ -575,7 +587,7 @@ class _UninstallDialogState extends State<_UninstallDialog> {
   Future<void> submit() async {
     final value = pin.text.trim();
     if (!UserJourneyLogic.validPin(value)) {
-      return setState(() => error = 'PIN бояд аз 4 рақам иборат бошад.');
+      return setState(() => error = tr('PIN бояд аз 4 рақам иборат бошад.'));
     }
     setState(() {
       busy = true;
@@ -591,13 +603,16 @@ class _UninstallDialogState extends State<_UninstallDialog> {
       final code = result?['error'];
       setState(() {
         error = code == 'locked'
-            ? 'Кӯшишҳо баста шуданд. Баъд аз ${result?['remainingSeconds']} сония дубора кӯшиш кунед.'
+            ? tr(
+                'Кӯшишҳо баста шуданд. Баъд аз {seconds} сония дубора кӯшиш кунед.',
+                {'seconds': result?['remainingSeconds']},
+              )
             : code == 'no_pin'
-            ? 'Аввал PIN-и волидайнро гузоред.'
-            : 'PIN нодуруст аст.';
+            ? tr('Аввал PIN-и волидайнро гузоред.')
+            : tr('PIN нодуруст аст.');
       });
     } on PlatformException catch (e) {
-      if (mounted) setState(() => error = e.message ?? 'Амал иҷро нашуд.');
+      if (mounted) setState(() => error = e.message ?? tr('Амал иҷро нашуд.'));
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -606,12 +621,12 @@ class _UninstallDialogState extends State<_UninstallDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     icon: const Icon(Icons.shield_outlined),
-    title: const Text('Тасдиқи волидайн'),
+    title: Text(tr('Тасдиқи волидайн')),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Барои нест кардани NIGOH PIN-и волидайнро ворид кунед.'),
+        Text(tr('Барои нест кардани NIGOH PIN-и волидайнро ворид кунед.')),
         const SizedBox(height: 14),
         TextField(
           controller: pin,
@@ -622,7 +637,7 @@ class _UninstallDialogState extends State<_UninstallDialog> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onSubmitted: (_) => submit(),
           decoration: InputDecoration(
-            labelText: 'PIN-и волидайн',
+            labelText: tr('PIN-и волидайн'),
             counterText: '',
             errorText: error,
             errorMaxLines: 3,
@@ -633,12 +648,12 @@ class _UninstallDialogState extends State<_UninstallDialog> {
     actions: [
       TextButton(
         onPressed: busy ? null : () => Navigator.pop(context, false),
-        child: const Text('Бекор'),
+        child: Text(tr('Бекор')),
       ),
       FilledButton(
         style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
         onPressed: busy ? null : submit,
-        child: const Text('Тасдиқ'),
+        child: Text(tr('Тасдиқ')),
       ),
     ],
   );

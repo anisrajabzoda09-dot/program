@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../core/api.dart';
 import '../../core/user_journey_logic.dart';
 import '../../ui/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Checks `/api/mobile/version` and offers the in-app APK update
 /// (native `tj.nigoh/update` → installUpdate).
@@ -33,7 +34,7 @@ abstract final class AppUpdate {
       release = await api.version(current);
       lastError.value = null;
     } catch (e) {
-      final text = e is ApiException ? e.message : 'Навсозӣ санҷида нашуд.';
+      final text = e is ApiException ? e.message : tr('Навсозӣ санҷида нашуд.');
       lastError.value = text;
       if (!silent && context.mounted) showMessage(context, text, error: true);
       return;
@@ -46,7 +47,7 @@ abstract final class AppUpdate {
         UserJourneyLogic.shouldOfferUpdate(latest, current) &&
         url.isNotEmpty;
     if (!available) {
-      if (!silent) showMessage(context, 'Шумо версияи охиринро доред.');
+      if (!silent) showMessage(context, tr('Шумо версияи охиринро доред.'));
       return;
     }
     final version = release['version']?.toString() ?? '$latest';
@@ -58,13 +59,13 @@ abstract final class AppUpdate {
         title: Text('NIGOH Family $version'),
         content: Text(
           notes == null || notes.isEmpty
-              ? 'Версияи нав бо беҳбудиҳо дастрас аст.'
+              ? tr('Версияи нав бо беҳбудиҳо дастрас аст.')
               : notes,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Баъдтар'),
+            child: Text(tr('Баъдтар')),
           ),
           FilledButton.icon(
             style: FilledButton.styleFrom(minimumSize: const Size(130, 44)),
@@ -73,7 +74,7 @@ abstract final class AppUpdate {
               install(context, url, version);
             },
             icon: const Icon(Icons.download_rounded),
-            label: const Text('Навсозӣ'),
+            label: Text(tr('Навсозӣ')),
           ),
         ],
       ),
@@ -91,7 +92,7 @@ abstract final class AppUpdate {
   ) async {
     final uri = Uri.tryParse(url);
     if (uri == null || !uri.hasScheme) {
-      showMessage(context, 'Пайванди навсозӣ дастрас нест.', error: true);
+      showMessage(context, tr('Пайванди навсозӣ дастрас нест.'), error: true);
       return;
     }
     final events = progressChannel
@@ -113,7 +114,7 @@ abstract final class AppUpdate {
       if (context.mounted) {
         showMessage(
           context,
-          'Навсозӣ оғоз нашуд. Интернетро санҷед.',
+          tr('Навсозӣ оғоз нашуд. Интернетро санҷед.'),
           error: true,
         );
       }
@@ -123,7 +124,7 @@ abstract final class AppUpdate {
     if (status == 'install_permission_required') {
       showMessage(
         context,
-        'Як бор иҷозат диҳед: «Иҷозати насб аз ин манбаъ»-ро фаъол кунед ва ба NIGOH баргардед — навсозӣ худаш идома меёбад.',
+        tr('Як бор иҷозат диҳед: «Иҷозати насб аз ин манбаъ»-ро фаъол кунед ва ба NIGOH баргардед — навсозӣ худаш идома меёбад.'),
       );
     }
     await showDialog<void>(
@@ -153,11 +154,11 @@ class UpdateProgress {
   }
 
   String get label => switch (state) {
-    'downloading' => 'Боргирӣ… ${((progress ?? 0) * 100).round()}%',
-    'verifying' => 'Санҷиши имзо…',
-    'installing' => message ?? 'Насб…',
-    'done' => 'Навсозӣ насб шуд.',
-    _ => message ?? 'Навсозӣ насб нашуд.',
+    'downloading' => tr('Боргирӣ… {percent}%', {'percent': ((progress ?? 0) * 100).round()}),
+    'verifying' => tr('Санҷиши имзо…'),
+    'installing' => message ?? tr('Насб…'),
+    'done' => tr('Навсозӣ насб шуд.'),
+    _ => message ?? tr('Навсозӣ насб нашуд.'),
   };
 }
 
@@ -186,7 +187,7 @@ class UpdateProgressDialog extends StatelessWidget {
           size: 36,
           color: failed ? scheme.error : scheme.primary,
         ),
-        title: Text('Навсозӣ то $version'),
+        title: Text(tr('Навсозӣ то {version}', {'version': version})),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -200,7 +201,7 @@ class UpdateProgressDialog extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Маълумот, воридшавӣ ва иҷозатҳо нигоҳ дошта мешаванд.',
+                tr('Маълумот, воридшавӣ ва иҷозатҳо нигоҳ дошта мешаванд.'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.5,
@@ -214,7 +215,7 @@ class UpdateProgressDialog extends StatelessWidget {
           if (finished || p.state == 'installing')
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(failed ? 'Пӯшидан' : 'Хуб'),
+              child: Text(failed ? tr('Пӯшидан') : tr('Хуб')),
             ),
         ],
       );
