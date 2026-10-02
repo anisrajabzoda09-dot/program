@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../../core/notify_bridge.dart';
 import '../../ui/nigoh_design.dart';
+import '../../l10n/l10n.dart';
 
 /// One permission page of the wizard.
 enum WizardStepId {
@@ -17,6 +18,10 @@ enum WizardStepId {
   microphone,
   battery,
   fullScreen,
+
+  /// Parent: «display over other apps», so incoming calls and SOS open
+  /// full-screen even while the phone is in use.
+  callOverlay,
   camera,
 }
 
@@ -39,6 +44,7 @@ List<WizardStepId> wizardStepsFor({required bool childMode}) => childMode
     : const [
         WizardStepId.notifications,
         WizardStepId.fullScreen,
+        WizardStepId.callOverlay,
         WizardStepId.camera,
         WizardStepId.microphone,
         WizardStepId.battery,
@@ -92,15 +98,15 @@ class WizardPlatform {
 
   Future<void> openLocationSettings() async {
     final opened = await Geolocator.openLocationSettings();
-    if (!opened) throw const WizardException('Танзимоти GPS кушода нашуд.');
+    if (!opened) throw WizardException(tr('Танзимоти GPS кушода нашуд.'));
   }
 
   Future<void> openAppSettings() async {
     final opened = await ph.openAppSettings();
     if (!opened) {
-      throw const WizardException(
-        'Танзимоти барнома кушода нашуд. Худатон кушоед: '
-        'Танзимот → Барномаҳо → NIGOH Family.',
+      throw WizardException(
+        tr('Танзимоти барнома кушода нашуд. Худатон кушоед: '
+        'Танзимот → Барномаҳо → NIGOH Family.'),
       );
     }
   }
@@ -112,7 +118,7 @@ class WizardPlatform {
     final status = await NotifyBridge.permissionStatus();
     if (status == null) {
       throw WizardException(
-        NotifyBridge.lastError.value ?? 'Ҳолати огоҳиномаҳо маълум нашуд.',
+        NotifyBridge.lastError.value ?? tr('Ҳолати огоҳиномаҳо маълум нашуд.'),
       );
     }
     return status;
@@ -138,12 +144,12 @@ class WizardException implements Exception {
 String wizardErrorText(Object error) {
   if (error is WizardException) return error.message;
   if (error is MissingPluginException) {
-    return 'Ин танзимот дар ин дастгоҳ дастрас нест.';
+    return tr('Ин танзимот дар ин дастгоҳ дастрас нест.');
   }
   if (error is PlatformException) {
-    return error.message ?? 'Android хато дод (${error.code}).';
+    return error.message ?? tr('Android хато дод ({code}).', {'code': error.code});
   }
-  return 'Хато: $error';
+  return tr('Хато: {error}', {'error': error});
 }
 
 /// Static copy and actions of one step.
@@ -167,180 +173,196 @@ class WizardStep {
   final String summaryTitle;
 
   /// Copy for the «Ҳамеша» part of the location step.
-  static const locationAlways = WizardStep(
+  static WizardStep get locationAlways => WizardStep(
     id: WizardStepId.location,
     icon: Icons.share_location_rounded,
     color: NigohDesign.blue,
-    title: 'Ҷойгиршавӣ — «Ҳамеша»',
+    title: tr('Ҷойгиршавӣ — «Ҳамеша»'),
     reason:
-        'То волидайн ҷойи шуморо ҳатто ҳангоми баста будани барнома бинанд, '
-        'дар саҳифаи навбатӣ «Ҳамеша иҷозат додан»-ро интихоб кунед.',
+        tr('То волидайн ҷойи шуморо ҳатто ҳангоми баста будани барнома бинанд, '
+        'дар саҳифаи навбатӣ «Ҳамеша иҷозат додан»-ро интихоб кунед.'),
     help: [
-      '«Иҷозат додан»-ро пахш кунед — саҳифаи «Ҷойгиршавӣ» кушода мешавад.',
-      '«Ҳамеша иҷозат додан» (Разрешить в любом режиме / Allow all the time)-ро интихоб кунед.',
-      'Бо тугмаи «Бозгашт» ба NIGOH баргардед.',
+      tr('«Иҷозат додан»-ро пахш кунед — саҳифаи «Ҷойгиршавӣ» кушода мешавад.'),
+      tr('«Ҳамеша иҷозат додан» (Разрешить в любом режиме / Allow all the time)-ро интихоб кунед.'),
+      tr('Бо тугмаи «Бозгашт» ба NIGOH баргардед.'),
     ],
-    summaryTitle: 'Ҷойгиршавӣ',
+    summaryTitle: tr('Ҷойгиршавӣ'),
   );
 
   static WizardStep of(WizardStepId id) => switch (id) {
-    WizardStepId.location => const WizardStep(
+    WizardStepId.location => WizardStep(
       id: WizardStepId.location,
       icon: Icons.location_on_rounded,
       color: NigohDesign.blue,
-      title: 'Ҷойгиршавӣ',
+      title: tr('Ҷойгиршавӣ'),
       reason:
-          'Волидайн дар харита мебинанд, ки шумо дар куҷоед. '
-          'Ин дар ҳолати SOS хеле муҳим аст.',
+          tr('Волидайн дар харита мебинанд, ки шумо дар куҷоед. '
+          'Ин дар ҳолати SOS хеле муҳим аст.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед.',
-        'Дар равзана «Ҳангоми истифодаи барнома» (При использовании приложения)-ро интихоб кунед.',
-        'Агар равзана набарояд: Настройки → Приложения → NIGOH Family → Разрешения → Местоположение.',
-        'GPS (Местоположение) дар панели болоии телефон бояд фаъол бошад.',
+        tr('«Иҷозат додан»-ро пахш кунед.'),
+        tr('Дар равзана «Ҳангоми истифодаи барнома» (При использовании приложения)-ро интихоб кунед.'),
+        tr('Агар равзана набарояд: Настройки → Приложения → NIGOH Family → Разрешения → Местоположение.'),
+        tr('GPS (Местоположение) дар панели болоии телефон бояд фаъол бошад.'),
       ],
-      summaryTitle: 'Ҷойгиршавӣ',
+      summaryTitle: tr('Ҷойгиршавӣ'),
     ),
-    WizardStepId.notifications => const WizardStep(
+    WizardStepId.notifications => WizardStep(
       id: WizardStepId.notifications,
       icon: Icons.notifications_active_rounded,
       color: NigohDesign.mint,
-      title: 'Огоҳиномаҳо',
+      title: tr('Огоҳиномаҳо'),
       reason:
-          'Паёмҳо, зангҳо ва ҳушдорҳои оила фавран меоянд, '
-          'ҳатто вақте ки барнома баста аст.',
+          tr('Паёмҳо, зангҳо ва ҳушдорҳои оила фавран меоянд, '
+          'ҳатто вақте ки барнома баста аст.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед ва «Разрешить»-ро интихоб кунед.',
-        'Агар равзана набарояд: Настройки → Приложения → NIGOH Family → Уведомления.',
-        '«Показывать уведомления»-ро фаъол кунед.',
+        tr('«Иҷозат додан»-ро пахш кунед ва «Разрешить»-ро интихоб кунед.'),
+        tr('Агар равзана набарояд: Настройки → Приложения → NIGOH Family → Уведомления.'),
+        tr('«Показывать уведомления»-ро фаъол кунед.'),
       ],
-      summaryTitle: 'Огоҳиномаҳо',
+      summaryTitle: tr('Огоҳиномаҳо'),
     ),
-    WizardStepId.usage => const WizardStep(
+    WizardStepId.usage => WizardStep(
       id: WizardStepId.usage,
       icon: Icons.bar_chart_rounded,
       color: NigohDesign.violet,
-      title: 'Дастрасӣ ба истифода',
+      title: tr('Дастрасӣ ба истифода'),
       reason:
-          'NIGOH вақти истифодаи ҳар барномаро ҳисоб мекунад, '
-          'то маҳдудиятҳои волидайн кор кунанд.',
+          tr('NIGOH вақти истифодаи ҳар барномаро ҳисоб мекунад, '
+          'то маҳдудиятҳои волидайн кор кунанд.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед — рӯйхати «Доступ к истории использования» кушода мешавад.',
-        'NIGOH Family-ро ёбед ва пахш кунед.',
-        '«Разрешить доступ к истории использования»-ро фаъол кунед.',
-        'Бо тугмаи «Бозгашт» ба NIGOH баргардед.',
+        tr('«Иҷозат додан»-ро пахш кунед — рӯйхати «Доступ к истории использования» кушода мешавад.'),
+        tr('NIGOH Family-ро ёбед ва пахш кунед.'),
+        tr('«Разрешить доступ к истории использования»-ро фаъол кунед.'),
+        tr('Бо тугмаи «Бозгашт» ба NIGOH баргардед.'),
       ],
-      summaryTitle: 'Дастрасӣ ба истифода',
+      summaryTitle: tr('Дастрасӣ ба истифода'),
     ),
-    WizardStepId.overlay => const WizardStep(
+    WizardStepId.overlay => WizardStep(
       id: WizardStepId.overlay,
       icon: Icons.layers_rounded,
       color: NigohDesign.amber,
-      title: 'Намоиш болои барномаҳо',
+      title: tr('Намоиш болои барномаҳо'),
       reason:
-          'Вақте ки барнома маҳкам аст, NIGOH экрани муҳофизатро '
-          'болои он нишон медиҳад.',
+          tr('Вақте ки барнома маҳкам аст, NIGOH экрани муҳофизатро '
+          'болои он нишон медиҳад.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед — саҳифаи «Поверх других приложений» кушода мешавад.',
-        'Агар рӯйхат бошад, NIGOH Family-ро интихоб кунед.',
-        '«Разрешить показ поверх других приложений»-ро фаъол кунед.',
-        'Бо тугмаи «Бозгашт» ба NIGOH баргардед.',
+        tr('«Иҷозат додан»-ро пахш кунед — саҳифаи «Поверх других приложений» кушода мешавад.'),
+        tr('Агар рӯйхат бошад, NIGOH Family-ро интихоб кунед.'),
+        tr('«Разрешить показ поверх других приложений»-ро фаъол кунед.'),
+        tr('Бо тугмаи «Бозгашт» ба NIGOH баргардед.'),
       ],
-      summaryTitle: 'Намоиш болои барномаҳо',
+      summaryTitle: tr('Намоиш болои барномаҳо'),
     ),
-    WizardStepId.accessibility => const WizardStep(
+    WizardStepId.accessibility => WizardStep(
       id: WizardStepId.accessibility,
       icon: Icons.accessibility_new_rounded,
       color: NigohDesign.pink,
-      title: 'Специальные возможности',
+      title: tr('Специальные возможности'),
       reason:
-          'Ин хизмат барномаи маҳкамшударо фавран мебандад. '
-          'NIGOH матн ва паролҳои шуморо намехонад.',
+          tr('Ин хизмат барномаи маҳкамшударо фавран мебандад. '
+          'NIGOH матн ва паролҳои шуморо намехонад.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед — «Специальные возможности» кушода мешавад.',
-        '«Установленные приложения» (ё «Скачанные приложения») → NIGOH Family-ро кушоед.',
-        'Хизматро фаъол кунед ва «Разрешить»-ро пахш кунед.',
-        'Агар «Ограниченная настройка» ё «Доступ запрещен» барояд (Android 13+): '
+        tr('«Иҷозат додан»-ро пахш кунед — «Специальные возможности» кушода мешавад.'),
+        tr('«Установленные приложения» (ё «Скачанные приложения») → NIGOH Family-ро кушоед.'),
+        tr('Хизматро фаъол кунед ва «Разрешить»-ро пахш кунед.'),
+        tr('Агар «Ограниченная настройка» ё «Доступ запрещен» барояд (Android 13+): '
             'Настройки → Приложения → NIGOH Family → ⋮ (се нуқта дар боло) → '
-            '«Разрешить ограниченные настройки». Баъд аз қадами 1 такрор кунед.',
-        'Дар баъзе Samsung (One UI) банди ⋮ танҳо баъд аз як бор кӯшиш кардан '
-            'ва дидани «Доступ запрещен» пайдо мешавад — аввал як бор кӯшиш кунед.',
-        'Дар Samsung, агар боз ҳам нашавад: Настройки → Безопасность и '
-            'конфиденциальность → «Автоблокировка» (Auto Blocker)-ро хомӯш кунед.',
+            '«Разрешить ограниченные настройки». Баъд аз қадами 1 такрор кунед.'),
+        tr('Дар баъзе Samsung (One UI) банди ⋮ танҳо баъд аз як бор кӯшиш кардан '
+            'ва дидани «Доступ запрещен» пайдо мешавад — аввал як бор кӯшиш кунед.'),
+        tr('Дар Samsung, агар боз ҳам нашавад: Настройки → Безопасность и '
+            'конфиденциальность → «Автоблокировка» (Auto Blocker)-ро хомӯш кунед.'),
       ],
-      summaryTitle: 'Специальные возможности',
+      summaryTitle: tr('Специальные возможности'),
     ),
-    WizardStepId.deviceAdmin => const WizardStep(
+    WizardStepId.deviceAdmin => WizardStep(
       id: WizardStepId.deviceAdmin,
       icon: Icons.admin_panel_settings_rounded,
       color: NigohDesign.coral,
-      title: 'Ҳимоя аз нест кардан',
+      title: tr('Ҳимоя аз нест кардан'),
       reason:
-          'NIGOH-ро бе PIN-и волидайн нест кардан мумкин намешавад. '
-          'Ин ҳимояи оила аст.',
+          tr('NIGOH-ро бе PIN-и волидайн нест кардан мумкин намешавад. '
+          'Ин ҳимояи оила аст.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед — саҳифаи «Администратор устройства» кушода мешавад.',
-        'Ба поён ҳаракат диҳед ва «Активировать» (Фаъол кардан)-ро пахш кунед.',
-        'Агар саҳифа кушода нашавад: Настройки → Безопасность → '
-            'Администраторы устройства → NIGOH Family.',
+        tr('«Иҷозат додан»-ро пахш кунед — саҳифаи «Администратор устройства» кушода мешавад.'),
+        tr('Ба поён ҳаракат диҳед ва «Активировать» (Фаъол кардан)-ро пахш кунед.'),
+        tr('Агар саҳифа кушода нашавад: Настройки → Безопасность → '
+            'Администраторы устройства → NIGOH Family.'),
       ],
-      summaryTitle: 'Ҳимоя аз нест кардан',
+      summaryTitle: tr('Ҳимоя аз нест кардан'),
     ),
-    WizardStepId.microphone => const WizardStep(
+    WizardStepId.microphone => WizardStep(
       id: WizardStepId.microphone,
       icon: Icons.mic_rounded,
       color: NigohDesign.sky,
-      title: 'Микрофон',
-      reason: 'Барои зангҳои овозӣ байни волидайн ва фарзанд лозим аст.',
+      title: tr('Микрофон'),
+      reason: tr('Барои зангҳои овозӣ байни волидайн ва фарзанд лозим аст.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед ва «Разрешить»-ро интихоб кунед.',
-        'Агар равзана набарояд: Настройки → Приложения → NIGOH Family → '
-            'Разрешения → Микрофон → «Разрешить».',
+        tr('«Иҷозат додан»-ро пахш кунед ва «Разрешить»-ро интихоб кунед.'),
+        tr('Агар равзана набарояд: Настройки → Приложения → NIGOH Family → '
+            'Разрешения → Микрофон → «Разрешить».'),
       ],
-      summaryTitle: 'Микрофон',
+      summaryTitle: tr('Микрофон'),
     ),
-    WizardStepId.battery => const WizardStep(
+    WizardStepId.battery => WizardStep(
       id: WizardStepId.battery,
       icon: Icons.battery_charging_full_rounded,
       color: NigohDesign.mint,
-      title: 'Батарея',
+      title: tr('Батарея'),
       reason:
-          'Android барномаро барои сарфаи батарея қатъ накунад, '
-          'то ҷойгиршавӣ ва огоҳиномаҳо дар пасзамина кор кунанд.',
+          tr('Android барномаро барои сарфаи батарея қатъ накунад, '
+          'то ҷойгиршавӣ ва огоҳиномаҳо дар пасзамина кор кунанд.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед ва дар равзана «Разрешить»-ро интихоб кунед.',
-        'Агар равзана набарояд: Настройки → Приложения → NIGOH Family → '
-            'Батарея → «Без ограничений» (Не оптимизировать).',
-        'Дар Samsung: инчунин NIGOH-ро аз «Спящие приложения» хориҷ кунед.',
+        tr('«Иҷозат додан»-ро пахш кунед ва дар равзана «Разрешить»-ро интихоб кунед.'),
+        tr('Агар равзана набарояд: Настройки → Приложения → NIGOH Family → '
+            'Батарея → «Без ограничений» (Не оптимизировать).'),
+        tr('Дар Samsung: инчунин NIGOH-ро аз «Спящие приложения» хориҷ кунед.'),
       ],
-      summaryTitle: 'Батарея',
+      summaryTitle: tr('Батарея'),
     ),
-    WizardStepId.fullScreen => const WizardStep(
+    WizardStepId.fullScreen => WizardStep(
       id: WizardStepId.fullScreen,
       icon: Icons.fullscreen_rounded,
       color: NigohDesign.violet,
-      title: 'Экрани пурра',
+      title: tr('Экрани пурра'),
       reason:
-          'Ҳушдори SOS ва зангҳо ҳатто дар экрани қулфшуда '
-          'дар тамоми экран намоён мешаванд.',
+          tr('Ҳушдори SOS ва зангҳо ҳатто дар экрани қулфшуда '
+          'дар тамоми экран намоён мешаванд.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед — «Полноэкранные уведомления» кушода мешавад.',
-        'NIGOH Family-ро фаъол кунед.',
-        'Бо тугмаи «Бозгашт» ба NIGOH баргардед.',
+        tr('«Иҷозат додан»-ро пахш кунед — «Полноэкранные уведомления» кушода мешавад.'),
+        tr('NIGOH Family-ро фаъол кунед.'),
+        tr('Бо тугмаи «Бозгашт» ба NIGOH баргардед.'),
       ],
-      summaryTitle: 'Экрани пурра',
+      summaryTitle: tr('Экрани пурра'),
     ),
-    WizardStepId.camera => const WizardStep(
+    WizardStepId.callOverlay => WizardStep(
+      id: WizardStepId.callOverlay,
+      icon: Icons.phone_in_talk_rounded,
+      color: NigohDesign.coral,
+      title: tr('Занг дар экран'),
+      reason:
+          tr('Занги воридотӣ ва ҳушдори SOS дарҳол дар тамоми экран '
+          'кушода мешаванд, ҳатто вақте ки шумо бо телефон кор мекунед.'),
+      help: [
+        tr('«Иҷозат додан»-ро пахш кунед — саҳифаи «Поверх других приложений» кушода мешавад.'),
+        tr('Агар рӯйхат бошад, NIGOH Family-ро интихоб кунед.'),
+        tr('«Разрешить показ поверх других приложений»-ро фаъол кунед.'),
+        tr('Бо тугмаи «Бозгашт» ба NIGOH баргардед.'),
+      ],
+      summaryTitle: tr('Занг дар экран'),
+    ),
+    WizardStepId.camera => WizardStep(
       id: WizardStepId.camera,
       icon: Icons.qr_code_scanner_rounded,
       color: NigohDesign.amber,
-      title: 'Камера',
-      reason: 'Барои скан кардани QR-коди телефони фарзанд ҳангоми пайвастшавӣ.',
+      title: tr('Камера'),
+      reason: tr('Барои скан кардани QR-коди телефони фарзанд ҳангоми пайвастшавӣ.'),
       help: [
-        '«Иҷозат додан»-ро пахш кунед ва «Разрешить»-ро интихоб кунед.',
-        'Агар равзана набарояд: Настройки → Приложения → NIGOH Family → '
-            'Разрешения → Камера → «Разрешить».',
+        tr('«Иҷозат додан»-ро пахш кунед ва «Разрешить»-ро интихоб кунед.'),
+        tr('Агар равзана набарояд: Настройки → Приложения → NIGOH Family → '
+            'Разрешения → Камера → «Разрешить».'),
       ],
-      summaryTitle: 'Камера',
+      summaryTitle: tr('Камера'),
     ),
   };
 }
@@ -362,7 +384,7 @@ ph.Permission? runtimePermissionOf(WizardStepId id, StepStage stage) =>
 /// Native key in `getProtectionStatus` for special permissions.
 String? protectionKeyOf(WizardStepId id) => switch (id) {
   WizardStepId.usage => 'usage',
-  WizardStepId.overlay => 'overlay',
+  WizardStepId.overlay || WizardStepId.callOverlay => 'overlay',
   WizardStepId.accessibility => 'accessibility',
   WizardStepId.deviceAdmin => 'deviceAdmin',
   _ => null,
@@ -446,7 +468,7 @@ class WizardActions {
     switch (id) {
       case WizardStepId.usage:
         await platform.invoke('openUsageSettings');
-      case WizardStepId.overlay:
+      case WizardStepId.overlay || WizardStepId.callOverlay:
         await platform.invoke('openOverlaySettings');
       case WizardStepId.accessibility:
         await platform.invoke('openAccessibilitySettingsDirect');
@@ -464,7 +486,7 @@ class WizardActions {
     switch (id) {
       case WizardStepId.usage:
         await platform.invoke('openUsageSettings');
-      case WizardStepId.overlay:
+      case WizardStepId.overlay || WizardStepId.callOverlay:
         await platform.invoke('openOverlaySettings');
       case WizardStepId.deviceAdmin:
         await platform.invoke('openDeviceAdminSettings');

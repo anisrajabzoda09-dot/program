@@ -138,6 +138,7 @@ void main() {
     expect(wizardStepsFor(childMode: false), [
       WizardStepId.notifications,
       WizardStepId.fullScreen,
+      WizardStepId.callOverlay,
       WizardStepId.camera,
       WizardStepId.microphone,
       WizardStepId.battery,
@@ -153,12 +154,31 @@ void main() {
     expect(find.text('Иҷозат додан'), findsOneWidget);
 
     await pumpWizard(tester, child: false);
-    expect(find.text('Қадами 1 аз 5'), findsOneWidget);
+    expect(find.text('Қадами 1 аз 6'), findsOneWidget);
     expect(find.text('Огоҳиномаҳо'), findsOneWidget);
     await later(tester);
     expect(find.text('Экрани пурра'), findsOneWidget);
     await grant(tester);
     expect(calls, ['notify:openFullScreenSettings']);
+  });
+
+  testWidgets('parent overlay step opens overlay settings after full screen', (
+    tester,
+  ) async {
+    onCall['openOverlaySettings'] = () => protection['overlay'] = true;
+    await pumpWizard(tester, child: false);
+    await later(tester, 2);
+    expect(find.text('Қадами 3 аз 6'), findsOneWidget);
+    expect(find.text('Занг дар экран'), findsOneWidget);
+    await grant(tester);
+    expect(calls, ['openOverlaySettings']);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.text('Қадами 4 аз 6'), findsOneWidget);
+    expect(find.text('Камера'), findsOneWidget);
   });
 
   testWidgets('location asks while-in-use, then always', (tester) async {
@@ -227,7 +247,7 @@ void main() {
   ) async {
     perms[pCamera] = permanentlyDenied;
     await pumpWizard(tester, child: false);
-    await later(tester, 2);
+    await later(tester, 3);
     expect(find.text('Камера'), findsOneWidget);
     expect(find.byKey(const Key('wizard-fallback')), findsOneWidget);
     await grant(tester);
@@ -283,14 +303,15 @@ void main() {
     fullScreen = true;
     perms[pCamera] = granted;
     perms[pMicrophone] = granted;
+    protection['overlay'] = true;
     await pumpWizard(tester, child: false);
     expect(find.text('Батарея'), findsOneWidget);
     await later(tester);
     expect(find.text('Ҳамааш тайёр'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(4));
+    expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(5));
     expect(find.byIcon(Icons.priority_high_rounded), findsOneWidget);
     await tapIt(tester, find.byKey(const Key('wizard-summary-battery')));
-    expect(find.text('Қадами 5 аз 5'), findsOneWidget);
+    expect(find.text('Қадами 6 аз 6'), findsOneWidget);
   });
 
   testWidgets('finish stores the done flag per role', (tester) async {
@@ -317,7 +338,7 @@ void main() {
     await tester.pumpWidget(NigohApp(session: session));
     await tester.pumpAndSettle();
     expect(find.byType(PermissionsWizard), findsOneWidget);
-    expect(find.text('Қадами 1 аз 5'), findsOneWidget);
+    expect(find.text('Қадами 1 аз 6'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('wizard-close')));
     await tester.pump();

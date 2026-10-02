@@ -4,6 +4,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../core/session.dart';
 import '../../ui/widgets.dart';
 import 'brand_logo.dart';
+import '../../l10n/l10n.dart';
+import '../../ui/language_picker.dart';
 
 /// Sign in / register with email, or continue with Google.
 class AuthScreen extends StatefulWidget {
@@ -62,7 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
       if (e.code != GoogleSignInExceptionCode.canceled && mounted) {
         showMessage(
           context,
-          'Воридшавӣ бо Google нашуд. ${e.description ?? ''}'.trim(),
+          tr('Воридшавӣ бо Google нашуд. {details}', {'details': e.description ?? ''}).trim(),
           error: true,
         );
       }
@@ -77,10 +79,16 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        toolbarHeight: 52,
+        actions: const [LanguageButton(), SizedBox(width: 8)],
+      ),
       body: SafeArea(
+        top: false,
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 440),
               child: Column(
@@ -99,7 +107,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Оилаи худро ором ва бехатар нигоҳ доред',
+                    tr('Оилаи худро ором ва бехатар нигоҳ доред'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
@@ -119,14 +127,14 @@ class _AuthScreenState extends State<AuthScreen> {
                             children: [
                               SegmentedButton<bool>(
                                 showSelectedIcon: false,
-                                segments: const [
+                                segments: [
                                   ButtonSegment(
                                     value: false,
-                                    label: Text('Ворид шудан'),
+                                    label: Text(tr('Ворид шудан')),
                                   ),
                                   ButtonSegment(
                                     value: true,
-                                    label: Text('Бақайдгирӣ'),
+                                    label: Text(tr('Бақайдгирӣ')),
                                   ),
                                 ],
                                 selected: {register},
@@ -155,15 +163,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                           autofillHints: const [
                                             AutofillHints.name,
                                           ],
-                                          decoration: const InputDecoration(
-                                            labelText: 'Ном',
+                                          decoration: InputDecoration(
+                                            labelText: tr('Ном'),
                                             prefixIcon: Icon(
                                               Icons.person_outline_rounded,
                                             ),
                                           ),
                                           validator: (v) =>
                                               (v ?? '').trim().isEmpty
-                                              ? 'Номро нависед.'
+                                              ? tr('Номро нависед.')
                                               : null,
                                         ),
                                       )
@@ -176,15 +184,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                 textInputAction: TextInputAction.next,
                                 autocorrect: false,
                                 autofillHints: const [AutofillHints.email],
-                                decoration: const InputDecoration(
-                                  labelText: 'Почтаи электронӣ',
+                                decoration: InputDecoration(
+                                  labelText: tr('Почтаи электронӣ'),
                                   prefixIcon: Icon(Icons.mail_outline_rounded),
                                 ),
                                 validator: (v) {
                                   final value = (v ?? '').trim();
-                                  if (value.isEmpty) return 'Почтаро нависед.';
+                                  if (value.isEmpty) return tr('Почтаро нависед.');
                                   if (!_emailPattern.hasMatch(value)) {
-                                    return 'Почтаи электронӣ нодуруст аст.';
+                                    return tr('Почтаи электронӣ нодуруст аст.');
                                   }
                                   return null;
                                 },
@@ -202,14 +210,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ],
                                 onFieldSubmitted: (_) => submit(),
                                 decoration: InputDecoration(
-                                  labelText: 'Рамз',
+                                  labelText: tr('Рамз'),
                                   prefixIcon: const Icon(
                                     Icons.lock_outline_rounded,
                                   ),
                                   suffixIcon: IconButton(
                                     tooltip: hidePassword
-                                        ? 'Нишон додан'
-                                        : 'Пинҳон кардан',
+                                        ? tr('Нишон додан')
+                                        : tr('Пинҳон кардан'),
                                     onPressed: () => setState(
                                       () => hidePassword = !hidePassword,
                                     ),
@@ -222,9 +230,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                                 validator: (v) {
                                   final value = v ?? '';
-                                  if (value.isEmpty) return 'Рамзро нависед.';
+                                  if (value.isEmpty) return tr('Рамзро нависед.');
                                   if (value.length < 8) {
-                                    return 'Рамз бояд ақаллан 8 аломат бошад.';
+                                    return tr('Рамз бояд ақаллан 8 аломат бошад.');
                                   }
                                   return null;
                                 },
@@ -243,8 +251,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       )
                                     : Text(
                                         register
-                                            ? 'Сохтани аккаунт'
-                                            : 'Ворид шудан',
+                                            ? tr('Сохтани аккаунт')
+                                            : tr('Ворид шудан'),
                                       ),
                               ),
                             ],
@@ -262,7 +270,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
-                            'ё',
+                            tr('ё'),
                             style: TextStyle(color: scheme.onSurfaceVariant),
                           ),
                         ),
@@ -283,12 +291,12 @@ class _AuthScreenState extends State<AuthScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.g_mobiledata_rounded, size: 30),
-                      label: const Text('Идома бо Google'),
+                      label: Text(tr('Идома бо Google')),
                     ),
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Агар пештар бо почта ворид мешудед, як бор аз нав бақайдгирӣ кунед.',
+                    tr('Агар пештар бо почта ворид мешудед, як бор аз нав бақайдгирӣ кунед.'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,

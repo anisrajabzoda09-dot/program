@@ -4,6 +4,7 @@ import '../../core/child_profile.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// Child enters name, gender and age once on this phone. Calls [onDone]
 /// with the saved profile so the root gate can move on.
@@ -50,7 +51,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
       widget.onDone(profile);
     } catch (e) {
       if (mounted) {
-        showMessage(context, 'Маълумот нигоҳ дошта нашуд: $e', error: true);
+        showMessage(context, tr('Маълумот нигоҳ дошта нашуд: {error}', {'error': e}), error: true);
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -67,10 +68,10 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Дар бораи худ'),
+        title: Text(tr('Дар бораи худ')),
         actions: [
           IconButton(
-            tooltip: 'Баромадан',
+            tooltip: tr('Баромадан'),
             onPressed: saving ? null : back,
             icon: const Icon(Icons.logout_rounded),
           ),
@@ -84,7 +85,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
             children: [
               Text(
-                'Волидайн инро дар телефони худ мебинанд.',
+                tr('Волидайн инро дар телефони худ мебинанд.'),
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 15),
               ),
               const SizedBox(height: 20),
@@ -99,32 +100,32 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                           key: const Key('child.name'),
                           controller: name,
                           textCapitalization: TextCapitalization.words,
-                          decoration: const InputDecoration(
-                            labelText: 'Ном',
+                          decoration: InputDecoration(
+                            labelText: tr('Ном'),
                             prefixIcon: Icon(Icons.person_outline_rounded),
                           ),
                           validator: (v) => (v ?? '').trim().isEmpty
-                              ? 'Номро нависед.'
+                              ? tr('Номро нависед.')
                               : null,
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Ҷинс',
+                        Text(
+                          tr('Ҷинс'),
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 10),
                         SegmentedButton<String>(
                           showSelectedIcon: false,
-                          segments: const [
+                          segments: [
                             ButtonSegment(
                               value: 'boy',
                               icon: Icon(Icons.boy_rounded),
-                              label: Text('Писар'),
+                              label: Text(tr('Писар')),
                             ),
                             ButtonSegment(
                               value: 'girl',
                               icon: Icon(Icons.girl_rounded),
-                              label: Text('Духтар'),
+                              label: Text(tr('Духтар')),
                             ),
                           ],
                           selected: {gender},
@@ -134,13 +135,13 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                         const SizedBox(height: 22),
                         Row(
                           children: [
-                            const Expanded(
+                            Expanded(
                               child: Text(
-                                'Синну сол',
+                                tr('Синну сол'),
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                             ),
-                            Pill('$age сола', color: NigohDesign.blue),
+                            Pill(tr('{age} сола', {'age': age}), color: NigohDesign.blue),
                           ],
                         ),
                         Slider(
@@ -166,7 +167,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                         height: 22,
                         child: CircularProgressIndicator(strokeWidth: 2.4),
                       )
-                    : const Text('Идома'),
+                    : Text(tr('Идома')),
               ),
             ],
           ),

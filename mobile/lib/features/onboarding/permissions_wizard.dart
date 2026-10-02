@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'permission_steps.dart';
+import '../../l10n/l10n.dart';
 
 export 'permission_steps.dart' show WizardStepId, wizardStepsFor;
 
@@ -136,7 +137,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
       if (!mounted) return;
       setState(() {
         loaded = true;
-        loadError = 'Ҳолати иҷозатҳо санҷида нашуд: ${wizardErrorText(e)}';
+        loadError = tr('Ҳолати иҷозатҳо санҷида нашуд: {error}', {'error': wizardErrorText(e)});
       });
     }
   }
@@ -187,7 +188,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
       if (mounted) {
         showMessage(
           context,
-          'Нигоҳ доштани ҳолат нашуд: ${wizardErrorText(e)}',
+          tr('Нигоҳ доштани ҳолат нашуд: {error}', {'error': wizardErrorText(e)}),
           error: true,
         );
       }
@@ -231,8 +232,8 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                   Expanded(
                     child: Text(
                       onSummary
-                          ? 'Ҷамъбаст'
-                          : 'Қадами ${index + 1} аз ${steps.length}',
+                          ? tr('Ҷамъбаст')
+                          : tr('Қадами {step} аз {total}', {'step': index + 1, 'total': steps.length}),
                       style: TextStyle(
                         color: scheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
@@ -243,7 +244,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                     TextButton(
                       key: const Key('wizard-close'),
                       onPressed: finishing ? null : finish,
-                      child: const Text('Пӯшидан'),
+                      child: Text(tr('Пӯшидан')),
                     ),
                 ],
               ),
@@ -332,21 +333,21 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                       child: FilledButton(
                         key: const Key('wizard-finish'),
                         onPressed: finishing ? null : finish,
-                        child: const Text('Ба барнома'),
+                        child: Text(tr('Ба барнома')),
                       ),
                     )
                   : Row(
                       children: [
                         if (index > 0)
                           IconButton(
-                            tooltip: 'Бозгашт',
+                            tooltip: tr('Бозгашт'),
                             onPressed: () => go(index - 1),
                             icon: const Icon(Icons.arrow_back_rounded),
                           ),
                         TextButton(
                           key: const Key('wizard-later'),
                           onPressed: () => go(index + 1),
-                          child: const Text('Баъдтар'),
+                          child: Text(tr('Баъдтар')),
                         ),
                         const Spacer(),
                         AnimatedOpacity(
@@ -359,7 +360,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                             ),
                             onPressed: granted ? () => go(index + 1) : null,
                             icon: const Icon(Icons.arrow_forward_rounded),
-                            label: const Text('Идома'),
+                            label: Text(tr('Идома')),
                           ),
                         ),
                       ],
@@ -530,22 +531,22 @@ class _StepPage extends StatelessWidget {
           _Notice(
             icon: Icons.gps_off_rounded,
             color: NigohDesign.amber,
-            text: 'GPS (ҷойгиршавӣ) дар телефон хомӯш аст.',
+            text: tr('GPS (ҷойгиршавӣ) дар телефон хомӯш аст.'),
             action: TextButton(
               key: const Key('wizard-gps'),
               onPressed: busy ? null : onOpenGps,
-              child: const Text('Фаъол кардан'),
+              child: Text(tr('Фаъол кардан')),
             ),
           ),
           const SizedBox(height: 12),
         ],
         if (status.missingPrerequisites && !granted) ...[
-          const _Notice(
+          _Notice(
             icon: Icons.info_outline_rounded,
             color: NigohDesign.blue,
             text:
-                'Аввал «Дастрасӣ ба истифода» ва «Намоиш болои барномаҳо» лозим '
-                'аст — тугма аввал ҳамонҳоро мекушояд.',
+                tr('Аввал «Дастрасӣ ба истифода» ва «Намоиш болои барномаҳо» лозим '
+                'аст — тугма аввал ҳамонҳоро мекушояд.'),
           ),
           const SizedBox(height: 12),
         ],
@@ -560,13 +561,13 @@ class _StepPage extends StatelessWidget {
                     color: NigohDesign.mint.withValues(alpha: .12),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.check_rounded, color: NigohDesign.mint),
                       SizedBox(width: 8),
                       Text(
-                        'Иҷозат дода шуд',
+                        tr('Иҷозат дода шуд'),
                         style: TextStyle(
                           color: NigohDesign.mint,
                           fontWeight: FontWeight.w700,
@@ -598,7 +599,7 @@ class _StepPage extends StatelessWidget {
                             height: 22,
                             child: CircularProgressIndicator(strokeWidth: 2.4),
                           )
-                        : const Text('Иҷозат додан'),
+                        : Text(tr('Иҷозат додан')),
                   ),
                 ),
         ),
@@ -623,8 +624,8 @@ class _StepPage extends StatelessWidget {
                         ),
                       ),
                       onPressed: busy ? null : onFallback,
-                      child: const Text(
-                        'Агар иҷозат дода нашуд — ин ҷоро пахш кунед',
+                      child: Text(
+                        tr('Агар иҷозат дода нашуд — ин ҷоро пахш кунед'),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -710,9 +711,9 @@ class _HelpCard extends StatelessWidget {
                 children: [
                   Icon(Icons.help_outline_rounded, color: scheme.primary),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Чӣ бояд кард?',
+                      tr('Чӣ бояд кард?'),
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
@@ -813,7 +814,7 @@ class _SummaryPage extends StatelessWidget {
         FadeIn(
           index: 1,
           child: Text(
-            'Ҳамааш тайёр',
+            tr('Ҳамааш тайёр'),
             textAlign: TextAlign.center,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
@@ -825,8 +826,8 @@ class _SummaryPage extends StatelessWidget {
           index: 2,
           child: Text(
             missing == 0
-                ? 'Ҳамаи иҷозатҳо дода шуданд. NIGOH Family пурра кор мекунад.'
-                : '$missing иҷозат ҳоло дода нашудааст. Барои танзим ба он пахш кунед.',
+                ? tr('Ҳамаи иҷозатҳо дода шуданд. NIGOH Family пурра кор мекунад.')
+                : tr('{count} иҷозат ҳоло дода нашудааст. Барои танзим ба он пахш кунед.', {'count': missing}),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: scheme.onSurfaceVariant,
@@ -876,7 +877,7 @@ class _SummaryRow extends StatelessWidget {
       step.summaryTitle,
       style: const TextStyle(fontWeight: FontWeight.w600),
     ),
-    subtitle: granted ? null : const Text('Дода нашудааст — пахш кунед'),
+    subtitle: granted ? null : Text(tr('Дода нашудааст — пахш кунед')),
     trailing: granted
         ? const Icon(Icons.check_circle_rounded, color: NigohDesign.mint)
         : Container(
@@ -919,7 +920,7 @@ class _ErrorBanner extends StatelessWidget {
               style: TextStyle(color: scheme.onErrorContainer),
             ),
           ),
-          TextButton(onPressed: onRetry, child: const Text('Аз нав')),
+          TextButton(onPressed: onRetry, child: Text(tr('Аз нав'))),
         ],
       ),
     );

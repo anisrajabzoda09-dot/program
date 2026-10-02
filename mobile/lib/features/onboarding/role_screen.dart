@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
+import '../../l10n/l10n.dart';
+import '../../ui/language_picker.dart';
 
 /// "Who uses this phone?" — parent or child.
 class RoleScreen extends StatefulWidget {
@@ -34,10 +36,11 @@ class _RoleScreenState extends State<RoleScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          const LanguageButton(),
           TextButton.icon(
             onPressed: saving != null ? null : session.signOut,
             icon: const Icon(Icons.logout_rounded, size: 20),
-            label: const Text('Баромадан'),
+            label: Text(tr('Баромадан')),
           ),
           const SizedBox(width: 8),
         ],
@@ -54,8 +57,8 @@ class _RoleScreenState extends State<RoleScreen> {
                 children: [
                   Text(
                     session.displayName.isEmpty
-                        ? 'Хуш омадед'
-                        : 'Салом, ${session.displayName}',
+                        ? tr('Хуш омадед')
+                        : tr('Салом, {name}', {'name': session.displayName}),
                     style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w800,
@@ -64,7 +67,7 @@ class _RoleScreenState extends State<RoleScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Ин телефонро кӣ истифода мебарад?',
+                    tr('Ин телефонро кӣ истифода мебарад?'),
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontSize: 15,
@@ -76,8 +79,8 @@ class _RoleScreenState extends State<RoleScreen> {
                     child: _RoleCard(
                       icon: Icons.family_restroom_rounded,
                       color: NigohDesign.blue,
-                      title: 'Волидайн',
-                      text: 'Барномаҳо, ҷойгиршавӣ ва чати фарзандро бинед.',
+                      title: tr('Волидайн'),
+                      text: tr('Барномаҳо, ҷойгиршавӣ ва чати фарзандро бинед.'),
                       busy: saving == 'parent',
                       onTap: () => choose('parent'),
                     ),
@@ -88,8 +91,8 @@ class _RoleScreenState extends State<RoleScreen> {
                     child: _RoleCard(
                       icon: Icons.child_care_rounded,
                       color: NigohDesign.mint,
-                      title: 'Фарзанд',
-                      text: 'Ин телефонро ба волидайн пайваст кунед.',
+                      title: tr('Фарзанд'),
+                      text: tr('Ин телефонро ба волидайн пайваст кунед.'),
                       busy: saving == 'child',
                       onTap: () => choose('child'),
                     ),
