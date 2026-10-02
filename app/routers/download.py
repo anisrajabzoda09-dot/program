@@ -3,7 +3,7 @@ import io
 import socket
 import qrcode
 from fastapi import APIRouter, Request, Response, Depends
-from fastapi.responses import FileResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -42,6 +42,23 @@ def download_qr(request: Request):
         media_type="image/png",
         headers={"Cache-Control": "no-store, max-age=0"}
     )
+
+WINDOWS_SETUP_URL = (
+    "https://github.com/anisrajabzoda09-dot/program/releases/download/"
+    "windows-latest/NIGOH_Family_Windows_Setup.exe"
+)
+
+
+@router.head("/download/windows", include_in_schema=False)
+@router.get("/download/windows")
+def download_windows(request: Request, db: Session = Depends(get_db)):
+    """Windows (parent) app installer, built by GitHub Actions."""
+    forwarded = request.headers.get("X-Forwarded-For")
+    client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
+    log_analytics_event(db, client_ip, request.url.path, request.headers.get("user-agent", ""),
+                        event_type="windows_download", version=f"v{settings.APP_VERSION}")
+    return RedirectResponse(WINDOWS_SETUP_URL, status_code=302)
+
 
 @router.head("/qr", include_in_schema=False)
 @router.head("/install", include_in_schema=False)
