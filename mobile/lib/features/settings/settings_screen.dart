@@ -11,6 +11,7 @@ import '../desktop/desktop_notifications.dart';
 import '../onboarding/permissions_wizard.dart';
 import '../../ui/language_picker.dart';
 import '../../ui/nigoh_design.dart';
+import '../../ui/day_night_switch.dart';
 import '../../ui/widgets.dart';
 import 'app_update.dart';
 import 'parent_pin.dart';
@@ -282,31 +283,64 @@ class _SettingsScreenState extends State<SettingsScreen>
                   padding: const EdgeInsets.all(14),
                   child: ValueListenableBuilder<ThemeMode>(
                     valueListenable: themeModeSetting,
-                    builder: (_, mode, _) => SizedBox(
-                      width: double.infinity,
-                      child: SegmentedButton<ThemeMode>(
-                        showSelectedIcon: false,
-                        segments: [
-                          ButtonSegment(
-                            value: ThemeMode.system,
-                            icon: const Icon(Icons.brightness_auto_outlined),
-                            label: Text(tr('Система')),
+                    builder: (context, mode, _) => Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                tr('Режими торик'),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            DayNightSwitch(
+                              key: const ValueKey('settings-day-night'),
+                              value:
+                                  mode == ThemeMode.dark ||
+                                  (mode == ThemeMode.system &&
+                                      MediaQuery.platformBrightnessOf(
+                                            context,
+                                          ) ==
+                                          Brightness.dark),
+                              semanticLabel: tr('Режими торик'),
+                              onChanged: (dark) => themeModeSetting.set(
+                                dark ? ThemeMode.dark : ThemeMode.light,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: SegmentedButton<ThemeMode>(
+                            showSelectedIcon: false,
+                            segments: [
+                              ButtonSegment(
+                                value: ThemeMode.system,
+                                icon: const Icon(
+                                  Icons.brightness_auto_outlined,
+                                ),
+                                label: Text(tr('Система')),
+                              ),
+                              ButtonSegment(
+                                value: ThemeMode.light,
+                                icon: const Icon(Icons.light_mode_outlined),
+                                label: Text(tr('Равшан')),
+                              ),
+                              ButtonSegment(
+                                value: ThemeMode.dark,
+                                icon: const Icon(Icons.dark_mode_outlined),
+                                label: Text(tr('Торик')),
+                              ),
+                            ],
+                            selected: {mode},
+                            onSelectionChanged: (value) =>
+                                themeModeSetting.set(value.first),
                           ),
-                          ButtonSegment(
-                            value: ThemeMode.light,
-                            icon: const Icon(Icons.light_mode_outlined),
-                            label: Text(tr('Равшан')),
-                          ),
-                          ButtonSegment(
-                            value: ThemeMode.dark,
-                            icon: const Icon(Icons.dark_mode_outlined),
-                            label: Text(tr('Торик')),
-                          ),
-                        ],
-                        selected: {mode},
-                        onSelectionChanged: (value) =>
-                            themeModeSetting.set(value.first),
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

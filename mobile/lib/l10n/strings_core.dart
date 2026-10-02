@@ -746,4 +746,5 @@ const Map<String, List<String>> coreStrings = {
   ],
   'Хомӯш аст': ['Выключены', 'Off'],
   'Дидан': ['Открыть', 'Open'],
+  'Режими торик': ['Тёмная тема', 'Dark mode'],
 };
