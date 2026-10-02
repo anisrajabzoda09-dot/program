@@ -4,6 +4,7 @@
 
 - Сайт: https://nigohfamily.qobus.tj
 - Боргирии Android: https://nigohfamily.qobus.tj/get (рамзи QR ҳамеша версияи охиринро медиҳад)
+- Боргирии Windows (барои волидайн): https://nigohfamily.qobus.tj/download/windows — GitHub Actions (`.github/workflows/windows.yml`) насбкунандаро ҳангоми ҳар тағйири `mobile/` месозад
 - Ҳолати сервер: https://nigohfamily.qobus.tj/health
 
 ## Сохтор

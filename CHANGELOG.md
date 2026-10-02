@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.16.0 — 2026-10-02
+- Windows app (parent mode): family, app rules, map, chat, voice calls, requests, reports; in-app alerts and SOS alarm while the app is open; navigation rail on wide screens.
+- Windows installer and portable zip are built by GitHub Actions and published to the «windows-latest» release; /download/windows on the site.
+
 ## 2.15.0 — 2026-10-02
 - App in Tajik, Russian and English (language picker on the sign-in screen and in settings); server error messages and notifications follow the chosen language.
 - Website in three languages: / (Tajik), /ru, /en with hreflang and a language switch.
