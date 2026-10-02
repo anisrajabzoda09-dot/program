@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/api.dart';
+import '../../core/platform.dart';
 import '../../core/session.dart';
 import 'call_controller.dart';
 import 'rtc_engine.dart';
@@ -283,14 +284,16 @@ class _CallScreenState extends State<CallScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _RoundButton(
-          icon: _c.speaker
-              ? Icons.volume_up_rounded
-              : Icons.volume_down_rounded,
-          label: tr('Динамик'),
-          active: _c.speaker,
-          onTap: ended ? null : _c.toggleSpeaker,
-        ),
+        // Desktop plays through the computer's speakers/headset anyway.
+        if (!isDesktop)
+          _RoundButton(
+            icon: _c.speaker
+                ? Icons.volume_up_rounded
+                : Icons.volume_down_rounded,
+            label: tr('Динамик'),
+            active: _c.speaker,
+            onTap: ended ? null : _c.toggleSpeaker,
+          ),
         _RoundButton(
           icon: _c.muted ? Icons.mic_off_rounded : Icons.mic_rounded,
           label: tr('Микрофон'),

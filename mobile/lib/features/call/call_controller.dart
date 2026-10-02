@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/api.dart';
+import '../../core/platform.dart';
 import 'rtc_engine.dart';
 import '../../l10n/l10n.dart';
 
@@ -27,8 +28,12 @@ enum CallEndReason {
   String get label => tr(_label);
 }
 
-Future<bool> requestMicrophonePermission() async =>
-    (await Permission.microphone.request()).isGranted;
+/// Android asks via permission_handler; Windows/desktop asks the user itself
+/// when the microphone is opened, so nothing is requested there.
+Future<bool> requestMicrophonePermission() async {
+  if (isDesktop) return true;
+  return (await Permission.microphone.request()).isGranted;
+}
 
 /// One audio call (outgoing or incoming) between a parent and a child phone.
 ///

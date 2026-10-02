@@ -1,5 +1,7 @@
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import '../../core/platform.dart';
+
 /// Connection state of the media link, reduced to what the call UI needs.
 enum RtcLinkState { connecting, connected, disconnected, failed }
 
@@ -90,8 +92,9 @@ class FlutterRtcEngine implements RtcEngine {
     for (final track in local.getAudioTracks()) {
       await pc.addTrack(track, local);
     }
-    // Earpiece by default, like a normal phone call.
-    await Helper.setSpeakerphoneOn(false);
+    // Earpiece by default, like a normal phone call. Desktop has no
+    // earpiece/speaker switch (not implemented by flutter_webrtc there).
+    if (!isDesktop) await Helper.setSpeakerphoneOn(false);
   }
 
   Map<String, dynamic> _desc(RTCSessionDescription d) => {
@@ -146,7 +149,10 @@ class FlutterRtcEngine implements RtcEngine {
   }
 
   @override
-  Future<void> setSpeaker(bool on) => Helper.setSpeakerphoneOn(on);
+  Future<void> setSpeaker(bool on) async {
+    if (isDesktop) return;
+    await Helper.setSpeakerphoneOn(on);
+  }
 
   @override
   Future<void> close() async {
