@@ -8,16 +8,18 @@ import '../../core/session.dart';
 import '../../ui/avatar.dart';
 import '../../ui/widgets.dart';
 import '../call/call_screen.dart';
+import '../../l10n/l10n.dart';
 
 /// Text of the old 'call' chat messages (still rendered; no longer sent).
 const chatCallText = 'Занг зад — лутфан ба телефон занг занед';
 
 /// One-tap check-in messages shown to the child above the input.
-const chatQuickReplies = [
-  'Ман расидам',
-  'Ман дар роҳам',
-  'Маро гиред',
-  'Ҳама хуб аст',
+/// Sent in the sender's current language.
+List<String> get chatQuickReplies => [
+  tr('Ман расидам'),
+  tr('Ман дар роҳам'),
+  tr('Маро гиред'),
+  tr('Ҳама хуб аст'),
 ];
 
 /// Family chat between a parent and one child, used on both phones.
@@ -278,7 +280,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         ),
         actions: [
           IconButton(
-            tooltip: 'Занг',
+            tooltip: tr('Занг'),
             icon: const Icon(Icons.phone_rounded),
             onPressed: _call,
           ),
@@ -312,9 +314,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         return StateMessage(
           key: const ValueKey('error'),
           icon: Icons.cloud_off_rounded,
-          title: 'Паёмҳо бор нашуданд',
+          title: tr('Паёмҳо бор нашуданд'),
           text: _loadError,
-          actionLabel: 'Аз нав кӯшиш',
+          actionLabel: tr('Аз нав кӯшиш'),
           onAction: _load,
           error: true,
         );
@@ -327,11 +329,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final items = _messages.values.toList()
       ..sort((a, b) => a.id.compareTo(b.id));
     if (items.isEmpty && _pending.isEmpty) {
-      return const StateMessage(
-        key: ValueKey('empty'),
+      return StateMessage(
+        key: const ValueKey('empty'),
         icon: Icons.chat_bubble_outline_rounded,
-        title: 'Ҳоло паём нест',
-        text: 'Аввалин паёмро нависед.',
+        title: tr('Ҳоло паём нест'),
+        text: tr('Аввалин паёмро нависед.'),
       );
     }
     // Built oldest → newest with day separators, shown reversed so the list
@@ -356,12 +358,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         'urgent' => _UrgentBubble(
           message: m,
           mine: mine,
-          time: read ? '$time · Хонда шуд' : time,
+          time: read ? tr('{time} · Хонда шуд', {'time': time}) : time,
         ),
         _ => _Bubble(
           text: m.content,
           mine: mine,
-          time: read ? '$time · Хонда шуд' : time,
+          time: read ? tr('{time} · Хонда шуд', {'time': time}) : time,
         ),
       });
     }
@@ -370,7 +372,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _Bubble(
           text: p.content,
           mine: true,
-          time: p.failed ? 'Фиристода нашуд' : 'Фиристода мешавад…',
+          time: p.failed ? tr('Фиристода нашуд') : tr('Фиристода мешавад…'),
           pending: !p.failed,
           failed: p.failed,
           onRetry: () => _retry(p),
@@ -407,9 +409,9 @@ class _DaySeparator extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final diff = today.difference(day).inDays;
     final label = diff == 0
-        ? 'Имрӯз'
+        ? tr('Имрӯз')
         : diff == 1
-        ? 'Дирӯз'
+        ? tr('Дирӯз')
         : '${_two(day.day)}.${_two(day.month)}.${day.year}';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -480,7 +482,7 @@ class _Bubble extends StatelessWidget {
             children: [
               if (failed)
                 IconButton(
-                  tooltip: 'Аз нав фиристодан',
+                  tooltip: tr('Аз нав фиристодан'),
                   icon: Icon(Icons.refresh_rounded, color: scheme.error),
                   onPressed: onRetry,
                 ),
@@ -521,8 +523,12 @@ class _UrgentBubble extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final red = scheme.error;
     final who = mine
-        ? 'Шумо SOS фиристодед'
-        : '${message.senderName.trim().isEmpty ? 'Фарзанд' : message.senderName.trim()} SOS фиристод';
+        ? tr('Шумо SOS фиристодед')
+        : tr('{name} SOS фиристод', {
+            'name': message.senderName.trim().isEmpty
+                ? tr('Фарзанд')
+                : message.senderName.trim(),
+          });
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -619,11 +625,11 @@ class _CallChip extends StatelessWidget {
     final other = message.senderName.trim().isNotEmpty
         ? message.senderName.trim()
         : message.senderRole == 'parent'
-        ? 'Волидайн'
-        : 'Фарзанд';
+        ? tr('Волидайн')
+        : tr('Фарзанд');
     final text = mine
-        ? 'Шумо хоҳиши занг фиристодед'
-        : '$other хоҳиш дорад, ки занг занед';
+        ? tr('Шумо хоҳиши занг фиристодед')
+        : tr('{name} хоҳиш дорад, ки занг занед', {'name': other});
     final time = _hhmm(message.createdAt);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -683,7 +689,7 @@ class _ErrorBanner extends StatelessWidget {
               style: TextStyle(color: scheme.error, fontSize: 13),
             ),
           ),
-          TextButton(onPressed: onRetry, child: const Text('Аз нав')),
+          TextButton(onPressed: onRetry, child: Text(tr('Аз нав'))),
         ],
       ),
     );
@@ -721,8 +727,8 @@ class _InputBar extends StatelessWidget {
                 maxLines: 4,
                 maxLength: 4000,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  hintText: 'Паём нависед…',
+                decoration: InputDecoration(
+                  hintText: tr('Паём нависед…'),
                   counterText: '',
                 ),
                 onSubmitted: (_) {
@@ -732,7 +738,7 @@ class _InputBar extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             IconButton.filled(
-              tooltip: 'Фиристодан',
+              tooltip: tr('Фиристодан'),
               onPressed: canSend ? onSend : null,
               icon: const Icon(Icons.send_rounded),
             ),

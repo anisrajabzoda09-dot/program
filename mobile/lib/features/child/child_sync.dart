@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../core/api.dart';
 import '../../core/child_profile.dart';
 import '../../core/models.dart';
+import '../../l10n/l10n.dart';
 
 /// Background engine on the child's phone. Everything goes through the NIGOH
 /// server: the child record + pairing code, the installed-app list, the
@@ -215,7 +216,7 @@ class ChildSync extends ChangeNotifier {
     final data = await api.createPairCode(
       childName: (profile?.name.trim().isNotEmpty ?? false)
           ? profile!.name.trim()
-          : 'Фарзанд',
+          : tr('Фарзанд'),
       gender: profile?.gender ?? 'boy',
       age: profile?.age ?? 11,
     );
@@ -289,7 +290,10 @@ class ChildSync extends ChangeNotifier {
     } on MissingPluginException {
       // Not on Android (tests / desktop) — nothing to enforce.
     } catch (e) {
-      _setError('rules', 'Қоидаҳо дар телефон татбиқ нашуданд: ${_text(e)}');
+      _setError(
+        'rules',
+        tr('Қоидаҳо дар телефон татбиқ нашуданд: {error}', {'error': _text(e)}),
+      );
     }
   }
 
@@ -367,7 +371,10 @@ class ChildSync extends ChangeNotifier {
     } on MissingPluginException {
       // Not on Android.
     } catch (e) {
-      _setError('protection', 'Ҳолати иҷозатҳо санҷида нашуд: ${_text(e)}');
+      _setError(
+        'protection',
+        tr('Ҳолати иҷозатҳо санҷида нашуд: {error}', {'error': _text(e)}),
+      );
     }
   }
 
@@ -385,7 +392,7 @@ class ChildSync extends ChangeNotifier {
     try {
       final apps = await buildAppsPayload();
       if (apps.isEmpty) {
-        throw const ApiException('Рӯйхати барномаҳои телефон гирифта нашуд.');
+        throw ApiException(tr('Рӯйхати барномаҳои телефон гирифта нашуд.'));
       }
       await api.syncApps(id, apps);
       appsCount = apps.length;
@@ -395,7 +402,10 @@ class ChildSync extends ChangeNotifier {
     } catch (e) {
       // Stays dirty: the next 15-second tick retries.
       _appsDirty = true;
-      _setError('apps', 'Барномаҳо фиристода нашуданд: ${_text(e)}');
+      _setError(
+        'apps',
+        tr('Барномаҳо фиристода нашуданд: {error}', {'error': _text(e)}),
+      );
     } finally {
       _notify();
     }
@@ -451,12 +461,13 @@ class ChildSync extends ChangeNotifier {
 
   // ---------- Location ----------
 
-  static const _gpsOffText =
-      'GPS хомӯш аст — ҷойгиршавӣ фиристода намешавад. Онро дар танзимоти телефон фаъол кунед.';
-  static const _noPermissionText =
-      'Иҷозати ҷойгиршавӣ дода нашудааст — волидайн ҷои шуморо намебинанд.';
-  static const _noFixText =
-      'Ҷойгиршавӣ ҳоло муайян нашуд (сигнали GPS нест). Боз кӯшиш мекунем.';
+  static String get _gpsOffText => tr(
+    'GPS хомӯш аст — ҷойгиршавӣ фиристода намешавад. Онро дар танзимоти телефон фаъол кунед.',
+  );
+  static String get _noPermissionText =>
+      tr('Иҷозати ҷойгиршавӣ дода нашудааст — волидайн ҷои шуморо намебинанд.');
+  static String get _noFixText =>
+      tr('Ҷойгиршавӣ ҳоло муайян нашуд (сигнали GPS нест). Боз кӯшиш мекунем.');
 
   /// One location step (run by every tick). It never depends on the GPS
   /// stream alone — indoors the stream can stay silent for hours:
@@ -503,7 +514,10 @@ class ChildSync extends ChangeNotifier {
     } on MissingPluginException {
       return false; // Not on Android.
     } catch (e) {
-      _setError('location', 'Ҷойгиршавӣ санҷида нашуд: ${_text(e)}');
+      _setError(
+        'location',
+        tr('Ҷойгиршавӣ санҷида нашуд: {error}', {'error': _text(e)}),
+      );
       return false;
     }
   }
@@ -515,10 +529,11 @@ class ChildSync extends ChangeNotifier {
               accuracy: LocationAccuracy.high,
               distanceFilter: 25,
               intervalDuration: const Duration(seconds: 30),
-              foregroundNotificationConfig: const ForegroundNotificationConfig(
-                notificationTitle: 'NIGOH Family фаъол аст',
-                notificationText:
-                    'Ҷойгиршавӣ бо волидайни пайвастшуда мубодила мешавад.',
+              foregroundNotificationConfig: ForegroundNotificationConfig(
+                notificationTitle: tr('NIGOH Family фаъол аст'),
+                notificationText: tr(
+                  'Ҷойгиршавӣ бо волидайни пайвастшуда мубодила мешавад.',
+                ),
                 enableWakeLock: true,
                 setOngoing: true,
               ),
@@ -541,7 +556,10 @@ class ChildSync extends ChangeNotifier {
       // Not on Android.
     } catch (e) {
       // The one-shot fixes keep working without the stream.
-      _setError('location', 'Ҷойгиршавӣ оғоз нашуд: ${_text(e)}');
+      _setError(
+        'location',
+        tr('Ҷойгиршавӣ оғоз нашуд: {error}', {'error': _text(e)}),
+      );
     }
   }
 
@@ -549,7 +567,7 @@ class ChildSync extends ChangeNotifier {
     if (e is LocationServiceDisabledException) return _gpsOffText;
     if (e is PermissionDeniedException) return _noPermissionText;
     if (e is TimeoutException) return _noFixText;
-    return 'Ҷойгиршавӣ муайян нашуд: ${_text(e)}';
+    return tr('Ҷойгиршавӣ муайян нашуд: {error}', {'error': _text(e)});
   }
 
   /// One-shot fix, guarded so two never overlap.
@@ -667,7 +685,9 @@ class ChildSync extends ChangeNotifier {
       _lastLocationPost = null;
       _setError(
         'location',
-        'Ҷойгиршавӣ ба сервер фиристода нашуд: ${_text(e)}',
+        tr('Ҷойгиршавӣ ба сервер фиристода нашуд: {error}', {
+          'error': _text(e),
+        }),
       );
     } finally {
       _notify();

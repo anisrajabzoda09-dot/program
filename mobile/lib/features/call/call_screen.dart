@@ -7,6 +7,7 @@ import '../../core/api.dart';
 import '../../core/session.dart';
 import 'call_controller.dart';
 import 'rtc_engine.dart';
+import '../../l10n/l10n.dart';
 
 /// Full-screen voice call (Telegram-like). Always dark, whatever the app theme.
 class CallScreen extends StatefulWidget {
@@ -155,11 +156,11 @@ class _CallScreenState extends State<CallScreen>
   }
 
   String get _status => switch (_c.state) {
-    CallState.idle || CallState.outgoing => 'Занг задан…',
-    CallState.incoming => 'Занги даромада',
-    CallState.connecting => 'Пайвастшавӣ…',
+    CallState.idle || CallState.outgoing => tr('Занг задан…'),
+    CallState.incoming => tr('Занги даромада'),
+    CallState.connecting => tr('Пайвастшавӣ…'),
     CallState.active => formatCallDuration(_c.duration),
-    CallState.ended => _c.endMessage ?? 'Занг тамом шуд',
+    CallState.ended => _c.endMessage ?? tr('Занг тамом шуд'),
   };
 
   bool get _endIsProblem =>
@@ -224,7 +225,7 @@ class _CallScreenState extends State<CallScreen>
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Text(
-          name.isEmpty ? 'Занг' : name,
+          name.isEmpty ? tr('Занг') : name,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -265,13 +266,13 @@ class _CallScreenState extends State<CallScreen>
         children: [
           _RoundButton(
             icon: Icons.call_end_rounded,
-            label: 'Рад',
+            label: tr('Рад'),
             color: const Color(0xFFE53935),
             onTap: _c.decline,
           ),
           _RoundButton(
             icon: Icons.call_rounded,
-            label: 'Қабул',
+            label: tr('Қабул'),
             color: const Color(0xFF2EB872),
             onTap: _c.accept,
           ),
@@ -286,19 +287,19 @@ class _CallScreenState extends State<CallScreen>
           icon: _c.speaker
               ? Icons.volume_up_rounded
               : Icons.volume_down_rounded,
-          label: 'Динамик',
+          label: tr('Динамик'),
           active: _c.speaker,
           onTap: ended ? null : _c.toggleSpeaker,
         ),
         _RoundButton(
           icon: _c.muted ? Icons.mic_off_rounded : Icons.mic_rounded,
-          label: 'Микрофон',
+          label: tr('Микрофон'),
           active: _c.muted,
           onTap: ended ? null : _c.toggleMute,
         ),
         _RoundButton(
           icon: Icons.call_end_rounded,
-          label: 'Хотима',
+          label: tr('Хотима'),
           color: const Color(0xFFE53935),
           onTap: ended ? null : _c.hangUp,
         ),

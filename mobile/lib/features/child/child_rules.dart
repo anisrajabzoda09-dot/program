@@ -7,8 +7,9 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'child_sync.dart';
 import 'child_widgets.dart' show StudyNotice;
+import '../../l10n/l10n.dart';
 
-const _weekdayShort = {
+const _weekdayShort = <int, String>{
   1: 'Дш',
   2: 'Сш',
   3: 'Чш',
@@ -21,9 +22,9 @@ const _weekdayShort = {
 /// «Дш, Сш, Чш» — or «Ҳар рӯз» for all seven days.
 String weekdaysLabel(List<int> days) {
   final sorted = days.toSet().where(_weekdayShort.containsKey).toList()..sort();
-  if (sorted.length == 7) return 'Ҳар рӯз';
-  if (sorted.isEmpty) return 'Ягон рӯз';
-  return sorted.map((d) => _weekdayShort[d]).join(', ');
+  if (sorted.length == 7) return tr('Ҳар рӯз');
+  if (sorted.isEmpty) return tr('Ягон рӯз');
+  return sorted.map((d) => tr(_weekdayShort[d]!)).join(', ');
 }
 
 /// Apps closed by «Тамаркузи дарс»: games, social and video — never
@@ -40,18 +41,26 @@ List<ChildApp> studyClosedApps(List<ChildApp> apps) => [
 
 /// «45/60 дақ» plus «, +15 бонус» when the parent gave bonus time today.
 String limitUsageLabel(ChildApp app) {
-  final base = '${app.usageMinutesToday}/${app.effectiveLimitMinutes} дақ';
+  final base = tr('{used}/{limit} дақ', {
+    'used': app.usageMinutesToday,
+    'limit': app.effectiveLimitMinutes,
+  });
   return app.bonusMinutesToday > 0
-      ? '$base, +${app.bonusMinutesToday} бонус'
+      ? tr('{base}, +{bonus} бонус', {
+          'base': base,
+          'bonus': app.bonusMinutesToday,
+        })
       : base;
 }
 
 /// «1 соат 5 дақ», «40 дақ».
 String minutesLabel(int minutes) {
-  if (minutes < 60) return '$minutes дақ';
+  if (minutes < 60) return tr('{m} дақ', {'m': minutes});
   final h = minutes ~/ 60;
   final m = minutes % 60;
-  return m == 0 ? '$h соат' : '$h соат $m дақ';
+  return m == 0
+      ? tr('{h} соат', {'h': h})
+      : tr('{h} соат {m} дақ', {'h': h, 'm': m});
 }
 
 /// «Қоидаҳои ман»: what the parent set on this phone, plus extra-time
@@ -140,14 +149,17 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
         reason: result.reason,
       );
       if (!mounted) return;
-      showMessage(context, 'Дархост фиристода шуд');
+      showMessage(context, tr('Дархост фиристода шуд'));
       await _loadRequests();
     } on ApiException catch (e) {
       if (!mounted) return;
       if (e.statusCode == 409) {
         showMessage(
           context,
-          'Барои «${app.name}» аллакай дархост ҳаст — ҷавоби волидайнро интизор шавед.',
+          tr(
+            'Барои «{app}» аллакай дархост ҳаст — ҷавоби волидайнро интизор шавед.',
+            {'app': app.name},
+          ),
           error: true,
         );
         await _loadRequests();
@@ -189,13 +201,13 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
 
     var index = 0;
     final children = <Widget>[
-      const Text(
-        'Қоидаҳои ман',
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+      Text(
+        tr('Қоидаҳои ман'),
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
       ),
       const SizedBox(height: 4),
       Text(
-        'Инҳоро волидайн барои ин телефон муқаррар кардаанд.',
+        tr('Инҳоро волидайн барои ин телефон муқаррар кардаанд.'),
         style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
       ),
       const SizedBox(height: 8),
@@ -210,26 +222,26 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
           child: sync.lastError != null
               ? StateMessage(
                   icon: Icons.cloud_off_rounded,
-                  title: 'Қоидаҳо бор нашуданд',
+                  title: tr('Қоидаҳо бор нашуданд'),
                   text: sync.lastError,
-                  actionLabel: 'Аз нав кӯшиш',
+                  actionLabel: tr('Аз нав кӯшиш'),
                   onAction: _refresh,
                   error: true,
                 )
               : const Center(child: CircularProgressIndicator()),
         )
       else if (empty)
-        const Padding(
-          padding: EdgeInsets.only(top: 24),
+        Padding(
+          padding: const EdgeInsets.only(top: 24),
           child: StateMessage(
             icon: Icons.verified_user_outlined,
-            title: 'Ҳоло қоида нест',
-            text: 'Ҳамаи барномаҳо бе маҳдудият кушода ҳастанд.',
+            title: tr('Ҳоло қоида нест'),
+            text: tr('Ҳамаи барномаҳо бе маҳдудият кушода ҳастанд.'),
           ),
         )
       else ...[
         if (bedtime.enabled) ...[
-          const SectionTitle('Вақти хоб'),
+          SectionTitle(tr('Вақти хоб')),
           FadeIn(
             index: index++,
             child: _RuleCard(
@@ -238,16 +250,17 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
                 color: NigohDesign.violet,
               ),
               title: '${bedtime.start} – ${bedtime.end}',
-              subtitle:
-                  'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.',
+              subtitle: tr(
+                'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.',
+              ),
               trailing: bedtimeActive
-                  ? const Pill('Ҳозир фаъол', color: NigohDesign.violet)
+                  ? Pill(tr('Ҳозир фаъол'), color: NigohDesign.violet)
                   : null,
             ),
           ),
         ],
         if (study.enabled) ...[
-          const SectionTitle('Тамаркузи дарс'),
+          SectionTitle(tr('Тамаркузи дарс')),
           FadeIn(
             index: index++,
             child: _RuleCard(
@@ -257,16 +270,19 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
               ),
               title:
                   '${study.start} – ${study.end} · ${weekdaysLabel(study.weekdays)}',
-              subtitle:
-                  'Бозиҳо, шабакаҳо ва видео баста мешаванд. Занг, SMS ва '
-                  'барномаҳои таълимӣ кушода мемонанд.',
+              subtitle: tr(
+                'Бозиҳо, шабакаҳо ва видео баста мешаванд. Занг, SMS ва '
+                'барномаҳои таълимӣ кушода мемонанд.',
+              ),
               trailing: studyActive
-                  ? const Pill('Ҳозир фаъол', color: NigohDesign.mint)
+                  ? Pill(tr('Ҳозир фаъол'), color: NigohDesign.mint)
                   : null,
             ),
           ),
           if (studyApps.isNotEmpty) ...[
-            SectionTitle('Дар соатҳои дарс баста (${studyApps.length})'),
+            SectionTitle(
+              tr('Дар соатҳои дарс баста ({n})', {'n': studyApps.length}),
+            ),
             for (final app in studyApps)
               FadeIn(
                 index: index++,
@@ -276,28 +292,28 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
                   locked: studyActive,
                   subtitle: categoryOf(app).label,
                   pill: studyActive
-                      ? const Pill('Дарс', color: NigohDesign.mint)
+                      ? Pill(tr('Дарс'), color: NigohDesign.mint)
                       : null,
                 ),
               ),
           ],
         ],
         if (blocked.isNotEmpty) ...[
-          SectionTitle('Баста (${blocked.length})'),
+          SectionTitle(tr('Баста ({n})', {'n': blocked.length})),
           for (final app in blocked)
             FadeIn(
               index: index++,
               child: _AppRule(
                 app: app,
                 locked: true,
-                subtitle: 'Волидайн ин барномаро бастаанд',
-                pill: const Pill('Баста', color: NigohDesign.coral),
+                subtitle: tr('Волидайн ин барномаро бастаанд'),
+                pill: Pill(tr('Баста'), color: NigohDesign.coral),
                 onAsk: () => _askTime(app),
               ),
             ),
         ],
         if (limited.isNotEmpty) ...[
-          SectionTitle('Маҳдудияти рӯзона (${limited.length})'),
+          SectionTitle(tr('Маҳдудияти рӯзона ({n})', {'n': limited.length})),
           for (final app in limited)
             FadeIn(
               index: index++,
@@ -310,14 +326,14 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
                         ? 1
                         : app.effectiveLimitMinutes),
                 pill: app.usageMinutesToday >= app.effectiveLimitMinutes
-                    ? const Pill('Вақт тамом', color: NigohDesign.coral)
+                    ? Pill(tr('Вақт тамом'), color: NigohDesign.coral)
                     : null,
                 onAsk: () => _askTime(app),
               ),
             ),
         ],
         if (scheduled.isNotEmpty) ...[
-          SectionTitle('Вақти дарс (${scheduled.length})'),
+          SectionTitle(tr('Вақти дарс ({n})', {'n': scheduled.length})),
           for (final app in scheduled)
             FadeIn(
               index: index++,
@@ -325,25 +341,25 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
                 app: app,
                 subtitle:
                     '${app.schedule.start} – ${app.schedule.end} · ${weekdaysLabel(app.schedule.weekdays)}',
-                pill: const Pill('Ҷадвал', color: NigohDesign.amber),
+                pill: Pill(tr('Ҷадвал'), color: NigohDesign.amber),
               ),
             ),
         ],
         if (allowed.isNotEmpty) ...[
-          SectionTitle('Ҳамеша иҷозат (${allowed.length})'),
+          SectionTitle(tr('Ҳамеша иҷозат ({n})', {'n': allowed.length})),
           for (final app in allowed)
             FadeIn(
               index: index++,
               child: _AppRule(
                 app: app,
-                subtitle: 'Ҳатто дар вақти хоб кушода аст',
-                pill: const Pill('Иҷозат', color: NigohDesign.mint),
+                subtitle: tr('Ҳатто дар вақти хоб кушода аст'),
+                pill: Pill(tr('Иҷозат'), color: NigohDesign.mint),
               ),
             ),
         ],
       ],
       if (child != null) ...[
-        const SectionTitle('Дархостҳои ман'),
+        SectionTitle(tr('Дархостҳои ман')),
         _RequestsList(
           requests: _requests,
           error: _requestsError,
@@ -505,7 +521,7 @@ class _AppRule extends StatelessWidget {
                       child: TextButton.icon(
                         onPressed: onAsk,
                         icon: const Icon(Icons.more_time_rounded, size: 18),
-                        label: const Text('Вақти иловагӣ пурсидан'),
+                        label: Text(tr('Вақти иловагӣ пурсидан')),
                       ),
                     ),
                 ],
@@ -563,7 +579,7 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Вақти иловагӣ барои «${widget.app.name}»',
+                  tr('Вақти иловагӣ барои «{app}»', {'app': widget.app.name}),
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
@@ -574,7 +590,7 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Чанд дақиқа лозим аст?',
+            tr('Чанд дақиқа лозим аст?'),
             style: TextStyle(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
@@ -583,7 +599,7 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
             children: [
               for (final m in const [15, 30, 60])
                 ChoiceChip(
-                  label: Text('$m дақ'),
+                  label: Text(tr('{m} дақ', {'m': m})),
                   selected: _minutes == m,
                   onSelected: (_) => setState(() => _minutes = m),
                 ),
@@ -596,8 +612,8 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
             maxLines: 2,
             minLines: 1,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Сабаб (ихтиёрӣ)',
+            decoration: InputDecoration(
+              labelText: tr('Сабаб (ихтиёрӣ)'),
               counterText: '',
             ),
           ),
@@ -609,7 +625,7 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
                   .pop(_TimeAsk(_minutes, reason.isEmpty ? null : reason));
             },
             icon: const Icon(Icons.send_rounded),
-            label: const Text('Фиристодан'),
+            label: Text(tr('Фиристодан')),
           ),
         ],
       ),
@@ -649,7 +665,7 @@ class _RequestsList extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             child: Text(
-              'Ҳоло дархост нафиристодаед.',
+              tr('Ҳоло дархост нафиристодаед.'),
               style: TextStyle(color: scheme.onSurfaceVariant),
             ),
           ),
@@ -663,7 +679,7 @@ class _RequestsList extends StatelessWidget {
               ),
               title: r.appName,
               subtitle: [
-                '+${r.minutes} дақ',
+                tr('+{m} дақ', {'m': r.minutes}),
                 if (r.createdAt != null) timeAgo(r.createdAt),
                 if (r.reason != null && r.reason!.trim().isNotEmpty)
                   r.reason!.trim(),
@@ -678,9 +694,9 @@ class _RequestsList extends StatelessWidget {
 
 /// Pill for a request status: интизор / иҷозат дода шуд / рад шуд.
 Widget requestStatusPill(String status) => switch (status) {
-  'approved' => const Pill('иҷозат дода шуд', color: NigohDesign.mint),
-  'denied' => const Pill('рад шуд', color: NigohDesign.coral),
-  _ => const Pill('интизор', color: NigohDesign.amber),
+  'approved' => Pill(tr('иҷозат дода шуд'), color: NigohDesign.mint),
+  'denied' => Pill(tr('рад шуд'), color: NigohDesign.coral),
+  _ => Pill(tr('интизор'), color: NigohDesign.amber),
 };
 
 class _InlineError extends StatelessWidget {
@@ -705,7 +721,7 @@ class _InlineError extends StatelessWidget {
           Expanded(
             child: Text(text, style: TextStyle(color: scheme.error)),
           ),
-          TextButton(onPressed: onRetry, child: const Text('Аз нав')),
+          TextButton(onPressed: onRetry, child: Text(tr('Аз нав'))),
         ],
       ),
     );

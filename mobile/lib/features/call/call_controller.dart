@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/api.dart';
 import 'rtc_engine.dart';
+import '../../l10n/l10n.dart';
 
 enum CallState { idle, outgoing, incoming, connecting, active, ended }
 
@@ -20,8 +21,10 @@ enum CallEndReason {
   micDenied('Иҷозати микрофон дода нашуд'),
   error('Хатогӣ');
 
-  const CallEndReason(this.label);
-  final String label;
+  const CallEndReason(this._label);
+  final String _label;
+
+  String get label => tr(_label);
 }
 
 Future<bool> requestMicrophonePermission() async =>
@@ -357,7 +360,7 @@ class CallController extends ChangeNotifier {
       final decoded = payload is String ? jsonDecode(payload) : payload;
       data = Map<String, dynamic>.from(decoded as Map);
     } catch (_) {
-      lastError = 'Сигнали нодуруст';
+      lastError = tr('Сигнали нодуруст');
       return;
     }
     try {

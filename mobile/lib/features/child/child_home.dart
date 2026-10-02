@@ -11,6 +11,7 @@ import '../settings/settings_screen.dart';
 import 'child_rules.dart';
 import 'child_sync.dart';
 import 'child_widgets.dart';
+import '../../l10n/l10n.dart';
 
 /// QR payload read by the parent's scanner (`UserJourneyLogic.pairingCode`
 /// keeps only the 6 digits).
@@ -112,25 +113,25 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
       case 1:
         page = sync.paired
             ? ChildRulesScreen(sync: sync)
-            : const SafeArea(
+            : SafeArea(
                 child: StateMessage(
                   icon: Icons.rule_rounded,
-                  title: 'Ҳоло қоида нест',
-                  text: 'Аввал телефонро бо волидайн пайваст кунед.',
+                  title: tr('Ҳоло қоида нест'),
+                  text: tr('Аввал телефонро бо волидайн пайваст кунед.'),
                 ),
               );
       case 2:
         final id = sync.childId;
         page = id == null
             ? Scaffold(
-                appBar: AppBar(title: const Text('Чат')),
+                appBar: AppBar(title: Text(tr('Чат'))),
                 body: sync.loading
                     ? const Center(child: CircularProgressIndicator())
                     : StateMessage(
                         icon: Icons.chat_bubble_outline_rounded,
-                        title: 'Чат ҳоло омода нест',
-                        text: sync.lastError ?? 'Пайвастшавӣ ба сервер…',
-                        actionLabel: 'Аз нав кӯшиш',
+                        title: tr('Чат ҳоло омода нест'),
+                        text: sync.lastError ?? tr('Пайвастшавӣ ба сервер…'),
+                        actionLabel: tr('Аз нав кӯшиш'),
                         onAction: sync.forceSync,
                         error: sync.lastError != null,
                       ),
@@ -138,7 +139,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
             : ChatScreen(
                 key: ValueKey('chat-$id'),
                 childId: id,
-                title: sync.parentName ?? 'Волидайн',
+                title: sync.parentName ?? tr('Волидайн'),
                 avatarPath: sync.child?.parentAvatar,
               );
       case 3:
@@ -157,15 +158,15 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
         destinations: [
-          const NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Асосӣ',
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home_rounded),
+            label: tr('Асосӣ'),
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.rule_outlined),
-            selectedIcon: Icon(Icons.rule_rounded),
-            label: 'Қоидаҳо',
+          NavigationDestination(
+            icon: const Icon(Icons.rule_outlined),
+            selectedIcon: const Icon(Icons.rule_rounded),
+            label: tr('Қоидаҳо'),
           ),
           NavigationDestination(
             icon: Badge(
@@ -174,12 +175,12 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
               child: const Icon(Icons.chat_bubble_outline_rounded),
             ),
             selectedIcon: const Icon(Icons.chat_bubble_rounded),
-            label: 'Чат',
+            label: tr('Чат'),
           ),
-          const NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings_rounded),
-            label: 'Танзимот',
+          NavigationDestination(
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings_rounded),
+            label: tr('Танзимот'),
           ),
         ],
       ),
@@ -242,7 +243,7 @@ class _PairingViewState extends State<_PairingView> {
     setState(() => _busy = true);
     try {
       await widget.sync.regenerateCode();
-      if (mounted) showMessage(context, 'Коди нав сохта шуд');
+      if (mounted) showMessage(context, tr('Коди нав сохта шуд'));
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     } finally {
@@ -261,13 +262,13 @@ class _PairingViewState extends State<_PairingView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'Пайвастшавӣ бо волидайн',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+        Text(
+          tr('Пайвастшавӣ бо волидайн'),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 6),
         Text(
-          'Волидайн ин QR-ро дар телефони худ скан мекунад.',
+          tr('Волидайн ин QR-ро дар телефони худ скан мекунад.'),
           style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
         ),
         const SizedBox(height: 18),
@@ -325,25 +326,25 @@ class _PairingViewState extends State<_PairingView> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.refresh_rounded),
-                    label: const Text('Коди нав'),
+                    label: Text(tr('Коди нав')),
                   ),
                 ],
               ),
             ),
           ),
         ),
-        const SectionTitle('Чӣ тавр пайваст шавем'),
-        const _Step(
+        SectionTitle(tr('Чӣ тавр пайваст шавем')),
+        _Step(
           index: 1,
-          text: 'Волидайн NIGOH Family-ро дар телефони худ мекушояд.',
+          text: tr('Волидайн NIGOH Family-ро дар телефони худ мекушояд.'),
         ),
-        const _Step(
+        _Step(
           index: 2,
-          text: '«Илова кардани фарзанд»-ро интихоб мекунад.',
+          text: tr('«Илова кардани фарзанд»-ро интихоб мекунад.'),
         ),
-        const _Step(
+        _Step(
           index: 3,
-          text: 'QR-ро скан мекунад ё ин 6 рақамро ворид менамояд.',
+          text: tr('QR-ро скан мекунад ё ин 6 рақамро ворид менамояд.'),
         ),
         if (sync.lastError != null && code != null && code.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -440,7 +441,9 @@ class _PairedView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Пайваст бо ${sync.parentName ?? 'волидайн'}',
+                    tr('Пайваст бо {name}', {
+                      'name': sync.parentName ?? tr('волидайн'),
+                    }),
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w800,
@@ -448,7 +451,7 @@ class _PairedView extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'NIGOH Family дар ин телефон фаъол аст.',
+                    tr('NIGOH Family дар ин телефон фаъол аст.'),
                     style: TextStyle(color: scheme.onSurfaceVariant),
                   ),
                 ],
@@ -472,31 +475,31 @@ class _PairedView extends StatelessWidget {
           const SizedBox(height: 12),
         ],
         FadeIn(child: SosButton(onTriggered: () => _sendSos(context))),
-        const SectionTitle('Вақти экрани ман'),
+        SectionTitle(tr('Вақти экрани ман')),
         FadeIn(index: 1, child: ScreenTimeCard(apps: child?.apps ?? const [])),
-        const SectionTitle('Ҳолати телефон'),
+        SectionTitle(tr('Ҳолати телефон')),
         FadeIn(
           index: 1,
           child: _StatusCard(
             icon: Icons.shield_rounded,
             color: protectionOk ? NigohDesign.mint : NigohDesign.amber,
-            title: 'Ҳимоя',
+            title: tr('Ҳимоя'),
             value: !sync.protectionKnown
-                ? 'Санҷида мешавад…'
+                ? tr('Санҷида мешавад…')
                 : protectionOk
-                ? 'Ҳамаи иҷозатҳо дода шудаанд'
-                : '${missing.length} иҷозат намерасад',
-            detail: protectionOk ? null : missing.join(', '),
+                ? tr('Ҳамаи иҷозатҳо дода шудаанд')
+                : tr('{n} иҷозат намерасад', {'n': missing.length}),
+            detail: protectionOk ? null : missing.map(tr).join(', '),
             action: !sync.protectionKnown
                 ? null
                 : protectionOk
                 ? TextButton(
                     onPressed: onOpenAccess,
-                    child: const Text('Иҷозатҳо'),
+                    child: Text(tr('Иҷозатҳо')),
                   )
                 : FilledButton.tonal(
                     onPressed: onOpenAccess,
-                    child: const Text('Иҷозатҳо'),
+                    child: Text(tr('Иҷозатҳо')),
                   ),
           ),
         ),
@@ -506,13 +509,13 @@ class _PairedView extends StatelessWidget {
           child: _StatusCard(
             icon: Icons.apps_rounded,
             color: NigohDesign.blue,
-            title: 'Барномаҳо',
+            title: tr('Барномаҳо'),
             value: sync.lastAppsSync == null
-                ? 'Ҳоло фиристода нашудааст'
-                : '${sync.appsCount} барнома',
+                ? tr('Ҳоло фиристода нашудааст')
+                : tr('{n} барнома', {'n': sync.appsCount}),
             detail: sync.lastAppsSync == null
                 ? null
-                : 'Навсозӣ: ${timeAgo(sync.lastAppsSync)}',
+                : tr('Навсозӣ: {time}', {'time': timeAgo(sync.lastAppsSync)}),
           ),
         ),
         const SizedBox(height: 12),
@@ -521,10 +524,10 @@ class _PairedView extends StatelessWidget {
           child: _StatusCard(
             icon: Icons.location_on_rounded,
             color: NigohDesign.violet,
-            title: 'Ҷойгиршавӣ',
+            title: tr('Ҷойгиршавӣ'),
             value: sync.lastLocationSync == null
-                ? 'Ҳоло фиристода нашудааст'
-                : 'Фиристода шуд',
+                ? tr('Ҳоло фиристода нашудааст')
+                : tr('Фиристода шуд'),
             detail: sync.lastLocationSync == null
                 ? null
                 : timeAgo(sync.lastLocationSync),
@@ -540,7 +543,7 @@ class _PairedView extends StatelessWidget {
 Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
   final id = sync.childId;
   if (id == null) {
-    showMessage(context, 'Ҳоло ба сервер пайваст нестем.', error: true);
+    showMessage(context, tr('Ҳоло ба сервер пайваст нестем.'), error: true);
     return;
   }
   final position = sync.lastPosition;
@@ -554,7 +557,10 @@ Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
   try {
     await sync.api.sendChat(id, text, messageType: 'urgent');
     if (context.mounted) {
-      showMessage(context, 'SOS фиристода шуд. Волидайн огоҳ карда шуданд.');
+      showMessage(
+        context,
+        tr('SOS фиристода шуд. Волидайн огоҳ карда шуданд.'),
+      );
     }
   } catch (e) {
     if (context.mounted) showMessage(context, e, error: true);
@@ -689,7 +695,7 @@ class _ErrorCardState extends State<_ErrorCard> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.refresh_rounded),
-                  label: const Text('Аз нав кӯшиш'),
+                  label: Text(tr('Аз нав кӯшиш')),
                 ),
               ],
             ),

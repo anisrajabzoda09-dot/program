@@ -4,19 +4,25 @@ import 'package:flutter/services.dart';
 import '../../core/models.dart';
 import '../../ui/nigoh_design.dart';
 import 'child_rules.dart' show minutesLabel;
+import '../../l10n/l10n.dart';
 
 /// Text of the SOS chat message (message_type 'urgent').
 String sosMessageText({double? latitude, double? longitude, int? battery}) {
-  final lines = ['SOS — ба кӯмак ниёз дорам!'];
+  final lines = [tr('SOS — ба кӯмак ниёз дорам!')];
   if (latitude != null && longitude != null) {
     lines.add(
-      'Ҷойгиршавӣ: https://maps.google.com/?q='
-      '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}',
+      tr('Ҷойгиршавӣ: {url}', {
+        'url':
+            'https://maps.google.com/?q='
+            '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}',
+      }),
     );
   } else {
-    lines.add('Ҷойгиршавӣ ҳоло маълум нест.');
+    lines.add(tr('Ҷойгиршавӣ ҳоло маълум нест.'));
   }
-  if (battery != null) lines.add('Батарея: $battery%');
+  if (battery != null) {
+    lines.add(tr('Батарея: {battery}%', {'battery': battery}));
+  }
   return lines.join('\n');
 }
 
@@ -86,7 +92,7 @@ class _SosButtonState extends State<SosButton>
           children: [
             Semantics(
               button: true,
-              label: 'SOS. Барои фиристодан пахш карда нигоҳ доред.',
+              label: tr('SOS. Барои фиристодан пахш карда нигоҳ доред.'),
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTapDown: (_) => _down(),
@@ -144,8 +150,8 @@ class _SosButtonState extends State<SosButton>
             const SizedBox(height: 12),
             Text(
               _sending
-                  ? 'Фиристода мешавад…'
-                  : 'Дар ҳолати хатар пахш карда нигоҳ доред',
+                  ? tr('Фиристода мешавад…')
+                  : tr('Дар ҳолати хатар пахш карда нигоҳ доред'),
               textAlign: TextAlign.center,
               style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
             ),
@@ -178,7 +184,9 @@ class BedtimeNotice extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Вақти хоб — барномаҳо то ${bedtime.end} баста ҳастанд',
+              tr('Вақти хоб — барномаҳо то {end} баста ҳастанд', {
+                'end': bedtime.end,
+              }),
               style: TextStyle(
                 color: scheme.onSurface,
                 fontWeight: FontWeight.w600,
@@ -215,7 +223,9 @@ class StudyNotice extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Тамаркузи дарс — бозиҳо ва шабакаҳо то ${study.end} баста ҳастанд',
+              tr('Тамаркузи дарс — бозиҳо ва шабакаҳо то {end} баста ҳастанд', {
+                'end': study.end,
+              }),
               style: TextStyle(
                 color: scheme.onSurface,
                 fontWeight: FontWeight.w600,
@@ -249,7 +259,7 @@ class ScreenTimeCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Имрӯз',
+              tr('Имрӯз'),
               style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
             ),
             const SizedBox(height: 2),
@@ -261,7 +271,7 @@ class ScreenTimeCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  'Имрӯз ҳоло барнома истифода нашудааст.',
+                  tr('Имрӯз ҳоло барнома истифода нашудааст.'),
                   style: TextStyle(color: scheme.onSurfaceVariant),
                 ),
               )
