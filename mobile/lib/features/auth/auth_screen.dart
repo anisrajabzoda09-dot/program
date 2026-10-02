@@ -64,7 +64,9 @@ class _AuthScreenState extends State<AuthScreen> {
       if (e.code != GoogleSignInExceptionCode.canceled && mounted) {
         showMessage(
           context,
-          tr('Воридшавӣ бо Google нашуд. {details}', {'details': e.description ?? ''}).trim(),
+          tr('Воридшавӣ бо Google нашуд. {details}', {
+            'details': e.description ?? '',
+          }).trim(),
           error: true,
         );
       }
@@ -190,7 +192,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                                 validator: (v) {
                                   final value = (v ?? '').trim();
-                                  if (value.isEmpty) return tr('Почтаро нависед.');
+                                  if (value.isEmpty) {
+                                    return tr('Почтаро нависед.');
+                                  }
                                   if (!_emailPattern.hasMatch(value)) {
                                     return tr('Почтаи электронӣ нодуруст аст.');
                                   }
@@ -230,9 +234,13 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                                 validator: (v) {
                                   final value = v ?? '';
-                                  if (value.isEmpty) return tr('Рамзро нависед.');
+                                  if (value.isEmpty) {
+                                    return tr('Рамзро нависед.');
+                                  }
                                   if (value.length < 8) {
-                                    return tr('Рамз бояд ақаллан 8 аломат бошад.');
+                                    return tr(
+                                      'Рамз бояд ақаллан 8 аломат бошад.',
+                                    );
                                   }
                                   return null;
                                 },
@@ -261,42 +269,48 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  FadeIn(
-                    index: 2,
-                    child: Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            tr('ё'),
-                            style: TextStyle(color: scheme.onSurfaceVariant),
+                  if (Session.googleAvailable) ...[
+                    const SizedBox(height: 16),
+                    FadeIn(
+                      index: 2,
+                      child: Row(
+                        children: [
+                          const Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              tr('ё'),
+                              style: TextStyle(color: scheme.onSurfaceVariant),
+                            ),
                           ),
-                        ),
-                        const Expanded(child: Divider()),
-                      ],
+                          const Expanded(child: Divider()),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  FadeIn(
-                    index: 2,
-                    child: OutlinedButton.icon(
-                      key: const Key('auth.google'),
-                      onPressed: busy || googleBusy ? null : google,
-                      icon: googleBusy
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.g_mobiledata_rounded, size: 30),
-                      label: Text(tr('Идома бо Google')),
+                    const SizedBox(height: 16),
+                    FadeIn(
+                      index: 2,
+                      child: OutlinedButton.icon(
+                        key: const Key('auth.google'),
+                        onPressed: busy || googleBusy ? null : google,
+                        icon: googleBusy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.g_mobiledata_rounded, size: 30),
+                        label: Text(tr('Идома бо Google')),
+                      ),
                     ),
-                  ),
+                  ],
                   const SizedBox(height: 20),
                   Text(
-                    tr('Агар пештар бо почта ворид мешудед, як бор аз нав бақайдгирӣ кунед.'),
+                    tr(
+                      'Агар пештар бо почта ворид мешудед, як бор аз нав бақайдгирӣ кунед.',
+                    ),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,

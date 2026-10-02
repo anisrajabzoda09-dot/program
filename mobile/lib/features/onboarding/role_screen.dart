@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/platform.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
@@ -33,6 +34,8 @@ class _RoleScreenState extends State<RoleScreen> {
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
     final scheme = Theme.of(context).colorScheme;
+    // Desktop app: parent only; the child side runs on the Android phone.
+    final desktop = isDesktop;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -67,7 +70,9 @@ class _RoleScreenState extends State<RoleScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    tr('Ин телефонро кӣ истифода мебарад?'),
+                    desktop
+                        ? tr('NIGOH Family дар компютер барои волидайн аст.')
+                        : tr('Ин телефонро кӣ истифода мебарад?'),
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontSize: 15,
@@ -80,28 +85,70 @@ class _RoleScreenState extends State<RoleScreen> {
                       icon: Icons.family_restroom_rounded,
                       color: NigohDesign.blue,
                       title: tr('Волидайн'),
-                      text: tr('Барномаҳо, ҷойгиршавӣ ва чати фарзандро бинед.'),
+                      text: tr(
+                        'Барномаҳо, ҷойгиршавӣ ва чати фарзандро бинед.',
+                      ),
                       busy: saving == 'parent',
                       onTap: () => choose('parent'),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  FadeIn(
-                    index: 2,
-                    child: _RoleCard(
-                      icon: Icons.child_care_rounded,
-                      color: NigohDesign.mint,
-                      title: tr('Фарзанд'),
-                      text: tr('Ин телефонро ба волидайн пайваст кунед.'),
-                      busy: saving == 'child',
-                      onTap: () => choose('child'),
+                  if (desktop)
+                    FadeIn(
+                      index: 2,
+                      child: _ChildOnPhoneNote(
+                        key: const Key('role.child-on-phone'),
+                      ),
+                    )
+                  else
+                    FadeIn(
+                      index: 2,
+                      child: _RoleCard(
+                        icon: Icons.child_care_rounded,
+                        color: NigohDesign.mint,
+                        title: tr('Фарзанд'),
+                        text: tr('Ин телефонро ба волидайн пайваст кунед.'),
+                        busy: saving == 'child',
+                        onTap: () => choose('child'),
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ChildOnPhoneNote extends StatelessWidget {
+  const _ChildOnPhoneNote({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: NigohDesign.mint.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: NigohDesign.mint.withValues(alpha: .35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.phone_android_rounded, color: NigohDesign.mint),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              tr(
+                'Қисми фарзанд дар телефони Android кор мекунад: NIGOH Family-ро дар телефони фарзанд насб кунед ва «Фарзанд»-ро интихоб кунед.',
+              ),
+              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
+            ),
+          ),
+        ],
       ),
     );
   }
