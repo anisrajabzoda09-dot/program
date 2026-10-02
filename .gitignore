@@ -11,3 +11,5 @@ new.md
 app/static/downloads
 /*.apk
 app/static/avatars/
+mobile/.widget_preview/
+__pycache__/
