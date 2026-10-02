@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/child_profile.dart';
 import 'core/home_target.dart';
@@ -15,6 +16,7 @@ import 'features/parent/parent_home.dart';
 import 'features/settings/app_update.dart';
 import 'features/settings/theme_mode.dart';
 import 'ui/theme.dart';
+import 'l10n/l10n.dart';
 
 /// App-wide navigator, used to open screens from notifications.
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -22,27 +24,72 @@ final navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final session = Session();
-  await Future.wait([session.load(), themeModeSetting.load()]);
+  await Future.wait([
+    session.load(),
+    themeModeSetting.load(),
+    appLanguage.load(),
+  ]);
   runApp(NigohApp(session: session));
 }
 
-class NigohApp extends StatelessWidget {
+class NigohApp extends StatefulWidget {
   const NigohApp({super.key, required this.session});
   final Session session;
 
   @override
+  State<NigohApp> createState() => _NigohAppState();
+}
+
+class _NigohAppState extends State<NigohApp> {
+  @override
+  void initState() {
+    super.initState();
+    appLanguage.addListener(rebuildAll);
+  }
+
+  @override
+  void dispose() {
+    appLanguage.removeListener(rebuildAll);
+    super.dispose();
+  }
+
+  /// Texts come from tr() inside build methods, so a language switch must
+  /// rebuild every element — including routes pushed above the home (e.g. the
+  /// open Settings screen) — while keeping their state.
+  void rebuildAll() {
+    void mark(Element element) {
+      element.markNeedsBuild();
+      element.visitChildren(mark);
+    }
+
+    if (mounted) (context as Element).visitChildren(mark);
+  }
+
+  Session get session => widget.session;
+
+  @override
   Widget build(BuildContext context) => SessionScope(
     session: session,
-    child: ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeModeSetting,
-      builder: (_, mode, _) => MaterialApp(
-        title: 'NIGOH Family',
-        navigatorKey: navigatorKey,
-        debugShowCheckedModeBanner: false,
-        theme: NigohTheme.light(),
-        darkTheme: NigohTheme.dark(),
-        themeMode: mode,
-        home: const RootGate(),
+    child: ValueListenableBuilder<String>(
+      valueListenable: appLanguage,
+      builder: (_, _, _) => ValueListenableBuilder<ThemeMode>(
+        valueListenable: themeModeSetting,
+        builder: (_, mode, _) => MaterialApp(
+          title: 'NIGOH Family',
+          navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
+          theme: NigohTheme.light(),
+          darkTheme: NigohTheme.dark(),
+          themeMode: mode,
+          locale: appLanguage.materialLocale,
+          supportedLocales: const [Locale('ru'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: const RootGate(),
+        ),
       ),
     ),
   );
@@ -151,14 +198,14 @@ class _RootGateState extends State<RootGate> {
           title: const Text('SOS'),
           content: Text(
             action.peerName == null
-                ? 'Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед.'
-                : '${action.peerName} ёрӣ мехоҳад. Ҷойгиршавиро бинед.',
+                ? tr('Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед.')
+                : tr('{name} ёрӣ мехоҳад. Ҷойгиршавиро бинед.', {'name': action.peerName}),
           ),
           actions: [
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Хомӯш кардан'),
+              child: Text(tr('Хомӯш кардан')),
             ),
           ],
         ),
