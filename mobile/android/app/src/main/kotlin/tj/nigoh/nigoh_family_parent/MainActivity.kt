@@ -36,6 +36,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : FlutterActivity() {
+    companion object {
+        /** Automatic call/SOS launches already delivered (key → elapsedRealtime). */
+        private val recentAutoLaunches = HashMap<String, Long>()
+    }
+
     private val channelName = "tj.nigoh/update"
     private val deviceControlChannelName = "tj.nigoh/device_control"
     private val packageEventsChannelName = "tj.nigoh/package_events"
@@ -492,7 +497,7 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             } catch (e: Exception) {
-                result.error("notify_failed", e.message ?: "Огоҳиномаҳо кор накарданд.", null)
+                result.error("notify_failed", e.message ?: UiStrings.notifyFailed(this), null)
             }
         }
     }
@@ -545,6 +550,19 @@ class MainActivity : FlutterActivity() {
         )
         // Consume the extras so a recreate/rotation does not replay them.
         intent.removeExtra(NotifyService.EXTRA_KIND)
+
+        // The same call/SOS can arrive twice automatically: NotifyService opens
+        // the app directly (overlay permission) and the full-screen intent may
+        // fire too. Deliver only the first automatic launch; taps always pass.
+        if (fullScreen && (kind == "call" || kind == "sos")) {
+            val key = if (kind == "call") "call:$callId" else "sos:$childId"
+            val now = android.os.SystemClock.elapsedRealtime()
+            val window = if (kind == "call") 120_000L else 15_000L
+            val seen = recentAutoLaunches[key]
+            recentAutoLaunches.entries.removeAll { now - it.value > 120_000L }
+            if (seen != null && now - seen < window) return
+            recentAutoLaunches[key] = now
+        }
 
         if (kind == "call" || kind == "sos") {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {

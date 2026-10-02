@@ -3,6 +3,7 @@ package tj.nigoh.nigoh_family_parent
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -21,6 +22,7 @@ import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -111,22 +113,25 @@ class NotifyService : Service() {
         fun createChannels(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             val nm = context.getSystemService(NotificationManager::class.java)
+            // Same ids every time: re-creating only renames the visible
+            // name/description to the current in-app language.
+            val s = NotifyStrings(AppLang.of(context))
             val service = NotificationChannel(
-                CH_SERVICE, "Хизмати огоҳиномаҳо", NotificationManager.IMPORTANCE_MIN
+                CH_SERVICE, s.chService, NotificationManager.IMPORTANCE_MIN
             ).apply { setShowBadge(false) }
             val messages = NotificationChannel(
-                CH_MESSAGES, "Паёмҳо", NotificationManager.IMPORTANCE_DEFAULT
+                CH_MESSAGES, s.chMessages, NotificationManager.IMPORTANCE_DEFAULT
             )
             val family = NotificationChannel(
-                CH_FAMILY, "Оила", NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = "Дархостҳои вақт, батарея, барномаҳои нав, зангҳои ҷавобнадода" }
+                CH_FAMILY, s.chFamily, NotificationManager.IMPORTANCE_DEFAULT
+            ).apply { description = s.chFamilyDesc }
             // SOS and calls: the service plays the looping sound itself
             // (USAGE_ALARM / ringtone), so the channel stays silent to avoid
             // two overlapping copies of the same sound.
             val sos = NotificationChannel(
                 CH_SOS, "SOS", NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Ҳушдори SOS аз фарзанд"
+                description = s.chSosDesc
                 setSound(null, null)
                 enableVibration(false)
                 enableLights(true)
@@ -135,9 +140,9 @@ class NotifyService : Service() {
                 if (nm.isNotificationPolicyAccessGranted) setBypassDnd(true)
             }
             val calls = NotificationChannel(
-                CH_CALLS, "Зангҳо", NotificationManager.IMPORTANCE_HIGH
+                CH_CALLS, s.chCalls, NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Зангҳои воридшаванда"
+                description = s.chCallsDesc
                 setSound(null, null)
                 enableVibration(false)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -159,15 +164,38 @@ class NotifyService : Service() {
     private var ringingSosChild: Int? = null
     private var callWatcher: Thread? = null
 
+    // In-app language; channels + the ongoing card follow it when it changes.
+    @Volatile private var lang: String = "tg"
+    private val strings get() = NotifyStrings(lang)
+    private val langListener =
+        android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == null || key == AppLang.KEY) main.post { refreshLanguage() }
+        }
+
+    // Last call/SOS brought to the front directly (dedupe by call id / child).
+    private var lastDirectLaunch: String? = null
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         instance = this
+        lang = AppLang.of(this)
         createChannels(this)
+        flutterPrefs().registerOnSharedPreferenceChangeListener(langListener)
+    }
+
+    /** Language switched in the app: rename channels and refresh the ongoing card. */
+    private fun refreshLanguage() {
+        val now = AppLang.of(this)
+        if (now == lang) return
+        lang = now
+        createChannels(this)
+        if (instance === this) runCatching { goForeground() }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        AppLang.of(this).let { if (it != lang) { lang = it; createChannels(this) } }
         goForeground()
         intent?.getStringExtra(EXTRA_BASE_URL)?.takeIf { it.isNotBlank() }?.let {
             prefs().edit().putString(KEY_BASE_URL, it.trimEnd('/')).apply()
@@ -201,6 +229,7 @@ class NotifyService : Service() {
     override fun onDestroy() {
         running = false
         worker?.interrupt()
+        runCatching { flutterPrefs().unregisterOnSharedPreferenceChangeListener(langListener) }
         stopRinging()
         instance = null
         super.onDestroy()
@@ -217,8 +246,8 @@ class NotifyService : Service() {
         )
         val notification = NotificationCompat.Builder(this, CH_SERVICE)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
-            .setContentTitle("NIGOH Family фаъол аст")
-            .setContentText("Паёмҳо, SOS ва зангҳо фавран мерасанд")
+            .setContentTitle(strings.serviceTitle)
+            .setContentText(strings.serviceText)
             .setOngoing(true)
             .setSilent(true)
             .setShowWhen(false)
@@ -392,9 +421,21 @@ class NotifyService : Service() {
         val title = event.optString("title").takeIf { it.isNotBlank() && it != "null" } ?: "NIGOH Family"
         val body = event.optString("body").takeIf { it != "null" } ?: ""
         val data = event.optJSONObject("data") ?: JSONObject()
+        val current = AppLang.of(this)
+        if (current != lang) main.post { refreshLanguage() }
+        val s = NotifyStrings(current)
         when (kind) {
-            "message" -> showMessage(eventId, childId, childName, title, body)
-            "sos" -> main.post { showSos(childId ?: 0, title, body, childName) }
+            "message" -> {
+                // Title = sender, text = the message itself (user content).
+                val sender = data.str("sender") ?: title
+                showMessage(eventId, childId, childName, sender, body)
+            }
+            "sos" -> {
+                val content = data.str("content") ?: body.takeIf { it.isNotBlank() }
+                val sosTitle = childName?.let(s::sosTitle) ?: title
+                val text = content ?: s.sosDefault(childName)
+                main.post { showSos(childId ?: 0, sosTitle, text, childName, s) }
+            }
             "call" -> {
                 val callId = data.optInt("call_id", -1)
                 if (callId < 0) return
@@ -406,7 +447,7 @@ class NotifyService : Service() {
                 if (status != "ringing") return
                 val peer = data.optString("caller_name").takeIf { it.isNotBlank() && it != "null" }
                     ?: childName ?: title
-                main.post { showCall(callId, childId ?: 0, peer, body) }
+                main.post { showCall(callId, childId ?: 0, peer, s.voiceCall, s) }
             }
             "call_end" -> {
                 val callId = data.optInt("call_id", -1)
@@ -415,11 +456,59 @@ class NotifyService : Service() {
             "missed_call" -> {
                 val callId = data.optInt("call_id", -1)
                 if (callId >= 0) main.post { endCallUi(callId) }
-                showFamily(eventId, kind, childId, title, body, childName)
+                val (t, b) = localize(s, kind, childName, data) ?: (title to body)
+                showFamily(eventId, kind, childId, t, b, childName)
             }
-            else -> showFamily(eventId, kind, childId, title, body, childName)
+            else -> {
+                val (t, b) = localize(s, kind, childName, data) ?: (title to body)
+                showFamily(eventId, kind, childId, t, b, childName)
+            }
         }
     }
+
+    private fun JSONObject.str(key: String): String? =
+        if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() && it != "null" }
+
+    /**
+     * Title/text for family events in the in-app language, from the structured
+     * data. null = data missing (older server) → keep the server's Tajik texts.
+     */
+    private fun localize(s: NotifyStrings, kind: String, child: String?, data: JSONObject): Pair<String, String>? =
+        when (kind) {
+            "time_request" -> {
+                val app = data.str("app_name")
+                val minutes = data.optInt("minutes", 0)
+                if (child == null || app == null || minutes <= 0) null
+                else s.timeRequestTitle(child, minutes, app) to (data.str("reason") ?: s.timeRequestDefault)
+            }
+            "time_decision" -> {
+                if (!data.has("approved")) null else {
+                    val app = data.str("app_name") ?: ""
+                    if (data.optBoolean("approved")) {
+                        s.approved to s.approvedBody(app, data.optInt("minutes", 0))
+                    } else {
+                        s.denied to app
+                    }
+                }
+            }
+            "low_battery" -> {
+                if (child == null || !data.has("battery")) null
+                else s.lowBatteryTitle(child, data.optInt("battery")) to s.lowBatteryBody
+            }
+            "offline" -> child?.let { s.offlineTitle(it) to s.offlineBody }
+            "new_app" -> {
+                val apps = data.optJSONArray("apps")
+                if (child == null || apps == null || apps.length() == 0) null else {
+                    val names = (0 until apps.length()).mapNotNull { apps.optString(it).takeIf(String::isNotBlank) }
+                    s.newAppTitle(child) to (names.take(3).joinToString(", ") + if (names.size > 3) "…" else "")
+                }
+            }
+            "missed_call" -> {
+                val isParent = flutterPrefs().getString(FLUTTER_ROLE, null) == "parent"
+                s.missedCall to (if (isParent) child ?: "" else s.parent)
+            }
+            else -> null
+        }
 
     private fun showMessage(eventId: Int, childId: Int?, childName: String?, sender: String, text: String) {
         val key = childId ?: 0
@@ -453,8 +542,7 @@ class NotifyService : Service() {
         post(40_000 + (eventId % 100_000), notification)
     }
 
-    private fun showSos(childId: Int, title: String, body: String, childName: String?) {
-        val text = body.ifBlank { "Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед." }
+    private fun showSos(childId: Int, title: String, text: String, childName: String?, s: NotifyStrings) {
         val notification = NotificationCompat.Builder(this, CH_SOS)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
             .setContentTitle(title)
@@ -470,19 +558,20 @@ class NotifyService : Service() {
             .setContentIntent(launchIntent(300_000 + childId, "sos", childId, peerName = childName))
             .setFullScreenIntent(launchIntent(310_000 + childId, "sos", childId, peerName = childName, fullScreen = true), true)
             .setDeleteIntent(serviceIntent(320_000 + childId, ACTION_STOP_ALARM, childId = childId))
-            .addAction(0, "Хомӯш кардан", serviceIntent(330_000 + childId, ACTION_STOP_ALARM, childId = childId))
+            .addAction(0, s.silence, serviceIntent(330_000 + childId, ACTION_STOP_ALARM, childId = childId))
             .build()
         post(sosId(childId), notification)
         stopRinging()
         ringingSosChild = childId
         startRinging(alarm = true)
+        bringToFront("sos:$childId:${System.currentTimeMillis()}", "sos", childId, peerName = childName)
     }
 
-    private fun showCall(callId: Int, childId: Int, peer: String, body: String) {
+    private fun showCall(callId: Int, childId: Int, peer: String, text: String, s: NotifyStrings) {
         val notification = NotificationCompat.Builder(this, CH_CALLS)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
             .setContentTitle(peer)
-            .setContentText(body.ifBlank { "Занги овозӣ" })
+            .setContentText(text)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -493,8 +582,8 @@ class NotifyService : Service() {
             .setFullScreenIntent(
                 launchIntent(500_000 + (callId % 100_000), "call", childId, callId, peer, fullScreen = true), true
             )
-            .addAction(0, "Рад", serviceIntent(600_000 + (callId % 100_000), ACTION_DECLINE_CALL, callId = callId))
-            .addAction(0, "Қабул", launchIntent(700_000 + (callId % 100_000), "call", childId, callId, peer, accept = true))
+            .addAction(0, s.decline, serviceIntent(600_000 + (callId % 100_000), ACTION_DECLINE_CALL, callId = callId))
+            .addAction(0, s.accept, launchIntent(700_000 + (callId % 100_000), "call", childId, callId, peer, accept = true))
             .build()
         post(callNotifId(callId), notification)
         stopRinging()
@@ -502,6 +591,39 @@ class NotifyService : Service() {
         startRinging(alarm = false)
         main.postDelayed({ if (ringingCallId == callId) endCallUi(callId) }, CALL_TIMEOUT_MS)
         watchCall(callId)
+        bringToFront("call:$callId", "call", childId, callId, peer)
+    }
+
+    /**
+     * Android shows a full-screen intent only on a locked/off screen; while the
+     * phone is in use it is just a heads-up. With «display over other apps»
+     * (SYSTEM_ALERT_WINDOW) background activity starts are allowed, so the
+     * call/SOS screen is opened directly. The notification stays as well.
+     * Same extras as the full-screen intent; MainActivity dedupes by [key].
+     */
+    private fun bringToFront(key: String, kind: String, childId: Int, callId: Int? = null, peerName: String? = null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) return
+        // Locked / screen off: the full-screen intent already does it.
+        val power = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val keyguard = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (!power.isInteractive || keyguard.isKeyguardLocked) return
+        if (lastDirectLaunch == key) return
+        lastDirectLaunch = key
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+            action = "tj.nigoh.notify.FRONT.$key"
+            putExtra(EXTRA_KIND, kind)
+            putExtra(EXTRA_CHILD_ID, childId)
+            if (callId != null) putExtra(EXTRA_CALL_ID, callId)
+            if (peerName != null) putExtra(EXTRA_PEER_NAME, peerName)
+            putExtra(EXTRA_ACCEPT, false)
+            putExtra(EXTRA_FULL_SCREEN, true)
+        }
+        runCatching { startActivity(intent) }
+            .onFailure { Log.w(TAG, "direct launch failed: ${it.message}") }
     }
 
     /** Stops ringing once the call is answered/declined anywhere (e.g. in the app). */
