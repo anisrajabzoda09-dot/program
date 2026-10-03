@@ -43,6 +43,26 @@ class Settings:
     # Toolkit endpoint; no Firebase database write is performed by the API.
     # OAuth client IDs whose Google ID tokens the Android app may send
     # (web client used as serverClientId, plus the Android client).
+    # Sign in with Apple (all empty = the Apple button is hidden and the routes refuse).
+    # APPLE_CLIENT_ID is the Services ID; the private key is the .p8 key text
+    # (newlines may be written as \n) or a path in APPLE_PRIVATE_KEY_PATH.
+    APPLE_CLIENT_ID: str = os.getenv("APPLE_CLIENT_ID", "")
+    APPLE_TEAM_ID: str = os.getenv("APPLE_TEAM_ID", "")
+    APPLE_KEY_ID: str = os.getenv("APPLE_KEY_ID", "")
+    APPLE_PRIVATE_KEY: str = os.getenv("APPLE_PRIVATE_KEY", "").replace("\\n", "\n")
+    APPLE_PRIVATE_KEY_PATH: str = os.getenv("APPLE_PRIVATE_KEY_PATH", "")
+    APPLE_REDIRECT_URI: str = os.getenv(
+        "APPLE_REDIRECT_URI", "https://nigohfamily.qobus.tj/auth/apple/callback"
+    )
+    # Extra audiences accepted from the phone app (comma-separated; the
+    # Services ID is always accepted).
+    APPLE_MOBILE_CLIENT_IDS: str = os.getenv("APPLE_MOBILE_CLIENT_IDS", "")
+    APPLE_ANDROID_PACKAGE: str = os.getenv("APPLE_ANDROID_PACKAGE", "tj.nigoh.nigoh_family_parent")
+    APPLE_ISSUER: str = "https://appleid.apple.com"
+    APPLE_AUTHORIZATION_ENDPOINT: str = "https://appleid.apple.com/auth/authorize"
+    APPLE_TOKEN_ENDPOINT: str = "https://appleid.apple.com/auth/token"
+    APPLE_KEYS_ENDPOINT: str = "https://appleid.apple.com/auth/keys"
+
     GOOGLE_MOBILE_CLIENT_IDS: str = os.getenv(
         "GOOGLE_MOBILE_CLIENT_IDS",
         "708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com,"
