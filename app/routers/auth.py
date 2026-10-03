@@ -1,4 +1,4 @@
-"""Handle browser registration, login, logout, and Google / Apple OAuth sessions."""
+"""Handle browser registration, login, logout, and Google / Apple / GitHub OAuth sessions."""
 
 import json
 import secrets
@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.core import apple_auth
+from app.core import apple_auth, github_auth
 from app.core.config import settings
 from app.core.security import (
     create_session,
@@ -157,7 +157,8 @@ def auth_page(request: Request):
     return templates.TemplateResponse(
         request=request, name=name,
         context={"app_version": settings.APP_VERSION, "lang": lang,
-                 "apple_enabled": apple_auth.apple_configured()},
+                 "apple_enabled": apple_auth.apple_configured(),
+                 "github_enabled": github_auth.github_configured()},
     )
 
 @router.post("/api/auth/register")
@@ -382,6 +383,91 @@ async def apple_android_bridge(request: Request):
     target = (f"intent://callback?{urlencode(allowed)}#Intent;"
               f"package={settings.APPLE_ANDROID_PACKAGE};scheme=signinwithapple;end")
     return RedirectResponse(target, status_code=307)
+
+
+GITHUB_STATE_COOKIE = "github_oauth_state"
+
+
+def _github_auth_page(lang: str, status: str) -> str:
+    """URL of the sign-in page in the visitor's language with a GitHub status flag."""
+    return f"/auth?lang={lang}&github={status}" if lang in ("ru", "en") else f"/auth?github={status}"
+
+
+def _github_redirect(request: Request, record: dict) -> RedirectResponse:
+    """Send the browser to GitHub's consent page and bind the one-time state to a cookie."""
+    _prune_oauth_states()
+    state = secrets.token_urlsafe(32)
+    OAUTH_STATES[state] = {"created_at": time.time(), "provider": "github", **record}
+    params = {"client_id": settings.GITHUB_CLIENT_ID, "redirect_uri": settings.GITHUB_REDIRECT_URI,
+              "scope": "read:user user:email", "state": state, "allow_signup": "true"}
+    response = RedirectResponse(f"{settings.GITHUB_AUTHORIZATION_ENDPOINT}?{urlencode(params)}", status_code=307)
+    response.set_cookie(key=GITHUB_STATE_COOKIE, value=state, httponly=True, samesite="lax",
+                        secure=_request_is_https(request), max_age=settings.GOOGLE_OAUTH_STATE_MAX_AGE)
+    return response
+
+
+def _app_return(query: str) -> RedirectResponse:
+    """Hand the phone flow back to the app through its custom URL scheme."""
+    return RedirectResponse(f"{settings.GITHUB_APP_SCHEME}://auth/github?{query}", status_code=303)
+
+
+@router.get("/auth/github/login")
+def github_login(request: Request, next: str = "/", lang: str = "tg"):
+    """Start Sign in with GitHub for the website."""
+    if not github_auth.github_configured():
+        return RedirectResponse(_github_auth_page(lang, "not_configured"), status_code=303)
+    return _github_redirect(request, {"next": _safe_next_path(next), "lang": lang, "mobile": False})
+
+
+@router.get("/auth/github/mobile")
+def github_mobile_start(request: Request, nonce_hash: str = ""):
+    """Start Sign in with GitHub for the phone app (opened in a browser tab by the app).
+
+    The app keeps a random nonce and sends only its SHA-256 here; the ticket
+    issued at the end can be redeemed only together with the raw nonce.
+    """
+    if not github_auth.github_configured():
+        return _app_return("error=not_configured")
+    if len(nonce_hash) != 64 or any(ch not in "0123456789abcdef" for ch in nonce_hash):
+        raise HTTPException(status_code=400, detail="Воридшавӣ бо GitHub тасдиқ нашуд")
+    return _github_redirect(request, {"next": "/", "lang": "tg", "mobile": True, "nonce_hash": nonce_hash})
+
+
+@router.get("/auth/github/callback")
+def github_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+):
+    """Finish GitHub sign-in: check state, fetch the verified identity, then sign in (web) or issue an app ticket."""
+    _prune_oauth_states()
+    record = OAUTH_STATES.pop(state, None) if state else None
+    mobile = bool(record and record.get("mobile"))
+    lang = (record or {}).get("lang", "tg")
+
+    def fail(status: str) -> RedirectResponse:
+        return _app_return(f"error={status}") if mobile else RedirectResponse(_github_auth_page(lang, status), status_code=303)
+
+    if error:
+        return fail("cancelled")
+    cookie = request.cookies.get(GITHUB_STATE_COOKIE)
+    if (not code or not record or record.get("provider") != "github" or not cookie
+            or not secrets.compare_digest(state, cookie)):
+        return fail("failed")
+    try:
+        identity = github_auth.fetch_identity(code)
+    except HTTPException as exc:
+        return fail("no_email" if exc.status_code == 400 else "failed")
+    account = github_auth.upsert_github_user(db, identity)
+    if mobile:
+        response = _app_return("ticket=" + github_auth.issue_ticket(account.id, record["nonce_hash"]))
+    else:
+        response = RedirectResponse(record["next"], status_code=303)
+        _set_session_cookie(response, request, account.to_dict())
+    response.delete_cookie(GITHUB_STATE_COOKIE)
+    return response
 
 
 @router.get("/logout")
