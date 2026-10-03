@@ -197,9 +197,18 @@ void main() {
         ),
       );
       expect(find.text('42%'), findsOneWidget);
-      // The child card labels the row and shows the hours as its value.
+      // The child card labels the row; its value is the hours, or «Ҳозир фаъол»
+      // while bedtime is running (so the result does not depend on the clock).
       expect(find.text('Вақти хоб'), findsOneWidget);
-      expect(find.text('21:30–07:00'), findsOneWidget);
+      final bedtimeNow = const Bedtime(
+        enabled: true,
+        start: '21:30',
+        end: '07:00',
+      ).activeAt(DateTime.now());
+      expect(
+        find.text(bedtimeNow ? 'Ҳозир фаъол' : '21:30–07:00'),
+        findsOneWidget,
+      );
       expect(find.text('2 дархост'), findsOneWidget);
       expect(find.text('1 барномаи нав'), findsOneWidget);
       expect(find.text('3 паёми нав'), findsOneWidget);
