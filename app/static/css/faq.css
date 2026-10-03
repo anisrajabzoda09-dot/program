@@ -129,3 +129,16 @@
   .faq details > summary { padding-right: 40px; }
   .faq-copy { position: static; margin: -10px 0 8px; }
 }
+
+.faq details.faq-link-target {
+  animation: faq-link-flash 1.4s ease-out;
+}
+
+@keyframes faq-link-flash {
+  0%, 35% { background: var(--blue-soft); }
+  100% { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq details.faq-link-target { animation: none; }
+}

@@ -99,6 +99,8 @@ function openFaqHash() {
   const question = document.getElementById(id);
   if (!question) return;
   question.open = true;
+  question.classList.add('faq-link-target');
+  question.addEventListener('animationend', () => question.classList.remove('faq-link-target'), { once: true });
   question.scrollIntoView({ block: 'center' });
 }
 
