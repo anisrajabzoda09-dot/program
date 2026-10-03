@@ -107,6 +107,23 @@
   .split { gap: 36px; }
 }
 
+/* Present the next inner page as a clear full-width continuation. */
+.next-page { border-top: 1px solid var(--line); background: var(--soft); }
+.next-page a {
+  display: flex;
+  min-height: 96px;
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 22px var(--gutter);
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  color: var(--ink);
+}
+.next-page a::after { content: "→"; color: var(--blue); font-size: 1.5rem; transition: transform .2s ease; }
+.next-page span { color: var(--muted); font-size: .875rem; }
+.next-page a:hover::after { transform: translateX(4px); }
+
 /* Keep feature topic links comfortably tappable and align their section targets. */
 .feature-chips .tag { min-height: 44px; padding-inline: 16px; }
 .feature-chips ~ * { scroll-margin-top: 120px; }
