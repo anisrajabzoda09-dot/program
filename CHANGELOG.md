@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.19.0 — 2026-10-04
+- Sign in with GitHub on the website and in the Android app (appears once GitHub keys are set on the server; see docs/GITHUB_SIGNIN_SETUP.md).
+- Permissions wizard: an «App info» card on the three restricted-setting steps (usage access, display over other apps, Accessibility) with a button to the app page and four numbered steps to turn off Android 13+'s "restricted setting".
+- Every server, app and website source file now has a Tajik comment at the top saying what it is for, and Tajik comments above functions.
+
 ## 2.18.0 — 2026-10-03
 - Sign in with Apple on the website and in the Android app (appears once Apple keys are set on the server; see docs/APPLE_SIGNIN_SETUP.md).
 - Website: a new tall 19.5:9 phone in the hero and on the features page, drawn in HTML/CSS (three languages, light/dark).
