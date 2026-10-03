@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nigoh_family_parent/core/models.dart';
 import 'package:nigoh_family_parent/core/session.dart';
 import 'package:nigoh_family_parent/features/parent/apps_screen.dart';
 import 'package:nigoh_family_parent/features/parent/family_controller.dart';
@@ -136,9 +137,18 @@ void main() {
         expect(find.text('1 нафар'), findsOneWidget);
         expect(find.text('Барномаи баста'), findsOneWidget);
         expect(find.text('Ҳамаи барномаҳо'), findsOneWidget);
-        // The bedtime row is labelled and shows its hours as the value.
+        // The bedtime row is labelled; its value is the hours, or «Ҳозир фаъол»
+        // while bedtime is running (independent of when the test runs).
         expect(find.text('Вақти хоб'), findsOneWidget);
-        expect(find.text('21:30–07:00'), findsOneWidget);
+        final bedtimeNow = const Bedtime(
+          enabled: true,
+          start: '21:30',
+          end: '07:00',
+        ).activeAt(DateTime.now());
+        expect(
+          find.text(bedtimeNow ? 'Ҳозир фаъол' : '21:30–07:00'),
+          findsOneWidget,
+        );
       });
 
       testWidgets('apps screen explains itself and labels the limit', (
