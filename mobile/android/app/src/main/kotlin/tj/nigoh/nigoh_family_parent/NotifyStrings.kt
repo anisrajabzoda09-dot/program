@@ -1,3 +1,5 @@
+// Localized notification texts built natively by NotifyService.
+
 package tj.nigoh.nigoh_family_parent
 
 /**
@@ -6,6 +8,7 @@ package tj.nigoh.nigoh_family_parent
  * Tajik title/body. User content (chat text, SOS text, reasons) is never translated.
  */
 class NotifyStrings(val lang: String) {
+    /** Picks the text for this object's language. */
     private fun t(tg: String, ru: String, en: String) = AppLang.pick(lang, tg, ru, en)
 
     // Foreground service.

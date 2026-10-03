@@ -1,3 +1,6 @@
+// Native in-app updater: downloads the new APK, verifies package name,
+// signing certificate and version, and installs it via PackageInstaller.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.app.PendingIntent
@@ -29,12 +32,14 @@ object AppUpdater {
 
     private val main = Handler(Looper.getMainLooper())
 
+    /** Posts a progress event to Flutter on the main thread; done/error end the run. */
     private fun emit(state: String, progress: Double? = null, message: String? = null) {
         val event = mapOf("state" to state, "progress" to progress, "message" to message)
         main.post { listener?.invoke(event) }
         if (state == "done" || state == "error") running = false
     }
 
+    /** Starts download → verify → install on a background thread (once at a time). */
     fun start(context: Context, url: String) {
         if (running) return
         running = true
@@ -52,6 +57,7 @@ object AppUpdater {
         }.start()
     }
 
+    /** Downloads the APK into the cache (following redirects) with progress events. */
     private fun download(context: Context, url: String): File {
         val dir = File(context.cacheDir, "updates").apply { mkdirs() }
         dir.listFiles()?.forEach { it.delete() }
@@ -99,6 +105,7 @@ object AppUpdater {
         return target
     }
 
+    /** SHA-256 digests of the signing certificates in [info]. */
     @Suppress("DEPRECATION")
     private fun signatureDigests(info: PackageInfo?): Set<String> {
         if (info == null) return emptySet()
@@ -112,6 +119,10 @@ object AppUpdater {
         return raw.map { sig -> sha.digest(sig.toByteArray()).joinToString("") { "%02x".format(it) } }.toSet()
     }
 
+    /**
+     * Rejects an APK that is a different app, signed with another key, or not
+     * newer than the installed version.
+     */
     @Suppress("DEPRECATION")
     private fun verify(context: Context, apk: File) {
         val pm = context.packageManager
@@ -136,6 +147,7 @@ object AppUpdater {
         }
     }
 
+    /** Hands the APK to PackageInstaller in a session and commits it. */
     private fun install(context: Context, apk: File) {
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
@@ -188,6 +200,7 @@ object AppUpdater {
     }
 }
 
+/** Receives PackageInstaller session results and forwards them to [AppUpdater]. */
 class UpdateStatusReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) = AppUpdater.onStatus(context, intent)
 }

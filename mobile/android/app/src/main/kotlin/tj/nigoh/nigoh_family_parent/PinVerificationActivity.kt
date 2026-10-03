@@ -1,3 +1,6 @@
+// Native parent-PIN screen guarding NIGOH's removal: after a correct PIN it
+// drops the device-admin rights and opens Android's uninstall screen.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.app.Activity
@@ -17,9 +20,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.text.InputType
 
+/**
+ * Full-screen PIN prompt shown when someone tries to disable or uninstall
+ * NIGOH; Back cannot dismiss it.
+ */
 class PinVerificationActivity : Activity() {
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    /** Builds the PIN form (field, error line, confirm button) in code. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFinishOnTouchOutside(false)
@@ -72,6 +80,10 @@ class PinVerificationActivity : Activity() {
         setContentView(root)
     }
 
+    /**
+     * Checks the PIN; on success removes device admin and starts the uninstall,
+     * otherwise shows wrong-PIN, lockout or no-PIN text.
+     */
     private fun verify(pin: String, error: TextView) {
         val result = PinSecurity.verify(this, pin)
         if (result.allowed) {
@@ -90,6 +102,7 @@ class PinVerificationActivity : Activity() {
         }
     }
 
+    /** Opens Android's own uninstall dialog for NIGOH and closes this screen. */
     private fun launchUninstall() {
         startActivity(Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
             data = Uri.parse("package:$packageName")

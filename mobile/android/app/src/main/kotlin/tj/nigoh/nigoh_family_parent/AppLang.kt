@@ -1,3 +1,6 @@
+// Native-side localization: reads the language chosen in Flutter and holds the
+// translated texts of the native screens (block overlay, PIN check, updater).
+
 package tj.nigoh.nigoh_family_parent
 
 import android.content.Context
@@ -11,6 +14,7 @@ object AppLang {
     const val PREFS = "FlutterSharedPreferences"
     const val KEY = "flutter.nigoh.locale"
 
+    /** Current in-app language code ('tg', 'ru' or 'en') read from Flutter's prefs. */
     fun of(context: Context): String =
         when (runCatching {
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null)
@@ -20,12 +24,14 @@ object AppLang {
             else -> "tg"
         }
 
+    /** Returns the text matching [lang] (Tajik for anything unknown). */
     fun pick(lang: String, tg: String, ru: String, en: String): String = when (lang) {
         "ru" -> ru
         "en" -> en
         else -> tg
     }
 
+    /** Returns the text matching the app's current language. */
     fun pick(context: Context, tg: String, ru: String, en: String): String = pick(of(context), tg, ru, en)
 }
 

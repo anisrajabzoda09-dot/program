@@ -1,3 +1,5 @@
+// Full-screen "Emergency Lock" page shown over an app the parent blocked.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.app.Activity
@@ -13,7 +15,12 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 
+/**
+ * Activity that explains why an app is blocked and offers to go home or ask
+ * the parent for extra time; emergency calls stay available.
+ */
 class BlockedActivity : Activity() {
+    /** Builds the lock page in code for the blocked package from the intent. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val blockedPackage = intent.getStringExtra("blocked_package") ?: ""

@@ -1,3 +1,7 @@
+// Flutter host activity and the bridge between Dart and Android: method/event
+// channels for updates, device control (apps, usage, permissions, rules, PIN,
+// uninstall), package events and notifications.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.app.AppOpsManager
@@ -35,6 +39,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * The app's only activity. Registers every platform channel the Flutter code
+ * uses, starts the app-block service when its permissions are granted, and
+ * forwards notification launches (calls, SOS, messages) to Dart.
+ */
 class MainActivity : FlutterActivity() {
     companion object {
         /** Automatic call/SOS launches already delivered (key → elapsedRealtime). */
@@ -51,6 +60,7 @@ class MainActivity : FlutterActivity() {
     private var packageReceiverRegistered = false
     private var notifyChannel: MethodChannel? = null
     private var pendingLaunch: Map<String, Any?>? = null
+    /** Forwards app install/remove/update broadcasts to Dart via package_events. */
     private val packageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -61,6 +71,10 @@ class MainActivity : FlutterActivity() {
             }
         }
     }
+    /**
+     * Registers the update, update-progress, device-control, package-events and
+     * notify channels with their handlers.
+     */
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         configureNotifyChannel(flutterEngine)
@@ -279,6 +293,7 @@ class MainActivity : FlutterActivity() {
             })
     }
 
+    /** Stops listening for package changes if the receiver is registered. */
     private fun unregisterPackageReceiver() {
         if (packageReceiverRegistered) {
             unregisterReceiver(packageReceiver)
@@ -286,6 +301,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** Lists launcher apps off the main thread and returns them to Dart. */
     private fun getInstalledAppsAsync(result: MethodChannel.Result) {
         activityScope.launch {
             val apps = withContext(Dispatchers.IO) {
@@ -295,6 +311,10 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /**
+     * Installed launcher apps (name, package, system flag, 48 px icon), sorted
+     * by name, excluding NIGOH itself.
+     */
     private fun installedLauncherApps(): List<Map<String, Any>> {
         val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         val resolved = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -323,6 +343,7 @@ class MainActivity : FlutterActivity() {
             .sortedBy { (it["name"] as String).lowercase() }
     }
 
+    /** Renders an app icon to a 48 px PNG encoded as Base64. */
     private fun drawableToBase64(drawable: Drawable): String {
         val size = 48
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -335,6 +356,7 @@ class MainActivity : FlutterActivity() {
         }.also { bitmap.recycle() }
     }
 
+    /** Today's foreground minutes per app from Android's usage stats. */
     private fun todayUsageStats(): List<Map<String, Any>> {
         val manager = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = java.util.Calendar.getInstance().apply {
@@ -362,6 +384,7 @@ class MainActivity : FlutterActivity() {
             }
     }
 
+    /** Converts the Dart rule maps/lists into JSON for the native blocker. */
     private fun jsonForRules(value: Any?): Any = when (value) {
         null -> JSONObject.NULL
         is Map<*, *> -> {
@@ -379,12 +402,17 @@ class MainActivity : FlutterActivity() {
         else -> value
     }
 
+    /** Whether usage access, overlay and accessibility are all granted. */
     private fun isBlockServiceEnabled(): Boolean {
         return AppBlockMonitorService.hasUsageAccess(this) &&
             Settings.canDrawOverlays(this) &&
             AppBlockMonitorService.isAccessibilityEnabled(this)
     }
 
+    /**
+     * Opens the next missing protection setting, or starts the service when
+     * everything is granted.
+     */
     private fun openNextProtectionSetting() {
         if (!AppBlockMonitorService.hasUsageAccess(this)) {
             openUsageAccessSettings()
@@ -406,6 +434,7 @@ class MainActivity : FlutterActivity() {
         startProtectionService()
     }
 
+    /** Opens usage-access settings for this app (generic screen as fallback). */
     private fun openUsageAccessSettings() {
         val appIntent = Intent(
             Settings.ACTION_USAGE_ACCESS_SETTINGS,
@@ -418,6 +447,10 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /**
+     * Status of every permission/protection NIGOH needs plus device info, for
+     * the Flutter permission screens.
+     */
     private fun protectionStatus(): Map<String, Any> {
         fun granted(permission: String) =
             checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -445,6 +478,7 @@ class MainActivity : FlutterActivity() {
         )
     }
 
+    /** Starts the app-block monitor as a (foreground) service. */
     private fun startProtectionService() {
         val intent = Intent(this, AppBlockMonitorService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -454,12 +488,14 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** Starts protection if allowed and records a notification launch on cold start. */
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         if (isBlockServiceEnabled()) startProtectionService()
         if (savedInstanceState == null) handleNotifyIntent(intent, deliver = false)
     }
 
+    /** Delivers a notification launch that arrived while the app was running. */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -468,6 +504,10 @@ class MainActivity : FlutterActivity() {
 
     // ------------------------------------------------ notifications bridge
 
+    /**
+     * Handles the tj.nigoh/notify channel: start/stop the notification service,
+     * permission status, full-screen settings, launch action and ringing.
+     */
     private fun configureNotifyChannel(flutterEngine: FlutterEngine) {
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tj.nigoh/notify")
         notifyChannel = channel
@@ -502,6 +542,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** Whether notifications and full-screen intents are allowed. */
     private fun notifyPermissionStatus(): Map<String, Boolean> {
         val enabled = androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled()
         val fullScreen = if (Build.VERSION.SDK_INT >= 34) {
@@ -512,6 +553,10 @@ class MainActivity : FlutterActivity() {
         return mapOf("notifications" to enabled, "fullScreen" to fullScreen)
     }
 
+    /**
+     * Opens the full-screen-intent setting (or the closest notification/app
+     * settings screen on older Android).
+     */
     private fun openFullScreenSettings(): Boolean {
         val intent = if (Build.VERSION.SDK_INT >= 34) {
             Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:$packageName"))
@@ -589,6 +634,10 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /**
+     * Restarts protection after the user returns from settings and resumes an
+     * update that was waiting for the install-unknown-apps permission.
+     */
     override fun onResume() {
         super.onResume()
         // Special permissions are granted outside the app. Resume monitoring
@@ -604,12 +653,14 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** Cancels background work and the package receiver. */
     override fun onDestroy() {
         activityScope.cancel()
         unregisterPackageReceiver()
         super.onDestroy()
     }
 
+    /** Installed version code of the app. */
     private fun versionCode(): Long {
         val info = packageManager.getPackageInfo(packageName, 0)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -620,10 +671,15 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** Installed version name of the app. */
     private fun versionName(): String {
         return packageManager.getPackageInfo(packageName, 0).versionName ?: "0.0.0"
     }
 
+    /**
+     * Asks the server for the latest release and returns it (with an absolute
+     * download URL) to Dart.
+     */
     private fun checkForUpdate(baseUrl: String, result: MethodChannel.Result) {
         activityScope.launch {
             try {
@@ -662,6 +718,10 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /**
+     * Starts the APK update, first asking for the install-unknown-apps permission
+     * when needed.
+     */
     private fun startUpdate(url: String, version: String, result: MethodChannel.Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             !packageManager.canRequestPackageInstalls()
@@ -682,6 +742,10 @@ class MainActivity : FlutterActivity() {
     }
 
 
+    /**
+     * Removes device-admin protection and opens Android's uninstall dialog
+     * (called only after the parent PIN was verified).
+     */
     private fun uninstallWithParentPin() {
         val policy = getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
         val admin = ComponentName(this, TamperDeviceAdminReceiver::class.java)
@@ -694,12 +758,14 @@ class MainActivity : FlutterActivity() {
         }, 350L)
     }
 
+    /** Converts a JSONObject into a map for the Flutter channel. */
     private fun jsonObjectToMap(json: JSONObject): HashMap<String, Any?> {
         val map = hashMapOf<String, Any?>()
         json.keys().forEach { key -> map[key] = jsonValue(json.get(key)) }
         return map
     }
 
+    /** Converts a JSON value (object, array, null) into channel-friendly types. */
     private fun jsonValue(value: Any?): Any? = when (value) {
         JSONObject.NULL -> null
         is JSONObject -> jsonObjectToMap(value)

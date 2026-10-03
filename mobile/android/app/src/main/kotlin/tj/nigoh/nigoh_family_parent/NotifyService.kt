@@ -1,3 +1,7 @@
+// Notification service without Firebase: long-polls the NIGOH events API and
+// posts message, SOS-alarm, incoming-call and family-alert notifications in
+// the in-app language.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.app.Notification
@@ -79,6 +83,7 @@ class NotifyService : Service() {
         var instance: NotifyService? = null
             private set
 
+        /** Whether someone is signed in (a session token is saved by Flutter). */
         fun hasToken(context: Context): Boolean =
             !context.getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
                 .getString(FLUTTER_TOKEN, null).isNullOrBlank()
@@ -103,6 +108,7 @@ class NotifyService : Service() {
                 .onFailure { Log.w(TAG, "start failed", it) }
         }
 
+        /** Stops the service and silences any ringing; forgets the event cursor. */
         fun stop(context: Context) {
             instance?.stopRinging()
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -110,6 +116,7 @@ class NotifyService : Service() {
             context.stopService(Intent(context, NotifyService::class.java))
         }
 
+        /** Creates (or renames to the current language) the notification channels. */
         fun createChannels(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             val nm = context.getSystemService(NotificationManager::class.java)
@@ -177,6 +184,7 @@ class NotifyService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    /** Registers the running instance, creates channels and follows language changes. */
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -194,6 +202,10 @@ class NotifyService : Service() {
         if (instance === this) runCatching { goForeground() }
     }
 
+    /**
+     * Handles start and notification actions (stop alarm, decline call, call
+     * timeout) and starts the polling thread while signed in.
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         AppLang.of(this).let { if (it != lang) { lang = it; createChannels(this) } }
         goForeground()
@@ -226,6 +238,7 @@ class NotifyService : Service() {
         return START_STICKY
     }
 
+    /** Stops polling and ringing when the service is destroyed. */
     override fun onDestroy() {
         running = false
         worker?.interrupt()
@@ -235,9 +248,12 @@ class NotifyService : Service() {
         super.onDestroy()
     }
 
+    /** Service-private preferences (base URL, event cursor). */
     private fun prefs() = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    /** Flutter's shared preferences (token, role, language). */
     private fun flutterPrefs() = getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
 
+    /** Shows the silent ongoing "NIGOH Family is active" notification. */
     private fun goForeground() {
         val open = PendingIntent.getActivity(
             this, 7300,
@@ -263,8 +279,10 @@ class NotifyService : Service() {
 
     // ---------------------------------------------------------------- polling
 
+    /** Non-2xx HTTP answer from the server. */
     private class HttpStatus(val code: Int) : Exception("HTTP $code")
 
+    /** Makes an authenticated request to the NIGOH server and parses the JSON reply. */
     private fun request(method: String, path: String, timeoutMs: Int): JSONObject {
         val token = flutterPrefs().getString(FLUTTER_TOKEN, null)
             ?: throw HttpStatus(401)
@@ -293,6 +311,10 @@ class NotifyService : Service() {
         }
     }
 
+    /**
+     * Long-poll loop: fetches new events after the saved cursor and posts them,
+     * backing off on errors and stopping on sign-out (401 or no token).
+     */
     private fun loop() {
         var backoff = 5_000L
         while (running) {
@@ -345,12 +367,14 @@ class NotifyService : Service() {
         }
     }
 
+    /** Sleeps [ms]; false when interrupted or the service stopped. */
     private fun sleep(ms: Long): Boolean = try {
         Thread.sleep(ms); running
     } catch (_: InterruptedException) {
         false
     }
 
+    /** Removes the foreground notification on any Android version. */
     @Suppress("DEPRECATION")
     private fun stopForegroundCompat() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -362,10 +386,14 @@ class NotifyService : Service() {
 
     // ---------------------------------------------------------- notifications
 
+    /** Notification id of a child's SOS alarm. */
     private fun sosId(childId: Int) = 20_000 + childId
+    /** Notification id of an incoming call. */
     private fun callNotifId(callId: Int) = 30_000 + (callId % 100_000)
+    /** Notification id of a child's chat messages. */
     private fun messageId(childId: Int) = 10_000 + childId
 
+    /** PendingIntent that opens the app with launch extras for Dart. */
     private fun launchIntent(
         requestCode: Int,
         kind: String,
@@ -391,6 +419,7 @@ class NotifyService : Service() {
         )
     }
 
+    /** PendingIntent that sends an action (stop alarm, decline…) to this service. */
     private fun serviceIntent(requestCode: Int, action: String, childId: Int? = null, callId: Int? = null): PendingIntent {
         val intent = Intent(this, NotifyService::class.java).apply {
             this.action = action
@@ -405,6 +434,7 @@ class NotifyService : Service() {
         }
     }
 
+    /** Posts a notification, ignoring a missing POST_NOTIFICATIONS permission. */
     private fun post(id: Int, notification: Notification) {
         try {
             NotificationManagerCompat.from(this).notify(id, notification)
@@ -413,6 +443,7 @@ class NotifyService : Service() {
         }
     }
 
+    /** Turns one server event into the matching notification. */
     private fun handleEvent(event: JSONObject) {
         val kind = event.optString("kind")
         val eventId = event.optLong("id").toInt()
@@ -466,6 +497,7 @@ class NotifyService : Service() {
         }
     }
 
+    /** Non-blank string value of [key], or null. */
     private fun JSONObject.str(key: String): String? =
         if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() && it != "null" }
 
@@ -510,6 +542,7 @@ class NotifyService : Service() {
             else -> null
         }
 
+    /** Chat message notification (grouped per child). */
     private fun showMessage(eventId: Int, childId: Int?, childName: String?, sender: String, text: String) {
         val key = childId ?: 0
         val notification = NotificationCompat.Builder(this, CH_MESSAGES)
@@ -526,6 +559,7 @@ class NotifyService : Service() {
         post(messageId(key), notification)
     }
 
+    /** Family alert notification (time request, battery, offline, new app…). */
     private fun showFamily(eventId: Int, kind: String, childId: Int?, title: String, body: String, childName: String?) {
         val notification = NotificationCompat.Builder(this, CH_FAMILY)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
@@ -542,6 +576,7 @@ class NotifyService : Service() {
         post(40_000 + (eventId % 100_000), notification)
     }
 
+    /** SOS notification with a full-screen alarm that rings until silenced. */
     private fun showSos(childId: Int, title: String, text: String, childName: String?, s: NotifyStrings) {
         val notification = NotificationCompat.Builder(this, CH_SOS)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
@@ -567,6 +602,7 @@ class NotifyService : Service() {
         bringToFront("sos:$childId:${System.currentTimeMillis()}", "sos", childId, peerName = childName)
     }
 
+    /** Incoming-call notification with accept/decline, ringtone and timeout. */
     private fun showCall(callId: Int, childId: Int, peer: String, text: String, s: NotifyStrings) {
         val notification = NotificationCompat.Builder(this, CH_CALLS)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
@@ -656,11 +692,13 @@ class NotifyService : Service() {
         }, "nigoh-call-watch").also { it.start() }
     }
 
+    /** Stops ringing and removes the call notification. */
     fun endCallUi(callId: Int) {
         if (ringingCallId == callId) stopRinging()
         NotificationManagerCompat.from(this).cancel(callNotifId(callId))
     }
 
+    /** Declines a call on the server and removes its notification. */
     private fun declineCall(callId: Int) {
         endCallUi(callId)
         Thread {
@@ -671,6 +709,10 @@ class NotifyService : Service() {
 
     // ---------------------------------------------------------------- ringing
 
+    /**
+     * Plays the alarm (SOS, at full alarm volume) or ringtone (call) with
+     * vibration, keeping the CPU awake.
+     */
     private fun startRinging(alarm: Boolean) {
         val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val uri = RingtoneManager.getDefaultUri(

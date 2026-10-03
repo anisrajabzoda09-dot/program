@@ -1,3 +1,7 @@
+// Child-phone app blocker: a foreground service that watches the foreground
+// app, counts per-app usage for daily limits, and covers forbidden apps with
+// a full-screen overlay according to the parent's rules.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.app.AppOpsManager
@@ -37,7 +41,13 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/**
+ * Foreground service enforcing the parent's app rules on the child phone.
+ * Polls the foreground app while the screen is on, tracks today's usage per
+ * app and shows the block overlay for blocked, scheduled or over-limit apps.
+ */
 class AppBlockMonitorService : Service() {
+    /** Package (and activity class, when known) currently in the foreground. */
     private data class ForegroundApp(val packageName: String, val className: String?)
     private val handler = Handler(Looper.getMainLooper())
     private var overlay: View? = null
@@ -51,6 +61,7 @@ class AppBlockMonitorService : Service() {
     private var activeSessionPersistedSeconds = 0L
     private var lastUsageFlushAt = 0L
 
+    /** Pauses monitoring and saves usage when the screen turns off; resumes on. */
     private val screenReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -70,6 +81,7 @@ class AppBlockMonitorService : Service() {
         }
     }
 
+    /** Periodic foreground check, re-posted while the screen is on. */
     private val monitor = object : Runnable {
         override fun run() {
             checkForegroundApp()
@@ -77,6 +89,10 @@ class AppBlockMonitorService : Service() {
         }
     }
 
+    /**
+     * Sets up system services, the screen receiver and the foreground
+     * notification, then starts monitoring.
+     */
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -107,11 +123,13 @@ class AppBlockMonitorService : Service() {
         if (screenOn) handler.post(monitor)
     }
 
+    /** Handles overlay requests sent by the accessibility service; restarts if killed. */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         handleAccessibilityRequest(intent)
         return START_STICKY
     }
 
+    /** Shows the overlay for an app reported by the accessibility service. */
     private fun handleAccessibilityRequest(intent: Intent?) {
         val target = intent?.getStringExtra(EXTRA_OVERLAY_PACKAGE) ?: return
         val reason = intent.getStringExtra(EXTRA_OVERLAY_REASON)
@@ -122,6 +140,7 @@ class AppBlockMonitorService : Service() {
         handler.post { runCatching { showOverlay(target, reason) } }
     }
 
+    /** Stops monitoring, saves usage and removes the overlay. */
     override fun onDestroy() {
         handler.removeCallbacks(monitor)
         flushActiveUsage()
@@ -132,6 +151,10 @@ class AppBlockMonitorService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    /**
+     * One monitoring step: finds the foreground app, records its usage and
+     * shows or removes the overlay according to its rule.
+     */
     private fun checkForegroundApp() {
         if (!screenOn) return
         if (!hasUsageAccess(this) || !Settings.canDrawOverlays(this)) {
@@ -170,6 +193,10 @@ class AppBlockMonitorService : Service() {
         }
     }
 
+    /**
+     * Starts a new usage day at midnight (clearing counters) and ignores clock
+     * rollbacks so a changed clock cannot reset the daily allowance.
+     */
     private fun rolloverLocalUsageIfNeeded(
         prefs: android.content.SharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE),
     ) {
@@ -203,6 +230,10 @@ class AppBlockMonitorService : Service() {
 
     private var lastWallClockMillis = 0L
 
+    /**
+     * Tracks how long the current foreground app has been open, flushing to
+     * storage periodically.
+     */
     private fun recordForegroundSession(
         prefs: android.content.SharedPreferences,
         packageName: String,
@@ -222,6 +253,7 @@ class AppBlockMonitorService : Service() {
         if (now - lastUsageFlushAt >= USAGE_FLUSH_INTERVAL_MS) flushActiveUsage(prefs)
     }
 
+    /** Saves the active app's accumulated seconds/minutes to shared preferences. */
     private fun flushActiveUsage(
         prefs: android.content.SharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE),
     ) {
@@ -241,6 +273,7 @@ class AppBlockMonitorService : Service() {
         lastUsageFlushAt = activeSessionStartedAt
     }
 
+    /** Forgets the in-memory session of the current foreground app. */
     private fun finishActiveSession() {
         activePackage = null
         activeSessionStartedAt = 0L
@@ -249,6 +282,7 @@ class AppBlockMonitorService : Service() {
         lastUsageFlushAt = 0L
     }
 
+    /** Finds the stored rule for [packageName] in the rules JSON. */
     private fun ruleFor(prefs: android.content.SharedPreferences, packageName: String): JSONObject? {
         val raw = prefs.getString(RULES_KEY, null) ?: return null
         return runCatching {
@@ -261,6 +295,10 @@ class AppBlockMonitorService : Service() {
         }.getOrNull()
     }
 
+    /**
+     * Today's usage of an app: the larger of Android's usage stats and NIGOH's
+     * own counter.
+     */
     private fun todayUsageMillis(
         prefs: android.content.SharedPreferences,
         packageName: String,
@@ -282,6 +320,7 @@ class AppBlockMonitorService : Service() {
         return maxOf(systemMillis, localMillis)
     }
 
+    /** Sends the user to the home screen. */
     private fun goHome() {
         startActivity(Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
@@ -289,6 +328,10 @@ class AppBlockMonitorService : Service() {
         })
     }
 
+    /**
+     * Whether an app schedule window is active now (Monday=1 … Sunday=7;
+     * overnight windows belong to the starting weekday).
+     */
     private fun isScheduleActive(schedule: JSONObject): Boolean {
         if (!schedule.optBoolean("enabled", false)) return false
         val weekdays = schedule.optJSONArray("weekdays") ?: return false
@@ -313,6 +356,7 @@ class AppBlockMonitorService : Service() {
         }
     }
 
+    /** Parses "HH:mm" into minutes after midnight; null when invalid. */
     private fun parseMinutes(value: String): Int? {
         val parts = value.trim().split(":")
         if (parts.size != 2) return null
@@ -321,6 +365,10 @@ class AppBlockMonitorService : Service() {
         return if (hour in 0..23 && minute in 0..59) hour * 60 + minute else null
     }
 
+    /**
+     * Latest app moved to the foreground according to UsageEvents, falling back
+     * to the most recently used app.
+     */
     private fun latestForegroundPackage(): ForegroundApp? {
         val end = System.currentTimeMillis()
         // Activity events are emitted on resume, not continuously. Keep a
@@ -348,6 +396,10 @@ class AppBlockMonitorService : Service() {
         )?.maxByOrNull { it.lastTimeUsed }?.let { ForegroundApp(it.packageName, null) }
     }
 
+    /**
+     * Shows the full-screen block overlay for [blockedPackage] with [reason];
+     * with [tamper] it asks for the parent PIN instead of offering "Home".
+     */
     private fun showOverlay(blockedPackage: String, reason: String, tamper: Boolean = false) {
         if (overlay != null && overlayPackage == blockedPackage) return
         removeOverlay()
@@ -443,17 +495,20 @@ class AppBlockMonitorService : Service() {
         }
     }
 
+    /** Removes the block overlay if one is shown. */
     private fun removeOverlay() {
         overlay?.let { runCatching { windowManager.removeView(it) } }
         overlay = null
         overlayPackage = null
     }
 
+    /** Checks a 4-digit parent PIN with [PinSecurity]. */
     private fun verifyParentPin(pin: String): Boolean {
         if (!Regex("^\\d{4}$").matches(pin)) return false
         return PinSecurity.verify(this, pin).allowed
     }
 
+    /** Creates the low-importance channel for the "protection active" notification. */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -490,6 +545,7 @@ class AppBlockMonitorService : Service() {
             "com.android.permissioncontroller"
         )
 
+        /** Whether NIGOH is an active device admin (uninstall protection). */
         fun isDeviceAdminEnabled(context: Context): Boolean {
             val manager = context.getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
             return manager.isAdminActive(
@@ -497,6 +553,7 @@ class AppBlockMonitorService : Service() {
             )
         }
 
+        /** Whether the app has usage access (needed to see the foreground app). */
         fun hasUsageAccess(context: Context): Boolean {
             val appOps = context.getSystemService(APP_OPS_SERVICE) as AppOpsManager
             val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) appOps.unsafeCheckOpNoThrow(
@@ -511,6 +568,7 @@ class AppBlockMonitorService : Service() {
             return mode == AppOpsManager.MODE_ALLOWED
         }
 
+        /** Whether NIGOH's accessibility service is enabled in system settings. */
         fun isAccessibilityEnabled(context: Context): Boolean {
             val enabled = Settings.Secure.getString(
                 context.contentResolver,
@@ -524,6 +582,10 @@ class AppBlockMonitorService : Service() {
             }
         }
 
+        /**
+         * Asks the service to show the block overlay for [targetPackage] (used by the
+         * accessibility service for instant blocking).
+         */
         fun requestOverlayFromAccessibility(
             context: Context,
             targetPackage: String,

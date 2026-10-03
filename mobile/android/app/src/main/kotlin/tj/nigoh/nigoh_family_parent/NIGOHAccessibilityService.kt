@@ -1,3 +1,6 @@
+// Accessibility service that notices the foreground app instantly and asks
+// the block monitor to cover it when the parent's rules forbid it.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.accessibilityservice.AccessibilityService
@@ -12,6 +15,11 @@ class NIGOHAccessibilityService : AccessibilityService() {
     private var lastPackage: String? = null
     private var lastDecisionAt = 0L
 
+    /**
+     * On every window change, checks the foreground app against the stored rules
+     * (blocked, active schedule, used-up daily limit) and requests the block
+     * overlay with the matching reason.
+     */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
@@ -47,6 +55,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() = Unit
 
+    /** Finds the stored rule for package [target] in the rules JSON. */
     private fun findRule(raw: String?, target: String): JSONObject? = runCatching {
         val rules = JSONArray(raw ?: return null)
         for (index in 0 until rules.length()) {
@@ -56,6 +65,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
         null
     }.getOrNull()
 
+    /** Whether an app schedule window is active now (supports overnight windows). */
     private fun isScheduleActive(schedule: JSONObject): Boolean {
         if (!schedule.optBoolean("enabled", false)) return false
         val weekdays = schedule.optJSONArray("weekdays") ?: return false
@@ -72,6 +82,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
         else enabledOn(if (day == 1) 7 else day - 1)
     }
 
+    /** Parses "HH:mm" into minutes after midnight; null when invalid. */
     private fun parseMinutes(value: String): Int? {
         val parts = value.trim().split(":")
         if (parts.size != 2) return null

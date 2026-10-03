@@ -1,3 +1,6 @@
+// Parent PIN storage and verification on the device: salted SHA-256 record
+// encrypted with an Android Keystore AES key, with lockout after 3 wrong tries.
+
 package tj.nigoh.nigoh_family_parent
 
 import android.content.Context
@@ -26,17 +29,26 @@ object PinSecurity {
     private const val MAX_ATTEMPTS = 3
     private const val TRANSFORMATION = "AES/GCM/NoPadding"
 
+    /**
+     * Outcome of a PIN check: allowed, or the error ("wrong_pin"/"locked") and
+     * the remaining lockout seconds.
+     */
     data class Result(
         val allowed: Boolean,
         val error: String? = null,
         val remainingSeconds: Long = 0L,
     )
 
+    /** Whether a parent PIN (current or legacy format) is stored. */
     fun hasPin(context: Context): Boolean = context.getSharedPreferences(
         PREFS_NAME,
         Context.MODE_PRIVATE,
     ).let { it.contains(RECORD_KEY) || it.contains(LEGACY_HASH_KEY) }
 
+    /**
+     * Validates and stores a new 4-digit PIN, replacing any legacy record and
+     * resetting the failure counter. Returns false on an invalid PIN or error.
+     */
     fun savePin(context: Context, pin: String): Boolean {
         if (!Regex("^\\d{4}$").matches(pin)) return false
         val saltBytes = ByteArray(24).also { SecureRandom().nextBytes(it) }
@@ -56,6 +68,10 @@ object PinSecurity {
         }.getOrDefault(false)
     }
 
+    /**
+     * Checks [pin] against the stored record, honouring the lockout window and
+     * counting failures.
+     */
     fun verify(context: Context, pin: String): Result {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
@@ -92,6 +108,7 @@ object PinSecurity {
         return recordFailure(prefs)
     }
 
+    /** Counts a failed attempt and starts the 30-second lockout after the third. */
     private fun recordFailure(prefs: android.content.SharedPreferences): Result {
         val attempts = prefs.getInt(FAILED_ATTEMPTS_KEY, 0) + 1
         return if (attempts >= MAX_ATTEMPTS) {
@@ -107,18 +124,21 @@ object PinSecurity {
         }
     }
 
+    /** Salted SHA-256 hash of the PIN, Base64-encoded. */
     private fun hashPin(pin: String, salt: String): String = Base64.encodeToString(
         MessageDigest.getInstance("SHA-256")
             .digest("$salt:$pin".toByteArray(StandardCharsets.UTF_8)),
         Base64.NO_WRAP,
     )
 
+    /** Compares two hashes in constant time (no timing leak). */
     private fun constantTimeEquals(left: String, right: String): Boolean =
         MessageDigest.isEqual(
             left.toByteArray(StandardCharsets.UTF_8),
             right.toByteArray(StandardCharsets.UTF_8),
         )
 
+    /** Loads or creates the AES-GCM key in the Android Keystore. */
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (store.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
@@ -136,6 +156,7 @@ object PinSecurity {
         return generator.generateKey()
     }
 
+    /** Encrypts [value] with the Keystore key; result is Base64(iv + ciphertext). */
     private fun encrypt(value: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, key())
@@ -144,6 +165,7 @@ object PinSecurity {
         return Base64.encodeToString(iv + ciphertext, Base64.NO_WRAP)
     }
 
+    /** Decrypts a value produced by [encrypt]; null when it cannot be read. */
     private fun decrypt(value: String): String? = runCatching {
         val encoded = Base64.decode(value, Base64.NO_WRAP)
         val iv = encoded.copyOfRange(0, 12)
