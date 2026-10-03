@@ -60,7 +60,23 @@
   /* Close the QR dialog and return focus to the control that opened it. */
   function closeQrDialog(dialog) {
     dialog.close();
-    if (dialog.qrOpener) dialog.qrOpener.focus();
+  }
+
+  /* Keep Tab and Shift+Tab focus inside the open QR dialog. */
+  function trapDialogFocus(event, dialog) {
+    if (event.key !== 'Tab') return;
+    var controls = Array.from(dialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
+      .filter(function (control) { return !control.disabled && !control.hidden; });
+    if (!controls.length) return;
+    var first = controls[0];
+    var last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   /* Share the current page with the system sheet or copy it as a fallback. */
@@ -126,6 +142,10 @@
     dialog.addEventListener('cancel', function (event) {
       event.preventDefault();
       closeQrDialog(dialog);
+    });
+    dialog.addEventListener('keydown', function (event) { trapDialogFocus(event, dialog); });
+    dialog.addEventListener('close', function () {
+      if (dialog.qrOpener) dialog.qrOpener.focus();
     });
   });
   document.querySelectorAll('.share-page').forEach(function (button) {
