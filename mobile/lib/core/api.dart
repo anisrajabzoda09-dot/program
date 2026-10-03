@@ -28,6 +28,39 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
+/// Server-side Sign in with Apple settings (`/auth/apple/config`).
+class AppleSignInConfig {
+  const AppleSignInConfig({
+    required this.enabled,
+    this.clientId,
+    this.redirectUri,
+  });
+
+  /// Reads the config reply; it only counts as enabled when the Services ID
+  /// and return URL are both present.
+  factory AppleSignInConfig.fromJson(Map<String, dynamic> json) {
+    final clientId = json['client_id']?.toString() ?? '';
+    final redirectUri = json['redirect_uri']?.toString() ?? '';
+    return AppleSignInConfig(
+      enabled:
+          json['enabled'] == true &&
+          clientId.isNotEmpty &&
+          redirectUri.isNotEmpty,
+      clientId: clientId.isEmpty ? null : clientId,
+      redirectUri: redirectUri.isEmpty ? null : redirectUri,
+    );
+  }
+
+  /// Whether the "Continue with Apple" button may be shown.
+  final bool enabled;
+
+  /// Apple Services ID used as the web-flow client id.
+  final String? clientId;
+
+  /// Server bridge Apple posts back to (`/auth/apple/android`).
+  final String? redirectUri;
+}
+
 /// HTTP client for the NIGOH server. No Firebase: the server issues an opaque
 /// bearer token at sign-in. Every failure becomes an [ApiException] with a
 /// readable message — callers should show it, never swallow it silently.
@@ -142,6 +175,29 @@ class NigohApi {
     'POST',
     '/api/mobile/v3/auth/google',
     body: {'id_token': idToken},
+    auth: false,
+  );
+
+  /// Asks the server whether Sign in with Apple is switched on and which
+  /// Services ID / return URL the Android web flow must use.
+  Future<AppleSignInConfig> appleConfig() async => AppleSignInConfig.fromJson(
+    await _send('GET', '/api/mobile/v3/auth/apple/config', auth: false),
+  );
+
+  /// Signs in with an Apple identity token; [nonce] is the RAW nonce whose
+  /// sha256 was given to Apple, so the server can match the token's claim.
+  Future<Map<String, dynamic>> signInWithApple({
+    required String identityToken,
+    required String nonce,
+    String? fullName,
+  }) => _send(
+    'POST',
+    '/api/mobile/v3/auth/apple',
+    body: {
+      'identity_token': identityToken,
+      'nonce': nonce,
+      'full_name': fullName,
+    },
     auth: false,
   );
 
