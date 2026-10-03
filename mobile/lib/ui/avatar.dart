@@ -14,6 +14,7 @@ class AvatarView extends StatelessWidget {
     this.size = 48,
     this.color,
     this.border,
+    this.badge,
   });
 
   final String name;
@@ -25,6 +26,9 @@ class AvatarView extends StatelessWidget {
 
   /// Optional ring (e.g. white on the map marker).
   final BoxBorder? border;
+
+  /// Small overlay at the bottom-right — e.g. [AvatarDot] for online state.
+  final Widget? badge;
 
   static String letterOf(String name) {
     final trimmed = name.trim();
@@ -46,7 +50,7 @@ class AvatarView extends StatelessWidget {
       ),
     );
     final image = url;
-    return Container(
+    final circle = Container(
       key: const ValueKey('avatar'),
       width: size,
       height: size,
@@ -77,5 +81,40 @@ class AvatarView extends StatelessWidget {
               errorBuilder: (_, _, _) => letter,
             ),
     );
+    final mark = badge;
+    if (mark == null) return circle;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          circle,
+          Positioned(right: -1, bottom: -1, child: mark),
+        ],
+      ),
+    );
   }
+}
+
+/// Small state dot for [AvatarView.badge] (mint = online, grey = offline).
+class AvatarDot extends StatelessWidget {
+  const AvatarDot({super.key, required this.color, this.size = 13});
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => AnimatedContainer(
+    duration: const Duration(milliseconds: 240),
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: color,
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: Theme.of(context).colorScheme.surface,
+        width: size * .16,
+      ),
+    ),
+  );
 }

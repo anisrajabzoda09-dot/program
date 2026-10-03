@@ -40,7 +40,9 @@ Future<void> showLanguageSheet(BuildContext context) async {
                   secondary: Text(
                     languageCode(lang),
                     style: TextStyle(
-                      color: Theme.of(sheetContext).colorScheme.onSurfaceVariant,
+                      color: Theme.of(sheetContext)
+                          .colorScheme
+                          .onSurfaceVariant,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

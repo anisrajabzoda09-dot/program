@@ -77,7 +77,10 @@ abstract final class NigohTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: radius,
           borderSide: BorderSide(color: scheme.outlineVariant),
@@ -126,7 +129,9 @@ abstract final class NigohTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {TargetPlatform.android: FadeForwardsPageTransitionsBuilder()},
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        },
       ),
     );
   }
