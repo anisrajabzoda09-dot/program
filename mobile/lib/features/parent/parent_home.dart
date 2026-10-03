@@ -1,6 +1,4 @@
-// Parent home shell: overview of all children (status, alerts, SOS, quick
-// actions), tab navigation to apps/map/chat/settings with a bottom bar on
-// phones and a NavigationRail on wide (≥ 900 px) screens.
+// Файл: саҳифаи асосии волид ва бахшҳои назорат.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,45 +25,46 @@ import 'study_sheet.dart';
 import 'weekly_report.dart';
 import '../../l10n/l10n.dart';
 
-/// Parent side: family overview, app rules, map, chat and settings.
+/// ParentHome додаҳо ва рафтори панели волид-ро ифода мекунад.
 class ParentHome extends StatefulWidget {
   const ParentHome({super.key, this.controller});
 
-  /// Injected in tests; otherwise created from the session's API.
+  /// Қимати controller-ро барои саҳифаи асосии волид ва бахшҳои назорат нигоҳ медорад.
   final FamilyController? controller;
 
-  /// From this window width a side [NavigationRail] replaces the bottom bar.
+  /// Қимати wideBreakpoint-ро барои саҳифаи асосии волид ва бахшҳои назорат нигоҳ медорад.
   static const wideBreakpoint = 900.0;
 
-  /// Content column limit on wide windows, so cards don't stretch.
+  /// Қимати maxContentWidth-ро барои саҳифаи асосии волид ва бахшҳои назорат нигоҳ медорад.
   static const maxContentWidth = 1100.0;
 
+  /// Ҳолати ParentHome-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   State<ParentHome> createState() => _ParentHomeState();
 }
 
-/// Owns the [FamilyController], the selected tab, notification deep links and
-/// the child actions (add, remove with PIN, open tools).
+/// Ҳолат ва рафтори ParentHomeState-ро барои навсозии интерфейс идора мекунад.
 class _ParentHomeState extends State<ParentHome> {
   FamilyController? _controller;
   bool _owned = false;
   int _tab = 0;
 
-  /// Last «mark read» attempt (child-unread-urgent) so it isn't repeated.
+  /// Қимати _readMarked-ро барои саҳифаи асосии волид ва бахшҳои назорат нигоҳ медорад.
   String? _readMarked;
 
+  /// Қимати ҳисобшудаи controller-ро аз ҳолати ҷорӣ бармегардонад.
   FamilyController get controller => _controller!;
 
+  /// Ҳадафи огоҳиномаро мешунавад ва фарзанду бахши дархостшударо интихоб мекунад.
   @override
   void initState() {
     super.initState();
     homeTarget.addListener(_onHomeTarget);
-    // Opened from a notification before this screen existed.
+    // Огоҳиномаи воридшударо дар ParentHome ба амали мувофиқ равона мекунад.
     WidgetsBinding.instance.addPostFrameCallback((_) => _onHomeTarget());
   }
 
-  /// Notification tap: select the child and switch to chat / map / overview,
-  /// or open the extra-time requests.
+  /// onHomeTarget рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onHomeTarget() {
     final target = homeTarget.value;
     if (target == null || !mounted || _controller == null) return;
@@ -81,8 +80,7 @@ class _ParentHomeState extends State<ParentHome> {
     if (target.kind == 'requests') _openRequests();
   }
 
-  /// When a child's chat is visible and has unread messages (or an SOS),
-  /// tell the server they were seen; this also clears the SOS banner.
+  /// markReadIfNeeded дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   void _markReadIfNeeded() {
     if (_tab != 3) return;
     final child = controller.selected;
@@ -100,7 +98,7 @@ class _ParentHomeState extends State<ParentHome> {
     });
   }
 
-  /// Opens the extra-time requests inbox.
+  /// openRequests экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openRequests() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -109,7 +107,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
-  /// Opens the weekly screen-time report of [child].
+  /// openReport экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openReport(FamilyChild child) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -118,7 +116,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
-  /// Opens the bedtime settings sheet for [child].
+  /// openBedtime экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openBedtime(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -128,7 +126,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
-  /// Opens the study-mode settings sheet for [child].
+  /// openStudy экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openStudy(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -138,6 +136,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
+  /// Пас аз тағйири dependency-ҳо ҳолати вобастаро нав мекунад.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -151,6 +150,7 @@ class _ParentHomeState extends State<ParentHome> {
     controller.start();
   }
 
+  /// Controller ва listener-ҳои ParentHome-ро озод мекунад.
   @override
   void dispose() {
     homeTarget.removeListener(_onHomeTarget);
@@ -158,7 +158,7 @@ class _ParentHomeState extends State<ParentHome> {
     super.dispose();
   }
 
-  /// Opens the pairing screen and confirms a newly added child.
+  /// addChild мантиқи зарурии саҳифаи асосии волид ва бахшҳои назоратро иҷро мекунад.
   Future<void> _addChild() async {
     final ok = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => AddChildScreen(controller: controller)),
@@ -166,14 +166,13 @@ class _ParentHomeState extends State<ParentHome> {
     if (ok == true && mounted) showMessage(context, tr('Фарзанд пайваст шуд'));
   }
 
-  /// Selects [child] and switches to tab [tab].
+  /// open экран ё dialog-и лозими панели волид-ро мекушояд.
   void _open(int tab, FamilyChild child) {
     controller.select(child.id);
     setState(() => _tab = tab);
   }
 
-  /// Removing a child always needs the parent PIN. Without one yet, the
-  /// parent creates it first; then it is checked. False = stop.
+  /// requirePin мантиқи зарурии саҳифаи асосии волид ва бахшҳои назоратро иҷро мекунад.
   Future<bool> _requirePin(FamilyChild child) async {
     bool hasPin;
     try {
@@ -210,7 +209,7 @@ class _ParentHomeState extends State<ParentHome> {
     return ok && mounted;
   }
 
-  /// Unpairs [child] after the parent PIN and a confirmation dialog.
+  /// removeChild маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> _removeChild(FamilyChild child) async {
     if (!await _requirePin(child) || !mounted) return;
     final confirm = await showDialog<bool>(
@@ -252,6 +251,7 @@ class _ParentHomeState extends State<ParentHome> {
 
   static const _titles = ['Оила', 'Барномаҳо', 'Харита', 'Чат', 'Танзимот'];
 
+  /// Панели волидро бо ҷадвалбандӣ, фарзанди интихобшуда ва бахши фаъол месозад.
   @override
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
@@ -327,12 +327,10 @@ class _ParentHomeState extends State<ParentHome> {
             label: tr('Танзимот'),
           ),
         ];
-        // Wide windows (Android tablets): side rail and a centered,
-        // width-limited content column. Phones keep the bottom bar.
+        // Барои экрани васеъ NavigationRail ва барои экранҳои хурд NavigationBar интихоб мешавад.
         final wide =
             MediaQuery.sizeOf(context).width >= ParentHome.wideBreakpoint;
-        // Fade-through between tabs: the old page fades out, the new one
-        // fades and lifts in. Collapses with «less motion».
+        // Animation бо назардошти танзими кам кардани ҳаракат иҷро мешавад.
         final motion = !reducedMotion(context);
         Widget content = AnimatedSwitcher(
           duration: Duration(milliseconds: motion ? 220 : 0),
@@ -369,7 +367,7 @@ class _ParentHomeState extends State<ParentHome> {
           );
         }
         final page = Scaffold(
-          // Chat and Settings bring their own app bar.
+          // Қадами дохилии саҳифаи асосии волид ва бахшҳои назорат.
           appBar: _tab >= 3 ? null : AppBar(title: Text(tr(_titles[_tab]))),
           body: SafeArea(top: _tab >= 3, bottom: false, child: content),
           bottomNavigationBar: wide
@@ -432,7 +430,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
-  /// Content of the selected tab (overview, apps, map, chat or settings).
+  /// tabBody мантиқи зарурии саҳифаи асосии волид ва бахшҳои назоратро иҷро мекунад.
   Widget _tabBody(String parentName, String? parentAvatar) {
     if (_tab == 0) {
       return _Overview(
@@ -477,7 +475,7 @@ class _ParentHomeState extends State<ParentHome> {
   }
 }
 
-/// One main destination, shared by the bottom bar and the side rail.
+/// Widget-и NavItem-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _NavItem {
   const _NavItem({
     this.key,
@@ -492,11 +490,12 @@ class _NavItem {
   final String label;
 }
 
-/// Empty overview with a call to add the first child.
+/// EmptyFamily додаҳо ва рафтори панели волид-ро ифода мекунад.
 class _EmptyFamily extends StatelessWidget {
   const _EmptyFamily({required this.onAdd});
   final VoidCallback onAdd;
 
+  /// Widget-и EmptyFamily-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) => Center(
     child: SingleChildScrollView(
@@ -523,7 +522,7 @@ class _EmptyFamily extends StatelessWidget {
   );
 }
 
-/// Horizontal chips for choosing which child the tabs show.
+/// ChildSelector додаҳо ва рафтори панели волид-ро ифода мекунад.
 class _ChildSelector extends StatelessWidget {
   const _ChildSelector({
     required this.api,
@@ -539,6 +538,7 @@ class _ChildSelector extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final bool showUnread;
 
+  /// Widget-и ChildSelector-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) => SizedBox(
     height: 56,
@@ -571,7 +571,7 @@ class _ChildSelector extends StatelessWidget {
   );
 }
 
-/// Overview tab: greeting, SOS banners, device alerts and a card per child.
+/// Widget-и Overview-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _Overview extends StatelessWidget {
   const _Overview({
     required this.controller,
@@ -597,13 +597,14 @@ class _Overview extends StatelessWidget {
   final ValueChanged<FamilyChild> onBedtime;
   final ValueChanged<FamilyChild> onStudy;
 
+  /// Widget-и Overview-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final sorted = controller.sortedByAttention;
     final deviceAlerts = [
       for (final c in sorted)
-        // A phone that never reported is shown on its own card only.
+        // Қадами дохилии саҳифаи асосии волид ва бахшҳои назорат.
         if (c.paired &&
             (isLowBattery(c) ||
                 (c.location?.updatedAt != null && isOfflineChild(c))))
@@ -725,12 +726,13 @@ class _Overview extends StatelessWidget {
   }
 }
 
-/// Banner for a failed refresh with a retry button.
+/// Widget-и ErrorBanner-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner({required this.message, required this.onRetry});
   final String message;
   final VoidCallback onRetry;
 
+  /// Widget-и ErrorBanner-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -755,7 +757,7 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-/// Overview card of one child: status, screen time, places and quick actions.
+/// Widget-и ChildCard-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _ChildCard extends StatelessWidget {
   const _ChildCard({
     required this.child,
@@ -777,6 +779,7 @@ class _ChildCard extends StatelessWidget {
   final VoidCallback onBedtime;
   final VoidCallback onStudy;
 
+  /// Widget-и ChildCard-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -1076,11 +1079,12 @@ class _ChildCard extends StatelessWidget {
   }
 }
 
-/// «Интернет: пайваст» / «Интернет: пайваст нест».
+/// Widget-и InternetRow-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _InternetRow extends StatelessWidget {
   const _InternetRow({super.key, required this.online});
   final bool online;
 
+  /// Widget-и InternetRow-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -1102,12 +1106,13 @@ class _InternetRow extends StatelessWidget {
   }
 }
 
-/// Phones that need attention: low battery or no report for 20+ minutes.
+/// DeviceAlerts додаҳо ва рафтори панели волид-ро ифода мекунад.
 class _DeviceAlerts extends StatelessWidget {
   const _DeviceAlerts({required this.children, required this.onOpen});
   final List<FamilyChild> children;
   final ValueChanged<FamilyChild> onOpen;
 
+  /// Widget-и DeviceAlerts-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -1151,7 +1156,7 @@ class _DeviceAlerts extends StatelessWidget {
   }
 }
 
-/// Small icon + value + label statistic on a child card.
+/// Stat додаҳо ва рафтори панели волид-ро ифода мекунад.
 class _Stat extends StatelessWidget {
   const _Stat({
     required this.icon,
@@ -1165,6 +1170,7 @@ class _Stat extends StatelessWidget {
   final String value;
   final String label;
 
+  /// Widget-и Stat-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) => Row(
     children: [
@@ -1204,7 +1210,7 @@ class _Stat extends StatelessWidget {
   );
 }
 
-/// Round quick-action button (apps, map, chat…) on a child card.
+/// QuickAction додаҳо ва рафтори панели волид-ро ифода мекунад.
 class _QuickAction extends StatelessWidget {
   const _QuickAction({
     required this.icon,
@@ -1216,6 +1222,7 @@ class _QuickAction extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
+  /// Widget-и QuickAction-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) => Expanded(
     child: Padding(
@@ -1233,7 +1240,7 @@ class _QuickAction extends StatelessWidget {
   );
 }
 
-/// Small text link with an icon (report, bedtime) under the quick actions.
+/// Widget-и LinkRow-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _LinkRow extends StatelessWidget {
   const _LinkRow({
     super.key,
@@ -1250,6 +1257,7 @@ class _LinkRow extends StatelessWidget {
   final String? trailing;
   final VoidCallback onTap;
 
+  /// Widget-и LinkRow-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) => InkWell(
     borderRadius: BorderRadius.circular(12),
@@ -1292,12 +1300,13 @@ class _LinkRow extends StatelessWidget {
   );
 }
 
-/// Entry to the extra-time requests inbox, with the pending count.
+/// Widget-и RequestsTile-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class _RequestsTile extends StatelessWidget {
   const _RequestsTile({required this.count, required this.onTap});
   final int count;
   final VoidCallback onTap;
 
+  /// Widget-и RequestsTile-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -1375,7 +1384,7 @@ class _RequestsTile extends StatelessWidget {
   }
 }
 
-/// Prominent red SOS alert from a child (unread urgent message).
+/// Widget-и SosBanner-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
 class SosBanner extends StatelessWidget {
   const SosBanner({
     super.key,
@@ -1388,6 +1397,7 @@ class SosBanner extends StatelessWidget {
   final VoidCallback onChat;
   final VoidCallback onMap;
 
+  /// Widget-и SosBanner-ро барои панели асосии волид ва ҳолати фарзандон месозад.
   @override
   Widget build(BuildContext context) {
     final urgent = child.lastUrgent!;

@@ -1,6 +1,4 @@
-// Parent-side state holder (FamilyController): polls the family snapshot,
-// keeps the selected child, and applies rule/place/bedtime/study changes
-// optimistically with rollback on server errors.
+// Файл: боркунӣ ва навсозии ҳолати оила.
 
 import 'dart:async';
 
@@ -10,23 +8,19 @@ import '../../core/api.dart';
 import '../../core/models.dart';
 import '../../l10n/l10n.dart';
 
-/// Parent-side state: the list of children from the server snapshot.
-///
-/// Polls every [pollInterval] while the app is in the foreground. Actions are
-/// applied optimistically and rolled back on failure; the [ApiException] is
-/// rethrown so the screen can show the server message.
+/// Мантиқ ва ҳолати боркунӣ ва навсозии ҳолати оиларо идора мекунад.
 class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
   FamilyController(this.api, {this.pollInterval = const Duration(seconds: 10)});
 
   final NigohApi api;
 
-  /// `null` disables polling (tests).
+  /// Қимати pollInterval-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   final Duration? pollInterval;
 
   bool loading = false;
   bool loadedOnce = false;
 
-  /// Last refresh error (also from background polling). `null` when fine.
+  /// Қимати error-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   String? error;
 
   List<FamilyChild> children = const [];
@@ -37,13 +31,13 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
   bool _disposed = false;
   bool _refreshing = false;
 
-  /// Optimistic actions in flight; poll results are not applied meanwhile so
-  /// they don't flicker the switches back.
+  /// Қимати _pending-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   int _pending = 0;
 
+  /// Қимати ҳисобшудаи selectedChildId-ро аз ҳолати ҷорӣ бармегардонад.
   int? get selectedChildId => selected?.id;
 
-  /// The child currently shown (falls back to the first child).
+  /// Қимати ҳисобшудаи selected-ро барои боркунӣ ва навсозии ҳолати оила бармегардонад.
   FamilyChild? get selected {
     if (children.isEmpty) return null;
     for (final child in children) {
@@ -52,7 +46,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return children.first;
   }
 
-  /// Child with [id], or null when not in the list.
+  /// childById мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   FamilyChild? childById(int id) {
     for (final child in children) {
       if (child.id == id) return child;
@@ -60,14 +54,14 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return null;
   }
 
-  /// Switches the screens to another child.
+  /// select ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   void select(int childId) {
     if (_selectedChildId == childId) return;
     _selectedChildId = childId;
     _notify();
   }
 
-  /// Start loading + polling and observe the app lifecycle.
+  /// start раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void start() {
     if (_started) return;
     _started = true;
@@ -76,7 +70,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     _startTimer();
   }
 
-  /// (Re)starts the periodic background refresh.
+  /// startTimer раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void _startTimer() {
     _timer?.cancel();
     final interval = pollInterval;
@@ -84,6 +78,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     _timer = Timer.periodic(interval, (_) => refresh(silent: true));
   }
 
+  /// Ба тағйири lifecycle-и FamilyController ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -97,8 +92,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Reload the snapshot. Errors are stored in [error] (never thrown) so
-  /// background polling cannot crash; screens display [error] with retry.
+  /// refresh додаҳои ҳолати оила-ро боз мехонад ва FamilyController-ро нав мекунад.
   Future<void> refresh({bool silent = false}) async {
     if (_refreshing) return;
     _refreshing = true;
@@ -118,7 +112,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
       for (final child in list) {
         if (child.paired && !places.containsKey(child.id)) {
           places[child.id] = const [];
-          // Retried on the next refresh when it fails.
+          // Ҳангоми нокомӣ роҳи эҳтиётӣ истифода мешавад.
           if (!await loadPlaces(child.id)) places.remove(child.id);
         }
       }
@@ -133,9 +127,9 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  // ---------- Actions ----------
+  // Қадами дохилии боркунӣ ва навсозии ҳолати оила.
 
-  /// Pair a child by 6-digit code. Returns the paired child when known.
+  /// pair дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<FamilyChild?> pair(String code) async {
     final data = await _guard(() => api.pair(code));
     final raw = data['child'];
@@ -149,19 +143,19 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return null;
   }
 
-  /// Blocks or unblocks one app on the child's phone.
+  /// setBlocked ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setBlocked(FamilyChild child, ChildApp app, bool blocked) =>
       _updateApp(child, app, _copyApp(app, blocked: blocked), {
         'is_blocked': blocked,
       });
 
-  /// Sets an app's daily time limit (0 = no limit).
+  /// setLimit ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setLimit(FamilyChild child, ChildApp app, int minutes) =>
       _updateApp(child, app, _copyApp(app, dailyLimitMinutes: minutes), {
         'daily_limit_minutes': minutes,
       });
 
-  /// Saves an app's allowed-time schedule.
+  /// setSchedule ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setSchedule(
     FamilyChild child,
     ChildApp app,
@@ -170,13 +164,13 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     'schedule': schedule.toJson(),
   });
 
-  /// «Ҳамеша иҷозат»: the app is never locked by pause or bedtime.
+  /// setAlwaysAllowed ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setAlwaysAllowed(FamilyChild child, ChildApp app, bool value) =>
       _updateApp(child, app, _copyApp(app, alwaysAllowed: value), {
         'always_allowed': value,
       });
 
-  /// Extra minutes for today on top of the daily limit.
+  /// giveBonus дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> giveBonus(FamilyChild child, ChildApp app, int minutes) async {
     _replaceApp(
       child.id,
@@ -195,7 +189,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Saves the child's bedtime window (optimistic, rolled back on error).
+  /// setBedtime ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setBedtime(FamilyChild child, Bedtime bedtime) async {
     final before = childById(child.id) ?? child;
     _replaceChild(_copyChild(before, before.apps, bedtime: bedtime));
@@ -212,7 +206,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// «Тамаркузи дарс»: optimistic, rolled back when the server refuses.
+  /// setStudyMode ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setStudyMode(FamilyChild child, StudyMode study) async {
     final before = childById(child.id) ?? child;
     _replaceChild(_copyChild(before, before.apps, study: study));
@@ -229,8 +223,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Approve (with [minutes]) or deny an extra-time request, then reload so
-  /// the badge and bonus minutes update.
+  /// decideRequest дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> decideRequest(
     int childId,
     int requestId, {
@@ -248,23 +241,24 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     await refresh(silent: true);
   }
 
-  /// Marks the child's messages read (clears the SOS alert and unread badge).
+  /// markChatRead дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> markChatRead(int childId) async {
     await _guard(() => api.markChatRead(childId));
     await refresh(silent: true);
   }
 
-  // ---------- Safe places ----------
+  // Қадами дохилии боркунӣ ва навсозии ҳолати оила.
 
-  /// Safe places per child id (loaded once per child, then on change).
+  /// Қимати places-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   final Map<int, List<SafePlace>> places = {};
 
-  /// Last error while loading safe places (shown on the map).
+  /// Қимати placesError-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   String? placesError;
 
+  /// placesFor мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   List<SafePlace> placesFor(int childId) => places[childId] ?? const [];
 
-  /// Returns false on failure; the message stays in [placesError].
+  /// loadPlaces додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<bool> loadPlaces(int childId) async {
     var ok = true;
     try {
@@ -281,7 +275,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return ok;
   }
 
-  /// Creates a safe place for the child and adds it to the list.
+  /// addPlace мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   Future<void> addPlace(
     int childId, {
     required String name,
@@ -301,7 +295,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     await loadPlaces(childId);
   }
 
-  /// Deletes a safe place (optimistic, restored on error).
+  /// deletePlace маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> deletePlace(int childId, SafePlace place) async {
     final before = placesFor(childId);
     places[childId] = [
@@ -318,15 +312,16 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  // ---------- Totals for badges ----------
+  // Қадами дохилии боркунӣ ва навсозии ҳолати оила.
 
+  /// Қимати ҳисобшудаи pendingRequestsTotal-ро аз ҳолати ҷорӣ бармегардонад.
   int get pendingRequestsTotal =>
       children.fold(0, (sum, c) => sum + c.pendingRequests);
 
+  /// Қимати ҳисобшудаи unreadTotal-ро аз ҳолати ҷорӣ бармегардонад.
   int get unreadTotal => children.fold(0, (sum, c) => sum + c.unreadFromChild);
 
-  /// Children needing attention first (SOS, low battery, offline), keeping
-  /// the server order otherwise.
+  /// Қимати ҳисобшудаи sortedByAttention-ро барои боркунӣ ва навсозии ҳолати оила бармегардонад.
   List<FamilyChild> get sortedByAttention {
     final indexed = [
       for (var i = 0; i < children.length; i++) (i, children[i]),
@@ -338,13 +333,13 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return [for (final e in indexed) e.$2];
   }
 
-  /// Children with an unread SOS/urgent message.
+  /// Қимати urgentChildren-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   List<FamilyChild> get urgentChildren => [
     for (final c in children)
       if (c.lastUrgent != null) c,
   ];
 
-  /// Unpairs a child phone (optimistic, restored on error).
+  /// unlink маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> unlink(FamilyChild child) async {
     final before = children;
     children = [
@@ -364,7 +359,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Applies an app rule change locally, sends it, and rolls back on failure.
+  /// updateApp ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> _updateApp(
     FamilyChild child,
     ChildApp original,
@@ -385,7 +380,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Replaces one child in the list with an updated copy.
+  /// replaceChild мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   void _replaceChild(FamilyChild child) {
     children = [
       for (final c in children)
@@ -393,7 +388,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     ];
   }
 
-  /// Replaces one app of a child with an updated copy.
+  /// replaceApp мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   void _replaceApp(int childId, ChildApp app) {
     children = [
       for (final c in children)
@@ -407,7 +402,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     ];
   }
 
-  /// Converts unexpected errors to [ApiException] so callers handle one type.
+  /// T мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();
@@ -418,7 +413,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  /// Copy of [app] with the given rule fields changed.
+  /// copyApp мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   static ChildApp _copyApp(
     ChildApp app, {
     bool? blocked,
@@ -439,7 +434,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     firstSeenAt: app.firstSeenAt,
   );
 
-  /// Copy of child [c] with new apps and optionally new bedtime/study settings.
+  /// copyChild мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   static FamilyChild _copyChild(
     FamilyChild c,
     List<ChildApp> apps, {
@@ -464,10 +459,12 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     lastUrgent: c.lastUrgent,
   );
 
+  /// notify listener ё корбарро аз тағйирот огоҳ мекунад.
   void _notify() {
     if (!_disposed) notifyListeners();
   }
 
+  /// Controller ва listener-ҳои FamilyController-ро озод мекунад.
   @override
   void dispose() {
     _disposed = true;
@@ -477,23 +474,23 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
   }
 }
 
-/// Battery % of the child's phone: the snapshot field, else the location's.
+/// batteryOf мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
 int? batteryOf(FamilyChild child) =>
     child.batteryLevel ?? child.location?.batteryLevel;
 
-/// Below this battery % the parent sees a red pill.
+/// Қимати lowBatteryPercent-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
 const lowBatteryPercent = 15;
 
-/// The phone is «Офлайн» after this long without a location report.
+/// Қимати offlineAfter-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
 const offlineAfter = Duration(minutes: 20);
 
-/// Whether the child's phone battery is below [lowBatteryPercent].
+/// isLowBattery иҷро шудани шарти вобастаро муайян мекунад.
 bool isLowBattery(FamilyChild child) {
   final b = batteryOf(child);
   return b != null && b < lowBatteryPercent;
 }
 
-/// Paired child whose phone has not reported for [offlineAfter] (or never).
+/// isOfflineChild иҷро шудани шарти вобастаро муайян мекунад.
 bool isOfflineChild(FamilyChild child, [DateTime? now]) {
   if (!child.paired) return false;
   final at = child.location?.updatedAt;
@@ -501,7 +498,7 @@ bool isOfflineChild(FamilyChild child, [DateTime? now]) {
   return (now ?? DateTime.now()).toUtc().difference(at.toUtc()) > offlineAfter;
 }
 
-/// 0 = SOS, 1 = low battery, 2 = offline, 3 = fine.
+/// attentionRank мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
 int attentionRank(FamilyChild child, [DateTime? now]) {
   if (child.lastUrgent != null) return 0;
   if (isLowBattery(child)) return 1;
@@ -509,7 +506,7 @@ int attentionRank(FamilyChild child, [DateTime? now]) {
   return 3;
 }
 
-/// «1 соат 25 дақ», «40 дақ» — always with the unit spelled out.
+/// formatMinutes додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
 String formatMinutes(int minutes) {
   if (minutes < 60) return tr('{minutes} дақ', {'minutes': minutes});
   final hours = minutes ~/ 60;

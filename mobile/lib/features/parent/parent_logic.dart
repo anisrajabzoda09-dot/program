@@ -1,5 +1,4 @@
-// Pure helpers for the parent side (no widgets, easy to test): distances and
-// safe-place status, time labels, location history and weekly usage parsing.
+// Файл: ҳисобҳо ва қарорҳои интерфейси волид.
 
 import 'dart:math' as math;
 
@@ -8,11 +7,12 @@ import '../../core/models.dart';
 export '../../core/app_categories.dart';
 import '../../l10n/l10n.dart';
 
-// ---------- Geography ----------
+// Қадами дохилии ҳисобҳо ва қарорҳои интерфейси волид.
 
-/// Great-circle distance in metres (haversine).
+/// distanceMeters қимати заруриро аз додаҳои ҷорӣ ҳисоб мекунад.
 double distanceMeters(double lat1, double lng1, double lat2, double lng2) {
   const r = 6371000.0;
+  /// rad мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
   double rad(double d) => d * math.pi / 180;
   final dLat = rad(lat2 - lat1);
   final dLng = rad(lng2 - lng1);
@@ -25,7 +25,7 @@ double distanceMeters(double lat1, double lng1, double lat2, double lng2) {
   return 2 * r * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 }
 
-/// The nearest safe place that contains the point, or null when outside all.
+/// placeContaining мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 SafePlace? placeContaining(
   double latitude,
   double longitude,
@@ -48,7 +48,7 @@ SafePlace? placeContaining(
   return best;
 }
 
-/// «Дар Хона» / «Берун аз ҷойҳои бехатар»; null when nothing to say.
+/// placeStatus мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 String? placeStatus(ChildLocation? location, List<SafePlace> places) {
   if (location == null || places.isEmpty) return null;
   final inside = placeContaining(location.latitude, location.longitude, places);
@@ -57,19 +57,19 @@ String? placeStatus(ChildLocation? location, List<SafePlace> places) {
       : tr('Берун аз ҷойҳои бехатар');
 }
 
-// ---------- Small formatting ----------
+// Қадами дохилии ҳисобҳо ва қарорҳои интерфейси волид.
 
-/// Two-digit zero-padded number for clock times.
+/// two мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 String two(int v) => v.toString().padLeft(2, '0');
 
-/// 'HH:mm' for a local time.
+/// hhmm мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 String hhmm(DateTime t) => '${two(t.hour)}:${two(t.minute)}';
 
-/// «Вақти хоб: 21:30–07:00».
+/// bedtimeLabel мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 String bedtimeLabel(Bedtime b) =>
     tr('Вақти хоб: {start}–{end}', {'start': b.start, 'end': b.end});
 
-/// One point of the 24 h location history.
+/// Додаҳо ва рафтори марбут ба ҳисобҳо ва қарорҳои интерфейси волидро ифода мекунад.
 class HistoryPoint {
   const HistoryPoint({
     required this.latitude,
@@ -83,7 +83,7 @@ class HistoryPoint {
   final DateTime? time;
   final int? batteryLevel;
 
-  /// Parses the server's location history, skipping points without coordinates.
+  /// listFromJson мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
   static List<HistoryPoint> listFromJson(List<Map<String, dynamic>> raw) {
     final out = <HistoryPoint>[];
     for (final p in raw) {
@@ -107,7 +107,7 @@ class HistoryPoint {
     return out;
   }
 
-  /// Parses a server timestamp; values without a zone are treated as UTC.
+  /// time мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
   static DateTime? _time(Object? raw) {
     if (raw == null) return null;
     final text = raw.toString().trim();
@@ -119,7 +119,7 @@ class HistoryPoint {
   }
 }
 
-/// One day of the weekly report.
+/// Додаҳо ва рафтори марбут ба ҳисобҳо ва қарорҳои интерфейси волидро ифода мекунад.
 class UsageDay {
   const UsageDay({
     required this.date,
@@ -131,7 +131,7 @@ class UsageDay {
   final int minutes;
   final List<UsageTopApp> top;
 
-  /// Parses the server's per-day usage list for the weekly report.
+  /// listFromJson мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
   static List<UsageDay> listFromJson(List<Map<String, dynamic>> raw) => [
     for (final d in raw)
       UsageDay(
@@ -152,7 +152,7 @@ class UsageDay {
   ];
 }
 
-/// One app's minutes in a day of the weekly report.
+/// Додаҳо ва рафтори марбут ба ҳисобҳо ва қарорҳои интерфейси волидро ифода мекунад.
 class UsageTopApp {
   const UsageTopApp({
     required this.packageName,
@@ -166,8 +166,7 @@ class UsageTopApp {
 
 const weekdayShort = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
 
-/// Translated daily-limit label («Бе лимит», «45д», «1с», «1с 30д»); same
-/// Tajik output as UserJourneyLogic.limitLabel.
+/// limitLabelText мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 String limitLabelText(int minutes) {
   if (minutes <= 0) return tr('Бе лимит');
   if (minutes < 60) return tr('{minutes}д', {'minutes': minutes});
