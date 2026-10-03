@@ -1,10 +1,6 @@
-/* Page-specific presentation and interaction styles for the core marketing pages.
-   Sections follow the numbered delivery plan: home motion and cards, how-to
-   timeline, feature navigation and checklists, security cards, shared mobile
-   rhythm, continuation links, table hints, image treatment, and reduced motion.
-   JavaScript-dependent starting states are always scoped beneath .js-motion. */
+/* Файл: намуди хос ва interaction-ҳои саҳифаҳои асосии муаррифӣ. */
 
-/* Give the home hero's key phrase a calm, brand-colored shimmer. */
+/* Ибораи калидии hero-ро бо тобиши ороми брендӣ нишон медиҳад. */
 .hero-key-phrase {
   color: var(--blue);
   background: linear-gradient(100deg, var(--blue), var(--teal), var(--blue));
@@ -20,7 +16,7 @@
   50% { background-position: 100% 50%; }
 }
 
-/* Give each home feature icon a small motion cue that matches its meaning. */
+/* Ба ҳар нишонаи имконият ҳаракати хурди мувофиқ медиҳад. */
 @media (hover: hover) and (pointer: fine) {
   .hero + .section .card-link:nth-child(1):hover .icon { animation: pages-pin-bounce .55s ease; }
   .hero + .section .card-link:nth-child(2):hover .icon { animation: pages-grid-pulse .55s ease; }
@@ -30,12 +26,12 @@
   .hero + .section .card-link:nth-child(6):hover .icon { animation: pages-lock-click .42s ease; }
 }
 
-/* Reduce glare from screenshot imagery in dark mode. */
+/* Дар мавзӯи торик дурахши screenshot-ҳоро кам мекунад. */
 :root[data-theme="dark"] .screen img {
   filter: brightness(.86) contrast(1.06);
 }
 
-/* Introduce home hero metadata in a brief, ordered sequence. */
+/* Маълумоти ёрирасони hero-ро бо тартиб нишон медиҳад. */
 .js-motion .hero-meta span { animation: pages-meta-in .4s ease both; }
 .js-motion .hero-meta span:nth-child(2) { animation-delay: .1s; }
 .js-motion .hero-meta span:nth-child(3) { animation-delay: .2s; }
@@ -44,7 +40,7 @@
   to { opacity: 1; transform: none; }
 }
 
-/* Keep compact tables usable on phones and stage home rule rows in sequence. */
+/* Ҷадвалҳоро дар телефон хонданбоб ва сатрҳоро марҳилавӣ мекунад. */
 .table-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
 .table-scroll .meta-table { min-width: 420px; }
 .js-motion .home-rules-card .meta-table.is-staged tr { opacity: 0; transform: translateY(8px); }
@@ -57,7 +53,7 @@
 .js-motion .home-rules-card .meta-table.is-visible tr:nth-child(3) { transition-delay: .16s; }
 .js-motion .home-rules-card .meta-table.is-visible tr:nth-child(4) { transition-delay: .24s; }
 
-/* Make genuine review cards read as quotations with a consistent footer. */
+/* Кортҳои баррасиҳоро ҳамчун иқтибос бо footer-и ягона нишон медиҳад. */
 .review-grid { align-items: stretch; }
 .review-card { display: flex; min-height: 190px; flex-direction: column; box-shadow: var(--shadow); }
 .review-card blockquote { position: relative; padding-top: 20px; }
@@ -70,7 +66,7 @@
 }
 .review-card figcaption { margin-top: auto !important; padding-top: 22px; border-top: 1px solid var(--line); }
 
-/* Add restrained brand movement to the closing home call to action. */
+/* Ба даъвати ниҳоӣ ҳаракати ороми бренд медиҳад. */
 .home-cta {
   background: linear-gradient(115deg, var(--cta-bg), #163d73, #0d655f, var(--cta-bg));
   background-size: 300% 300%;
@@ -78,7 +74,7 @@
 }
 @keyframes pages-cta-drift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 
-/* Draw the setup timeline connector in proportion to reading progress. */
+/* Хати timeline-ро мувофиқи пешрафти хондан пур мекунад. */
 .how-timeline { position: relative; --timeline-progress: 0; }
 .how-timeline::before,
 .how-timeline::after {
@@ -103,7 +99,7 @@
   transition: opacity .35s ease, transform .45s cubic-bezier(.2, .8, .2, 1.25);
 }
 
-/* Preserve readable step spacing and full-width actions at 360px. */
+/* Фосилаи марҳилаҳо ва тугмаҳоро дар 360 px нигоҳ медорад. */
 @media (max-width: 400px) {
   .how-timeline .step { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 24px 0; }
   .how-timeline::before,
@@ -113,7 +109,7 @@
   .page-hero br { display: none; }
 }
 
-/* Use one compact vertical rhythm across all four marketing pages. */
+/* Ритми амудии ягонаи саҳифаҳои муаррифиро танзим мекунад. */
 @media (max-width: 640px) {
   .hero,
   .page-hero { padding-block: 44px; }
@@ -125,7 +121,7 @@
   .split { gap: 36px; }
 }
 
-/* Present the next inner page as a clear full-width continuation. */
+/* Пайванди саҳифаи навбатиро ҳамчун идомаи равшан нишон медиҳад. */
 .next-page { border-top: 1px solid var(--line); background: var(--soft); }
 .next-page a {
   display: flex;
@@ -142,12 +138,12 @@
 .next-page span { color: var(--muted); font-size: .875rem; }
 .next-page a:hover::after { transform: translateX(4px); }
 
-/* Hint that wide tables continue horizontally on narrow screens. */
+/* Идомаи уфуқии ҷадвали васеъро дар телефони танг ишора мекунад. */
 @media (max-width: 640px) {
   .table-scroll-hint { border-radius: 8px; box-shadow: inset -16px 0 14px -16px var(--muted); }
 }
 
-/* Add slight image depth inside QR and call-to-action cards on fine pointers. */
+/* Ба тасвири QR ва кортҳои амал чуқурии сабук медиҳад. */
 .qr-card img,
 .cta img { transition: transform .3s ease; }
 @media (hover: hover) and (pointer: fine) {
@@ -155,12 +151,12 @@
   .cta:hover img { transform: scale(1.025); }
 }
 
-/* Keep feature topic links comfortably tappable and align their section targets. */
+/* Пайвандҳои имкониятҳоро барои touch қулай ва target-ҳоро рост мекунад. */
 .feature-chips .tag { min-height: 44px; padding-inline: 16px; }
 .feature-chips ~ * { scroll-margin-top: 120px; }
 #apps, #location, #chat, #protection, #setup { scroll-margin-top: 120px !important; }
 
-/* Hold feature navigation below the site header and expose scroll-spy state. */
+/* Паймоиши имкониятҳоро часпонда, ҳолати scroll spy-ро нишон медиҳад. */
 .feature-chip-bar {
   position: sticky;
   top: 64px;
@@ -173,7 +169,7 @@
 .feature-chips::-webkit-scrollbar { display: none; }
 .feature-chips .tag[aria-current="true"] { color: var(--blue); border-color: var(--blue); background: var(--blue-soft); }
 
-/* Give alternating feature sections a consistent visual cadence. */
+/* Ба бахшҳои ивазшавандаи имкониятҳо ритми ягона медиҳад. */
 .feature-chip-bar ~ .section[id] .split { gap: clamp(40px, 7vw, 84px); }
 .feature-chip-bar ~ .section[id] .split > div:first-child { max-width: 620px; }
 .feature-chip-bar ~ .section[id] .screen {
@@ -187,7 +183,7 @@
   .feature-chip-bar ~ .section[id] .screen { min-height: 220px; }
 }
 
-/* Reveal feature checklist ticks with a short readable cascade. */
+/* Аломатҳои checklist-ро бо таъхири кӯтоҳ пайдарпай нишон медиҳад. */
 .js-motion .feature-list.is-staged li::before { opacity: 0; transform: scale(.55); }
 .js-motion .feature-list.is-visible li::before {
   opacity: 1;
@@ -197,7 +193,7 @@
 .js-motion .feature-list.is-visible li:nth-child(2n)::before { transition-delay: .06s; }
 .js-motion .feature-list.is-visible li:nth-child(3n)::before { transition-delay: .12s; }
 
-/* Give the security lock and shield a calm, alternating reassurance cue. */
+/* Қулф ва сипари амниятро бо ҳаракати ором нишон медиҳад. */
 .security-grid .card:nth-child(-n+2) .icon { animation: pages-security-icon 3.8s ease-in-out infinite; }
 .security-grid .card:nth-child(2) .icon { animation-delay: -1.9s; }
 @keyframes pages-security-icon {
@@ -206,7 +202,7 @@
   90% { transform: translateY(0) scale(1); }
 }
 
-/* Wash security cards with a brief sequential highlight as they enter. */
+/* Кортҳои амниятро ҳангоми пайдоиш пайдарпай равшан мекунад. */
 .js-motion .security-grid.is-staged .card { background: var(--surface); }
 .js-motion .security-grid.is-visible .card { animation: pages-card-highlight .8s ease both; }
 .js-motion .security-grid.is-visible .card:nth-child(2) { animation-delay: .08s; }
@@ -219,7 +215,7 @@
   45% { border-color: var(--teal); box-shadow: 0 10px 28px var(--teal-soft); }
 }
 
-/* Add a quiet hover affordance without implying that security cards are links. */
+/* Ба кортҳои амният hover-и ором медиҳад, бе вонамуд кардани пайванд. */
 .security-grid .card { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
 .security-overview ~ .section { content-visibility: auto; contain-intrinsic-size: auto 560px; }
 @media (hover: hover) and (pointer: fine) {
@@ -232,7 +228,7 @@
 @keyframes pages-clock-tick { 50% { transform: rotate(9deg); } }
 @keyframes pages-chat-nod { 40% { transform: rotate(-5deg); } 70% { transform: rotate(3deg); } }
 
-/* Paint a pointer-following glow without intercepting card interactions. */
+/* Нури аз паси pointer равандаро бе бастани interaction мекашад. */
 @media (hover: hover) and (pointer: fine) {
   .hero + .section .card-link.has-spotlight { position: relative; overflow: hidden; }
   .hero + .section .card-link.has-spotlight::after {

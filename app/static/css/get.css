@@ -1,9 +1,6 @@
-/* Download page enhancements: device-aware emphasis and page-specific components.
-   Sections cover device guidance, verification/copy feedback, the install
-   timeline, QR enlargement, sharing-adjacent hints, sticky Android download,
-   version shine, dark mode, reduced motion, and narrow-phone containment. */
+/* Файл: намуди саҳифаи боргирӣ бо роҳнамоии вобаста ба дастгоҳ ва QR. */
 
-/* Device guidance promotes the action best suited to each detected platform. */
+/* Амали мувофиқтаринро барои дастгоҳи муайяншуда барҷаста мекунад. */
 .device-note {
   max-width: 640px;
   margin-top: 22px;
@@ -26,7 +23,7 @@
   box-shadow: var(--shadow);
 }
 
-/* Certificate verification keeps the long SHA-256 fingerprint wrap-safe. */
+/* Нақши дарози SHA-256-ро бе баромадан аз корт мешиканад. */
 .verify-box {
   margin-top: 28px;
   padding: 20px;
@@ -44,7 +41,7 @@
   font-size: .78rem;
 }
 
-/* Download and clipboard feedback stays visible and screen-reader announced. */
+/* Паёми боргирӣ ва нусхабардориро барои screen reader дастрас мекунад. */
 .download-toast {
   position: fixed;
   z-index: 70;
@@ -74,7 +71,7 @@
   white-space: nowrap;
 }
 
-/* Installation progress draws behind numbered tiles; no-JS defaults to complete. */
+/* Пешрафти насбро паси кортҳо мекашад; бе JS пурра нишон медиҳад. */
 .install-timeline { position: relative; }
 .install-timeline::after {
   content: "";
@@ -115,7 +112,7 @@
   .install-timeline .step:hover::before { transform: none; }
 }
 
-/* QR controls retain a white scanning surface in both color schemes. */
+/* Сатҳи сафеди QR-ро дар ҳар ду мавзӯъ нигоҳ медорад. */
 .qr-open {
   display: inline-block;
   padding: 0;
@@ -152,7 +149,7 @@
   .qr-open { transition: none; }
 }
 
-/* Native dialog styling supports the enlarged QR and 44 px close target. */
+/* QR dialog ва тугмаи бастани 44 px-ро оро медиҳад. */
 .qr-dialog {
   width: min(460px, calc(100% - 32px));
   padding: 0;
@@ -180,10 +177,10 @@
   cursor: pointer;
 }
 
-/* Android-only sticky action is enabled by JS after the hero action scrolls away. */
+/* Пас аз дур шудани hero тугмаи часпандаи Android-ро нишон медиҳад. */
 .sticky-download { display: none; }
 
-/* The current-version badge receives one brief, reduced-motion-safe shine. */
+/* Нишони версияро бо эҳтироми reduced motion медурахшонад. */
 .version-badge { position: relative; overflow: hidden; }
 .version-badge::after {
   content: "";
@@ -221,7 +218,7 @@
   }
 }
 
-/* Dark theme keeps every download surface distinct while preserving QR contrast. */
+/* Дар мавзӯи торик сатҳҳо ва contrast-и QR-ро ҷудо нигоҳ медорад. */
 :root[data-theme="dark"] .get-qr-panel {
   border-color: color-mix(in srgb, var(--blue) 72%, var(--line));
   background: linear-gradient(145deg, var(--surface), var(--soft));
@@ -247,7 +244,7 @@
   background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .3) 50%, transparent 62%);
 }
 
-/* Narrow-phone layout keeps actions, fingerprints, and dialogs inside 360 px. */
+/* Амалҳо ва dialog-ро дар телефони 360 px нигоҳ медорад. */
 @media (max-width: 380px) {
   .get-primary-actions > .btn,
   .get-primary-actions > .tag {

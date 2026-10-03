@@ -1,8 +1,7 @@
-/* NIGOH Family hero phone: a modern 19.5:9 handset drawn in HTML/CSS (replaces the old PNG mockup).
-   Sizes inside the phone use cqi (1% of the phone's width) so it scales crisply at any size;
-   the screen follows the site's light/dark theme. */
+/* Файл: телефони намунавии NIGOH Family, ки бо HTML ва CSS сохта шудааст.
+   Андозаҳои дохилӣ бо cqi тағйир ёфта, экран ба мавзӯи сайт мутобиқ мешавад. */
 
-/* Frame: metal edge, thin black bezel, side buttons, soft shadow. */
+/* Қабурғаи металлӣ, bezel, тугмаҳои паҳлӯӣ ва сояро месозад. */
 .nphone {
   --ph-w: min(312px, 76vw);
   --ph-bg: #f4f6fb; --ph-surface: #fff; --ph-ink: #0f172a; --ph-muted: #64748b; --ph-line: #e5e9f0;
@@ -24,13 +23,13 @@
   content: ""; position: absolute; width: calc(var(--ph-w) * .013); border-radius: 2px;
   background: linear-gradient(90deg, #2a2e36, #5b616b);
 }
-.nphone::before { right: calc(var(--ph-w) * -.011); top: 25%; height: 11%; }        /* power */
-.nphone::after {                                                                     /* volume */
+.nphone::before { right: calc(var(--ph-w) * -.011); top: 25%; height: 11%; }        /* Тугмаи фаъолсозӣ. */
+.nphone::after {                                                                     /* Тугмаҳои садо. */
   left: calc(var(--ph-w) * -.011); top: 19%; height: 7%;
   box-shadow: 0 calc(var(--ph-w) * .105) 0 #3a3f48;
 }
 
-/* Screen and its system chrome (dynamic island, status bar, home indicator). */
+/* Экран, dynamic island, status bar ва нишондиҳандаи home-ро месозад. */
 .nphone__screen {
   position: relative; height: 100%; overflow: hidden; border-radius: 12.4cqi;
   display: flex; flex-direction: column; background: var(--ph-bg); color: var(--ph-ink);
@@ -56,7 +55,7 @@
   width: 33cqi; height: 1.15cqi; border-radius: 1cqi; background: var(--ph-ink); opacity: .82;
 }
 
-/* App content. */
+/* Муҳтавои асосии барномаро дар экран ҷойгир мекунад. */
 .nphone__body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 3cqi; padding: 1.6cqi 4.4cqi 0; }
 .nphone__row { display: flex; align-items: center; gap: 2.8cqi; }
 .nphone__grow { flex: 1; min-width: 0; }
@@ -91,7 +90,7 @@
 .nphone__dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: currentColor; animation: nph-ping 2.2s ease-out infinite; }
 .nphone__battery { margin-top: 1.2cqi; font-size: 2.5cqi; color: var(--ph-muted); }
 
-/* Live map card. */
+/* Корти харитаи зиндаро оро медиҳад. */
 .nphone__map { position: relative; height: 46cqi; border-radius: 4.6cqi; overflow: hidden; border: .3cqi solid var(--ph-line); background: var(--ph-map); }
 .nphone__map svg.nphone__map-art { position: absolute; inset: 0; width: 100%; height: 100%; }
 .nphone__chip {
@@ -117,7 +116,7 @@
 .nphone__check { flex: none; width: 5.4cqi; height: 5.4cqi; border-radius: 50%; display: grid; place-items: center; background: var(--ph-green-soft); color: var(--ph-green); }
 .nphone__check svg { width: 3.2cqi; height: 3.2cqi; }
 
-/* Quick stat tiles. */
+/* Кортҳои кӯтоҳи оморро ҷойгир мекунад. */
 .nphone__tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4cqi; }
 .nphone__tile { border-radius: 3.8cqi; padding: 2.8cqi 2.4cqi; min-width: 0; }
 .nphone__tile i { display: grid; place-items: center; width: 5.6cqi; height: 5.6cqi; border-radius: 50%; color: #fff; }
@@ -128,7 +127,7 @@
 .nphone__tile--mint { background: var(--ph-mint-soft); } .nphone__tile--mint i { background: var(--ph-mint); }
 .nphone__tile--violet { background: var(--ph-violet-soft); } .nphone__tile--violet i { background: var(--ph-violet); }
 
-/* Today's screen time per app (fills the taller screen with a real feature). */
+/* Вақти имрӯзаи истифодаи ҳар барномаро нишон медиҳад. */
 .nphone__usage { padding: 3cqi 3.4cqi; display: grid; gap: 2.2cqi; }
 .nphone__usage-title { font-size: 2.6cqi; font-weight: 750; color: var(--ph-muted); text-transform: uppercase; letter-spacing: .04em; }
 .nphone__app { display: flex; align-items: center; gap: 2.4cqi; }
@@ -145,7 +144,7 @@
 .nphone__bar span { display: block; height: 100%; width: var(--v); border-radius: inherit; background: var(--ph-blue); animation: nph-bar 1.2s cubic-bezier(.2, .8, .2, 1) .6s both; }
 .nphone__bar span.is-warn { background: var(--ph-amber); }
 
-/* Extra-time request (the taller screen has room for it). */
+/* Дархости вақти иловагиро дар қисми поёнии экран ҷойгир мекунад. */
 .nphone__req { border-left: .9cqi solid var(--ph-amber); animation: nph-req-in .6s cubic-bezier(.2, .8, .2, 1) .8s both; }
 .nphone__req-title { display: flex; align-items: center; gap: 1.6cqi; font-size: 2.6cqi; font-weight: 750; color: var(--ph-amber); text-transform: uppercase; letter-spacing: .04em; }
 .nphone__req p { margin: 1.2cqi 0 2.4cqi; font-size: 3.1cqi; font-weight: 600; color: var(--ph-ink); }
@@ -154,7 +153,7 @@
 .nphone__btn--ghost { background: var(--ph-bg); color: var(--ph-muted); border: .3cqi solid var(--ph-line); }
 .nphone__btn--primary { background: var(--ph-blue); color: #fff; }
 
-/* Bottom navigation. */
+/* Паймоиши поёнии барномаро оро медиҳад. */
 .nphone__nav {
   margin-top: auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 1cqi;
   padding: 2.4cqi 2.4cqi 6.4cqi; background: var(--ph-surface); border-top: .3cqi solid var(--ph-line);
@@ -164,10 +163,10 @@
 .nphone__nav .is-active { color: var(--ph-blue); font-weight: 700; }
 .nphone__nav .is-active svg { background: var(--ph-blue-soft); }
 
-/* Smaller variant for feature-section cards. */
+/* Намуди хурдтарро барои кортҳои имконият танзим мекунад. */
 .nphone--compact { --ph-w: min(232px, 62vw); }
 
-/* Dark site theme: the phone shows the app's dark UI. */
+/* Интерфейси торики барномаро бо мавзӯи торики сайт ҳамоҳанг мекунад. */
 :root[data-theme="dark"] .nphone {
   --ph-bg: #0d121a; --ph-surface: #151c27; --ph-ink: #e8edf5; --ph-muted: #93a0b4; --ph-line: #222b39;
   --ph-blue: #6f9bff; --ph-blue-soft: #1a2640; --ph-mint: #3fd0c2; --ph-mint-soft: #11292b;
@@ -178,7 +177,7 @@
     0 44px 80px -28px rgba(0, 0, 0, .7), 0 0 60px -10px rgba(111, 155, 255, .18);
 }
 
-/* Gentle idle float of the whole handset in the hero (motion system adds .motion-hero-visual). */
+/* Телефонро дар hero бо ҳаракати ором шино мекунад. */
 .js-motion .motion-hero-visual .nphone { animation: nph-float 6s ease-in-out 1.05s infinite; }
 
 @keyframes nph-ping { 0% { transform: scale(.7); opacity: .55; } 100% { transform: scale(2.4); opacity: 0; } }
