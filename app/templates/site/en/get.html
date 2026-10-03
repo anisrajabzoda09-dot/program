@@ -32,7 +32,7 @@
   <div class="wrap split">
     <div class="center get-qr-panel">
       <button class="qr-open" type="button" aria-label="Enlarge the download QR code">
-        <img class="qr-big" src="/api/qr/download" width="240" height="240" alt="QR code to download NIGOH Family" style="margin:0 auto">
+        <img class="qr-big" src="/api/qr/download" width="240" height="240" decoding="async" loading="lazy" alt="QR code to download NIGOH Family" style="margin:0 auto">
       </button>
       <p class="muted small" style="margin:18px auto 0;max-width:320px">Scan with your phone's camera. The QR code always points to the latest version of the app.</p>
     </div>
@@ -159,7 +159,7 @@
   <div class="qr-dialog-card">
     <button class="qr-dialog-close" type="button" aria-label="Close QR code">×</button>
     <h2 id="qr-dialog-title-en">Scan to download</h2>
-    <img src="/api/qr/download" width="360" height="360" alt="Enlarged QR code to download NIGOH Family">
+    <img src="/api/qr/download" width="360" height="360" decoding="async" loading="lazy" alt="Enlarged QR code to download NIGOH Family">
   </div>
 </dialog>
 
