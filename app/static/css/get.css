@@ -87,8 +87,22 @@
   padding: 0;
   border: 0;
   border-radius: 20px;
-  background: transparent;
+  background: #fff;
   cursor: zoom-in;
+  transition: box-shadow .2s ease;
+}
+
+.qr-big { background: #fff; }
+
+@media (hover: hover) and (pointer: fine) {
+  .qr-open:hover { box-shadow: 0 0 0 6px var(--blue-soft), 0 16px 40px rgba(31, 99, 224, .2); }
+}
+
+:root[data-theme="dark"] .qr-open,
+:root[data-theme="dark"] .qr-big { background: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .qr-open { transition: none; }
 }
 
 .qr-dialog {
