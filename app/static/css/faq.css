@@ -221,3 +221,30 @@
     transform: none;
   }
 }
+
+:root[data-theme="dark"] .faq-tools input[type="search"] {
+  color-scheme: dark;
+  background: var(--soft);
+  border-color: var(--line-2);
+}
+
+:root[data-theme="dark"] .faq-actions button,
+:root[data-theme="dark"] .faq-popular a {
+  background: var(--surface);
+  border-color: var(--line-2);
+}
+
+:root[data-theme="dark"] .faq-actions button:hover,
+:root[data-theme="dark"] .faq-popular a:hover,
+:root[data-theme="dark"] .faq-copy:hover {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
+
+:root[data-theme="dark"] .faq details[open] {
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+:root[data-theme="dark"] .faq mark {
+  outline: 1px solid var(--amber);
+}
