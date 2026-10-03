@@ -104,6 +104,13 @@
     observer.observe(primary);
   }
 
+  /* Play the version badge highlight once when motion is allowed. */
+  function shineVersionBadge() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var badge = document.querySelector('.version-badge');
+    if (badge) window.requestAnimationFrame(function () { badge.classList.add('js-version-shine'); });
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -112,6 +119,7 @@
     });
   }
   setupStickyDownload(device);
+  shineVersionBadge();
 
   document.querySelectorAll('.verify-copy').forEach(function (button) {
     button.addEventListener('click', function () { copyCertificate(button); });

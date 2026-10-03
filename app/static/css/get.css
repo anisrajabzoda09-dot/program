@@ -162,6 +162,21 @@
 
 .sticky-download { display: none; }
 
+.version-badge { position: relative; overflow: hidden; }
+.version-badge::after {
+  content: "";
+  position: absolute;
+  inset: -100% -40%;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .8) 50%, transparent 62%);
+  transform: translateX(-80%);
+}
+.version-badge.js-version-shine::after { animation: get-version-shine .8s ease-out .2s both; }
+@keyframes get-version-shine { to { transform: translateX(80%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .version-badge.js-version-shine::after { animation: none; display: none; }
+}
+
 @media (max-width: 640px) {
   :root[data-get-device="android"] .sticky-download:not([hidden]) {
     position: fixed;
