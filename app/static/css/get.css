@@ -56,3 +56,28 @@
 .download-toast strong,
 .download-toast span { display: block; }
 .download-toast span { margin-top: 3px; color: var(--muted); font-size: .875rem; }
+
+.install-timeline { position: relative; }
+.install-timeline::after {
+  content: "";
+  position: absolute;
+  top: 48px;
+  bottom: 48px;
+  left: 19px;
+  width: 2px;
+  background: var(--blue);
+  transform: scaleY(1);
+  transform-origin: top;
+}
+
+.install-timeline.js-get-timeline::after {
+  transform: scaleY(var(--timeline-progress, 0));
+  transition: transform .12s linear;
+}
+
+.install-timeline .step { position: relative; z-index: 1; }
+.install-timeline .step::before { position: relative; z-index: 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .install-timeline.js-get-timeline::after { transform: scaleY(1); transition: none; }
+}

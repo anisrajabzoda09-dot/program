@@ -38,6 +38,16 @@
     showDownloadToast.timer = window.setTimeout(function () { toast.hidden = true; }, 6000);
   }
 
+  /* Draw the install timeline connector according to its viewport progress. */
+  function updateTimeline() {
+    var timeline = document.querySelector('.install-timeline');
+    if (!timeline) return;
+    var rect = timeline.getBoundingClientRect();
+    var travel = rect.height + window.innerHeight * .55;
+    var progress = Math.max(0, Math.min(1, (window.innerHeight * .82 - rect.top) / travel));
+    timeline.style.setProperty('--timeline-progress', progress.toFixed(3));
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -55,4 +65,12 @@
   document.querySelectorAll('[data-download-action]').forEach(function (link) {
     link.addEventListener('click', showDownloadToast);
   });
+
+  var timeline = document.querySelector('.install-timeline');
+  if (timeline && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    timeline.classList.add('js-get-timeline');
+    window.addEventListener('scroll', updateTimeline, { passive: true });
+    window.addEventListener('resize', updateTimeline, { passive: true });
+    updateTimeline();
+  }
 }());
