@@ -198,3 +198,29 @@
     font-weight: 600;
   }
 }
+
+/* Dark theme keeps every download surface distinct while preserving QR contrast. */
+:root[data-theme="dark"] .get-qr-panel {
+  border-color: color-mix(in srgb, var(--blue) 72%, var(--line));
+  background: linear-gradient(145deg, var(--surface), var(--soft));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .34);
+}
+
+:root[data-theme="dark"] .verify-box,
+:root[data-theme="dark"] .download-toast,
+:root[data-theme="dark"] .sticky-download,
+:root[data-theme="dark"] .qr-dialog {
+  border-color: var(--line-2);
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .4);
+}
+
+:root[data-theme="dark"] .device-note {
+  border-color: color-mix(in srgb, var(--amber) 65%, var(--line));
+  background: var(--amber-soft);
+}
+
+:root[data-theme="dark"] .qr-dialog-close { border-color: var(--line-2); }
+:root[data-theme="dark"] .version-badge::after {
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .3) 50%, transparent 62%);
+}
