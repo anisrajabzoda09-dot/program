@@ -116,6 +116,14 @@ function syncFaqHash(questions) {
   });
 }
 
+// Stores the current filter in the URL so the result view can be shared.
+function syncFaqQuery(value) {
+  const url = new URL(window.location.href);
+  if (value.trim()) url.searchParams.set('q', value.trim());
+  else url.searchParams.delete('q');
+  history.replaceState(history.state, '', url);
+}
+
 // Filters questions and hides section headings that have no matches.
 function initFaqSearch() {
   const form = document.querySelector('[data-faq-search]');
@@ -174,7 +182,14 @@ function initFaqSearch() {
     if (count) count.textContent = `${visible}${countJoiner}${total}`;
     if (live) live.textContent = live.dataset.template.replace('{}', visible);
     highlightFaqMatches(input.value.trim());
+    syncFaqQuery(input.value);
   });
+
+  const initialQuery = new URL(window.location.href).searchParams.get('q');
+  if (initialQuery) {
+    input.value = initialQuery;
+    input.dispatchEvent(new Event('input'));
+  }
 }
 
 initFaqSearch();
