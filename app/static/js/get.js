@@ -63,6 +63,20 @@
     if (dialog.qrOpener) dialog.qrOpener.focus();
   }
 
+  /* Share the current page with the system sheet or copy it as a fallback. */
+  function sharePage(button) {
+    var payload = { title: button.dataset.shareTitle, text: button.dataset.shareText, url: window.location.href };
+    if (navigator.share) {
+      navigator.share(payload).catch(function () {});
+      return;
+    }
+    navigator.clipboard.writeText(payload.url).then(function () {
+      var original = button.textContent;
+      button.textContent = button.dataset.copySuccess;
+      window.setTimeout(function () { button.textContent = original; }, 1800);
+    });
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -101,5 +115,8 @@
       event.preventDefault();
       closeQrDialog(dialog);
     });
+  });
+  document.querySelectorAll('.share-page').forEach(function (button) {
+    button.addEventListener('click', function () { sharePage(button); });
   });
 }());
