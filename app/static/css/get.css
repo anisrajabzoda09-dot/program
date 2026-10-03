@@ -1,0 +1,23 @@
+/* Download page enhancements: device-aware emphasis and page-specific components. */
+
+.device-note {
+  max-width: 640px;
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--amber);
+  border-radius: var(--radius);
+  background: var(--amber-soft);
+  color: var(--ink-2);
+}
+
+:root[data-get-device="android"] .get-download-primary {
+  box-shadow: 0 0 0 4px var(--blue-soft), var(--shadow);
+}
+
+:root[data-get-device="desktop"] .get-qr-panel {
+  padding: 24px;
+  border: 2px solid var(--blue);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}

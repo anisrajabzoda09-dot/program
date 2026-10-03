@@ -4,6 +4,10 @@
 
 {% block description %}NIGOH Family {{ app_version }} барои Android-ро ройгон боргирӣ кунед. Файли APK, рамзи QR ва дастури насб барои телефони волидайн ва фарзанд.{% endblock %}
 
+{% block head %}
+  <link rel="stylesheet" href="/static/css/get.css?v={{ app_version }}">
+{% endblock %}
+
 {% block content %}
 
 <section class="page-hero">
@@ -11,8 +15,9 @@
     <span class="eyebrow">Боргирӣ</span>
     <h1>NIGOH Family барои Android</h1>
     <p class="lead">Як барнома барои ҳарду телефон. Файли APK-ро мустақиман аз сомонаи мо боргирӣ кунед — ройгон ва бе реклама.</p>
-    <div class="btn-row" style="margin-top:30px;align-items:center">
-      <a class="btn btn-primary" href="/download/android">
+    <p class="device-note device-note-ios" hidden>Ин барнома танҳо барои Android аст. Шумо метавонед ин саҳифаро дар телефони Android кушоед ё рамзи QR-ро ба он скан кунед.</p>
+    <div class="btn-row get-primary-actions" style="margin-top:30px;align-items:center">
+      <a class="btn btn-primary get-download-primary" href="/download/android">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
         Боргирии APK
       </a>
@@ -23,7 +28,7 @@
 
 <section class="section" id="qr">
   <div class="wrap split">
-    <div class="center">
+    <div class="center get-qr-panel">
       <img class="qr-big" src="/api/qr/download" width="240" height="240" alt="Рамзи QR барои боргирии NIGOH Family" style="margin:0 auto">
       <p class="muted small" style="margin:18px auto 0;max-width:320px">Бо камераи телефон скан кунед. Рамзи QR ҳамеша ба версияи навтарини барнома мебарад.</p>
     </div>
@@ -132,4 +137,8 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/get.js?v={{ app_version }}" defer></script>
 {% endblock %}
