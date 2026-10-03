@@ -38,3 +38,21 @@
   color: var(--ink-2);
   font-size: .78rem;
 }
+
+.download-toast {
+  position: fixed;
+  z-index: 70;
+  right: 20px;
+  bottom: 20px;
+  width: min(380px, calc(100% - 40px));
+  padding: 16px 18px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.download-toast strong,
+.download-toast span { display: block; }
+.download-toast span { margin-top: 3px; color: var(--muted); font-size: .875rem; }

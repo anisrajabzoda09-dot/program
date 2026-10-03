@@ -29,6 +29,15 @@
     });
   }
 
+  /* Show brief next-step guidance after an APK download begins. */
+  function showDownloadToast() {
+    var toast = document.querySelector('.download-toast');
+    if (!toast) return;
+    toast.hidden = false;
+    window.clearTimeout(showDownloadToast.timer);
+    showDownloadToast.timer = window.setTimeout(function () { toast.hidden = true; }, 6000);
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -42,5 +51,8 @@
   });
   document.querySelectorAll('.copy-download').forEach(function (button) {
     button.addEventListener('click', function () { copyDownloadLink(button); });
+  });
+  document.querySelectorAll('[data-download-action]').forEach(function (link) {
+    link.addEventListener('click', showDownloadToast);
   });
 }());
