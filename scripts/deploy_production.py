@@ -1,142 +1,186 @@
 #!/usr/bin/env python3
-"""
-NIGOH Family — Production Deployment & Health Verification Automation Script
-Connects to 37.27.245.216, synchronizes APKs, modular app directories, templates, and validates health.
+"""Deploy NIGOH Family to production (the website, API and the Android APK).
+
+What it does, in order:
+  1. Gets a verified, release-signed APK: builds it (default) or, with
+     NIGOH_SKIP_BUILD=1, only verifies the one already in app/static/downloads.
+  2. Uploads app/ (code, templates, static files, APKs) — never the live
+     database — plus requirements.txt and deploy/ configs.
+  3. Installs Python dependencies on the server and restarts the API.
+
+Server access comes from the environment or from the git-ignored file
+`.env.deploy` in the project root:
+  NIGOH_DEPLOY_HOST, NIGOH_DEPLOY_USER, NIGOH_DEPLOY_PASSWORD
+The password is handed to ssh/rsync through SSH_ASKPASS, so it never appears
+on a command line, in logs, or in this repository.
+
+Usage:
+  venv/bin/python scripts/deploy_production.py
+  NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
 """
 import os
 import shutil
+import stat
 import subprocess
-import sys
+import tempfile
 from pathlib import Path
-import pexpect
 
-REMOTE_USER = "dev"
-REMOTE_HOST = "37.27.245.216"
-REMOTE_PASS = os.environ.get("NIGOH_DEPLOY_PASSWORD", "")
-if not REMOTE_PASS:
-    raise RuntimeError("NIGOH_DEPLOY_PASSWORD must be provided through the environment")
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-ANDROID_PROJECT = Path(os.environ.get(
-    "NIGOH_ANDROID_PROJECT",
-    str(Path(__file__).resolve().parents[1] / "mobile"),
-))
+REMOTE_PATH = "/home/dev/munis"
+
+
+def load_env_file(path: Path) -> None:
+    """Read KEY=VALUE lines from a local secrets file into os.environ.
+
+    Values already set in the environment win, so a one-off override on the
+    command line still works.
+    """
+    if not path.is_file():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip())
+
+
+load_env_file(PROJECT_ROOT / ".env.deploy")
+
+REMOTE_USER = os.environ.get("NIGOH_DEPLOY_USER", "dev")
+REMOTE_HOST = os.environ.get("NIGOH_DEPLOY_HOST", "37.27.245.216")
+REMOTE_PASS = os.environ.get("NIGOH_DEPLOY_PASSWORD", "")
+ANDROID_PROJECT = Path(os.environ.get("NIGOH_ANDROID_PROJECT", str(PROJECT_ROOT / "mobile")))
 APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.17.0.apk")
+DOWNLOADS = PROJECT_ROOT / "app" / "static" / "downloads"
+SSH_OPTS = "ssh -F /dev/null -o StrictHostKeyChecking=accept-new"
 
 
-def build_and_verify_release_apk():
-    """Build a production-signed APK and verify its signature before upload."""
-    if not ANDROID_PROJECT.is_dir():
-        raise RuntimeError(f"Android project directory not found: {ANDROID_PROJECT}")
-
-    flutter = os.environ.get("FLUTTER_BIN", shutil.which("flutter") or "flutter")
-    build_env = os.environ.copy()
-    java_home = Path(build_env.get("JAVA_HOME", ""))
-    if not (java_home / "bin" / "javac").is_file():
-        jdk_candidates = [
-            Path("/snap/android-studio/244/jbr"),
-            Path("/opt/android-studio/jbr"),
-        ]
-        for candidate in jdk_candidates:
-            if (candidate / "bin" / "javac").is_file():
-                build_env["JAVA_HOME"] = str(candidate)
-                break
-    if not (Path(build_env.get("JAVA_HOME", "")) / "bin" / "javac").is_file():
-        raise RuntimeError("A full JDK with javac is required for the release build")
-    print(f"-> {flutter} clean && {flutter} build apk --release")
-    subprocess.run([flutter, "clean"], cwd=ANDROID_PROJECT, check=True, env=build_env)
-    subprocess.run([flutter, "build", "apk", "--release"], cwd=ANDROID_PROJECT, check=True, env=build_env)
-
-    apk_path = ANDROID_PROJECT / "build" / "app" / "outputs" / "flutter-apk" / "app-release.apk"
-    if not apk_path.is_file():
-        raise RuntimeError(f"Release APK was not produced: {apk_path}")
-
+def find_apksigner() -> str:
+    """Locate Android's apksigner (PATH, $APKSIGNER, or the newest SDK build-tools)."""
     apksigner = os.environ.get("APKSIGNER") or shutil.which("apksigner")
-    if not apksigner:
-        sdk_root = Path(
-            os.environ.get("ANDROID_HOME")
-            or os.environ.get("ANDROID_SDK_ROOT")
-            or "/home/munis/Android/Sdk"
-        )
-        candidates = sorted(sdk_root.glob("build-tools/*/apksigner"), reverse=True)
-        if candidates:
-            apksigner = str(candidates[0])
-    if not apksigner:
-        raise RuntimeError("apksigner was not found; refusing to deploy an unverified APK")
-
-    verification = subprocess.run(
-        [apksigner, "verify", "--verbose", "--print-certs", str(apk_path)],
-        text=True,
-        capture_output=True,
-        check=False,
+    if apksigner:
+        return apksigner
+    sdk_root = Path(
+        os.environ.get("ANDROID_HOME")
+        or os.environ.get("ANDROID_SDK_ROOT")
+        or Path.home() / "Android" / "Sdk"
     )
-    verification_output = f"{verification.stdout}\n{verification.stderr}"
-    print(verification_output)
-    required_markers = (
+    candidates = sorted(sdk_root.glob("build-tools/*/apksigner"), reverse=True)
+    if not candidates:
+        raise RuntimeError("apksigner was not found; refusing to deploy an unverified APK")
+    return str(candidates[0])
+
+
+def verify_apk_signature(apk_path: Path) -> None:
+    """Refuse to deploy an APK that is unsigned, debug-signed, or lacks v2/v3 signatures.
+
+    Phones only accept an update signed with the same release key, so a wrong
+    signature would break in-app updates for every family.
+    """
+    result = subprocess.run(
+        [find_apksigner(), "verify", "--verbose", "--print-certs", str(apk_path)],
+        text=True, capture_output=True, check=False,
+    )
+    required = (
         "Verifies",
         "Verified using v2 scheme (APK Signature Scheme v2): true",
         "Verified using v3 scheme (APK Signature Scheme v3): true",
     )
-    if verification.returncode != 0 or any(marker not in verification.stdout for marker in required_markers):
-        raise RuntimeError("APK signature verification failed; refusing to deploy")
-    if "Android Debug" in verification.stdout:
+    if result.returncode != 0 or any(marker not in result.stdout for marker in required):
+        raise RuntimeError(f"APK signature verification failed; refusing to deploy:\n{result.stdout}{result.stderr}")
+    if "Android Debug" in result.stdout:
         raise RuntimeError("APK is signed with a debug certificate; refusing to deploy")
+    print(f"APK signature OK: {apk_path.name}")
 
-    root_target = PROJECT_ROOT / APK_FILENAME
-    download_target = PROJECT_ROOT / "app" / "static" / "downloads" / APK_FILENAME
-    shutil.copy2(apk_path, root_target)
-    shutil.copy2(apk_path, download_target)
-    print(f"Verified release APK copied to {root_target} and {download_target}")
-REMOTE_PATH = "/home/dev/munis"
 
-def run_ssh(cmd, timeout=3600):
+def find_jdk(env: dict) -> None:
+    """Make sure JAVA_HOME points at a full JDK (Gradle needs javac); fills it in if possible."""
+    if (Path(env.get("JAVA_HOME", "")) / "bin" / "javac").is_file():
+        return
+    for candidate in ("/snap/android-studio/current/jbr", "/opt/android-studio/jbr"):
+        if (Path(candidate) / "bin" / "javac").is_file():
+            env["JAVA_HOME"] = candidate
+            return
+    raise RuntimeError("A full JDK with javac is required for the release build")
+
+
+def build_release_apk() -> Path:
+    """Build the release APK from the Flutter project and copy it into downloads.
+
+    NIGOH_ANDROID_PROJECT must point at the project that holds the signing
+    key (android/key.properties); the copy in mobile/ deliberately has none.
+    """
+    if not ANDROID_PROJECT.is_dir():
+        raise RuntimeError(f"Android project directory not found: {ANDROID_PROJECT}")
+    flutter = os.environ.get("FLUTTER_BIN", shutil.which("flutter") or "flutter")
+    env = os.environ.copy()
+    find_jdk(env)
+    print(f"-> flutter build apk --release ({ANDROID_PROJECT})")
+    subprocess.run([flutter, "build", "apk", "--release"], cwd=ANDROID_PROJECT, check=True, env=env)
+    built = ANDROID_PROJECT / "build" / "app" / "outputs" / "flutter-apk" / "app-release.apk"
+    if not built.is_file():
+        raise RuntimeError(f"Release APK was not produced: {built}")
+    verify_apk_signature(built)
+    target = DOWNLOADS / APK_FILENAME
+    shutil.copy2(built, target)
+    print(f"Copied to {target}")
+    return target
+
+
+def prepare_apk() -> Path:
+    """Return the APK to publish: build it, or (NIGOH_SKIP_BUILD=1) verify the existing one."""
+    if os.environ.get("NIGOH_SKIP_BUILD") == "1":
+        apk = DOWNLOADS / APK_FILENAME
+        if not apk.is_file():
+            raise RuntimeError(f"NIGOH_SKIP_BUILD=1 but {apk} does not exist")
+        verify_apk_signature(apk)
+        return apk
+    return build_release_apk()
+
+
+def askpass_env() -> dict:
+    """Environment that lets ssh/rsync read the password from a throwaway helper script.
+
+    The helper prints $NIGOH_DEPLOY_PASSWORD; it lives in a private temp file
+    (mode 700) that is deleted when the deploy finishes.
+    """
+    if not REMOTE_PASS:
+        raise RuntimeError("NIGOH_DEPLOY_PASSWORD is missing (set it or create .env.deploy)")
+    fd, path = tempfile.mkstemp(prefix="nigoh-askpass-", suffix=".sh")
+    with os.fdopen(fd, "w") as fh:
+        fh.write('#!/bin/sh\nprintf "%s\\n" "$NIGOH_DEPLOY_PASSWORD"\n')
+    os.chmod(path, stat.S_IRWXU)
+    env = os.environ.copy()
+    env.update(SSH_ASKPASS=path, SSH_ASKPASS_REQUIRE="force", DISPLAY=env.get("DISPLAY", ":0"))
+    return env
+
+
+def run(cmd: str, env: dict) -> None:
+    """Run one ssh/rsync command; stop the whole deploy if it fails."""
     print(f"-> {cmd}")
-    child = pexpect.spawn(cmd, encoding="utf-8", timeout=timeout)
-    # Log remote output only. Using ``logfile`` also echoes secrets sent to the
-    # pseudo-terminal, which must never appear in CI/deployment logs.
-    child.logfile_read = sys.stdout
-    while True:
-        idx = child.expect(["(?i)password:", pexpect.EOF, pexpect.TIMEOUT], timeout=timeout)
-        if idx == 0:
-            child.sendline(REMOTE_PASS)
-        elif idx == 1:
-            break
-        elif idx == 2:
-            child.close(force=True)
-            raise RuntimeError("Remote deployment command timed out")
-    child.close()
-    status = child.exitstatus
-    if status != 0:
-        raise RuntimeError(f"Remote deployment command failed with exit code {status}")
-    return status
+    subprocess.run(cmd, shell=True, check=True, env=env, cwd=PROJECT_ROOT, stdin=subprocess.DEVNULL)
 
-def deploy():
-    print("====================================================")
-    print("🚀 NIGOH Family — Production Deployment Pipeline")
-    print("====================================================")
 
-    build_and_verify_release_apk()
+def deploy() -> None:
+    """Publish the current project to the production server (see module docstring)."""
+    print("NIGOH Family — production deploy")
+    prepare_apk()
+    env = askpass_env()
+    target = f"{REMOTE_USER}@{REMOTE_HOST}"
+    try:
+        # App code, templates and static files. -L uploads the APKs behind the
+        # downloads symlink. The live database and backups stay on the server.
+        run(f'rsync -azL --exclude "__pycache__" --exclude "*.pyc" --exclude "nigoh.db" '
+            f'--exclude "*.bak" -e "{SSH_OPTS}" app/ {target}:{REMOTE_PATH}/app/', env)
+        run(f'rsync -az -e "{SSH_OPTS}" requirements.txt TECH_STACK.md {target}:{REMOTE_PATH}/', env)
+        run(f'rsync -az -e "{SSH_OPTS}" deploy/ {target}:{REMOTE_PATH}/deploy/', env)
+        run(f'{SSH_OPTS} {target} "{REMOTE_PATH}/venv/bin/pip install -q -r {REMOTE_PATH}/requirements.txt"', env)
+        run(f'{SSH_OPTS} {target} "bash {REMOTE_PATH}/restart.sh"', env)
+    finally:
+        os.unlink(env["SSH_ASKPASS"])
+    print("Deployment completed.")
 
-    # 1. Sync entire app/ directory (core, crud, db, models, routers, schemas, templates, static, etc.)
-    # Keep production data on the server. Schema initialization is additive and
-    # must never replace the live SQLite database with a local copy.
-    run_ssh(f'rsync -avzL --exclude "__pycache__" --exclude "*.pyc" --exclude "nigoh.db" --exclude "*.bak" -e "ssh -F /dev/null -o StrictHostKeyChecking=no" app/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/app/')
-
-    # 2. Sync root APK and documentation
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" {APK_FILENAME} TECH_STACK.md requirements.txt {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/')
-
-    # Install the pinned runtime dependencies before restarting the API.
-    run_ssh(
-        f'ssh -F /dev/null -o StrictHostKeyChecking=no {REMOTE_USER}@{REMOTE_HOST} '
-        f'{REMOTE_PATH}/venv/bin/pip install -r {REMOTE_PATH}/requirements.txt'
-    )
-
-    # 3. Sync deploy configs
-    run_ssh(f'rsync -avz -e "ssh -F /dev/null -o StrictHostKeyChecking=no" deploy/ {REMOTE_USER}@{REMOTE_HOST}:{REMOTE_PATH}/deploy/')
-
-    # 4. Restart server
-    run_ssh(f'ssh -F /dev/null -o StrictHostKeyChecking=no {REMOTE_USER}@{REMOTE_HOST} bash {REMOTE_PATH}/restart.sh')
-
-    print("\n✅ Deployment completed successfully!")
 
 if __name__ == "__main__":
     deploy()

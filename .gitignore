@@ -13,3 +13,6 @@ app/static/downloads
 app/static/avatars/
 mobile/.widget_preview/
 __pycache__/
+
+# Server access for deploys (never commit)
+.env.deploy
