@@ -56,11 +56,11 @@
       <a href="#q-5">Android огоҳ мекунад: «насби барномаҳои номаълум». Чӣ кор кунам?</a>
     </nav>
 
-    <form class="faq-tools" role="search" data-faq-search data-copy-label="Пайвандро нусха бардоштан" data-copied-label="Нусха шуд">
+    <form class="faq-tools" role="search" data-faq-search data-copy-label="Пайвандро нусха бардоштан" data-copied-label="Нусха шуд" data-copy-a11y="Пайванди саволро нусха бардоштан: {}">
       <label for="faq-search">Ҷустуҷӯ дар саволу ҷавоб <span class="faq-shortcut">Барои ҷустуҷӯ <kbd>/</kbd></span></label>
       <div class="faq-search-row">
-        <input id="faq-search" type="search" placeholder="Савол ё калима нависед…" autocomplete="off">
-        <output data-faq-count>20 аз 20</output>
+        <input id="faq-search" type="search" placeholder="Савол ё калима нависед…" autocomplete="off" aria-describedby="faq-result-count">
+        <output id="faq-result-count" data-faq-count>20 аз 20</output>
       </div>
       <div class="faq-actions">
         <button type="button" data-faq-expand>Ҳамаашро кушодан</button>

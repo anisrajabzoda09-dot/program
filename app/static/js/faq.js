@@ -69,6 +69,7 @@ function fallbackFaqCopy(value) {
 // Copies a question URL and briefly confirms the successful action.
 async function copyFaqLink(button, question, labels) {
   const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${question.id}`;
+  const accessibleLabel = button.getAttribute('aria-label');
   try {
     if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
     else fallbackFaqCopy(url);
@@ -76,7 +77,11 @@ async function copyFaqLink(button, question, labels) {
     fallbackFaqCopy(url);
   }
   button.textContent = labels.copied;
-  window.setTimeout(() => { button.textContent = labels.copy; }, 1600);
+  button.setAttribute('aria-label', labels.copied);
+  window.setTimeout(() => {
+    button.textContent = labels.copy;
+    button.setAttribute('aria-label', accessibleLabel);
+  }, 1600);
 }
 
 // Adds a localized copy-link button to each question.
@@ -86,7 +91,9 @@ function addFaqCopyButtons(questions, form) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'faq-copy';
+    button.setAttribute('aria-live', 'polite');
     button.textContent = labels.copy;
+    button.setAttribute('aria-label', form.dataset.copyA11y.replace('{}', question.querySelector('summary').textContent));
     button.addEventListener('click', () => copyFaqLink(button, question, labels));
     question.append(button);
   });

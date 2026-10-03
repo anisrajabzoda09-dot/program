@@ -56,11 +56,11 @@
       <a href="#q-5">Android предупреждает: «установка неизвестных приложений». Что делать?</a>
     </nav>
 
-    <form class="faq-tools" role="search" data-faq-search data-copy-label="Скопировать ссылку" data-copied-label="Скопировано">
+    <form class="faq-tools" role="search" data-faq-search data-copy-label="Скопировать ссылку" data-copied-label="Скопировано" data-copy-a11y="Скопировать ссылку на вопрос: {}">
       <label for="faq-search">Поиск по вопросам и ответам <span class="faq-shortcut">Для поиска <kbd>/</kbd></span></label>
       <div class="faq-search-row">
-        <input id="faq-search" type="search" placeholder="Введите вопрос или слово…" autocomplete="off">
-        <output data-faq-count>20 из 20</output>
+        <input id="faq-search" type="search" placeholder="Введите вопрос или слово…" autocomplete="off" aria-describedby="faq-result-count">
+        <output id="faq-result-count" data-faq-count>20 из 20</output>
       </div>
       <div class="faq-actions">
         <button type="button" data-faq-expand>Развернуть все</button>

@@ -37,6 +37,19 @@
   color: var(--blue);
 }
 
+.faq-tools input:focus-visible,
+.faq-actions button:focus-visible,
+.faq-popular a:focus-visible,
+.faq-copy:focus-visible,
+.faq summary:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.faq summary:focus-visible {
+  border-radius: 8px;
+}
+
 .faq-tools label {
   display: flex;
   justify-content: space-between;
