@@ -1,4 +1,4 @@
-"""Re-export the route groups assembled by the FastAPI application."""
+"""Файл: содир кардани ҷузъҳои ин package барои истифода дар бахшҳои дигар."""
 
 from app.routers.public import router as public_router
 from app.routers.auth import router as auth_router

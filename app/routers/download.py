@@ -1,4 +1,4 @@
-"""Generate APK QR codes and serve the current Android package with analytics."""
+"""Файл: download-и APK ва санҷиши version-и mobile."""
 
 import os
 import io
@@ -15,7 +15,7 @@ from app.crud.crud_analytics import log_analytics_event
 router = APIRouter(tags=["APK Download & QR"])
 
 def current_download_url(request: Request) -> str:
-    """Return a phone-reachable URL, even when page is opened on localhost."""
+    """Маълумоти ёрирасони current download url-ро омода карда, ба caller бармегардонад."""
     host = request.url.hostname or ""
     port = request.url.port or 8000
     if host not in {"127.0.0.1", "localhost", "0.0.0.0"}:
@@ -33,7 +33,7 @@ def current_download_url(request: Request) -> str:
 
 @router.get("/api/qr/download")
 def download_qr(request: Request):
-    """Generate high-contrast QR code image pointing to official APK download."""
+    """Дархости `GET /api/qr/download`-ро барои download qr коркард мекунад."""
     qr = qrcode.QRCode(error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=14, border=4)
     qr.add_data(current_download_url(request))
     qr.make(fit=True)
@@ -60,7 +60,7 @@ def download_qr(request: Request):
 @router.get("/download")
 @router.get("/download/android")
 def download_android_apk(request: Request, db: Session = Depends(get_db)):
-    """Serve official signed Android APK binary with real analytics tracking."""
+    """Дархости `GET /qr`-ро барои download android apk коркард мекунад."""
     forwarded = request.headers.get("X-Forwarded-For")
     client_ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
     ua = request.headers.get("user-agent", "")

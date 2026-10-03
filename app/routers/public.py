@@ -1,4 +1,4 @@
-"""Serve public marketing, SEO, health, and verification endpoints."""
+"""Файл: саҳифаҳои оммавӣ, SEO, health ва endpoint-ҳои verification."""
 
 import os
 from fastapi import APIRouter, Request, Response, Depends
@@ -18,7 +18,7 @@ templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
 @router.head("/robots.txt", include_in_schema=False)
 @router.get("/robots.txt", response_class=Response)
 def get_robots_txt():
-    """Return crawler access rules and the canonical sitemap location."""
+    """Дархости `GET /robots.txt`-ро барои get robots txt коркард мекунад."""
 
     content = """User-agent: *
 Allow: /
@@ -48,7 +48,7 @@ Host: https://nigohfamily.qobus.tj
 @router.head("/sitemap.xml", include_in_schema=False)
 @router.get("/sitemap.xml", response_class=Response)
 def get_sitemap_xml():
-    """Return the multilingual public-page sitemap for search engines."""
+    """Дархости `GET /sitemap.xml`-ро барои get sitemap xml коркард мекунад."""
 
     xml = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -202,7 +202,7 @@ def get_sitemap_xml():
 @router.head("/health", include_in_schema=False)
 @router.get("/health")
 def health_check(db: Session = Depends(get_db)):
-    """System health check and diagnostic monitoring endpoint"""
+    """Дархости `GET /health`-ро барои health check коркард мекунад."""
     db_ok = False
     try:
         db.execute(text("SELECT 1"))
@@ -236,7 +236,7 @@ SITE_LANGS = ("tg", "ru", "en")
 
 
 def _site_page(request: Request, name: str, active: str, lang: str = "tg", **context):
-    """Render a public page. Tajik lives at /, Russian at /ru/…, English at /en/…"""
+    """Саҳифаи оммавиро бо template ва забони мувофиқи URL месозад."""
     path = request.url.path
     base_path = path
     for prefix in ("/ru", "/en"):
@@ -270,11 +270,11 @@ _PAGES = [
 
 
 def _register_translated(lang: str) -> None:
-    """Register every public marketing page for one translated URL prefix."""
+    """Маълумоти ёрирасони register translated-ро омода карда, ба caller бармегардонад."""
 
     for suffix, name, active in _PAGES:
         def view(request: Request, db: Session = Depends(get_db), _name=name, _active=active):
-            """Render a registered translation and include reviews on its home page."""
+            """Маълумоти ёрирасони view-ро омода карда, ба caller бармегардонад."""
 
             extra = {}
             if _name == "home":
@@ -295,7 +295,7 @@ for _lang in ("ru", "en"):
 @router.head("/", include_in_schema=False)
 @router.get("/", response_class=HTMLResponse)
 def landing_page(request: Request, db: Session = Depends(get_db)):
-    """Render the Tajik home page with the newest parent testimonials."""
+    """Дархости `GET /`-ро барои landing саҳифа коркард мекунад."""
 
     reviews = [r.to_dict() for r in db.query(Review).order_by(Review.id.desc()).limit(6).all()]
     return _site_page(request, "home", "home", reviews=reviews)
@@ -304,7 +304,7 @@ def landing_page(request: Request, db: Session = Depends(get_db)):
 @router.head("/features", include_in_schema=False)
 @router.get("/features", response_class=HTMLResponse)
 def features_page(request: Request):
-    """Render the public overview of parental-control features."""
+    """Дархости `GET /features`-ро барои features саҳифа коркард мекунад."""
 
     return _site_page(request, "features", "features")
 
@@ -312,7 +312,7 @@ def features_page(request: Request):
 @router.head("/how-it-works", include_in_schema=False)
 @router.get("/how-it-works", response_class=HTMLResponse)
 def how_it_works_page(request: Request):
-    """Render the public setup and usage explanation page."""
+    """Дархости `GET /how-it-works`-ро барои how it works саҳифа коркард мекунад."""
 
     return _site_page(request, "how", "how")
 
@@ -320,7 +320,7 @@ def how_it_works_page(request: Request):
 @router.head("/security", include_in_schema=False)
 @router.get("/security", response_class=HTMLResponse)
 def security_page(request: Request):
-    """Render the public explanation of product security and privacy."""
+    """Дархости `GET /security`-ро барои security саҳифа коркард мекунад."""
 
     return _site_page(request, "security", "security")
 
@@ -328,7 +328,7 @@ def security_page(request: Request):
 @router.head("/faq", include_in_schema=False)
 @router.get("/faq", response_class=HTMLResponse)
 def faq_page(request: Request):
-    """Render answers to common product and installation questions."""
+    """Дархости `GET /faq`-ро барои faq саҳифа коркард мекунад."""
 
     return _site_page(request, "faq", "faq")
 
@@ -336,7 +336,7 @@ def faq_page(request: Request):
 @router.head("/get", include_in_schema=False)
 @router.get("/get", response_class=HTMLResponse)
 def get_app_page(request: Request):
-    """Render the public Android download and installation page."""
+    """Дархости `GET /get`-ро барои get app саҳифа коркард мекунад."""
 
     return _site_page(request, "get", "get")
 
@@ -345,7 +345,7 @@ def get_app_page(request: Request):
 @router.get("/3d", response_class=HTMLResponse)
 @router.get("/nigoh3d", response_class=HTMLResponse)
 def nigoh_3d_presentation(request: Request):
-    """Render the standalone interactive NIGOH 3D presentation."""
+    """Дархости `GET /3d`-ро барои nigoh 3d presentation коркард мекунад."""
 
     return templates.TemplateResponse(request=request, name="nigoh3d.html", context={})
 
@@ -354,7 +354,7 @@ def nigoh_3d_presentation(request: Request):
 @router.get("/weevolve", response_class=HTMLResponse)
 @router.get("/evolve", response_class=HTMLResponse)
 def weevolve_showcase_page(request: Request):
-    """Render the standalone WeEvolve product showcase."""
+    """Дархости `GET /weevolve`-ро барои weevolve showcase саҳифа коркард мекунад."""
 
     return templates.TemplateResponse(request=request, name="weevolve.html", context={})
 
@@ -362,7 +362,7 @@ def weevolve_showcase_page(request: Request):
 @router.head("/googleee0fc42c18bef62a.html", include_in_schema=False)
 @router.get("/googleee0fc42c18bef62a.html", response_class=Response)
 def google_verification_exact():
-    """Return the exact token required for one Search Console property."""
+    """Дархости `GET /googleee0fc42c18bef62a.html`-ро барои Google verification exact коркард мекунад."""
 
     return Response(
         content="google-site-verification: googleee0fc42c18bef62a.html\n",
@@ -373,7 +373,7 @@ def google_verification_exact():
 @router.head("/google4e211d699041db6f.html", include_in_schema=False)
 @router.get("/google4e211d699041db6f.html", response_class=Response)
 def google_verification_url_prefix():
-    """Return the token required for the URL-prefix Search Console property."""
+    """Дархости `GET /google4e211d699041db6f.html`-ро барои Google verification url prefix коркард мекунад."""
 
     return Response(
         content="google-site-verification: google4e211d699041db6f.html\n",

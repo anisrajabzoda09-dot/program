@@ -1,4 +1,4 @@
-"""Render the admin dashboard and expose protected child-management APIs."""
+"""Файл: dashboard-и admin ва API-и идоракунии фарзандон."""
 
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -17,7 +17,7 @@ router = APIRouter(tags=["Admin Panel"])
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
 
 class ChildUpdateRequest(BaseModel):
-    """Validate optional profile changes submitted by an administrator."""
+    """Маълумоти `ChildUpdateRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     child_id: int
     name: Optional[str] = None
@@ -26,13 +26,13 @@ class ChildUpdateRequest(BaseModel):
     device_name: Optional[str] = None
 
 class ChildDeleteRequest(BaseModel):
-    """Identify the child profile an administrator intends to delete."""
+    """Маълумоти `ChildDeleteRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     child_id: int
 
 @router.get("/admin", response_class=HTMLResponse)
 def admin_dashboard(request: Request, db: Session = Depends(get_db)):
-    """Render live dashboard metrics for an authenticated administrator."""
+    """Дархости `GET /admin`-ро барои admin dashboard коркард мекунад."""
 
     user = get_current_user(request)
     if not user or user.get("role") != "admin":
@@ -46,7 +46,7 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/api/admin/stats")
 def api_admin_stats(request: Request, db: Session = Depends(get_db)):
-    """Return live platform and family metrics to an administrator."""
+    """Дархости `GET /api/admin/stats`-ро барои admin stats коркард мекунад."""
 
     user = get_current_user(request)
     if not user or user.get("role") != "admin":
@@ -55,7 +55,7 @@ def api_admin_stats(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/api/admin/child/update")
 def api_admin_update_child(payload: ChildUpdateRequest, request: Request, db: Session = Depends(get_db)):
-    """Update child name and attributes from Admin Panel."""
+    """Дархости `POST /api/admin/child/update`-ро барои admin update фарзанд коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     user = get_current_user(request)
     if not user or user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Дастрасӣ танҳо барои сармудир")
@@ -74,7 +74,7 @@ def api_admin_update_child(payload: ChildUpdateRequest, request: Request, db: Se
 
 @router.post("/api/admin/child/delete")
 def api_admin_delete_child(payload: ChildDeleteRequest, request: Request, db: Session = Depends(get_db)):
-    """Delete a child and related records after administrator authorization."""
+    """Дархости `POST /api/admin/child/delete`-ро барои admin delete фарзанд коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = get_current_user(request)
     if not user or user.get("role") != "admin":
