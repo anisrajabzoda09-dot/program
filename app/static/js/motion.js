@@ -7,6 +7,18 @@
   var reduced = reduceQuery.matches;
   var revealItems = [];
 
+  /* External links: isolate any cross-origin destination supplied by page blocks. */
+  function secureExternalLinks() {
+    document.querySelectorAll('a[href]').forEach(function (link) {
+      var target = new URL(link.href, location.href);
+      if (target.origin !== location.origin) {
+        link.relList.add('noopener');
+        link.relList.add('noreferrer');
+      }
+    });
+  }
+  secureExternalLinks();
+
   /* Language links: carry the current in-page destination across translations. */
   function syncLanguageHashes() {
     document.querySelectorAll('.lang-switch a').forEach(function (link) {
