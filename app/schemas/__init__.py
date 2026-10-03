@@ -1,4 +1,4 @@
-"""Re-export Pydantic request schemas shared by the API route modules."""
+"""Файл: schema-ҳои Pydantic барои санҷиши payload-ҳои `__init__`."""
 
 from app.schemas.auth import UserRegister, UserLogin, GoogleAuthRequest
 from app.schemas.mobile import (

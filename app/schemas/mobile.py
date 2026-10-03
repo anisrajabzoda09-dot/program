@@ -1,22 +1,22 @@
-"""Define and validate payloads used by legacy and current mobile APIs."""
+"""Файл: schema-ҳои Pydantic барои санҷиши payload-ҳои `mobile`."""
 
 from datetime import date, datetime
 from pydantic import BaseModel, Field, field_validator
 from typing import Any, Dict, List, Literal, Optional
 
 class RoleSelectRequest(BaseModel):
-    """Carry the family role selected for the current device."""
+    """Маълумоти `RoleSelectRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     role: str = Field(..., description="'parent' or 'child'")
 
 class ChildCreateRequest(BaseModel):
-    """Describe the minimal child profile a parent can create."""
+    """Маълумоти `ChildCreateRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     name: str
     device_name: Optional[str] = "Телефони Android"
 
 class ChildProfileSetupRequest(BaseModel):
-    """Validate child identity and device details during initial setup."""
+    """Маълумоти `ChildProfileSetupRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     name: str
     gender: str = "boy"  # 'boy' or 'girl'
@@ -24,31 +24,31 @@ class ChildProfileSetupRequest(BaseModel):
     device_name: Optional[str] = "Телефони Android"
 
 class PairScanRequest(BaseModel):
-    """Carry a scanned pairing code and an optional child label."""
+    """Маълумоти `PairScanRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     pairing_code: str
     child_name: Optional[str] = None
 
 class PairRequest(BaseModel):
-    """Carry the child-device code used for family pairing."""
+    """Маълумоти `PairRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     pairing_code: str
 
 class AppRuleToggleRequest(BaseModel):
-    """Identify an app and its requested blocked state."""
+    """Маълумоти `AppRuleToggleRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     package_name: str
     is_blocked: bool
 
 class AppLimitRequest(BaseModel):
-    """Identify an app and its requested daily allowance in minutes."""
+    """Маълумоти `AppLimitRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     package_name: str
     daily_limit_minutes: int
 
 
 class AppSchedule(BaseModel):
-    """Validate a recurring time window and its enabled weekdays."""
+    """Маълумоти `AppSchedule`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     enabled: bool = False
     start: str = "16:00"
@@ -58,7 +58,7 @@ class AppSchedule(BaseModel):
     @field_validator("start", "end")
     @classmethod
     def validate_time(cls, value: str) -> str:
-        """Normalize valid 24-hour times to zero-padded HH:MM form."""
+        """Барои гирифтан ё санҷидани validate вақт истифода мешавад."""
 
         parts = value.strip().split(":")
         if len(parts) != 2:
@@ -71,7 +71,7 @@ class AppSchedule(BaseModel):
     @field_validator("weekdays")
     @classmethod
     def validate_weekdays(cls, value: List[int]) -> List[int]:
-        """Reject invalid days and return a sorted unique weekday list."""
+        """Барои гирифтан ё санҷидани validate weekdays истифода мешавад."""
 
         if not value or any(day not in range(1, 8) for day in value):
             raise ValueError("Рӯзҳо бояд аз 1 то 7 бошанд")
@@ -79,7 +79,7 @@ class AppSchedule(BaseModel):
 
 
 class AppControlUpdateRequest(BaseModel):
-    """Collect optional blocking, limit, schedule, and exemption changes."""
+    """Маълумоти `AppControlUpdateRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     is_blocked: Optional[bool] = None
     daily_limit_minutes: Optional[int] = Field(default=None, ge=0, le=1440)
@@ -88,7 +88,7 @@ class AppControlUpdateRequest(BaseModel):
 
 
 class UsageReportItem(BaseModel):
-    """Validate one app's daily usage total and last-use time."""
+    """Маълумоти `UsageReportItem`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     package_name: str = Field(..., min_length=1, max_length=255)
     minutes: int = Field(..., ge=0, le=1440)
@@ -96,14 +96,14 @@ class UsageReportItem(BaseModel):
 
 
 class UsageReportRequest(BaseModel):
-    """Group application usage readings for one reporting date."""
+    """Маълумоти `UsageReportRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     usage_date: Optional[date] = None
     apps: List[UsageReportItem] = Field(default_factory=list)
 
 
 class TimeExtensionRequest(BaseModel):
-    """Describe a child's extra-time request or a parent's decision on it."""
+    """Маълумоти `TimeExtensionRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     request_id: Optional[int] = None
     package_name: str = Field(..., min_length=1, max_length=255)
@@ -113,19 +113,19 @@ class TimeExtensionRequest(BaseModel):
 
 
 class AppBundleCreateRequest(BaseModel):
-    """Validate an admin-supplied dynamic mobile configuration patch."""
+    """Маълумоти `AppBundleCreateRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     min_native_code: int = Field(default=24, ge=1)
     patch_type: Literal["config", "ui_schema", "assets", "full_bundle"] = "config"
     payload: Dict[str, Any] = Field(default_factory=dict)
 
 class AdultFilterToggleRequest(BaseModel):
-    """Carry the requested adult-content filtering state for a child."""
+    """Маълумоти `AdultFilterToggleRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     block_adult_content: bool
 
 class LocationUpdateRequest(BaseModel):
-    """Validate a legacy child location, battery, and connectivity report."""
+    """Маълумоти `LocationUpdateRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
@@ -134,7 +134,7 @@ class LocationUpdateRequest(BaseModel):
     is_online: Optional[bool] = True
 
 class SendChatMessageRequest(BaseModel):
-    """Describe a legacy family chat message or voice-message duration."""
+    """Маълумоти `SendChatMessageRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     message_type: str = "text"  # 'text', 'voice', 'urgent'
     content: str
@@ -142,7 +142,7 @@ class SendChatMessageRequest(BaseModel):
 
 
 class InstalledAppReportItem(BaseModel):
-    """Validate one installed app and optional usage metadata from a phone."""
+    """Маълумоти `InstalledAppReportItem`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     package_name: str = Field(..., min_length=1, max_length=255)
     app_name: str = Field(default="", max_length=255)
@@ -153,13 +153,13 @@ class InstalledAppReportItem(BaseModel):
 
 
 class InstalledAppsSyncRequest(BaseModel):
-    """Group the complete installed-app inventory reported by a child phone."""
+    """Маълумоти `InstalledAppsSyncRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     apps: List[InstalledAppReportItem] = Field(default_factory=list)
 
 
 class MobilePairCodeRequest(BaseModel):
-    """Validate child details used when generating a mobile pairing code."""
+    """Маълумоти `MobilePairCodeRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     child_name: str = Field(default="Фарзанд", min_length=1, max_length=120)
     gender: str = Field(default="boy", max_length=20)
@@ -167,19 +167,19 @@ class MobilePairCodeRequest(BaseModel):
 
 
 class MobilePairRequest(BaseModel):
-    """Validate the code a parent submits to pair a child device."""
+    """Маълумоти `MobilePairRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     pairing_code: str = Field(..., min_length=6, max_length=32)
 
 
 class MobileLinkExistingRequest(BaseModel):
-    """Identify an existing parent account for legacy Firebase linking."""
+    """Маълумоти `MobileLinkExistingRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     parent_firebase_uid: str = Field(..., min_length=10, max_length=200)
 
 
 class MobileLocationRequest(BaseModel):
-    """Validate a current location, accuracy, speed, battery, and online report."""
+    """Маълумоти `MobileLocationRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
@@ -191,7 +191,7 @@ class MobileLocationRequest(BaseModel):
 
 
 class MobileChatRequest(BaseModel):
-    """Validate a current text, voice, urgent, or call chat message."""
+    """Маълумоти `MobileChatRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     content: str = Field(..., min_length=1, max_length=4_000)
     message_type: str = Field(default="text", pattern="^(text|voice|urgent|call)$")
