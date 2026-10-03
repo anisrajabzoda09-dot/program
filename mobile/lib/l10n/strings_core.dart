@@ -118,6 +118,19 @@ const Map<String, List<String>> coreStrings = {
   'ё': ['или', 'or'],
   'Идома бо Google': ['Продолжить с Google', 'Continue with Google'],
   'Идома бо Apple': ['Продолжить с Apple', 'Continue with Apple'],
+  'Идома бо GitHub': ['Продолжить с GitHub', 'Continue with GitHub'],
+  'Воридшавӣ бо GitHub ҳоло дастрас нест.': [
+    'Вход через GitHub сейчас недоступен.',
+    'Sign in with GitHub is not available right now.',
+  ],
+  'Воридшавӣ бо GitHub нашуд. Аз нав кӯшиш кунед.': [
+    'Не удалось войти через GitHub. Попробуйте ещё раз.',
+    'GitHub sign-in failed. Please try again.',
+  ],
+  'GitHub почтаи тасдиқшударо надод. Почтаи худро дар GitHub тасдиқ кунед ва аз нав кӯшиш кунед.': [
+    'GitHub не передал подтверждённую почту. Подтвердите свою почту на GitHub и попробуйте ещё раз.',
+    'GitHub did not share a verified e-mail. Verify your e-mail on GitHub and try again.',
+  ],
   'Воридшавӣ бо Apple нашуд. {details}': [
     'Не удалось войти через Apple. {details}',
     'Apple sign-in failed. {details}',

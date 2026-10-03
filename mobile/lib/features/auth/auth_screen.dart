@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../core/session.dart';
+import '../../ui/github_mark.dart';
 import '../../ui/widgets.dart';
 import 'brand_logo.dart';
 import '../../l10n/l10n.dart';
@@ -48,7 +49,13 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
   Timer? _appleResumeTimer;
 
   /// Any sign-in in progress (blocks the other buttons).
-  bool get anyBusy => busy || googleBusy || appleBusy;
+  /// Дуруст, вақте ки воридшавӣ бо GitHub идома дорад.
+  bool githubBusy = false;
+
+  /// Дуруст, вақте ки сервер мегӯяд воридшавӣ бо GitHub фаъол аст.
+  bool githubEnabled = false;
+
+  bool get anyBusy => busy || googleBusy || appleBusy || githubBusy;
 
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -56,7 +63,10 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAppleConfig());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAppleConfig();
+      _loadGitHubConfig();
+    });
   }
 
   /// Asks the server once whether to show the Apple button; hidden on error.
@@ -67,6 +77,16 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
       if (mounted) setState(() => appleEnabled = config.enabled);
     } catch (_) {
       if (mounted) setState(() => appleEnabled = false);
+    }
+  }
+
+  /// Як бор аз сервер мепурсад, ки тугмаи GitHub-ро нишон диҳад ё не; дар хато пинҳон мемонад.
+  Future<void> _loadGitHubConfig() async {
+    try {
+      final config = await SessionScope.read(context).api.githubConfig();
+      if (mounted) setState(() => githubEnabled = config.enabled);
+    } catch (_) {
+      if (mounted) setState(() => githubEnabled = false);
     }
   }
 
@@ -133,6 +153,22 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
       if (mounted) showMessage(context, e, error: true);
     } finally {
       if (mounted) setState(() => googleBusy = false);
+    }
+  }
+
+  /// Воридшавӣ бо GitHub-ро иҷро мекунад: агар корбар бекор кунад — хомӯш, хатоҳои дигар нишон дода мешаванд.
+  Future<void> github() async {
+    if (anyBusy) return;
+    final session = SessionScope.read(context);
+    setState(() => githubBusy = true);
+    try {
+      await session.signInWithGitHub();
+    } on GitHubSignInCancelled {
+      // Корбар худаш баргашт — паём лозим нест.
+    } catch (e) {
+      if (mounted) showMessage(context, e, error: true);
+    } finally {
+      if (mounted) setState(() => githubBusy = false);
     }
   }
 
@@ -470,6 +506,34 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
                               )
                             : const Icon(Icons.apple, size: 24),
                         label: Text(tr('Идома бо Apple')),
+                      ),
+                    ),
+                  ],
+                  if (githubEnabled) ...[
+                    const SizedBox(height: 12),
+                    FadeIn(
+                      index: 3,
+                      child: FilledButton.icon(
+                        key: const Key('auth.github'),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          backgroundColor: const Color(0xFF24292F),
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: const Color(0x9924292F),
+                          disabledForegroundColor: Colors.white70,
+                        ),
+                        onPressed: anyBusy ? null : github,
+                        icon: githubBusy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const GitHubMark(size: 20),
+                        label: Text(tr('Идома бо GitHub')),
                       ),
                     ),
                   ],
