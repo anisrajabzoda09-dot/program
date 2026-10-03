@@ -1,6 +1,5 @@
-// Flutter host activity and the bridge between Dart and Android: method/event
-// channels for updates, device control (apps, usage, permissions, rules, PIN,
-// uninstall), package events and notifications.
+// Файл: Activity-и асосии Flutter ва пули байни Dart ва Android;
+// навсозӣ, идораи дастгоҳ, PIN, package event ва огоҳиномаҳоро мепайвандад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -40,13 +39,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * The app's only activity. Registers every platform channel the Flutter code
- * uses, starts the app-block service when its permissions are granted, and
- * forwards notification launches (calls, SOS, messages) to Dart.
+ * platform channel-ҳои Flutter-ро сабт мекунад, хидмати бастани барномаҳоро
+ * оғоз менамояд ва кушодашавии занг, SOS ва паёмро ба Dart мерасонад.
  */
 class MainActivity : FlutterActivity() {
+    /** Сабти муваққатии кушодашавиҳои автоматиро барои пешгирии такрор нигоҳ медорад. */
     companion object {
-        /** Automatic call/SOS launches already delivered (key → elapsedRealtime). */
+        /** Занг ё SOS-и аллакай расонидашударо бо elapsedRealtime нигоҳ медорад. */
         private val recentAutoLaunches = HashMap<String, Long>()
     }
 
@@ -60,8 +59,9 @@ class MainActivity : FlutterActivity() {
     private var packageReceiverRegistered = false
     private var notifyChannel: MethodChannel? = null
     private var pendingLaunch: Map<String, Any?>? = null
-    /** Forwards app install/remove/update broadcasts to Dart via package_events. */
+    /** Broadcast-и насб, нест ё нав шудани барномаро ба Dart мефиристад. */
     private val packageReceiver = object : BroadcastReceiver() {
+        /** Тағйири package-ро гирифта, номи онро ба package_events мерасонад. */
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 Intent.ACTION_PACKAGE_ADDED,
@@ -72,8 +72,7 @@ class MainActivity : FlutterActivity() {
         }
     }
     /**
-     * Registers the update, update-progress, device-control, package-events and
-     * notify channels with their handlers.
+     * Channel-ҳои навсозӣ, идораи дастгоҳ, package event ва огоҳиномаро бо handler-ҳояшон сабт мекунад.
      */
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -101,12 +100,15 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        /** StreamHandler-и пешрафти навсозиро барои пайваст ва қатъ шудани listener идора мекунад. */
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, "tj.nigoh/update_progress")
             .setStreamHandler(object : EventChannel.StreamHandler {
+                /** Listener-и пешрафти навсозиро ба EventChannel мепайвандад. */
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
                     AppUpdater.listener = { event -> events.success(event) }
                 }
 
+                /** Ҳангоми қатъи stream listener-и навсозиро хориҷ мекунад. */
                 override fun onCancel(arguments: Any?) {
                     AppUpdater.listener = null
                 }
@@ -154,8 +156,7 @@ class MainActivity : FlutterActivity() {
                         result.success(true)
                     }
                     "openAccessibilitySettingsDirect" -> {
-                        // Straight to Accessibility (the wizard handles the
-                        // other special permissions as separate steps).
+                        // Бевосита Accessibility мекушояд; wizard иҷозатҳои дигарро ҷудо идора мекунад.
                         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                         result.success(true)
                     }
@@ -205,7 +206,7 @@ class MainActivity : FlutterActivity() {
                             AppBlockMonitorService.PREFS_NAME,
                             Context.MODE_PRIVATE
                         ).edit()
-                            // Persist the complete snapshot before starting the monitor.
+                            // Пеш аз monitor snapshot-и пурраи қоидаҳо нигоҳ дошта мешавад.
                             .putString(AppBlockMonitorService.RULES_KEY, rules.toString())
                             .putStringSet(AppBlockMonitorService.BLOCKED_KEY, blocked)
                             .apply()
@@ -266,8 +267,10 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+        /** StreamHandler-и тағйири package-ҳоро сабт ва ҳангоми қатъ receiver-ро хориҷ мекунад. */
         EventChannel(flutterEngine.dartExecutor.binaryMessenger, packageEventsChannelName)
             .setStreamHandler(object : EventChannel.StreamHandler {
+                /** Receiver-и package-ро сабт карда, EventSink-ро барои event-ҳо нигоҳ медорад. */
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                     packageEventSink = events
                     if (packageReceiverRegistered) return
@@ -286,6 +289,7 @@ class MainActivity : FlutterActivity() {
                     packageReceiverRegistered = true
                 }
 
+                /** Stream-и package-ро қатъ карда, receiver-ро хориҷ мекунад. */
                 override fun onCancel(arguments: Any?) {
                     packageEventSink = null
                     unregisterPackageReceiver()
@@ -293,7 +297,7 @@ class MainActivity : FlutterActivity() {
             })
     }
 
-    /** Stops listening for package changes if the receiver is registered. */
+    /** Агар receiver сабт бошад, шунидани тағйири package-ҳоро қатъ мекунад. */
     private fun unregisterPackageReceiver() {
         if (packageReceiverRegistered) {
             unregisterReceiver(packageReceiver)
@@ -301,7 +305,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Lists launcher apps off the main thread and returns them to Dart. */
+    /** Барномаҳои launcher-ро берун аз main thread хонда, ба Dart бармегардонад. */
     private fun getInstalledAppsAsync(result: MethodChannel.Result) {
         activityScope.launch {
             val apps = withContext(Dispatchers.IO) {
@@ -312,8 +316,7 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Installed launcher apps (name, package, system flag, 48 px icon), sorted
-     * by name, excluding NIGOH itself.
+     * Барномаҳои launcher-ро бо ном, package, нишони system ва icon-и 48 px ҷамъ мекунад.
      */
     private fun installedLauncherApps(): List<Map<String, Any>> {
         val launcherIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
@@ -343,7 +346,7 @@ class MainActivity : FlutterActivity() {
             .sortedBy { (it["name"] as String).lowercase() }
     }
 
-    /** Renders an app icon to a 48 px PNG encoded as Base64. */
+    /** Icon-и барномаро ба PNG-и 48 px ва Base64 табдил медиҳад. */
     private fun drawableToBase64(drawable: Drawable): String {
         val size = 48
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -356,7 +359,7 @@ class MainActivity : FlutterActivity() {
         }.also { bitmap.recycle() }
     }
 
-    /** Today's foreground minutes per app from Android's usage stats. */
+    /** Дақиқаҳои истифодаи имрӯзаи ҳар барномаро аз Android мегирад. */
     private fun todayUsageStats(): List<Map<String, Any>> {
         val manager = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = java.util.Calendar.getInstance().apply {
@@ -365,8 +368,7 @@ class MainActivity : FlutterActivity() {
             set(java.util.Calendar.SECOND, 0)
             set(java.util.Calendar.MILLISECOND, 0)
         }
-        // queryUsageStats returns several overlapping buckets per package;
-        // the aggregated call gives one entry per app for today.
+        // Query-и ҷамъбастӣ барои ҳар барнома танҳо як сабти имрӯза медиҳад.
         val stats = runCatching {
             manager.queryAndAggregateUsageStats(
                 calendar.timeInMillis,
@@ -384,7 +386,7 @@ class MainActivity : FlutterActivity() {
             }
     }
 
-    /** Converts the Dart rule maps/lists into JSON for the native blocker. */
+    /** map ва list-и қоидаҳои Dart-ро барои blocker ба JSON табдил медиҳад. */
     private fun jsonForRules(value: Any?): Any = when (value) {
         null -> JSONObject.NULL
         is Map<*, *> -> {
@@ -402,7 +404,7 @@ class MainActivity : FlutterActivity() {
         else -> value
     }
 
-    /** Whether usage access, overlay and accessibility are all granted. */
+    /** Дода шудани usage access, overlay ва Accessibility-ро якҷо месанҷад. */
     private fun isBlockServiceEnabled(): Boolean {
         return AppBlockMonitorService.hasUsageAccess(this) &&
             Settings.canDrawOverlays(this) &&
@@ -410,8 +412,7 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Opens the next missing protection setting, or starts the service when
-     * everything is granted.
+     * Танзими иҷозати навбатии норасоро мекушояд ё баъди пурра будан хидматро оғоз мекунад.
      */
     private fun openNextProtectionSetting() {
         if (!AppBlockMonitorService.hasUsageAccess(this)) {
@@ -434,7 +435,7 @@ class MainActivity : FlutterActivity() {
         startProtectionService()
     }
 
-    /** Opens usage-access settings for this app (generic screen as fallback). */
+    /** Танзими usage access-и барномаро бо fallback-и экрани умумӣ мекушояд. */
     private fun openUsageAccessSettings() {
         val appIntent = Intent(
             Settings.ACTION_USAGE_ACCESS_SETTINGS,
@@ -448,10 +449,10 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Status of every permission/protection NIGOH needs plus device info, for
-     * the Flutter permission screens.
+     * Вазъи ҳамаи иҷозатҳо ва маълумоти дастгоҳро барои экранҳои Flutter ҷамъ мекунад.
      */
     private fun protectionStatus(): Map<String, Any> {
+        /** Дода шудани иҷозати Android-ро месанҷад. */
         fun granted(permission: String) =
             checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
         val location = granted(android.Manifest.permission.ACCESS_FINE_LOCATION) ||
@@ -478,7 +479,7 @@ class MainActivity : FlutterActivity() {
         )
     }
 
-    /** Starts the app-block monitor as a (foreground) service. */
+    /** Monitor-и бастани барномаҳоро ҳамчун foreground service оғоз мекунад. */
     private fun startProtectionService() {
         val intent = Intent(this, AppBlockMonitorService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -488,25 +489,24 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Starts protection if allowed and records a notification launch on cold start. */
+    /** Ҳангоми сохтани Activity муҳофизатро оғоз ва intent-и огоҳиномаро сабт мекунад. */
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
         if (isBlockServiceEnabled()) startProtectionService()
         if (savedInstanceState == null) handleNotifyIntent(intent, deliver = false)
     }
 
-    /** Delivers a notification launch that arrived while the app was running. */
+    /** Intent-и нави огоҳиномаро ҳангоми кори барнома ба Flutter мерасонад. */
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleNotifyIntent(intent, deliver = true)
     }
 
-    // ------------------------------------------------ notifications bridge
+    // Пули огоҳиномаҳо байни Android ва Flutter.
 
     /**
-     * Handles the tj.nigoh/notify channel: start/stop the notification service,
-     * permission status, full-screen settings, launch action and ringing.
+     * Channel-и tj.nigoh/notify-ро барои хидмат, иҷозат, full-screen ва занг танзим мекунад.
      */
     private fun configureNotifyChannel(flutterEngine: FlutterEngine) {
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "tj.nigoh/notify")
@@ -542,7 +542,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Whether notifications and full-screen intents are allowed. */
+    /** Иҷозати огоҳинома ва full-screen intent-ро месанҷад. */
     private fun notifyPermissionStatus(): Map<String, Boolean> {
         val enabled = androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled()
         val fullScreen = if (Build.VERSION.SDK_INT >= 34) {
@@ -554,8 +554,7 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Opens the full-screen-intent setting (or the closest notification/app
-     * settings screen on older Android).
+     * Танзими full-screen intent ё экрани наздиктарини огоҳиномаро мекушояд.
      */
     private fun openFullScreenSettings(): Boolean {
         val intent = if (Build.VERSION.SDK_INT >= 34) {
@@ -578,7 +577,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Reads NotifyService launch extras; delivers to Dart or keeps them for getLaunchAction. */
+    /** Extra-ҳои NotifyService-ро хонда, ба Dart мерасонад ё муваққатан нигоҳ медорад. */
     private fun handleNotifyIntent(intent: Intent?, deliver: Boolean) {
         val kind = intent?.getStringExtra(NotifyService.EXTRA_KIND) ?: return
         val childId = intent.getIntExtra(NotifyService.EXTRA_CHILD_ID, -1)
@@ -593,12 +592,10 @@ class MainActivity : FlutterActivity() {
             "acceptCall" to accept,
             "fullScreen" to fullScreen,
         )
-        // Consume the extras so a recreate/rotation does not replay them.
+        // Extra пок мешавад, то recreate ё rotation онро такрор накунад.
         intent.removeExtra(NotifyService.EXTRA_KIND)
 
-        // The same call/SOS can arrive twice automatically: NotifyService opens
-        // the app directly (overlay permission) and the full-screen intent may
-        // fire too. Deliver only the first automatic launch; taps always pass.
+        // Занг ё SOS метавонад аз service ва full-screen intent ду бор ояд; танҳо якумаш расонида мешавад.
         if (fullScreen && (kind == "call" || kind == "sos")) {
             val key = if (kind == "call") "call:$callId" else "sos:$childId"
             val now = android.os.SystemClock.elapsedRealtime()
@@ -621,9 +618,9 @@ class MainActivity : FlutterActivity() {
                 )
             }
         }
-        // Opening the SOS card (not the automatic full-screen launch) silences the alarm.
+        // Кушодани корти SOS бо пахш alarm-ро хомӯш мекунад.
         if (kind == "sos" && !fullScreen) NotifyService.instance?.stopAlarm()
-        // «Қабул»: the call screen takes over, stop the ringtone and the card.
+        // Баъди «Қабул» экрани занг ringtone ва корти огоҳиномаро мегирад.
         if (kind == "call" && accept) NotifyService.instance?.stopCallRinging(callId.takeIf { it >= 0 })
 
         val channel = notifyChannel
@@ -635,13 +632,11 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Restarts protection after the user returns from settings and resumes an
-     * update that was waiting for the install-unknown-apps permission.
+     * Баъди бозгашт аз Settings муҳофизат ва навсозии мунтазири иҷозати насбро идома медиҳад.
      */
     override fun onResume() {
         super.onResume()
-        // Special permissions are granted outside the app. Resume monitoring
-        // as soon as the user returns, without requiring an app restart.
+        // Иҷозатҳои махсус берун аз барнома дода мешаванд; monitor баъди бозгашт идома меёбад.
         if (isBlockServiceEnabled()) runCatching { startProtectionService() }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             pendingUpdateUrl != null && packageManager.canRequestPackageInstalls()
@@ -653,14 +648,14 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Cancels background work and the package receiver. */
+    /** Кори background-ро қатъ ва package receiver-ро хориҷ мекунад. */
     override fun onDestroy() {
         activityScope.cancel()
         unregisterPackageReceiver()
         super.onDestroy()
     }
 
-    /** Installed version code of the app. */
+    /** version code-и насбшудаи барномаро мегирад. */
     private fun versionCode(): Long {
         val info = packageManager.getPackageInfo(packageName, 0)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -671,14 +666,13 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    /** Installed version name of the app. */
+    /** version name-и насбшудаи барномаро мегирад. */
     private fun versionName(): String {
         return packageManager.getPackageInfo(packageName, 0).versionName ?: "0.0.0"
     }
 
     /**
-     * Asks the server for the latest release and returns it (with an absolute
-     * download URL) to Dart.
+     * Версияи охиринро аз сервер гирифта, бо URL-и мутлақи боргирӣ ба Dart медиҳад.
      */
     private fun checkForUpdate(baseUrl: String, result: MethodChannel.Result) {
         activityScope.launch {
@@ -719,8 +713,7 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Starts the APK update, first asking for the install-unknown-apps permission
-     * when needed.
+     * Навсозии APK-ро оғоз карда, агар лозим бошад иҷозати unknown apps мепурсад.
      */
     private fun startUpdate(url: String, version: String, result: MethodChannel.Result) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
@@ -743,8 +736,7 @@ class MainActivity : FlutterActivity() {
 
 
     /**
-     * Removes device-admin protection and opens Android's uninstall dialog
-     * (called only after the parent PIN was verified).
+     * Баъди санҷиши PIN ҳифзи device admin-ро гирифта, равзанаи uninstall-ро мекушояд.
      */
     private fun uninstallWithParentPin() {
         val policy = getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
@@ -758,14 +750,14 @@ class MainActivity : FlutterActivity() {
         }, 350L)
     }
 
-    /** Converts a JSONObject into a map for the Flutter channel. */
+    /** JSONObject-ро барои Flutter channel ба map табдил медиҳад. */
     private fun jsonObjectToMap(json: JSONObject): HashMap<String, Any?> {
         val map = hashMapOf<String, Any?>()
         json.keys().forEach { key -> map[key] = jsonValue(json.get(key)) }
         return map
     }
 
-    /** Converts a JSON value (object, array, null) into channel-friendly types. */
+    /** Қимати JSON-ро ба навъҳои мувофиқи platform channel табдил медиҳад. */
     private fun jsonValue(value: Any?): Any? = when (value) {
         JSONObject.NULL -> null
         is JSONObject -> jsonObjectToMap(value)
