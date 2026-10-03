@@ -406,3 +406,19 @@ p { margin: 0; text-wrap: pretty; }
 img[src*="hero_phone_clean"] {
   clip-path: inset(0.4% 1.2% 0 5.2% round 13% 13% 0 0 / 9% 9% 0 0);
 }
+
+/* ---------- Print ---------- */
+@media print {
+  .site-header, .site-footer, .nav-toggle, .nav-actions, .lang-switch,
+  .theme-switch, .back-to-top, .scroll-progress { display: none !important; }
+  :root, :root[data-theme="dark"] { color-scheme: light; }
+  body, main, .section, .section-sm, .card, .screen, .cta {
+    background: #ffffff !important; color: #000000 !important; box-shadow: none !important;
+  }
+  *, *::before, *::after { color: #000000 !important; }
+  a[href]:not([href^="#"])::after {
+    content: " (" attr(href) ")"; font-size: .85em; font-weight: 400; overflow-wrap: anywhere;
+  }
+  a { text-decoration: underline; }
+  @page { margin: 16mm; }
+}
