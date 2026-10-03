@@ -60,6 +60,13 @@ function initFaqSearch() {
   const total = groups.reduce((sum, group) => sum + group.querySelectorAll('details').length, 0);
 
   form.addEventListener('submit', (event) => event.preventDefault());
+  document.addEventListener('keydown', (event) => {
+    const isTyping = event.target.matches('input, textarea, select, [contenteditable="true"]');
+    if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
+      event.preventDefault();
+      input.focus();
+    }
+  });
   input.addEventListener('input', () => {
     const query = normalizeFaqText(input.value);
 
