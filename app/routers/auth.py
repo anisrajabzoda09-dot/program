@@ -1,4 +1,4 @@
-"""Handle browser registration, login, logout, and Google / Apple / GitHub OAuth sessions."""
+"""Файл: бақайдгирӣ, воридшавӣ, баромадан ва OAuth-и website."""
 
 import json
 import secrets
@@ -32,13 +32,13 @@ OAUTH_STATES: Dict[str, Dict[str, Any]] = {}
 
 
 def _google_configured() -> bool:
-    """Report whether both credentials needed for browser Google OAuth exist."""
+    """Маълумоти ёрирасони Google configured-ро омода карда, ба caller бармегардонад."""
 
     return bool(settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET)
 
 
 def _safe_next_path(next_path: Optional[str]) -> str:
-    """Accept only local redirect paths to prevent open redirects."""
+    """Маълумоти ёрирасони бехатар next path-ро омода карда, ба caller бармегардонад."""
 
     if next_path and next_path.startswith("/") and not next_path.startswith("//"):
         return next_path
@@ -46,14 +46,14 @@ def _safe_next_path(next_path: Optional[str]) -> str:
 
 
 def _request_is_https(request: Request) -> bool:
-    """Detect HTTPS directly or through a trusted reverse-proxy header."""
+    """Маълумоти ёрирасони дархост is https-ро омода карда, ба caller бармегардонад."""
 
     forwarded_scheme = request.headers.get("x-forwarded-proto", "").split(",", 1)[0].strip()
     return request.url.scheme == "https" or forwarded_scheme == "https"
 
 
 def _prune_oauth_states() -> None:
-    """Discard expired one-time OAuth state records from memory."""
+    """prune OAuth states-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     cutoff = time.time() - settings.GOOGLE_OAUTH_STATE_MAX_AGE
     for state, record in list(OAUTH_STATES.items()):
@@ -62,7 +62,7 @@ def _prune_oauth_states() -> None:
 
 
 def _set_session_cookie(response: Response, request: Request, user_dict: dict) -> None:
-    """Create a web session and attach its protected cookie to a response."""
+    """set session cookie-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     token = create_session(user_dict)
     response.set_cookie(
@@ -76,7 +76,7 @@ def _set_session_cookie(response: Response, request: Request, user_dict: dict) -
 
 
 def _google_userinfo_from_access_token(access_token: str) -> dict:
-    """Fetch and validate the Google profile represented by an access token."""
+    """Маълумоти ёрирасони Google userinfo from access token-ро омода карда, ба caller бармегардонад."""
 
     try:
         with httpx.Client(timeout=10.0) as client:
@@ -101,7 +101,7 @@ def _google_userinfo_from_access_token(access_token: str) -> dict:
 
 
 def _exchange_google_code(code: str) -> dict:
-    """Exchange an OAuth authorization code and return verified Google profile data."""
+    """Маълумоти ёрирасони exchange Google code-ро омода карда, ба caller бармегардонад."""
 
     try:
         with httpx.Client(timeout=10.0) as client:
@@ -130,7 +130,7 @@ def _exchange_google_code(code: str) -> dict:
 
 
 def _sign_in_google_user(request: Request, response: Response, db: Session, userinfo: dict) -> dict:
-    """Upsert a Google-backed account and establish its browser session."""
+    """Маълумоти ёрирасони sign in Google корбар-ро омода карда, ба caller бармегардонад."""
 
     user_obj = upsert_google_user(
         db=db,
@@ -145,7 +145,7 @@ def _sign_in_google_user(request: Request, response: Response, db: Session, user
 
 @router.get("/auth", response_class=HTMLResponse)
 def auth_page(request: Request):
-    """Render the localized sign-in page or redirect an existing session."""
+    """Дархости `GET /auth`-ро барои auth саҳифа коркард мекунад."""
 
     user = get_current_user(request)
     if user:
@@ -163,7 +163,7 @@ def auth_page(request: Request):
 
 @router.post("/api/auth/register")
 def api_register(payload: UserRegister, request: Request, response: Response, db: Session = Depends(get_db)):
-    """Register a parent account and start an authenticated browser session."""
+    """Дархости `POST /api/auth/register`-ро барои register коркард мекунад."""
 
     # Rate limit registration attempts to mitigate spam bots
     check_rate_limit(request, action="register", max_requests=10, window_seconds=60)
@@ -195,7 +195,7 @@ def api_register(payload: UserRegister, request: Request, response: Response, db
 
 @router.post("/api/auth/login")
 def api_login(payload: UserLogin, request: Request, response: Response, db: Session = Depends(get_db)):
-    """Verify local credentials and start a rate-limited browser session."""
+    """Дархости `POST /api/auth/login`-ро барои login коркард мекунад."""
 
     # Anti brute-force protection
     check_rate_limit(request, action="login", max_requests=15, window_seconds=60)
@@ -224,11 +224,7 @@ def api_login(payload: UserLogin, request: Request, response: Response, db: Sess
 
 @router.post("/api/auth/google")
 def api_google_auth(payload: GoogleAuthRequest, request: Request, response: Response, db: Session = Depends(get_db)):
-    """Exchange a real Google access token for a NIGOH session.
-
-    The browser OAuth flow uses ``/auth/google/callback``; this endpoint remains
-    for trusted mobile clients that already completed Google sign-in.
-    """
+    """Дархости `POST /api/auth/google`-ро барои Google auth коркард мекунад."""
     check_rate_limit(request, action="google", max_requests=10, window_seconds=60)
     userinfo = _google_userinfo_from_access_token(payload.token)
     user_dict = _sign_in_google_user(request, response, db, userinfo)
@@ -237,7 +233,7 @@ def api_google_auth(payload: GoogleAuthRequest, request: Request, response: Resp
 
 @router.get("/auth/google/login")
 def google_login(request: Request, next: str = "/"):
-    """Start browser OAuth with a short-lived state and safe return path."""
+    """Дархости `GET /auth/google/login`-ро барои Google login коркард мекунад."""
 
     if not _google_configured():
         return RedirectResponse("/auth?google=not_configured", status_code=303)
@@ -281,7 +277,7 @@ def google_callback(
     state: Optional[str] = None,
     error: Optional[str] = None,
 ):
-    """Validate the OAuth callback, sign in the user, and redirect safely."""
+    """Дархости `GET /auth/google/callback`-ро барои Google callback коркард мекунад."""
 
     if error:
         return RedirectResponse("/auth?google=cancelled", status_code=303)
@@ -305,14 +301,14 @@ APPLE_STATE_COOKIE = "apple_oauth_state"
 
 
 def _apple_auth_page(lang: str, status: str) -> str:
-    """URL of the sign-in page in the visitor's language with an Apple status flag."""
+    """Маълумоти ёрирасони Apple auth саҳифа-ро омода карда, ба caller бармегардонад."""
     query = f"apple={status}"
     return f"/auth?lang={lang}&{query}" if lang in ("ru", "en") else f"/auth?{query}"
 
 
 @router.get("/auth/apple/login")
 def apple_login(request: Request, next: str = "/", lang: str = "tg"):
-    """Start Sign in with Apple: remember a one-time state + nonce and redirect to Apple."""
+    """Дархости `GET /auth/apple/login`-ро барои Apple login коркард мекунад."""
     if not apple_auth.apple_configured():
         return RedirectResponse(_apple_auth_page(lang, "not_configured"), status_code=303)
     _prune_oauth_states()
@@ -341,7 +337,7 @@ def apple_callback(
     user: Optional[str] = Form(None),
     error: Optional[str] = Form(None),
 ):
-    """Finish the web flow: check state, exchange the code, verify the token, sign the user in."""
+    """Дархости `POST /auth/apple/callback`-ро барои Apple callback коркард мекунад."""
     _prune_oauth_states()
     record = OAUTH_STATES.pop(state, None) if state else None
     lang = (record or {}).get("lang", "tg")
@@ -372,12 +368,7 @@ def apple_callback(
 
 @router.post("/auth/apple/android")
 async def apple_android_bridge(request: Request):
-    """Hand Apple's form_post result back to the Android app (Sign in with Apple web flow).
-
-    The Android plugin opens Apple in a browser tab with this URL as redirect;
-    we bounce the posted fields to the app through an intent:// link for our
-    package only. The app then sends the identity token to the mobile API.
-    """
+    """Дархости `POST /auth/apple/android`-ро барои Apple android bridge коркард мекунад."""
     form = await request.form()
     allowed = {k: str(v) for k, v in form.items() if k in ("code", "id_token", "state", "user", "error")}
     target = (f"intent://callback?{urlencode(allowed)}#Intent;"
@@ -389,12 +380,12 @@ GITHUB_STATE_COOKIE = "github_oauth_state"
 
 
 def _github_auth_page(lang: str, status: str) -> str:
-    """URL of the sign-in page in the visitor's language with a GitHub status flag."""
+    """Маълумоти ёрирасони GitHub auth саҳифа-ро омода карда, ба caller бармегардонад."""
     return f"/auth?lang={lang}&github={status}" if lang in ("ru", "en") else f"/auth?github={status}"
 
 
 def _github_redirect(request: Request, record: dict) -> RedirectResponse:
-    """Send the browser to GitHub's consent page and bind the one-time state to a cookie."""
+    """Маълумоти ёрирасони GitHub redirect-ро омода карда, ба caller бармегардонад."""
     _prune_oauth_states()
     state = secrets.token_urlsafe(32)
     OAUTH_STATES[state] = {"created_at": time.time(), "provider": "github", **record}
@@ -407,13 +398,13 @@ def _github_redirect(request: Request, record: dict) -> RedirectResponse:
 
 
 def _app_return(query: str) -> RedirectResponse:
-    """Hand the phone flow back to the app through its custom URL scheme."""
+    """Маълумоти ёрирасони app return-ро омода карда, ба caller бармегардонад."""
     return RedirectResponse(f"{settings.GITHUB_APP_SCHEME}://auth/github?{query}", status_code=303)
 
 
 @router.get("/auth/github/login")
 def github_login(request: Request, next: str = "/", lang: str = "tg"):
-    """Start Sign in with GitHub for the website."""
+    """Дархости `GET /auth/github/login`-ро барои GitHub login коркард мекунад."""
     if not github_auth.github_configured():
         return RedirectResponse(_github_auth_page(lang, "not_configured"), status_code=303)
     return _github_redirect(request, {"next": _safe_next_path(next), "lang": lang, "mobile": False})
@@ -421,11 +412,7 @@ def github_login(request: Request, next: str = "/", lang: str = "tg"):
 
 @router.get("/auth/github/mobile")
 def github_mobile_start(request: Request, nonce_hash: str = ""):
-    """Start Sign in with GitHub for the phone app (opened in a browser tab by the app).
-
-    The app keeps a random nonce and sends only its SHA-256 here; the ticket
-    issued at the end can be redeemed only together with the raw nonce.
-    """
+    """Дархости `GET /auth/github/mobile`-ро барои GitHub start коркард мекунад."""
     if not github_auth.github_configured():
         return _app_return("error=not_configured")
     if len(nonce_hash) != 64 or any(ch not in "0123456789abcdef" for ch in nonce_hash):
@@ -441,13 +428,14 @@ def github_callback(
     state: Optional[str] = None,
     error: Optional[str] = None,
 ):
-    """Finish GitHub sign-in: check state, fetch the verified identity, then sign in (web) or issue an app ticket."""
+    """Дархости `GET /auth/github/callback`-ро барои GitHub callback коркард мекунад."""
     _prune_oauth_states()
     record = OAUTH_STATES.pop(state, None) if state else None
     mobile = bool(record and record.get("mobile"))
     lang = (record or {}).get("lang", "tg")
 
     def fail(status: str) -> RedirectResponse:
+        """Маълумоти ёрирасони fail-ро омода карда, ба caller бармегардонад."""
         return _app_return(f"error={status}") if mobile else RedirectResponse(_github_auth_page(lang, status), status_code=303)
 
     if error:
@@ -472,7 +460,7 @@ def github_callback(
 
 @router.get("/logout")
 def logout(request: Request, response: Response):
-    """Remove the active in-memory session and clear its browser cookie."""
+    """Дархости `GET /logout`-ро барои logout коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     token = request.cookies.get(settings.SESSION_COOKIE_NAME)
     if token in SESSIONS:
