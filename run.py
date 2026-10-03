@@ -1,11 +1,11 @@
-"""Start the local FastAPI server on an available development port."""
+"""Файл: оғоз кардани FastAPI server-и маҳаллӣ ва интихоби port-и озод."""
 
 import uvicorn
 import os
 import socket
 
 def find_available_port(default_port=8080):
-    """Return the first bindable port from the preferred development choices."""
+    """Аввалин port-и озоди development-ро меёбад."""
 
     for port in [default_port, 8000, 8081, 8888, 5000]:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

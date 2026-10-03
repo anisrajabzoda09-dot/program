@@ -1,4 +1,4 @@
-"""Assemble the FastAPI application, middleware, startup, and route modules."""
+"""Файл: ҷамъ кардани FastAPI app, middleware, startup ва ҳамаи router-ҳо."""
 
 import os
 from fastapi import FastAPI, Request
@@ -46,7 +46,7 @@ app.add_middleware(
 # 2. Advanced Security Headers & Analytics Tracking Middleware
 @app.middleware("http")
 async def security_and_analytics_middleware(request: Request, call_next):
-    """Track public visits and add browser security headers to every response."""
+    """Маълумоти ёрирасони security and омор middleware-ро омода карда, ба caller бармегардонад."""
 
     # Extract client IP supporting Nginx reverse proxy
     forwarded = request.headers.get("X-Forwarded-For")
@@ -88,7 +88,7 @@ app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 # 4. Startup Database Initialization
 @app.on_event("startup")
 async def on_startup():
-    """Initialize persistent data and expand capacity for mobile long polling."""
+    """on startup-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     init_db()
     # Phones keep long-poll requests open (notifications, call signaling);
@@ -105,7 +105,7 @@ from app.core.i18n import request_lang, translate  # noqa: E402
 
 @app.exception_handler(_HTTPException)
 async def localized_http_exception(request: Request, exc: _HTTPException):
-    """Translate mobile HTTP errors into the language requested by the phone."""
+    """Маълумоти ёрирасони localized http exception-ро омода карда, ба caller бармегардонад."""
 
     if request.url.path.startswith("/api/mobile") and isinstance(exc.detail, str):
         exc = _HTTPException(
