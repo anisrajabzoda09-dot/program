@@ -56,6 +56,14 @@ void main() {
     final session = Session(
       api: NigohApi(
         client: MockClient((request) async {
+          // The GitHub config call is covered by github_sign_in_test.dart.
+          if (request.url.path == '/api/mobile/v3/auth/github/config') {
+            return json({
+              'enabled': false,
+              'start_url': null,
+              'callback_scheme': null,
+            });
+          }
           requests.add(request);
           if (request.url.path == '/api/mobile/v3/auth/apple/config') {
             return json(config, configStatus);
