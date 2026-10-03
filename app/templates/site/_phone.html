@@ -1,0 +1,95 @@
+{#- Hero phone: the NIGOH Family parent home screen inside a modern 19.5:9 handset.
+    Included by home.html in every language; texts come from PH below. Styles: /static/css/phone.css -#}
+{%- set PH = {
+  'tg': {
+         'usage': 'Вақти экран имрӯз', 'u1': '45 дақ', 'u2': '30 дақ', 'blocked': 'Баста', 'limit': 'аз 1 соат','alt': 'Экрани асосии волидайн дар NIGOH Family: корти фарзанд, харита, вақти экран, барномаҳои манъшуда ва дархости вақт',
+         'hello': 'Салом, Мунис!', 'safe': 'Оилаи шумо дар амният аст', 'child': 'Алиҷон',
+         'device': 'Samsung Galaxy A54 · Дар мактаб', 'online': 'Онлайн', 'battery': 'Батарея 88%',
+         'live': 'Ҷойгиршавии зинда', 'place': 'Мактаби №24', 'updated': 'Навсозӣ 1 дақиқа пеш',
+         't1': 'Ҷойгиршавӣ', 'v1': 'Дар мактаб', 't2': 'Вақти экран', 'v2': '2с 14д', 't3': 'Барномаҳо', 'v3': '3 маҳкам',
+         'req': 'Дархости вақт', 'req_text': 'Алиҷон барои YouTube 15 дақ мепурсад', 'deny': 'Рад', 'allow': 'Иҷозат',
+         'nav': ['Оила', 'Барномаҳо', 'Харита', 'Чат', 'Танзимот']},
+  'ru': {
+         'usage': 'Экранное время сегодня', 'u1': '45 мин', 'u2': '30 мин', 'blocked': 'Закрыто', 'limit': 'из 1 ч','alt': 'Главный экран родителя в NIGOH Family: карточка ребёнка, карта, экранное время, заблокированные приложения и запрос времени',
+         'hello': 'Привет, Мунис!', 'safe': 'Ваша семья в безопасности', 'child': 'Алиджон',
+         'device': 'Samsung Galaxy A54 · В школе', 'online': 'Онлайн', 'battery': 'Батарея 88%',
+         'live': 'Живая геолокация', 'place': 'Школа №24', 'updated': 'Обновлено 1 мин назад',
+         't1': 'Место', 'v1': 'В школе', 't2': 'Экран', 'v2': '2 ч 14 мин', 't3': 'Приложения', 'v3': '3 закрыто',
+         'req': 'Запрос времени', 'req_text': 'Алиджон просит 15 мин для YouTube', 'deny': 'Отказать', 'allow': 'Разрешить',
+         'nav': ['Семья', 'Приложения', 'Карта', 'Чат', 'Настройки']},
+  'en': {
+         'usage': 'Screen time today', 'u1': '45 min', 'u2': '30 min', 'blocked': 'Blocked', 'limit': 'of 1 h','alt': 'NIGOH Family parent home screen: child card, map, screen time, blocked apps and a time request',
+         'hello': 'Hi, Munis!', 'safe': 'Your family is safe', 'child': 'Alijon',
+         'device': 'Samsung Galaxy A54 · At school', 'online': 'Online', 'battery': 'Battery 88%',
+         'live': 'Live location', 'place': 'School No. 24', 'updated': 'Updated 1 min ago',
+         't1': 'Location', 'v1': 'At school', 't2': 'Screen time', 'v2': '2h 14m', 't3': 'Apps', 'v3': '3 blocked',
+         'req': 'Time request', 'req_text': 'Alijon asks for 15 min of YouTube', 'deny': 'Deny', 'allow': 'Allow',
+         'nav': ['Family', 'Apps', 'Map', 'Chat', 'Settings']},
+}[lang | default('tg')] -%}
+<div class="nphone{{ ' nphone--compact' if phone_size == 'compact' }}" role="img" aria-label="{{ PH.alt }}">
+  <div class="nphone__screen" aria-hidden="true">
+    <div class="nphone__island"></div>
+    <div class="nphone__status">
+      <span>09:41</span>
+      <span class="nphone__status-icons">
+        <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg>
+        <svg viewBox="0 0 16 12"><path d="M8 11.5 5.6 8.8a3.4 3.4 0 0 1 4.8 0L8 11.5Zm-4.2-4.7a6 6 0 0 1 8.4 0l1.3-1.4a7.9 7.9 0 0 0-11 0l1.3 1.4ZM1 4a10 10 0 0 1 14 0l1-1.2A11.8 11.8 0 0 0 0 2.8L1 4Z" fill="currentColor"/></svg>
+        <svg viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="17" height="8" rx="2" fill="#34c759"/><rect x="25" y="4.5" width="2" height="4" rx="1" fill="currentColor" opacity=".45"/></svg>
+      </span>
+    </div>
+    <div class="nphone__body">
+      <div class="nphone__row">
+        <span class="nphone__logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5 4.5 5.4v5.7c0 4.6 3.1 8.7 7.5 10.4 4.4-1.7 7.5-5.8 7.5-10.4V5.4L12 2.5Z" fill="currentColor" opacity=".25"/><circle cx="9.4" cy="10.2" r="2" fill="currentColor"/><circle cx="14.6" cy="10.2" r="2" fill="currentColor"/><path d="M6.6 16c.5-2 1.6-3 2.8-3s2.3 1 2.6 3m-.6 0c.4-2 1.5-3 2.8-3s2.3 1 2.8 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+        <div class="nphone__grow"><div class="nphone__title">{{ PH.hello }}</div><div class="nphone__sub">{{ PH.safe }}</div></div>
+        <span class="nphone__plus">+</span>
+      </div>
+      <div class="nphone__card nphone__row">
+        <span class="nphone__avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path d="M3.8 21c.9-4.1 4.1-6.4 8.2-6.4s7.3 2.3 8.2 6.4" fill="currentColor"/></svg></span>
+        <div class="nphone__grow"><div class="nphone__name">{{ PH.child }}</div><div class="nphone__sub">{{ PH.device }}</div></div>
+        <div class="nphone__side"><span class="nphone__pill"><span class="nphone__dot"></span>{{ PH.online }}</span><div class="nphone__battery">{{ PH.battery }}</div></div>
+      </div>
+      <div class="nphone__map">
+        <svg class="nphone__map-art" viewBox="0 0 300 140" preserveAspectRatio="xMidYMid slice">
+          <rect width="300" height="140" fill="var(--ph-map)"/>
+          <ellipse cx="248" cy="28" rx="58" ry="30" fill="var(--ph-park)"/>
+          <ellipse cx="40" cy="120" rx="46" ry="26" fill="var(--ph-park)"/>
+          <path d="M-10 108 C60 96 110 128 170 112 S260 70 320 84" fill="none" stroke="var(--ph-water)" stroke-width="9" stroke-linecap="round"/>
+          <path d="M-10 52 C70 40 140 76 210 50 S290 30 320 38" fill="none" stroke="var(--ph-road-edge)" stroke-width="17" stroke-linecap="round"/>
+          <path d="M-10 52 C70 40 140 76 210 50 S290 30 320 38" fill="none" stroke="var(--ph-road)" stroke-width="13" stroke-linecap="round"/>
+          <path d="M120 -10 C112 40 136 90 118 150" fill="none" stroke="var(--ph-road-edge)" stroke-width="12"/>
+          <path d="M120 -10 C112 40 136 90 118 150" fill="none" stroke="var(--ph-road)" stroke-width="8"/>
+          <path d="M196 -10 L214 150" fill="none" stroke="var(--ph-road-edge)" stroke-width="9"/>
+          <path d="M196 -10 L214 150" fill="none" stroke="var(--ph-road)" stroke-width="5.5"/>
+          <path d="M0 86 L300 96" fill="none" stroke="var(--ph-road)" stroke-width="4" opacity=".9"/>
+        </svg>
+        <span class="nphone__chip"><span class="nphone__dot"></span>{{ PH.live }}</span>
+        <span class="nphone__pin"><svg viewBox="0 0 30 38"><path d="M15 37c-1-3.5-12-13-12-21.5a12 12 0 0 1 24 0C27 24 16 33.5 15 37Z" fill="var(--ph-blue)"/><circle cx="15" cy="15.5" r="6.4" fill="#fff"/><circle cx="15" cy="15.5" r="3.6" fill="var(--ph-mint)"/></svg></span>
+        <span class="nphone__place"><span><b>{{ PH.place }}</b><small>{{ PH.updated }}</small></span><span class="nphone__check"><svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+      </div>
+      <div class="nphone__tiles">
+        <div class="nphone__tile nphone__tile--blue"><i><svg viewBox="0 0 16 16"><path d="M8 15s5-4.6 5-8.6A5 5 0 0 0 3 6.4C3 10.4 8 15 8 15Z" fill="currentColor"/><circle cx="8" cy="6.4" r="1.8" fill="var(--ph-blue)"/></svg></i><span>{{ PH.t1 }}</span><b>{{ PH.v1 }}</b></div>
+        <div class="nphone__tile nphone__tile--mint"><i><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 4.8V8l2.2 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></i><span>{{ PH.t2 }}</span><b>{{ PH.v2 }}</b></div>
+        <div class="nphone__tile nphone__tile--violet"><i><svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5.2 7V5.4a2.8 2.8 0 0 1 5.6 0V7" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></i><span>{{ PH.t3 }}</span><b>{{ PH.v3 }}</b></div>
+      </div>
+      <div class="nphone__card nphone__usage">
+        <div class="nphone__usage-title">{{ PH.usage }}</div>
+        <div class="nphone__app"><i class="nphone__app-ico nphone__app-ico--yt"><svg viewBox="0 0 16 16"><path d="M6 4.8v6.4l5.2-3.2L6 4.8Z" fill="#fff"/></svg></i><span class="nphone__grow"><b>YouTube</b><span class="nphone__bar"><span style="--v:75%" class="is-warn"></span></span></span><em>{{ PH.u1 }} <small>{{ PH.limit }}</small></em></div>
+        <div class="nphone__app"><i class="nphone__app-ico nphone__app-ico--tg"><svg viewBox="0 0 16 16"><path d="m2.6 7.6 9.8-3.9c.5-.2.9.1.8.7l-1.7 7.8c-.1.5-.5.6-.9.4L8 10.9l-1.3 1.3c-.1.1-.3.2-.5.2l.2-2.7 4.8-4.4c.2-.2 0-.3-.3-.1L5 8.9 2.5 8.1c-.5-.2-.5-.5.1-.5Z" fill="#fff"/></svg></i><span class="nphone__grow"><b>Telegram</b><span class="nphone__bar"><span style="--v:50%"></span></span></span><em>{{ PH.u2 }}</em></div>
+        <div class="nphone__app"><i class="nphone__app-ico nphone__app-ico--rb"><svg viewBox="0 0 16 16"><path d="M4.4 2.6 13.4 5 11 14 2 11.6l2.4-9Zm3.1 4.1-.5 1.9 1.9.5.5-1.9-1.9-.5Z" fill="#fff"/></svg></i><span class="nphone__grow"><b>Roblox</b><span class="nphone__bar"><span style="--v:0%"></span></span></span><em class="is-blocked">{{ PH.blocked }}</em></div>
+      </div>
+      <div class="nphone__card nphone__req">
+        <div class="nphone__req-title"><svg viewBox="0 0 16 16" width="12" height="12"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 4.6V8l2 1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>{{ PH.req }}</div>
+        <p>{{ PH.req_text }}</p>
+        <div class="nphone__req-actions"><span class="nphone__btn nphone__btn--ghost">{{ PH.deny }}</span><span class="nphone__btn nphone__btn--primary">{{ PH.allow }}</span></div>
+      </div>
+    </div>
+    <div class="nphone__nav">
+      <span class="is-active"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="7.5" r="3" fill="currentColor"/><circle cx="16" cy="9" r="2.4" fill="currentColor"/><path d="M3 19c.6-3.6 2.8-5.6 5.5-5.6s4.9 2 5.5 5.6M13.4 19c.4-2.6 1.8-4.2 3.6-4.2s3.2 1.6 3.6 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>{{ PH.nav[0] }}</span>
+      <span><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="4.5" height="4.5" rx="1.2"/><rect x="9.75" y="4" width="4.5" height="4.5" rx="1.2"/><rect x="15.5" y="4" width="4.5" height="4.5" rx="1.2"/><rect x="4" y="9.75" width="4.5" height="4.5" rx="1.2"/><rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1.2"/><rect x="15.5" y="9.75" width="4.5" height="4.5" rx="1.2"/><rect x="4" y="15.5" width="4.5" height="4.5" rx="1.2"/><rect x="9.75" y="15.5" width="4.5" height="4.5" rx="1.2"/><rect x="15.5" y="15.5" width="4.5" height="4.5" rx="1.2"/></svg>{{ PH.nav[1] }}</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 6.5 9 4l6 2.5 5.5-2.5v13.5L15 20l-6-2.5-5.5 2.5V6.5Z"/><path d="M9 4v13.5M15 6.5V20"/></svg>{{ PH.nav[2] }}</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z"/></svg>{{ PH.nav[3] }}</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8M18.5 18.5l-1.8-1.8M7.3 7.3 5.5 5.5"/></svg>{{ PH.nav[4] }}</span>
+    </div>
+    <div class="nphone__home"></div>
+  </div>
+</div>
