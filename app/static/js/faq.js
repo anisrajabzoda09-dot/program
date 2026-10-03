@@ -47,6 +47,21 @@ function highlightFaqMatches(query) {
   });
 }
 
+// Assigns predictable fragment identifiers to every FAQ question.
+function assignFaqIds(questions) {
+  questions.forEach((question, index) => { question.id = `q-${index + 1}`; });
+}
+
+// Opens and scrolls to the question named by the current URL fragment.
+function openFaqHash() {
+  const id = decodeURIComponent(window.location.hash.slice(1));
+  if (!/^q-\d+$/.test(id)) return;
+  const question = document.getElementById(id);
+  if (!question) return;
+  question.open = true;
+  question.scrollIntoView({ block: 'center' });
+}
+
 // Filters questions and hides section headings that have no matches.
 function initFaqSearch() {
   const form = document.querySelector('[data-faq-search]');
@@ -61,6 +76,9 @@ function initFaqSearch() {
   const questions = Array.from(document.querySelectorAll('.faq details'));
   const expand = form.querySelector('[data-faq-expand]');
   const collapse = form.querySelector('[data-faq-collapse]');
+
+  assignFaqIds(questions);
+  if (window.location.hash) requestAnimationFrame(openFaqHash);
 
   form.addEventListener('submit', (event) => event.preventDefault());
   expand?.addEventListener('click', () => questions.filter((question) => !question.hidden).forEach((question) => { question.open = true; }));
