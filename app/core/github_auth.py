@@ -1,6 +1,4 @@
-"""Sign in with GitHub: OAuth code exchange, profile + verified e-mail lookup, account linking,
-and one-time login tickets that hand a finished browser sign-in back to the phone app.
-"""
+"""Файл: воридшавӣ бо GitHub, профил ва ticket-и яккаратаи app."""
 
 import hashlib
 import secrets
@@ -19,28 +17,24 @@ TICKETS: Dict[str, dict] = {}
 
 
 def github_configured() -> bool:
-    """Report whether the OAuth App credentials for GitHub sign-in are present."""
+    """Мавҷуд будани credential-ҳои GitHub OAuth-ро месанҷад."""
     return bool(settings.GITHUB_CLIENT_ID and settings.GITHUB_CLIENT_SECRET)
 
 
 def sha256_hex(value: str) -> str:
-    """SHA-256 hex digest; the app sends this hash first and the raw value last."""
+    """Барои қимат hash-и SHA-256-и hexadecimal месозад."""
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
 def _api_get(path: str, token: str) -> httpx.Response:
-    """GET a GitHub REST API path with the user's access token."""
+    """Бо access token ба GitHub REST API дархости GET мефиристад."""
     return httpx.get(f"{settings.GITHUB_API}{path}", timeout=10, headers={
         "Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "NIGOH-Family"})
 
 
 def fetch_identity(code: str) -> dict:
-    """Exchange the OAuth code and return {id, login, name, avatar, email} with a VERIFIED e-mail.
-
-    Raises HTTP errors with user-facing messages; refuses accounts without a
-    verified e-mail because the e-mail is used to link existing accounts.
-    """
+    """OAuth code-и GitHub-ро иваз карда, профил ва email-и тасдиқшударо мегирад."""
     try:
         token_resp = httpx.post(settings.GITHUB_TOKEN_ENDPOINT, timeout=10, headers={"Accept": "application/json"},
                                 data={"client_id": settings.GITHUB_CLIENT_ID, "client_secret": settings.GITHUB_CLIENT_SECRET,
@@ -65,7 +59,7 @@ def fetch_identity(code: str) -> dict:
 
 
 def upsert_github_user(db: Session, identity: dict) -> User:
-    """Find or create the account for a GitHub identity (GitHub id first, then verified e-mail)."""
+    """Ҳисоби GitHub-ро меёбад ё сохта, маълумоти онро сабт мекунад."""
     user = db.query(User).filter(User.github_id == identity["id"]).first()
     if user is None:
         user = db.query(User).filter(User.email == identity["email"]).first()
@@ -84,7 +78,7 @@ def upsert_github_user(db: Session, identity: dict) -> User:
 
 
 def _prune_tickets() -> None:
-    """Forget login tickets older than GITHUB_TICKET_MAX_AGE seconds."""
+    """Ticket-ҳои кӯҳнаи воридшавиро аз хотира пок мекунад."""
     cutoff = time.time() - settings.GITHUB_TICKET_MAX_AGE
     for ticket, record in list(TICKETS.items()):
         if record["created_at"] < cutoff:
@@ -92,7 +86,7 @@ def _prune_tickets() -> None:
 
 
 def issue_ticket(user_id: int, nonce_hash: str) -> str:
-    """Create a short-lived, single-use ticket the app can trade for a session."""
+    """Барои app ticket-и кӯтоҳмуддат ва яккарата месозад."""
     _prune_tickets()
     ticket = secrets.token_urlsafe(32)
     TICKETS[ticket] = {"user_id": user_id, "nonce_hash": nonce_hash, "created_at": time.time()}
@@ -100,7 +94,7 @@ def issue_ticket(user_id: int, nonce_hash: str) -> str:
 
 
 def redeem_ticket(ticket: str, nonce: str) -> int:
-    """Consume a ticket (once) if the raw nonce matches the hash given at the start; return the user id."""
+    """Ticket ва nonce-ро як бор санҷида, ID-и корбарро медиҳад."""
     _prune_tickets()
     record = TICKETS.pop(ticket, None)
     if record is None or not secrets.compare_digest(record["nonce_hash"], sha256_hex(nonce)):

@@ -1,10 +1,4 @@
-"""Sign in with Apple: client-secret signing, code exchange, token checks, account linking.
-
-Used by both the website (OAuth redirect flow) and the phone app (identity
-token sent to the mobile API). Apple identity tokens are RS256 JWTs signed with
-keys published at APPLE_KEYS_ENDPOINT; our client secret is an ES256 JWT signed
-with the developer's .p8 key.
-"""
+"""Файл: воридшавӣ бо Apple, санҷиши token ва пайваст кардани ҳисоб."""
 
 import hashlib
 import time
@@ -24,7 +18,7 @@ _JWKS: Optional[jwt.PyJWKClient] = None
 
 
 def apple_private_key() -> str:
-    """Return the .p8 private key text from settings or the configured file ('' if none)."""
+    """Калиди хусусии .p8-и Apple-ро аз танзимот ё файл мехонад."""
     if settings.APPLE_PRIVATE_KEY.strip():
         return settings.APPLE_PRIVATE_KEY
     if settings.APPLE_PRIVATE_KEY_PATH and Path(settings.APPLE_PRIVATE_KEY_PATH).is_file():
@@ -33,19 +27,19 @@ def apple_private_key() -> str:
 
 
 def apple_configured() -> bool:
-    """Report whether every value needed for Sign in with Apple is present."""
+    """Мавҷуд будани ҳамаи танзимоти Sign in with Apple-ро месанҷад."""
     return bool(settings.APPLE_CLIENT_ID and settings.APPLE_TEAM_ID and settings.APPLE_KEY_ID
                 and apple_private_key())
 
 
 def apple_audiences() -> list:
-    """Client ids whose identity tokens we accept: the Services ID plus any mobile ids."""
+    """Client ID-ҳои иҷозатдодашудаи Apple token-ро ҷамъ мекунад."""
     extra = [a.strip() for a in settings.APPLE_MOBILE_CLIENT_IDS.split(",") if a.strip()]
     return [a for a in [settings.APPLE_CLIENT_ID, *extra] if a]
 
 
 def client_secret(now: Optional[int] = None) -> str:
-    """Build the short-lived ES256 client secret Apple requires at its token endpoint."""
+    """Барои Apple client secret-и кӯтоҳмуддати ES256 месозад."""
     issued = int(now or time.time())
     return jwt.encode(
         {"iss": settings.APPLE_TEAM_ID, "iat": issued, "exp": issued + 300,
@@ -57,12 +51,12 @@ def client_secret(now: Optional[int] = None) -> str:
 
 
 def nonce_hash(nonce: str) -> str:
-    """SHA-256 hex of a nonce; native/plugin flows send this hashed value to Apple."""
+    """Барои nonce hash-и SHA-256 месозад."""
     return hashlib.sha256(nonce.encode("utf-8")).hexdigest()
 
 
 def _jwks_client() -> jwt.PyJWKClient:
-    """Return the shared client that downloads and caches Apple's public signing keys."""
+    """Client-и муштаракро барои калидҳои имзои Apple медиҳад."""
     global _JWKS
     if _JWKS is None:
         _JWKS = jwt.PyJWKClient(settings.APPLE_KEYS_ENDPOINT, cache_keys=True, lifespan=3600)
@@ -70,10 +64,7 @@ def _jwks_client() -> jwt.PyJWKClient:
 
 
 def verify_identity_token(token: str, audiences: Iterable[str], nonce: Optional[str] = None) -> dict:
-    """Check an Apple identity token (signature, issuer, audience, expiry, nonce) and return its claims.
-
-    Raises HTTP 401 with a user-facing message when anything does not match.
-    """
+    """Имзо, issuer, audience, мӯҳлат ва nonce-и Apple token-ро месанҷад."""
     try:
         key = _jwks_client().get_signing_key_from_jwt(token).key
         claims = jwt.decode(token, key, algorithms=["RS256"], audience=list(audiences),
@@ -86,7 +77,7 @@ def verify_identity_token(token: str, audiences: Iterable[str], nonce: Optional[
 
 
 def exchange_code(code: str, redirect_uri: str) -> str:
-    """Trade an authorization code for Apple's identity token (web flow); returns the id_token."""
+    """Authorization code-и Apple-ро ба identity token иваз мекунад."""
     try:
         response = httpx.post(
             settings.APPLE_TOKEN_ENDPOINT,
@@ -103,13 +94,7 @@ def exchange_code(code: str, redirect_uri: str) -> str:
 
 
 def upsert_apple_user(db: Session, claims: dict, full_name: Optional[str] = None) -> User:
-    """Find or create the account for an Apple identity and keep it linked.
-
-    Match order: the stable Apple id first, then a verified email (Apple
-    always verifies, but private-relay addresses only match relay accounts),
-    otherwise create a new parent-to-be account. Apple sends the person's name
-    only on the very first sign-in, so it is saved when present.
-    """
+    """Ҳисоби Apple-ро меёбад ё сохта, пайванди онро дар пойгоҳи додаҳо нигоҳ медорад."""
     apple_id = claims["sub"]
     email = (claims.get("email") or "").strip().lower()
     verified = str(claims.get("email_verified", "")).lower() == "true" or claims.get("email_verified") is True

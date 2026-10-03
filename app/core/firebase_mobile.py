@@ -1,10 +1,4 @@
-"""Small Firebase ID-token bridge for the mobile REST API.
-
-The mobile client still uses Firebase Authentication for sign-in, but all
-family data is handled by our FastAPI/SQLAlchemy service. Token validation is
-done by Google's Identity Toolkit API, so the server never trusts a UID sent
-by the client and never needs Firebase Realtime Database permissions.
-"""
+"""Файл: санҷиши Firebase ID token барои API-и mobile."""
 
 from typing import Optional
 
@@ -17,7 +11,7 @@ from app.models.user import User
 
 
 def _bearer(request: Request) -> str:
-    """Extract a nonempty Firebase bearer token or reject the request."""
+    """Firebase bearer token-ро мегирад ё request-ро рад мекунад."""
 
     header = request.headers.get("Authorization", "")
     if not header.startswith("Bearer "):
@@ -32,7 +26,7 @@ def _bearer(request: Request) -> str:
 
 
 def _lookup(token: str) -> dict:
-    """Validate a Firebase token with Google and return normalized identity data."""
+    """Firebase token-ро бо Google санҷида, identity-ро омода мекунад."""
 
     if not settings.FIREBASE_WEB_API_KEY:
         raise HTTPException(status_code=503, detail="Firebase token verification танзим нашудааст")
@@ -62,7 +56,7 @@ def _lookup(token: str) -> dict:
 
 
 def require_firebase_user(request: Request, db: Session) -> dict:
-    """Validate the bearer token and return the local SQLAlchemy user dict."""
+    """Firebase token-ро санҷида, корбари маҳаллиро медиҳад."""
     identity = _lookup(_bearer(request))
     user = db.query(User).filter(User.firebase_uid == identity["firebase_uid"]).first()
     if user is None:
@@ -92,7 +86,7 @@ def require_firebase_user(request: Request, db: Session) -> dict:
 
 
 def find_user_by_firebase_uid(db: Session, firebase_uid: Optional[str]) -> Optional[User]:
-    """Find the local user linked to a Firebase UID, if one is supplied."""
+    """Корбари ба Firebase UID пайвастшударо меёбад."""
 
     if not firebase_uid:
         return None

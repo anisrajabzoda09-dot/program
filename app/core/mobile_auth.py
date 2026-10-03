@@ -1,10 +1,4 @@
-"""Authentication for the NIGOH Android app without Firebase.
-
-The app signs in with email/password or a Google ID token and receives an
-opaque bearer token (``ngh_…``). Only its SHA-256 hash is stored, so a database
-leak does not expose usable tokens. Tokens from older Firebase-based builds are
-still accepted during the transition.
-"""
+"""Файл: аутентификатсия, session token ва Google sign-in-и app-и Android."""
 
 import hashlib
 import secrets
@@ -26,13 +20,13 @@ _ROLES = {"parent", "child"}
 
 
 def _hash(token: str) -> str:
-    """Create the irreversible token digest stored for a mobile session."""
+    """Барои session token hash-и барнагардонандаи захирашаванда месозад."""
 
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def issue_token(db: Session, user: User, device: str = "") -> str:
-    """Create and persist a mobile session, returning its bearer token."""
+    """Session-и mobile-ро сабт карда, bearer token медиҳад."""
 
     token = TOKEN_PREFIX + secrets.token_urlsafe(32)
     db.add(MobileSession(user_id=user.id, token_hash=_hash(token), device=(device or "")[:160]))
@@ -41,14 +35,14 @@ def issue_token(db: Session, user: User, device: str = "") -> str:
 
 
 def revoke_token(db: Session, token: str) -> None:
-    """Delete the session represented by a bearer token from the database."""
+    """Session-и bearer token-ро аз пойгоҳи додаҳо нест мекунад."""
 
     db.query(MobileSession).filter(MobileSession.token_hash == _hash(token)).delete()
     db.commit()
 
 
 def bearer_token(request: Request) -> str:
-    """Read a required bearer token from an incoming mobile request."""
+    """Bearer token-и ҳатмиро аз request-и mobile мехонад."""
 
     header = request.headers.get("Authorization", "")
     if not header.startswith("Bearer ") or not header[7:].strip():
@@ -57,14 +51,14 @@ def bearer_token(request: Request) -> str:
 
 
 def _role_hint(request: Request) -> Optional[str]:
-    """Return a valid per-device family role hint from request headers."""
+    """Нақши оилавии дастгоҳро аз header муайян мекунад."""
 
     hint = request.headers.get("X-NIGOH-Role", "").strip().lower()
     return hint if hint in _ROLES else None
 
 
 def _user_dict(user: User, request: Request) -> dict:
-    """Serialize a user with the requesting device's effective family role."""
+    """Маълумоти корбарро бо нақши дастгоҳ барои API омода мекунад."""
 
     data = user.to_dict()
     hint = _role_hint(request)
@@ -77,7 +71,7 @@ def _user_dict(user: User, request: Request) -> dict:
 
 
 def _session_user(db: Session, token: str) -> User:
-    """Resolve an active session to its user and refresh recent activity."""
+    """Session-и фаъолро ба корбар пайваста, вақти фаъолиятро нав мекунад."""
 
     session = db.query(MobileSession).filter(MobileSession.token_hash == _hash(token)).first()
     if session is None:
@@ -98,7 +92,7 @@ def _session_user(db: Session, token: str) -> User:
 
 
 def require_mobile_user(request: Request, db: Session) -> dict:
-    """Resolve the signed-in app user from a NIGOH token (or a legacy Firebase token)."""
+    """Корбари mobile-ро аз NIGOH token ё Firebase token муайян мекунад."""
     token = bearer_token(request)
     if token.startswith(TOKEN_PREFIX):
         user = _session_user(db, token)
@@ -117,14 +111,14 @@ def require_mobile_user(request: Request, db: Session) -> dict:
 # ---------- Google ----------
 
 def _allowed_google_audiences() -> set:
-    """Parse the configured OAuth client IDs accepted from mobile clients."""
+    """OAuth client ID-ҳои иҷозатдодашудаи Google-ро мехонад."""
 
     raw = settings.GOOGLE_MOBILE_CLIENT_IDS
     return {item.strip() for item in raw.split(",") if item.strip()}
 
 
 def verify_google_id_token(id_token: str) -> dict:
-    """Verify a Google ID token and return normalized account identity data."""
+    """Google ID token-ро санҷида, identity-и эътимоднокро медиҳад."""
 
     try:
         response = httpx.get(
@@ -152,7 +146,7 @@ def verify_google_id_token(id_token: str) -> dict:
 
 
 def upsert_google_user(db: Session, identity: dict) -> User:
-    """Create or refresh the local account for a verified Google identity."""
+    """Ҳисоби Google-ро месозад ё маълумоти онро нав мекунад."""
 
     user = db.query(User).filter(User.google_id == identity["google_id"]).first()
     if user is None:
