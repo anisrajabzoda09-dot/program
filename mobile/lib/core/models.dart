@@ -1,12 +1,10 @@
-// Typed views over the server snapshot JSON (see app/routers/mobile.py
-// `_mobile_child_payload`): children, apps, schedules, chat, requests,
-// places, bedtime and study mode.
+// Файл: model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ.
 
 import '../ui/widgets.dart' show parseServerTime;
 import 'app_categories.dart';
 import '../l10n/l10n.dart';
 
-/// A daily time window on chosen weekdays during which an app may be used.
+/// AppSchedule додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class AppSchedule {
   const AppSchedule({
     this.enabled = false,
@@ -20,6 +18,7 @@ class AppSchedule {
   final String end;
   final List<int> weekdays;
 
+  /// AppSchedule-ро аз JSON-и сервер месозад.
   factory AppSchedule.fromJson(Object? raw) {
     if (raw is! Map) return const AppSchedule();
     return AppSchedule(
@@ -32,7 +31,7 @@ class AppSchedule {
     );
   }
 
-  /// Serializes the schedule in the server's JSON shape.
+  /// Объектро ба сохтори JSON барои API табдил медиҳад.
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'start': start,
@@ -41,7 +40,7 @@ class AppSchedule {
   };
 }
 
-/// One app installed on the child's phone with its block/limit/schedule rules.
+/// ChildApp додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class ChildApp {
   const ChildApp({
     required this.packageName,
@@ -60,11 +59,11 @@ class ChildApp {
   final int bonusMinutesToday;
   final DateTime? firstSeenAt;
 
-  /// Daily limit including today's bonus (0 = no limit).
+  /// Қимати effectiveLimitMinutes-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   int get effectiveLimitMinutes =>
       dailyLimitMinutes == 0 ? 0 : dailyLimitMinutes + bonusMinutesToday;
 
-  /// Installed within the last 24 hours.
+  /// Қимати isNew-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   bool get isNew =>
       firstSeenAt != null &&
       DateTime.now().toUtc().difference(firstSeenAt!.toUtc()).inHours < 24;
@@ -77,6 +76,7 @@ class ChildApp {
   final int usageMinutesToday;
   final AppSchedule schedule;
 
+  /// ChildApp-ро аз JSON-и сервер месозад.
   factory ChildApp.fromJson(Map<String, dynamic> j) => ChildApp(
     packageName: j['package_name']?.toString() ?? '',
     name: j['app_name']?.toString() ?? j['package_name']?.toString() ?? '',
@@ -90,10 +90,7 @@ class ChildApp {
     firstSeenAt: parseServerTime(j['first_seen_at']),
   );
 
-  /// Rule sent to the native blocker (`setAppControlRules`). The native
-  /// side is unchanged; bonus time, «always allowed», bedtime and study mode
-  /// only adjust what is sent. Phone/SMS/system essentials are never forced
-  /// closed by bedtime or study mode, so the child can always call.
+  /// toNativeRule мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
   Map<String, dynamic> toNativeRule({
     bool bedtimeActive = false,
     bool studyActive = false,
@@ -120,7 +117,7 @@ class ChildApp {
   }
 }
 
-/// The child's last reported position and battery level.
+/// ChildLocation додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class ChildLocation {
   const ChildLocation({
     required this.latitude,
@@ -134,7 +131,7 @@ class ChildLocation {
   final int? batteryLevel;
   final DateTime? updatedAt;
 
-  /// Parses a location from the server JSON; null when it has no coordinates.
+  /// Объектро аз ҷавоби JSON-и API месозад.
   static ChildLocation? fromJson(Object? raw) {
     if (raw is! Map) return null;
     final lat = (raw['latitude'] as num?)?.toDouble();
@@ -148,13 +145,13 @@ class ChildLocation {
     );
   }
 
-  /// Online = location reported within the last 15 minutes.
+  /// Қимати online-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   bool get online =>
       updatedAt != null &&
       DateTime.now().toUtc().difference(updatedAt!.toUtc()).inMinutes < 15;
 }
 
-/// A paired child as seen by the parent: profile, apps, location and rules.
+/// FamilyChild додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class FamilyChild {
   const FamilyChild({
     required this.id,
@@ -180,18 +177,19 @@ class FamilyChild {
   final Bedtime bedtime;
   final StudyMode study;
 
-  /// Server paths of profile photos (use NigohApi.fileUrl), null if none.
+  /// Қимати childAvatar-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final String? childAvatar;
   final String? parentAvatar;
 
-  /// Last reported battery % of the child's phone (null if unknown).
+  /// Қимати batteryLevel-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final int? batteryLevel;
   final int unreadFromChild;
   final int unreadFromParent;
   final int pendingRequests;
 
-  /// Unread SOS from the child within the last 24 h (parent shows an alert).
+  /// Қимати lastUrgent-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final ChatMessage? lastUrgent;
+  /// Қимати ҳисобшудаи newAppsCount-ро аз ҳолати ҷорӣ бармегардонад.
   int get newAppsCount => apps.where((a) => a.isNew).length;
 
   final int id;
@@ -204,11 +202,15 @@ class FamilyChild {
   final ChildLocation? location;
   final String? parentName;
 
+  /// Қимати ҳисобшудаи online-ро аз ҳолати ҷорӣ бармегардонад.
   bool get online => location?.online ?? false;
+  /// Қимати ҳисобшудаи blockedCount-ро аз ҳолати ҷорӣ бармегардонад.
   int get blockedCount => apps.where((a) => a.blocked).length;
+  /// Қимати ҳисобшудаи usageMinutesToday-ро аз ҳолати ҷорӣ бармегардонад.
   int get usageMinutesToday =>
       apps.fold(0, (sum, a) => sum + a.usageMinutesToday);
 
+  /// FamilyChild-ро аз JSON-и сервер месозад.
   factory FamilyChild.fromJson(Map<String, dynamic> j) => FamilyChild(
     id: (j['id'] as num).toInt(),
     name: j['name']?.toString() ?? tr('Фарзанд'),
@@ -243,7 +245,7 @@ class FamilyChild {
   );
 }
 
-/// One chat message between parent and child (text, voice, photo, location…).
+/// ChatMessage додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class ChatMessage {
   const ChatMessage({
     required this.id,
@@ -255,7 +257,7 @@ class ChatMessage {
     this.isRead = false,
   });
 
-  /// The other side has opened the chat since this was sent.
+  /// Қимати isRead-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final bool isRead;
   final int id;
   final String senderRole;
@@ -264,6 +266,7 @@ class ChatMessage {
   final String content;
   final DateTime? createdAt;
 
+  /// ChatMessage-ро аз JSON-и сервер месозад.
   factory ChatMessage.fromJson(Map<String, dynamic> j) => ChatMessage(
     id: (j['id'] as num).toInt(),
     senderRole: j['sender_role']?.toString() ?? '',
@@ -275,7 +278,7 @@ class ChatMessage {
   );
 }
 
-/// Phone-wide quiet hours: every app except «always allowed» ones is blocked.
+/// Bedtime додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class Bedtime {
   const Bedtime({
     this.enabled = false,
@@ -287,6 +290,7 @@ class Bedtime {
   final String start;
   final String end;
 
+  /// Bedtime-ро аз JSON-и сервер месозад.
   factory Bedtime.fromJson(Object? raw) {
     if (raw is! Map) return const Bedtime();
     return Bedtime(
@@ -296,16 +300,17 @@ class Bedtime {
     );
   }
 
-  /// Serializes the bedtime window in the server's JSON shape.
+  /// Объектро ба сохтори JSON барои API табдил медиҳад.
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'start': start,
     'end': end,
   };
 
-  /// True when [now] is inside the window (handles windows over midnight).
+  /// activeAt мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
   bool activeAt(DateTime now) {
     if (!enabled) return false;
+    /// minutes мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
     int? minutes(String hhmm) {
       final parts = hhmm.split(':');
       if (parts.length != 2) return null;
@@ -322,7 +327,7 @@ class Bedtime {
   }
 }
 
-/// A child's pending or decided request for extra time in one app.
+/// TimeRequest додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class TimeRequest {
   const TimeRequest({
     required this.id,
@@ -338,10 +343,11 @@ class TimeRequest {
   final String packageName;
   final String appName;
   final int minutes;
-  final String status; // pending | approved | denied
+  final String status; // Яке аз pending, approved ё denied.
   final String? reason;
   final DateTime? createdAt;
 
+  /// TimeRequest-ро аз JSON-и сервер месозад.
   factory TimeRequest.fromJson(Map<String, dynamic> j) => TimeRequest(
     id: (j['id'] as num).toInt(),
     packageName: j['package_name']?.toString() ?? '',
@@ -353,7 +359,7 @@ class TimeRequest {
   );
 }
 
-/// A safe place (geofence) that triggers arrive/leave alerts for the parent.
+/// SafePlace додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class SafePlace {
   const SafePlace({
     required this.id,
@@ -369,6 +375,7 @@ class SafePlace {
   final double longitude;
   final int radiusMeters;
 
+  /// SafePlace-ро аз JSON-и сервер месозад.
   factory SafePlace.fromJson(Map<String, dynamic> j) => SafePlace(
     id: (j['id'] as num).toInt(),
     name: j['name']?.toString() ?? '',
@@ -378,8 +385,7 @@ class SafePlace {
   );
 }
 
-/// «Тамаркузи дарс»: during school hours games, social and video apps are
-/// blocked; education, essentials (phone, SMS) and «always allowed» stay open.
+/// StudyMode додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class StudyMode {
   const StudyMode({
     this.enabled = false,
@@ -393,6 +399,7 @@ class StudyMode {
   final String end;
   final List<int> weekdays;
 
+  /// StudyMode-ро аз JSON-и сервер месозад.
   factory StudyMode.fromJson(Object? raw) {
     if (raw is! Map) return const StudyMode();
     return StudyMode(
@@ -405,7 +412,7 @@ class StudyMode {
     );
   }
 
-  /// Serializes the study-mode settings in the server's JSON shape.
+  /// Объектро ба сохтори JSON барои API табдил медиҳад.
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'start': start,
@@ -413,7 +420,7 @@ class StudyMode {
     'weekdays': weekdays,
   };
 
-  /// Whether study hours are on at [now] (selected weekday, inside the window).
+  /// activeAt мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
   bool activeAt(DateTime now) {
     if (!enabled || !weekdays.contains(now.weekday)) return false;
     return Bedtime(enabled: true, start: start, end: end).activeAt(now);

@@ -1,6 +1,4 @@
-// REST client for the NIGOH server: sign-in, family/children, apps and
-// limits, chat, location, places, calls and version check. Every server
-// failure is turned into a readable [ApiException].
+// Файл: муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо.
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,25 +8,27 @@ import 'package:http/http.dart' as http;
 
 import '../l10n/l10n.dart';
 
-/// Server base URL; override at build time with --dart-define=NIGOH_API_BASE_URL.
+/// Қимати nigohApiBaseUrl-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
 const nigohApiBaseUrl = String.fromEnvironment(
   'NIGOH_API_BASE_URL',
   defaultValue: 'https://nigohfamily.qobus.tj',
 );
 
-/// Error with a message that can be shown to the user as-is (Tajik).
+/// ApiException додаҳо ва рафтори API ва session-ро ифода мекунад.
 class ApiException implements Exception {
   const ApiException(this.message, {this.statusCode});
   final String message;
   final int? statusCode;
 
+  /// Қимати ҳисобшудаи unauthorized-ро аз ҳолати ҷорӣ бармегардонад.
   bool get unauthorized => statusCode == 401;
 
+  /// Намоиши матнии ApiException-ро барои log бармегардонад.
   @override
   String toString() => message;
 }
 
-/// Server-side Sign in with Apple settings (`/auth/apple/config`).
+/// AppleSignInConfig додаҳо ва рафтори API ва session-ро ифода мекунад.
 class AppleSignInConfig {
   const AppleSignInConfig({
     required this.enabled,
@@ -36,8 +36,7 @@ class AppleSignInConfig {
     this.redirectUri,
   });
 
-  /// Reads the config reply; it only counts as enabled when the Services ID
-  /// and return URL are both present.
+  /// AppleSignInConfig-ро аз JSON-и сервер месозад.
   factory AppleSignInConfig.fromJson(Map<String, dynamic> json) {
     final clientId = json['client_id']?.toString() ?? '';
     final redirectUri = json['redirect_uri']?.toString() ?? '';
@@ -51,17 +50,17 @@ class AppleSignInConfig {
     );
   }
 
-  /// Whether the "Continue with Apple" button may be shown.
+  /// Қимати enabled-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   final bool enabled;
 
-  /// Apple Services ID used as the web-flow client id.
+  /// Қимати clientId-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   final String? clientId;
 
-  /// Server bridge Apple posts back to (`/auth/apple/android`).
+  /// Қимати redirectUri-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   final String? redirectUri;
 }
 
-/// Server-side Sign in with GitHub settings (`/auth/github/config`).
+/// GitHubSignInConfig додаҳо ва рафтори API ва session-ро ифода мекунад.
 class GitHubSignInConfig {
   const GitHubSignInConfig({
     required this.enabled,
@@ -69,8 +68,7 @@ class GitHubSignInConfig {
     this.callbackScheme,
   });
 
-  /// Reads the config reply; it only counts as enabled when the browser start
-  /// URL and the app callback scheme are both present.
+  /// GitHubSignInConfig-ро аз JSON-и сервер месозад.
   factory GitHubSignInConfig.fromJson(Map<String, dynamic> json) {
     final startUrl = json['start_url']?.toString() ?? '';
     final callbackScheme = json['callback_scheme']?.toString() ?? '';
@@ -84,19 +82,17 @@ class GitHubSignInConfig {
     );
   }
 
-  /// Whether the "Continue with GitHub" button may be shown.
+  /// Қимати enabled-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   final bool enabled;
 
-  /// Server page that starts GitHub OAuth (`/auth/github/mobile`).
+  /// Қимати startUrl-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   final String? startUrl;
 
-  /// URL scheme the server finally redirects to (`nigohfamily`).
+  /// Қимати callbackScheme-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   final String? callbackScheme;
 }
 
-/// HTTP client for the NIGOH server. No Firebase: the server issues an opaque
-/// bearer token at sign-in. Every failure becomes an [ApiException] with a
-/// readable message — callers should show it, never swallow it silently.
+/// NigohApi додаҳо ва рафтори API ва session-ро ифода мекунад.
 class NigohApi {
   NigohApi({http.Client? client, this.baseUrl = nigohApiBaseUrl})
     : _client = client ?? http.Client();
@@ -104,19 +100,18 @@ class NigohApi {
   final http.Client _client;
   final String baseUrl;
 
-  /// Session token (`ngh_…`); set by [Session].
+  /// Қимати token-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   String? token;
 
-  /// 'parent' or 'child' — the side this phone acts for.
+  /// Қимати role-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
   String? role;
 
-  /// Called when the server rejects the token (signed out elsewhere/expired).
+  /// Function мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   void Function()? onUnauthorized;
 
   static const _timeout = Duration(seconds: 15);
 
-  /// Sends one request with the bearer token and role header, decodes the JSON
-  /// reply and converts timeouts, network and HTTP errors into [ApiException].
+  /// send дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<Map<String, dynamic>> _send(
     String method,
     String path, {
@@ -153,7 +148,7 @@ class NigohApi {
         final raw = jsonDecode(utf8.decode(response.bodyBytes));
         if (raw is Map) decoded = Map<String, dynamic>.from(raw);
       } catch (_) {
-        // Non-JSON (e.g. proxy error page) — handled below by status code.
+        // Додаҳо ба шакли бехатар табдил ва санҷида мешаванд.
       }
     }
     if (response.statusCode >= 200 && response.statusCode < 300) return decoded;
@@ -167,8 +162,7 @@ class NigohApi {
     );
   }
 
-  /// Turns the server's `detail` field (text or validation list) into a short
-  /// user-facing message.
+  /// detail мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   static String? _detail(Object? detail) {
     if (detail is String && detail.isNotEmpty) return detail;
     if (detail is List && detail.isNotEmpty) {
@@ -181,9 +175,9 @@ class NigohApi {
     return null;
   }
 
-  // ---------- Auth ----------
+  // Қадами дохилии register барои API ва session.
 
-  /// Creates an email/password account and returns the new session.
+  /// register дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<Map<String, dynamic>> register(
     String email,
     String password,
@@ -195,7 +189,7 @@ class NigohApi {
     auth: false,
   );
 
-  /// Signs in with email and password and returns the session.
+  /// login дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<Map<String, dynamic>> login(String email, String password) => _send(
     'POST',
     '/api/mobile/v3/auth/login',
@@ -203,7 +197,7 @@ class NigohApi {
     auth: false,
   );
 
-  /// Signs in with a Google ID token that the server verifies.
+  /// google экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<Map<String, dynamic>> google(String idToken) => _send(
     'POST',
     '/api/mobile/v3/auth/google',
@@ -211,14 +205,12 @@ class NigohApi {
     auth: false,
   );
 
-  /// Asks the server whether Sign in with Apple is switched on and which
-  /// Services ID / return URL the Android web flow must use.
+  /// appleConfig мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<AppleSignInConfig> appleConfig() async => AppleSignInConfig.fromJson(
     await _send('GET', '/api/mobile/v3/auth/apple/config', auth: false),
   );
 
-  /// Signs in with an Apple identity token; [nonce] is the RAW nonce whose
-  /// sha256 was given to Apple, so the server can match the token's claim.
+  /// signInWithApple мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> signInWithApple({
     required String identityToken,
     required String nonce,
@@ -234,15 +226,13 @@ class NigohApi {
     auth: false,
   );
 
-  /// Asks the server whether Sign in with GitHub is switched on and where the
-  /// browser flow starts.
+  /// githubConfig мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<GitHubSignInConfig> githubConfig() async =>
       GitHubSignInConfig.fromJson(
         await _send('GET', '/api/mobile/v3/auth/github/config', auth: false),
       );
 
-  /// Exchanges the one-time GitHub [ticket] for a session; [nonce] is the RAW
-  /// nonce whose sha256 started the browser flow.
+  /// signInWithGitHub мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> signInWithGitHub({
     required String ticket,
     required String nonce,
@@ -253,11 +243,13 @@ class NigohApi {
     auth: false,
   );
 
+  /// logout дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> logout() => _send('POST', '/api/mobile/v3/auth/logout');
 
+  /// me мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> me() => _send('GET', '/api/mobile/v3/me');
 
-  /// Updates the signed-in user's name and/or chosen role on the server.
+  /// updateMe ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<Map<String, dynamic>> updateMe({String? fullName, String? role}) =>
       _send(
         'PUT',
@@ -265,29 +257,30 @@ class NigohApi {
         body: {'full_name': ?fullName, 'role': ?role},
       );
 
-  /// Profile photo (JPEG/PNG bytes, resized on the phone to ~512 px).
+  /// uploadAvatar додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<String?> uploadAvatar(List<int> imageBytes) async => (await _send(
     'POST',
     '/api/mobile/v3/me/avatar',
     body: {'image_base64': base64Encode(imageBytes)},
   ))['avatar']?.toString();
 
+  /// deleteAvatar маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> deleteAvatar() => _send('DELETE', '/api/mobile/v3/me/avatar');
 
-  /// Absolute URL for a server path like `/static/avatars/…` (null if none).
+  /// fileUrl мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   String? fileUrl(String? path) {
     if (path == null || path.isEmpty) return null;
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
     return '$baseUrl$path';
   }
 
-  // ---------- Family ----------
+  // Қадами дохилии snapshot барои API ва session.
 
-  /// Parent: `{children: [...]}`. Child: `{child: {...} | null}`.
+  /// snapshot мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> snapshot() =>
       _send('GET', '/api/mobile/v2/snapshot');
 
-  /// Asks the server for a pairing code/QR the child phone shows to the parent.
+  /// createPairCode мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> createPairCode({
     required String childName,
     required String gender,
@@ -298,15 +291,17 @@ class NigohApi {
     body: {'child_name': childName, 'gender': gender, 'age': age},
   );
 
+  /// pair дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<Map<String, dynamic>> pair(String code) =>
       _send('POST', '/api/mobile/v2/pair', body: {'pairing_code': code});
 
+  /// unlinkChild маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> unlinkChild(int childId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId');
 
-  // ---------- Apps ----------
+  // Қадами дохилии syncApps барои API ва session.
 
-  /// Uploads the child phone's installed-app list so the parent can see it.
+  /// syncApps додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<Map<String, dynamic>> syncApps(
     int childId,
     List<Map<String, dynamic>> apps,
@@ -316,8 +311,7 @@ class NigohApi {
     body: {'apps': apps},
   );
 
-  /// [rule] keys: is_blocked (bool), daily_limit_minutes (int),
-  /// schedule ({enabled, start 'HH:mm', end 'HH:mm', weekdays [1..7]}).
+  /// updateRule ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<Map<String, dynamic>> updateRule(
     int childId,
     String packageName,
@@ -328,9 +322,9 @@ class NigohApi {
     body: rule,
   );
 
-  // ---------- Location ----------
+  // Қадами дохилии syncLocation барои API ва session.
 
-  /// Sends the child phone's current location to the server.
+  /// syncLocation додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<void> syncLocation(int childId, Map<String, dynamic> location) =>
       _send(
         'POST',
@@ -338,9 +332,9 @@ class NigohApi {
         body: location,
       );
 
-  // ---------- Chat ----------
+  // Қадами дохилии chat барои API ва session.
 
-  /// Loads chat messages with a child, optionally only those after [afterId].
+  /// chat мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<List<Map<String, dynamic>>> chat(
     int childId, {
     int afterId = 0,
@@ -356,7 +350,7 @@ class NigohApi {
         .toList();
   }
 
-  /// message_type: 'text' | 'call' (call request) | 'urgent' (SOS from the child).
+  /// sendChat дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<Map<String, dynamic>> sendChat(
     int childId,
     String content, {
@@ -367,12 +361,13 @@ class NigohApi {
     body: {'content': content, 'message_type': messageType, 'duration_sec': 0},
   );
 
+  /// markChatRead дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> markChatRead(int childId) =>
       _send('POST', '/api/mobile/v2/children/$childId/chat/read');
 
-  // ---------- History ----------
+  // Қадами дохилии locationHistory барои API ва session.
 
-  /// Loads the child's location trail for the last [hours] hours.
+  /// locationHistory мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<List<Map<String, dynamic>>> locationHistory(
     int childId, {
     int hours = 24,
@@ -385,7 +380,7 @@ class NigohApi {
     return _list(data['points']);
   }
 
-  /// [{date, minutes, top: [{package_name, app_name, minutes}]}], oldest first.
+  /// usageHistory мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<List<Map<String, dynamic>>> usageHistory(
     int childId, {
     int days = 7,
@@ -398,9 +393,9 @@ class NigohApi {
     return _list(data['days']);
   }
 
-  // ---------- Extra time ----------
+  // Қадами дохилии requestTime барои API ва session.
 
-  /// Child side: asks the parent for [minutes] extra time in one app.
+  /// requestTime иҷозат ё маълумоти лозимро дархост мекунад.
   Future<Map<String, dynamic>> requestTime(
     int childId,
     String packageName, {
@@ -412,8 +407,7 @@ class NigohApi {
     body: {'package_name': packageName, 'minutes': minutes, 'reason': ?reason},
   );
 
-  /// Requests with app_name, requested_minutes, reason, status
-  /// ('pending' | 'approved' | 'denied'), created_at.
+  /// timeRequests мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<List<Map<String, dynamic>>> timeRequests(
     int childId, {
     bool pendingOnly = false,
@@ -426,7 +420,7 @@ class NigohApi {
     return _list(data['requests']);
   }
 
-  /// Parent side: approves or declines a child's extra-time request.
+  /// decideTimeRequest дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> decideTimeRequest(
     int childId,
     int requestId, {
@@ -438,28 +432,28 @@ class NigohApi {
     body: {'approve': approve, 'minutes': ?minutes},
   );
 
-  /// Parent side: grants a one-off bonus of [minutes] in one app.
+  /// giveBonus дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> giveBonus(int childId, String packageName, int minutes) => _send(
     'POST',
     '/api/mobile/v2/children/$childId/apps/${Uri.encodeComponent(packageName)}/bonus',
     body: {'minutes': minutes},
   );
 
-  // ---------- Bedtime & places ----------
+  // Қадами дохилии send барои API ва session.
 
-  /// bedtime: {enabled, start 'HH:mm', end 'HH:mm'}
+  /// setBedtime ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setBedtime(int childId, Map<String, dynamic> bedtime) => _send(
     'PUT',
     '/api/mobile/v2/children/$childId/settings',
     body: {'bedtime': bedtime},
   );
 
-  /// Loads the child's safe places.
+  /// safePlaces мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<List<Map<String, dynamic>>> safePlaces(int childId) async => _list(
     (await _send('GET', '/api/mobile/v2/children/$childId/places'))['places'],
   );
 
-  /// Saves a named safe place (geofence) for the child.
+  /// addSafePlace мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> addSafePlace(
     int childId, {
     required String name,
@@ -477,28 +471,27 @@ class NigohApi {
     },
   );
 
+  /// deleteSafePlace маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> deleteSafePlace(int childId, int placeId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId/places/$placeId');
 
-  /// Normalizes a JSON list into a list of string-keyed maps.
+  /// list мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   static List<Map<String, dynamic>> _list(Object? raw) =>
       (raw as List? ?? const [])
           .whereType<Map>()
           .map((m) => Map<String, dynamic>.from(m))
           .toList();
 
-  /// study: {enabled, start 'HH:mm', end 'HH:mm', weekdays [1..7]}
+  /// setStudyMode ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setStudyMode(int childId, Map<String, dynamic> study) => _send(
     'PUT',
     '/api/mobile/v2/children/$childId/settings',
     body: {'study': study},
   );
 
-  // ---------- Notifications (long-poll) ----------
+  // Огоҳиномаи воридшударо дар NigohApi ба амали мувофиқ равона мекунад.
 
-  /// Events for this phone after [afterId]: {events: [...], latest_id}.
-  /// afterId 0 returns only the current position. [wait] holds the request
-  /// up to that many seconds until something happens.
+  /// events мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> events({int afterId = 0, int wait = 0}) => _send(
     'GET',
     '/api/mobile/v3/events',
@@ -506,13 +499,13 @@ class NigohApi {
     timeout: Duration(seconds: wait + 15),
   );
 
-  // ---------- Voice calls (WebRTC signaling) ----------
+  // Қадами дохилии callConfig барои API ва session.
 
-  /// [{urls: [...], username?, credential?}]
+  /// callConfig мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<List<Map<String, dynamic>>> callConfig() async =>
       _list((await _send('GET', '/api/mobile/v3/calls/config'))['ice_servers']);
 
-  /// Starts an audio call to a child and returns the created call.
+  /// startCall раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   Future<Map<String, dynamic>> startCall(int childId) async =>
       Map<String, dynamic>.from(
         (await _send(
@@ -523,27 +516,30 @@ class NigohApi {
             as Map,
       );
 
-  /// Current status of a call (ringing, active, ended…).
+  /// callStatus мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> callStatus(int callId) async =>
       Map<String, dynamic>.from(
         (await _send('GET', '/api/mobile/v3/calls/$callId'))['call'] as Map,
       );
 
+  /// acceptCall мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<void> acceptCall(int callId) =>
       _send('POST', '/api/mobile/v3/calls/$callId/accept');
+  /// declineCall раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> declineCall(int callId) =>
       _send('POST', '/api/mobile/v3/calls/$callId/decline');
+  /// endCall раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> endCall(int callId) =>
       _send('POST', '/api/mobile/v3/calls/$callId/end');
 
-  /// kind: 'offer' | 'answer' | 'ice'; payload: JSON string.
+  /// sendSignal дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> sendSignal(int callId, String kind, String payload) => _send(
     'POST',
     '/api/mobile/v3/calls/$callId/signal',
     body: {'kind': kind, 'payload': payload},
   );
 
-  /// {call: {...status}, signals: [{id, from_role, kind, payload}]}
+  /// callSignals мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> callSignals(
     int callId, {
     int afterId = 0,
@@ -555,9 +551,9 @@ class NigohApi {
     timeout: Duration(seconds: wait + 15),
   );
 
-  // ---------- Updates ----------
+  // Қадами дохилии send барои API ва session.
 
-  /// Asks the server for the latest app release relative to this build.
+  /// version мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<Map<String, dynamic>> version(int currentVersionCode) => _send(
     'GET',
     '/api/mobile/version',

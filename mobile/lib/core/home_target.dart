@@ -1,24 +1,15 @@
-// Notification deep-link target: tells the parent/child home which tab (and
-// child) to open after the app was launched from a notification.
+// Файл: интихоби бахши хонагӣ ҳангоми кушодани notification.
 
 import 'package:flutter/foundation.dart';
 
-/// Where a home screen should jump after the app was opened from a
-/// notification (set by main.dart from [NotifyBridge.launch]).
-///
-/// kind: 'chat' | 'map' | 'overview' | 'requests'.
-/// Parent/child homes may listen to [homeTarget], switch to the matching tab
-/// (and child, when [childId] is set), then reset it to null.
-/// Mapping used by main.dart:
-///   message, missed_call → chat; sos, low_battery, offline → map;
-///   time_request → requests; time_decision, new_app, other → overview.
+/// Додаҳо ва рафтори марбут ба интихоби бахши хонагӣ ҳангоми кушодани notification-ро ифода мекунад.
 class HomeTarget {
   const HomeTarget(this.kind, {this.childId});
 
   final String kind;
   final int? childId;
 
-  /// Maps a server event kind to a home target.
+  /// forEvent мантиқи зарурии интихоби бахши хонагӣ ҳангоми кушодани notification-ро иҷро мекунад.
   static HomeTarget forEvent(String eventKind, int? childId) {
     final kind = switch (eventKind) {
       'message' || 'missed_call' => 'chat',
@@ -29,16 +20,19 @@ class HomeTarget {
     return HomeTarget(kind, childId: childId);
   }
 
+  /// Ду target-ро аз рӯи навъ ва фарзанди интихобшуда муқоиса мекунад.
   @override
   bool operator ==(Object other) =>
       other is HomeTarget && other.kind == kind && other.childId == childId;
 
+  /// Қимати ҳисобшудаи hashCode-ро аз ҳолати ҷорӣ бармегардонад.
   @override
   int get hashCode => Object.hash(kind, childId);
 
+  /// Намоиши матнии HomeTarget-ро барои log бармегардонад.
   @override
   String toString() => 'HomeTarget($kind, child: $childId)';
 }
 
-/// The pending jump target; null when nothing is pending.
+/// Қимати homeTarget-ро барои интихоби бахши хонагӣ ҳангоми кушодани notification нигоҳ медорад.
 final ValueNotifier<HomeTarget?> homeTarget = ValueNotifier(null);

@@ -1,6 +1,4 @@
-// Dart side of the native Android notification service (NotifyService):
-// starts/stops it, asks for notification permissions, and reports which
-// notification the user tapped to open the app.
+// Файл: пайванди notification-и Android бо Flutter.
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'api.dart';
 import '../l10n/l10n.dart';
 
-/// What the user tapped in a notification posted by the native NotifyService.
-///
-/// [kind] is the server event kind: 'message', 'sos', 'call', 'time_request',
-/// 'time_decision', 'low_battery', 'offline', 'new_app', 'missed_call'.
+/// Додаҳо ва рафтори марбут ба пайванди notification-и Android бо Flutter-ро ифода мекунад.
 class LaunchAction {
   const LaunchAction({
     required this.kind,
@@ -24,11 +19,12 @@ class LaunchAction {
     this.fullScreen = false,
   });
 
-  /// Parses the map sent by MainActivity (`getLaunchAction` / `launch`).
+  /// fromMap мантиқи зарурии пайванди notification-и Android бо Flutter-ро иҷро мекунад.
   static LaunchAction? fromMap(Object? raw) {
     if (raw is! Map) return null;
     final kind = raw['kind'];
     if (kind is! String || kind.isEmpty) return null;
+    /// asInt мантиқи зарурии пайванди notification-и Android бо Flutter-ро иҷро мекунад.
     int? asInt(Object? v) => v is int
         ? v
         : v is num
@@ -52,19 +48,19 @@ class LaunchAction {
   final int? callId;
   final String? peerName;
 
-  /// «Қабул» was pressed on the incoming-call notification.
+  /// Қимати acceptCall-ро барои пайванди notification-и Android бо Flutter нигоҳ медорад.
   final bool acceptCall;
 
-  /// Opened automatically by a full-screen intent (locked screen), not a tap.
-  /// For SOS this means the alarm is still ringing.
+  /// Қимати fullScreen-ро барои пайванди notification-и Android бо Flutter нигоҳ медорад.
   final bool fullScreen;
 
+  /// Намоиши матнии LaunchAction-ро барои log бармегардонад.
   @override
   String toString() =>
       'LaunchAction($kind, child: $childId, call: $callId, accept: $acceptCall)';
 }
 
-/// Notification permission state reported by Android.
+/// Додаҳо ва рафтори марбут ба пайванди notification-и Android бо Flutter-ро ифода мекунад.
 class NotifyPermissions {
   const NotifyPermissions({
     required this.notifications,
@@ -72,31 +68,29 @@ class NotifyPermissions {
   });
   final bool notifications;
 
-  /// Android 14+: may show SOS alarms / calls over the lock screen.
+  /// Қимати fullScreen-ро барои пайванди notification-и Android бо Flutter нигоҳ медорад.
   final bool fullScreen;
+  /// Қимати ҳисобшудаи all-ро аз ҳолати ҷорӣ бармегардонад.
   bool get all => notifications && fullScreen;
 }
 
-/// Bridge to the native NotifyService (foreground long-poll of
-/// /api/mobile/v3/events → Android notifications, no Firebase).
+/// Ин қадам ҷавоби server ё хатои API-ро коркард мекунад.
 abstract final class NotifyBridge {
   static const channel = MethodChannel('tj.nigoh/notify');
 
-  /// Set when the app is opened from a notification. Consumers should reset
-  /// it to null after handling.
+  /// Қимати launch-ро барои пайванди notification-и Android бо Flutter нигоҳ медорад.
   static final ValueNotifier<LaunchAction?> launch = ValueNotifier(null);
 
-  /// Last bridge error (shown in Settings), null when fine.
+  /// Қимати lastError-ро барои пайванди notification-и Android бо Flutter нигоҳ медорад.
   static final ValueNotifier<String?> lastError = ValueNotifier(null);
 
   static bool _listening = false;
 
-  /// The native notification service exists only in the Android app.
+  /// Қимати _supported-ро барои пайванди notification-и Android бо Flutter нигоҳ медорад.
   static bool get _supported =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-  /// Starts listening for launches from notifications and picks up the one
-  /// that cold-started the app. Idempotent; [start] calls it.
+  /// init мантиқи зарурии пайванди notification-и Android бо Flutter-ро иҷро мекунад.
   static Future<void> init() async {
     if (!_supported) return;
     if (!_listening) {
@@ -114,14 +108,13 @@ abstract final class NotifyBridge {
       final action = LaunchAction.fromMap(raw);
       if (action != null) launch.value = action;
     } on MissingPluginException {
-      // Not running inside the Android app (tests / other platforms).
+      // Дар платформаи бе plugin амали оғози огоҳинома вуҷуд надорад.
     } on PlatformException catch (e) {
       lastError.value = e.message ?? tr('Огоҳиномаҳо кор накарданд.');
     }
   }
 
-  /// Starts/updates the native service. The service reads token and role from
-  /// shared preferences itself; only the server address is passed.
+  /// start раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   static Future<void> start(NigohApi api) async {
     if (!_supported) return;
     await init();
@@ -129,37 +122,37 @@ abstract final class NotifyBridge {
       await channel.invokeMethod<Object?>('start', {'baseUrl': api.baseUrl});
       lastError.value = null;
     } on MissingPluginException {
-      // Not running inside the Android app.
+      // Дар платформаи бе plugin хизмати огоҳинома оғоз намешавад.
     } on PlatformException catch (e) {
       lastError.value = e.message ?? tr('Хизмати огоҳиномаҳо оғоз нашуд.');
     }
   }
 
-  /// Stops the native notification service (on sign-out).
+  /// stop раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   static Future<void> stop() async {
     if (!_supported) return;
     try {
       await channel.invokeMethod<Object?>('stop');
     } on MissingPluginException {
-      // Not running inside the Android app.
+      // Дар платформаи бе plugin хизмати огоҳинома барои қатъ кардан нест.
     } on PlatformException catch (e) {
       lastError.value = e.message ?? tr('Хизмати огоҳиномаҳо қатъ нашуд.');
     }
   }
 
-  /// Silences an SOS alarm / call ringtone that the service is playing.
+  /// stopRinging раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   static Future<void> stopRinging() async {
     if (!_supported) return;
     try {
       await channel.invokeMethod<Object?>('stopRinging');
     } on MissingPluginException {
-      // Not running inside the Android app.
+      // Дар платформаи бе plugin садои занг барои қатъ кардан нест.
     } on PlatformException catch (e) {
       lastError.value = e.message;
     }
   }
 
-  /// Null when the status could not be read (see [lastError]).
+  /// permissionStatus мантиқи зарурии пайванди notification-и Android бо Flutter-ро иҷро мекунад.
   static Future<NotifyPermissions?> permissionStatus() async {
     if (!_supported) return null;
     try {
@@ -179,21 +172,19 @@ abstract final class NotifyBridge {
     }
   }
 
-  /// Opens Android's "full-screen notifications" setting for SOS and calls.
+  /// openFullScreenSettings экран, dialog ё танзимоти мувофиқро мекушояд.
   static Future<void> openFullScreenSettings() async {
     if (!_supported) return;
     try {
       await channel.invokeMethod<Object?>('openFullScreenSettings');
     } on MissingPluginException {
-      // Not running inside the Android app.
+      // Дар платформаи бе plugin танзими full-screen intent кушода намешавад.
     } on PlatformException catch (e) {
       lastError.value = e.message ?? tr('Танзимот кушода нашуд.');
     }
   }
 
-  /// Asks for POST_NOTIFICATIONS and, on Android 14+, explains and opens the
-  /// full-screen-intent setting (needed for the SOS alarm and calls).
-  /// Returns true when everything needed is granted.
+  /// ensurePermissions дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   static Future<bool> ensurePermissions(BuildContext context) async {
     if (!_supported) return true;
     var status = await permissionStatus();
@@ -238,7 +229,7 @@ abstract final class NotifyBridge {
     return status.all;
   }
 
-  /// Clears static state between tests.
+  /// resetForTest мантиқи зарурии пайванди notification-и Android бо Flutter-ро иҷро мекунад.
   @visibleForTesting
   static void resetForTest() {
     _listening = false;

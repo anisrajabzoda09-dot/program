@@ -1,10 +1,8 @@
-// The child's own profile (name, gender, age) saved locally on the child
-// phone before pairing.
+// Файл: профили маҳаллии фарзанд пеш аз пайвастшавӣ.
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Name, gender and age the child entered on this phone. Sent to the server
-/// when the pairing code is created.
+/// Додаҳо ва рафтори марбут ба профили маҳаллии фарзанд пеш аз пайвастшавӣро ифода мекунад.
 class ChildProfile {
   const ChildProfile({
     required this.name,
@@ -13,12 +11,12 @@ class ChildProfile {
   });
 
   final String name;
-  final String gender; // 'boy' | 'girl'
+  final String gender; // Қимат танҳо 'boy' ё 'girl' мешавад.
   final int age;
 
   static const _key = 'nigoh.child_profile';
 
-  /// Reads the saved profile; null when the child has not entered it yet.
+  /// load додаҳои child_profile-ро мехонад ва ҳолати ChildProfile-ро нав мекунад.
   static Future<ChildProfile?> load() async {
     final raw = (await SharedPreferences.getInstance()).getStringList(_key);
     if (raw == null || raw.length != 3) return null;
@@ -29,9 +27,11 @@ class ChildProfile {
     );
   }
 
+  /// getInstance тағйироти child_profile-ро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> save() async => (await SharedPreferences.getInstance())
       .setStringList(_key, [name, gender, '$age']);
 
+  /// clear маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   static Future<void> clear() async =>
       (await SharedPreferences.getInstance()).remove(_key);
 }

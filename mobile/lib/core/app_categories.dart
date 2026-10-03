@@ -1,15 +1,14 @@
-// App categories shared by the parent (filters) and the child (study mode):
-// the category enum, its labels and the package-name based classifier.
+// Файл: гурӯҳбандии барномаҳо аз рӯи package name.
 
 import 'models.dart';
 import '../l10n/l10n.dart';
 
-/// The kinds of apps the parent can filter by and study mode can close.
+/// Ҳолатҳо ё навъҳои имконпазири гурӯҳбандии барномаҳо аз рӯи package name-ро муайян мекунад.
 enum AppCategory { games, social, education, video, other }
 
-/// Localized chip labels and icons for each [AppCategory].
+/// Барои гурӯҳбандии барномаҳо аз рӯи package name property ва helper-ҳои иловагӣ медиҳад.
 extension AppCategoryLabel on AppCategory {
-  /// Chip label.
+  /// Қимати label-ро барои гурӯҳбандии барномаҳо аз рӯи package name нигоҳ медорад.
   String get label => switch (this) {
     AppCategory.games => tr('Бозиҳо'),
     AppCategory.social => tr('Шабакаҳо'),
@@ -18,7 +17,7 @@ extension AppCategoryLabel on AppCategory {
     AppCategory.other => tr('Дигар'),
   };
 
-  /// Used in «Бастани ҳамаи …».
+  /// Қимати pluralLower-ро барои гурӯҳбандии барномаҳо аз рӯи package name нигоҳ медорад.
   String get pluralLower => switch (this) {
     AppCategory.games => tr('бозиҳо'),
     AppCategory.social => tr('шабакаҳои иҷтимоӣ'),
@@ -28,10 +27,10 @@ extension AppCategoryLabel on AppCategory {
   };
 }
 
-/// Classifies an app by package-name / name keywords. Order matters: video
-/// is checked before social so YouTube/TikTok land in «Видео».
+/// classifyApp мантиқи зарурии гурӯҳбандии барномаҳо аз рӯи package name-ро иҷро мекунад.
 AppCategory classifyApp(String packageName, [String name = '']) {
   final text = '${packageName.toLowerCase()} ${name.toLowerCase()}';
+  /// any мантиқи зарурии гурӯҳбандии барномаҳо аз рӯи package name-ро иҷро мекунад.
   bool any(List<String> keys) => keys.any(text.contains);
 
   if (any(const [
@@ -165,18 +164,17 @@ AppCategory classifyApp(String packageName, [String name = '']) {
   return AppCategory.other;
 }
 
-/// Category of an installed child app, guessed from its package and name.
+/// categoryOf мантиқи зарурии гурӯҳбандии барномаҳо аз рӯи package name-ро иҷро мекунад.
 AppCategory categoryOf(ChildApp app) => classifyApp(app.packageName, app.name);
 
-/// Categories closed during «Тамаркузи дарс».
+/// Қимати studyBlockedCategories-ро барои гурӯҳбандии барномаҳо аз рӯи package name нигоҳ медорад.
 const studyBlockedCategories = {
   AppCategory.games,
   AppCategory.social,
   AppCategory.video,
 };
 
-/// Phone, contacts, SMS, clock, settings and similar system essentials.
-/// Study mode and bedtime never block these, so the child can always call.
+/// isEssentialApp иҷро шудани шарти вобастаро муайян мекунад.
 bool isEssentialApp(String packageName) {
   final p = packageName.toLowerCase();
   const exact = {

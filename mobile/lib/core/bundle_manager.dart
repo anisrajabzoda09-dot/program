@@ -1,6 +1,4 @@
-// Over-the-air config bundle: downloads checksummed JSON patches from the
-// server (UI text/visibility/colour overrides and rule defaults), merges and
-// validates them, and keeps the active bundle in shared preferences.
+// Файл: зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдаст.
 
 import 'dart:convert';
 import 'dart:io';
@@ -9,13 +7,13 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Performs the bundle HTTP GET; injectable so tests can fake the server.
+/// Шакли callback-и истифодашавандаро барои зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдаст муайян мекунад.
 typedef BundleFetcher = Future<BundleHttpResponse> Function(
   Uri uri,
   Map<String, String> headers,
 );
 
-/// Minimal HTTP reply (status and body) returned by a [BundleFetcher].
+/// Додаҳо ва рафтори марбут ба зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро ифода мекунад.
 class BundleHttpResponse {
   const BundleHttpResponse(this.statusCode, this.body);
 
@@ -23,8 +21,7 @@ class BundleHttpResponse {
   final String body;
 }
 
-/// Outcome of one [DynamicConfigNotifier.sync]: applied, unchanged, needs a
-/// full app update, or failed with [error].
+/// Додаҳо ва рафтори марбут ба зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро ифода мекунад.
 class BundleSyncResult {
   const BundleSyncResult({
     required this.applied,
@@ -39,8 +36,7 @@ class BundleSyncResult {
   final String? error;
 }
 
-/// Holds the active remote config bundle and notifies listeners when a newer
-/// one is applied.
+/// Мантиқ ва ҳолати зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро идора мекунад.
 class DynamicConfigNotifier extends ChangeNotifier {
   DynamicConfigNotifier({this.fetcher});
 
@@ -77,50 +73,59 @@ class DynamicConfigNotifier extends ChangeNotifier {
   Map<String, dynamic> _active = _deepCopy(baseBundle);
   bool _loaded = false;
 
+  /// Қимати ҳисобшудаи currentBundleVersion-ро аз ҳолати ҷорӣ бармегардонад.
   int get currentBundleVersion =>
       (_active['bundle_version'] as num?)?.toInt() ?? 0;
 
+  /// Қимати ҳисобшудаи uiOverrides-ро аз ҳолати ҷорӣ бармегардонад.
   Map<String, dynamic> get uiOverrides => _map(_active['ui_overrides']);
 
+  /// Қимати ҳисобшудаи cachedRulesTemplate-ро аз ҳолати ҷорӣ бармегардонад.
   Map<String, dynamic> get cachedRulesTemplate =>
       _map(_active['cached_rules_template']);
 
-  /// Server-overridden UI string for [key], or [fallback] when none is set.
+  /// text мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   String text(String key, {String fallback = ''}) {
     final strings = _map(uiOverrides['strings']);
     final value = strings[key];
     return value is String && value.isNotEmpty ? value : fallback;
   }
 
-  /// Whether the UI element [key] should be shown, per the server overrides.
+  /// visible мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   bool visible(String key, {bool fallback = true}) {
     final visibility = _map(uiOverrides['visibility']);
     final value = visibility[key];
     return value is bool ? value : fallback;
   }
 
-  /// Integer rule default from the bundle's rules template, or [fallback].
+  /// ruleInt мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   int ruleInt(String key, {required int fallback}) {
     final value = cachedRulesTemplate[key];
     return value is num ? value.toInt() : fallback;
   }
 
-  /// String rule default from the bundle's rules template, or [fallback].
+  /// ruleString мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   String ruleString(String key, {required String fallback}) {
     final value = cachedRulesTemplate[key];
     return value is String && value.isNotEmpty ? value : fallback;
   }
 
+  /// Қимати ҳисобшудаи defaultDailyLimitMinutes-ро аз ҳолати ҷорӣ бармегардонад.
   int get defaultDailyLimitMinutes =>
       ruleInt('defaultDailyLimitMinutes', fallback: 90);
 
+  /// Қимати ҳисобшудаи primaryColor-ро аз ҳолати ҷорӣ бармегардонад.
   Color get primaryColor => color('primaryColor', const Color(0xFF0095F6));
+  /// Қимати ҳисобшудаи secondaryColor-ро аз ҳолати ҷорӣ бармегардонад.
   Color get secondaryColor => color('secondaryColor', const Color(0xFF070D18));
+  /// Қимати ҳисобшудаи backgroundColor-ро аз ҳолати ҷорӣ бармегардонад.
   Color get backgroundColor => color('backgroundColor', Colors.white);
+  /// Қимати ҳисобшудаи surfaceColor-ро аз ҳолати ҷорӣ бармегардонад.
   Color get surfaceColor => color('surfaceColor', Colors.white);
+  /// Қимати ҳисобшудаи accentColor-ро аз ҳолати ҷорӣ бармегардонад.
   Color get accentColor => color('accentColor', const Color(0xFF00A98F));
 
-  /// Server-overridden theme colour ([key] as #RRGGBB / #AARRGGBB) or [fallback].
+  /// color қисми мувофиқи интерфейсро месозад.
   Color color(String key, Color fallback) {
     final theme = _map(uiOverrides['theme']);
     final raw = theme[key];
@@ -131,7 +136,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     return Color(hex.length == 6 ? 0xFF000000 | value : value);
   }
 
-  /// Restores the last applied bundle from shared preferences (once).
+  /// loadLocal додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> loadLocal() async {
     if (_loaded) return;
     _prefs = await SharedPreferences.getInstance();
@@ -145,7 +150,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
           _active = candidate;
         }
       } catch (_) {
-        // Corrupt cache is ignored; the compiled base bundle remains active.
+        // Хатои ин қадам нодида гирифта мешавад, то ҷараёни асосӣ қатъ нашавад.
         _active = _deepCopy(baseBundle);
       }
     }
@@ -153,8 +158,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Fetches and applies new patches from the first reachable server; rejects
-  /// the whole update on a bad checksum, structure or too-old native app.
+  /// sync додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<BundleSyncResult> sync({
     required String endpointBaseUrl,
     required int nativeVersionCode,
@@ -245,10 +249,11 @@ class DynamicConfigNotifier extends ChangeNotifier {
     );
   }
 
+  /// checksumFor дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   static String checksumFor(Map<String, dynamic> payload) =>
       sha256.convert(utf8.encode(_canonicalJson(payload))).toString();
 
-  /// Saves the active bundle so it survives restarts.
+  /// persist тағйиротро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> _persist() async {
     await (_prefs ??= await SharedPreferences.getInstance()).setString(
       storageKey,
@@ -256,7 +261,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     );
   }
 
-  /// Default [BundleFetcher] using dart:io's HttpClient.
+  /// fetch додаҳоро мехонад ва ҳолати экранро нав мекунад.
   static Future<BundleHttpResponse> _fetch(
     Uri uri,
     Map<String, String> headers,
@@ -275,13 +280,15 @@ class DynamicConfigNotifier extends ChangeNotifier {
     }
   }
 
+  /// map мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   static Map<String, dynamic> _map(dynamic value) =>
       value is Map ? Map<String, dynamic>.from(value) : <String, dynamic>{};
 
+  /// deepCopy мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   static Map<String, dynamic> _deepCopy(Map<String, dynamic> value) =>
       jsonDecode(jsonEncode(value)) as Map<String, dynamic>;
 
-  /// Deep-merges [patch] into a copy of [base] (nested maps are merged).
+  /// merge мантиқи зарурии зеркашӣ, санҷиш ва нигоҳдории bundle-и танзимоти дурдастро иҷро мекунад.
   static Map<String, dynamic> _merge(
     Map<String, dynamic> base,
     Map<dynamic, dynamic> patch,
@@ -298,7 +305,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     return result;
   }
 
-  /// Throws if a merged bundle lacks the required top-level structure.
+  /// validateState дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   static void _validateState(Map<String, dynamic> value) {
     if (value['bundle_version'] is! num) {
       throw const FormatException('Invalid bundle version');
@@ -309,8 +316,9 @@ class DynamicConfigNotifier extends ChangeNotifier {
     }
   }
 
-  /// Serializes JSON with sorted keys so checksums match the server's.
+  /// canonicalJson иҷро шудани шарти вобастаро муайян мекунад.
   static String _canonicalJson(dynamic value) {
+    /// normalize додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
     dynamic normalize(dynamic item) {
       if (item is Map) {
         final keys = item.keys.map((key) => key.toString()).toList()..sort();

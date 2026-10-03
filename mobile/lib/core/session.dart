@@ -1,5 +1,4 @@
-// Sign-in session: token, user and role persisted in shared preferences,
-// plus the inherited widget that exposes it to the widget tree.
+// Файл: session, token, нақш ва ҳолати воридшавӣ.
 
 import 'dart:convert';
 import 'dart:math';
@@ -15,22 +14,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'api.dart';
 import '../l10n/l10n.dart';
 
-/// Google OAuth web client ID the server uses to verify Google ID tokens.
+/// Қимати googleServerClientId-ро барои session, token, нақш ва ҳолати воридшавӣ нигоҳ медорад.
 const googleServerClientId = String.fromEnvironment(
   'NIGOH_GOOGLE_WEB_CLIENT_ID',
   defaultValue: '708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com',
 );
 
-/// Gets an Apple ID credential for [nonce] (already sha256-hashed) through
-/// the given web flow; replaced in tests so they don't need the plugin.
+/// Шакли callback-и истифодашавандаро барои session, token, нақш ва ҳолати воридшавӣ муайян мекунад.
 typedef AppleCredentialProvider =
+    /// Function мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
     Future<AuthorizationCredentialAppleID> Function({
       required String nonce,
       required WebAuthenticationOptions webAuthenticationOptions,
     });
 
-/// Default [AppleCredentialProvider]: the sign_in_with_apple plugin (Chrome
-/// Custom Tab on Android), asking for email and name.
+/// pluginAppleCredential мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
 Future<AuthorizationCredentialAppleID> pluginAppleCredential({
   required String nonce,
   required WebAuthenticationOptions webAuthenticationOptions,
@@ -43,15 +41,15 @@ Future<AuthorizationCredentialAppleID> pluginAppleCredential({
   webAuthenticationOptions: webAuthenticationOptions,
 );
 
-/// Opens [url] in a browser tab and resolves with the callback URL the server
-/// redirects to (scheme [callbackUrlScheme]); replaced in tests.
+/// Шакли callback-и истифодашавандаро барои session, token, нақш ва ҳолати воридшавӣ муайян мекунад.
 typedef GitHubBrowserAuth =
+    /// Function мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
     Future<String> Function({
       required String url,
       required String callbackUrlScheme,
     });
 
-/// Default [GitHubBrowserAuth]: the flutter_web_auth_2 plugin (Custom Tab).
+/// pluginGitHubBrowser мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
 Future<String> pluginGitHubBrowser({
   required String url,
   required String callbackUrlScheme,
@@ -60,18 +58,19 @@ Future<String> pluginGitHubBrowser({
   callbackUrlScheme: callbackUrlScheme,
 );
 
-/// Thrown when the user backs out of GitHub sign-in; the screen stays silent.
+/// Додаҳо ва рафтори марбут ба session, token, нақш ва ҳолати воридшавӣро ифода мекунад.
 class GitHubSignInCancelled implements Exception {
   const GitHubSignInCancelled();
 
+  /// Намоиши матнии GitHubSignInCancelled-ро барои log бармегардонад.
   @override
   String toString() => 'GitHub sign-in cancelled';
 }
 
-/// Random raw nonce for one Apple sign-in (Random.secure, URL-safe chars).
+/// appleRawNonce мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
 String appleRawNonce([int length = 48]) => secureRawNonce(length);
 
-/// Random raw nonce for one Apple/GitHub sign-in (Random.secure, URL-safe).
+/// secureRawNonce мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
 String secureRawNonce([int length = 48]) {
   const chars =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._';
@@ -82,11 +81,10 @@ String secureRawNonce([int length = 48]) {
   ).join();
 }
 
-/// Hex sha256 of [raw]; Apple gets this, the server gets the raw value.
+/// sha256Hex мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
 String sha256Hex(String raw) => sha256.convert(utf8.encode(raw)).toString();
 
-/// Signed-in state of the app. One instance lives for the whole app
-/// (see `SessionScope`). Screens read [user]/[role] and call the actions.
+/// Додаҳо ва рафтори марбут ба session, token, нақш ва ҳолати воридшавӣро ифода мекунад.
 class Session extends ChangeNotifier {
   Session({
     NigohApi? api,
@@ -100,10 +98,10 @@ class Session extends ChangeNotifier {
 
   final NigohApi api;
 
-  /// Where Apple ID credentials come from (the plugin, or a fake in tests).
+  /// Қимати appleCredential-ро барои session, token, нақш ва ҳолати воридшавӣ нигоҳ медорад.
   final AppleCredentialProvider appleCredential;
 
-  /// Opens the GitHub browser flow (the plugin, or a fake in tests).
+  /// Қимати githubBrowser-ро барои session, token, нақш ва ҳолати воридшавӣ нигоҳ медорад.
   final GitHubBrowserAuth githubBrowser;
 
   static const _tokenKey = 'nigoh.token';
@@ -113,28 +111,33 @@ class Session extends ChangeNotifier {
   bool loading = true;
   Map<String, dynamic>? user;
 
-  /// 'parent' | 'child' | null (not chosen yet on this phone).
+  /// Қимати role-ро барои session, token, нақш ва ҳолати воридшавӣ нигоҳ медорад.
   String? role;
 
+  /// Қимати ҳисобшудаи signedIn-ро аз ҳолати ҷорӣ бармегардонад.
   bool get signedIn => api.token != null;
+  /// Қимати ҳисобшудаи isParent-ро аз ҳолати ҷорӣ бармегардонад.
   bool get isParent => role == 'parent';
+  /// Қимати ҳисобшудаи isChild-ро аз ҳолати ҷорӣ бармегардонад.
   bool get isChild => role == 'child';
+  /// Қимати ҳисобшудаи displayName-ро аз ҳолати ҷорӣ бармегардонад.
   String get displayName => user?['full_name']?.toString() ?? '';
+  /// Қимати ҳисобшудаи email-ро аз ҳолати ҷорӣ бармегардонад.
   String get email => user?['email']?.toString() ?? '';
 
-  /// Server path of the profile photo (see `NigohApi.fileUrl`), or null.
+  /// Қимати ҳисобшудаи avatar-ро барои session, token, нақш ва ҳолати воридшавӣ бармегардонад.
   String? get avatar {
     final value = user?['avatar']?.toString();
     return value == null || value.isEmpty ? null : value;
   }
 
-  /// Updates the cached profile after an avatar upload/delete.
+  /// setAvatar ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   void setAvatar(String? path) {
     user = {...?user, 'avatar': path};
     notifyListeners();
   }
 
-  /// Restores the saved token, role and name at app start.
+  /// load додаҳои session-ро мехонад ва ҳолати Session-ро нав мекунад.
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     api.token = prefs.getString(_tokenKey);
@@ -147,7 +150,7 @@ class Session extends ChangeNotifier {
     if (api.token != null) unawaitedRefresh();
   }
 
-  /// Refresh the profile in the background; offline is fine.
+  /// unawaitedRefresh мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   void unawaitedRefresh() {
     api
         .me()
@@ -162,7 +165,7 @@ class Session extends ChangeNotifier {
         .catchError((_) {});
   }
 
-  /// Saves the token and user returned by a successful sign-in.
+  /// store тағйиротро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> _store(Map<String, dynamic> response) async {
     final token = response['token']?.toString();
     if (token == null || token.isEmpty) {
@@ -177,19 +180,21 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Caches the display name so it shows before the server answers.
+  /// saveName тағйиротро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> _saveName() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userKey, displayName);
   }
 
+  /// register дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> register(String email, String password, String name) async =>
       _store(await api.register(email.trim(), password, name.trim()));
 
+  /// login дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> login(String email, String password) async =>
       _store(await api.login(email.trim(), password));
 
-  /// Google sign-in; the server verifies the ID token itself.
+  /// signInWithGoogle мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   Future<void> signInWithGoogle() async {
     final google = GoogleSignIn.instance;
     await google.initialize(serverClientId: googleServerClientId);
@@ -201,10 +206,7 @@ class Session extends ChangeNotifier {
     await _store(await api.google(idToken));
   }
 
-  /// Sign in with Apple via the server's web-flow bridge. Throws
-  /// [SignInWithAppleAuthorizationException] (code `canceled` when the user
-  /// backs out) or a readable [ApiException]. [onCredential] fires once Apple
-  /// has answered, before the server is asked.
+  /// signInWithApple мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   Future<void> signInWithApple({void Function()? onCredential}) async {
     final config = await api.appleConfig();
     if (!config.enabled) {
@@ -237,10 +239,7 @@ class Session extends ChangeNotifier {
     );
   }
 
-  /// Sign in with GitHub via the server's browser flow: the tab gets the
-  /// nonce's sha256, the server gets the one-time ticket plus the RAW nonce.
-  /// Throws [GitHubSignInCancelled] when the user backs out, otherwise a
-  /// readable [ApiException].
+  /// signInWithGitHub мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   Future<void> signInWithGitHub() async {
     final config = await api.githubConfig();
     if (!config.enabled) {
@@ -268,8 +267,7 @@ class Session extends ChangeNotifier {
     await _store(await api.signInWithGitHub(ticket: ticket, nonce: rawNonce));
   }
 
-  /// Pulls the ticket out of the GitHub callback URL or throws the matching
-  /// cancel / readable error.
+  /// githubTicket мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   String _githubTicket(String callbackUrl) {
     final params = Uri.tryParse(callbackUrl)?.queryParameters ?? const {};
     final ticket = params['ticket'] ?? '';
@@ -292,7 +290,7 @@ class Session extends ChangeNotifier {
     }
   }
 
-  /// Saves the role chosen for this phone and tells the server about it.
+  /// chooseRole ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> chooseRole(String value) async {
     role = value;
     api.role = value;
@@ -302,11 +300,11 @@ class Session extends ChangeNotifier {
     try {
       await api.updateMe(role: value);
     } catch (_) {
-      // The role header on every request is what the server acts on.
+      // Ин қадам ҷавоби server ё хатои API-ро коркард мекунад.
     }
   }
 
-  /// Renames the signed-in user on the server and caches the new name.
+  /// updateName ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> updateName(String name) async {
     final data = await api.updateMe(fullName: name.trim());
     final fresh = data['user'];
@@ -315,7 +313,7 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Signs out on the server and from Google, then forgets the local session.
+  /// signOut мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   Future<void> signOut() async {
     try {
       await api.logout();
@@ -326,13 +324,13 @@ class Session extends ChangeNotifier {
     await _clear();
   }
 
-  /// Called when the server rejects the token: signs out locally.
+  /// expired мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   void _expired() {
     if (api.token == null) return;
     _clear();
   }
 
-  /// Forgets the token, user and role locally and notifies listeners.
+  /// clear маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> _clear() async {
     api.token = null;
     user = null;
@@ -346,8 +344,7 @@ class Session extends ChangeNotifier {
   }
 }
 
-/// Gives every screen access to the [Session]: `SessionScope.of(context)`.
-/// Widgets that call `of` rebuild when the session changes.
+/// Додаҳо ва рафтори марбут ба session, token, нақш ва ҳолати воридшавӣро ифода мекунад.
 class SessionScope extends InheritedNotifier<Session> {
   const SessionScope({
     super.key,
@@ -355,10 +352,11 @@ class SessionScope extends InheritedNotifier<Session> {
     required super.child,
   }) : super(notifier: session);
 
+  /// of мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   static Session of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<SessionScope>()!.notifier!;
 
-  /// Read without subscribing to changes (for callbacks).
+  /// read додаҳоро мехонад ва ҳолати экранро нав мекунад.
   static Session read(BuildContext context) =>
       context.getInheritedWidgetOfExactType<SessionScope>()!.notifier!;
 }
