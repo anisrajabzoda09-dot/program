@@ -67,6 +67,7 @@
   </script>
   <link rel="stylesheet" href="/static/css/site.css?v={{ app_version }}">
   <link rel="stylesheet" href="/static/css/theme-switch.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/css/motion.css?v={{ app_version }}">
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -172,16 +173,6 @@
 
   <script>
     (function () {
-      var toggle = document.getElementById('theme-toggle');
-      if (!toggle) return;
-      toggle.checked = document.documentElement.getAttribute('data-theme') === 'dark';
-      toggle.addEventListener('change', function () {
-        var t = toggle.checked ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', t);
-        try { localStorage.setItem('nigoh-theme', t); } catch (e) {}
-      });
-    })();
-    (function () {
       var header = document.querySelector('.site-header');
       var toggle = document.querySelector('.nav-toggle');
       if (!header || !toggle) return;
@@ -191,27 +182,7 @@
       });
     })();
   </script>
-  <script>
-    (function () {
-      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce || !('IntersectionObserver' in window)) return;
-      document.documentElement.classList.add('js-reveal');
-      var items = document.querySelectorAll('main section, main .cta');
-      items.forEach(function (el) { el.classList.add('reveal'); });
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (!e.isIntersecting) return;
-          e.target.classList.add('in');
-          io.unobserve(e.target);
-        });
-      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
-      items.forEach(function (el) { io.observe(el); });
-      // Anything already on screen (or if the observer never fires) stays visible.
-      setTimeout(function () {
-        items.forEach(function (el) { el.classList.add('in'); });
-      }, 1200);
-    })();
-  </script>
+  <script src="/static/js/motion.js?v={{ app_version }}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
