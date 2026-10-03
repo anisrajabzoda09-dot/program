@@ -6,7 +6,13 @@ import '../../core/models.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'child_sync.dart';
-import 'child_widgets.dart' show StudyNotice;
+import 'child_widgets.dart'
+    show
+        BedtimeNotice,
+        ChildIconTile,
+        ChildProgressBar,
+        StudyNotice,
+        childReducedMotion;
 import '../../l10n/l10n.dart';
 
 const _weekdayShort = <int, String>{
@@ -39,9 +45,9 @@ List<ChildApp> studyClosedApps(List<ChildApp> apps) => [
       a,
 ];
 
-/// «45/60 дақ» plus «, +15 бонус» when the parent gave bonus time today.
+/// «45 дақ аз 60» plus «, +15 бонус» when the parent gave bonus time today.
 String limitUsageLabel(ChildApp app) {
-  final base = tr('{used}/{limit} дақ', {
+  final base = tr('{used} дақ аз {limit}', {
     'used': app.usageMinutesToday,
     'limit': app.effectiveLimitMinutes,
   });
@@ -211,9 +217,15 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
         style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
       ),
       const SizedBox(height: 8),
-      if (studyActive) ...[
+      // Why nothing opens right now, in one sentence. Bedtime wins over
+      // study hours, exactly like the rules pushed to the blocker.
+      if (bedtimeActive) ...[
         const SizedBox(height: 4),
-        StudyNotice(study: study),
+        FadeIn(child: BedtimeNotice(bedtime: bedtime)),
+        const SizedBox(height: 4),
+      ] else if (studyActive) ...[
+        const SizedBox(height: 4),
+        FadeIn(child: StudyNotice(study: study)),
         const SizedBox(height: 4),
       ],
       if (child == null)
@@ -240,66 +252,13 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
           ),
         )
       else ...[
-        if (bedtime.enabled) ...[
-          SectionTitle(tr('Вақти хоб')),
-          FadeIn(
-            index: index++,
-            child: _RuleCard(
-              leading: _IconTile(
-                icon: Icons.bedtime_rounded,
-                color: NigohDesign.violet,
-              ),
-              title: '${bedtime.start} – ${bedtime.end}',
-              subtitle: tr(
-                'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.',
-              ),
-              trailing: bedtimeActive
-                  ? Pill(tr('Ҳозир фаъол'), color: NigohDesign.violet)
-                  : null,
-            ),
-          ),
-        ],
-        if (study.enabled) ...[
-          SectionTitle(tr('Тамаркузи дарс')),
-          FadeIn(
-            index: index++,
-            child: _RuleCard(
-              leading: _IconTile(
-                icon: Icons.school_rounded,
-                color: NigohDesign.mint,
-              ),
-              title:
-                  '${study.start} – ${study.end} · ${weekdaysLabel(study.weekdays)}',
-              subtitle: tr(
-                'Бозиҳо, шабакаҳо ва видео баста мешаванд. Занг, SMS ва '
-                'барномаҳои таълимӣ кушода мемонанд.',
-              ),
-              trailing: studyActive
-                  ? Pill(tr('Ҳозир фаъол'), color: NigohDesign.mint)
-                  : null,
-            ),
-          ),
-          if (studyApps.isNotEmpty) ...[
-            SectionTitle(
-              tr('Дар соатҳои дарс баста ({n})', {'n': studyApps.length}),
-            ),
-            for (final app in studyApps)
-              FadeIn(
-                index: index++,
-                child: _AppRule(
-                  key: ValueKey('study-app-${app.packageName}'),
-                  app: app,
-                  locked: studyActive,
-                  subtitle: categoryOf(app).label,
-                  pill: studyActive
-                      ? Pill(tr('Дарс'), color: NigohDesign.mint)
-                      : null,
-                ),
-              ),
-          ],
-        ],
         if (blocked.isNotEmpty) ...[
-          SectionTitle(tr('Баста ({n})', {'n': blocked.length})),
+          _GroupHeader(
+            icon: Icons.block_rounded,
+            color: NigohDesign.coral,
+            title: tr('Баста ({n})', {'n': blocked.length}),
+            text: tr('Ин барномаҳо ҳоло кушода намешаванд.'),
+          ),
           for (final app in blocked)
             FadeIn(
               index: index++,
@@ -313,7 +272,12 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
             ),
         ],
         if (limited.isNotEmpty) ...[
-          SectionTitle(tr('Маҳдудияти рӯзона ({n})', {'n': limited.length})),
+          _GroupHeader(
+            icon: Icons.timelapse_rounded,
+            color: NigohDesign.amber,
+            title: tr('Лимити рӯзона ({n})', {'n': limited.length}),
+            text: tr('Ҳар рӯз вақти муайян; баъд барнома баста мешавад.'),
+          ),
           for (final app in limited)
             FadeIn(
               index: index++,
@@ -333,7 +297,12 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
             ),
         ],
         if (scheduled.isNotEmpty) ...[
-          SectionTitle(tr('Вақти дарс ({n})', {'n': scheduled.length})),
+          _GroupHeader(
+            icon: Icons.schedule_rounded,
+            color: NigohDesign.amber,
+            title: tr('Вақти дарс ({n})', {'n': scheduled.length}),
+            text: tr('Танҳо дар ин соатҳо кушода мешаванд.'),
+          ),
           for (final app in scheduled)
             FadeIn(
               index: index++,
@@ -345,8 +314,86 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
               ),
             ),
         ],
+        if (bedtime.enabled) ...[
+          _GroupHeader(
+            icon: Icons.bedtime_rounded,
+            color: NigohDesign.violet,
+            title: tr('Вақти хоб'),
+            text: tr('Шабона телефон истироҳат мекунад.'),
+          ),
+          FadeIn(
+            index: index++,
+            child: _RuleCard(
+              leading: ChildIconTile(
+                icon: Icons.bedtime_rounded,
+                color: NigohDesign.violet,
+              ),
+              title: '${bedtime.start} – ${bedtime.end}',
+              subtitle: tr(
+                'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.',
+              ),
+              trailing: bedtimeActive
+                  ? Pill(tr('Ҳозир фаъол'), color: NigohDesign.violet)
+                  : null,
+            ),
+          ),
+        ],
+        if (study.enabled) ...[
+          _GroupHeader(
+            icon: Icons.school_rounded,
+            color: NigohDesign.mint,
+            title: tr('Тамаркузи дарс'),
+            text: tr('Дар соатҳои дарс танҳо чизҳои лозимӣ кушодаанд.'),
+          ),
+          FadeIn(
+            index: index++,
+            child: _RuleCard(
+              leading: ChildIconTile(
+                icon: Icons.school_rounded,
+                color: NigohDesign.mint,
+              ),
+              title:
+                  '${study.start} – ${study.end} · ${weekdaysLabel(study.weekdays)}',
+              subtitle: tr(
+                'Бозиҳо, шабакаҳо ва видео баста мешаванд. Занг, SMS ва '
+                'барномаҳои таълимӣ кушода мемонанд.',
+              ),
+              trailing: studyActive
+                  ? Pill(tr('Ҳозир фаъол'), color: NigohDesign.mint)
+                  : null,
+            ),
+          ),
+          if (studyApps.isNotEmpty) ...[
+            _GroupHeader(
+              icon: Icons.lock_clock_rounded,
+              color: NigohDesign.mint,
+              title: tr('Дар соатҳои дарс баста ({n})', {
+                'n': studyApps.length,
+              }),
+              text: tr('Инҳо дар вақти дарс пӯшида мешаванд.'),
+            ),
+            for (final app in studyApps)
+              FadeIn(
+                index: index++,
+                child: _AppRule(
+                  key: ValueKey('study-app-${app.packageName}'),
+                  app: app,
+                  locked: studyActive,
+                  subtitle: categoryOf(app).label,
+                  pill: studyActive
+                      ? Pill(tr('Дарс'), color: NigohDesign.mint)
+                      : null,
+                ),
+              ),
+          ],
+        ],
         if (allowed.isNotEmpty) ...[
-          SectionTitle(tr('Ҳамеша иҷозат ({n})', {'n': allowed.length})),
+          _GroupHeader(
+            icon: Icons.verified_rounded,
+            color: NigohDesign.mint,
+            title: tr('Ҳамеша иҷозат ({n})', {'n': allowed.length}),
+            text: tr('Инҳо ҳамеша кушодаанд — ҳатто дар вақти хоб.'),
+          ),
           for (final app in allowed)
             FadeIn(
               index: index++,
@@ -359,7 +406,12 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
         ],
       ],
       if (child != null) ...[
-        SectionTitle(tr('Дархостҳои ман')),
+        _GroupHeader(
+          icon: Icons.more_time_rounded,
+          color: NigohDesign.blue,
+          title: tr('Дархостҳои ман'),
+          text: tr('Ҷавоби волидайн ба дархостҳои вақти иловагӣ.'),
+        ),
         _RequestsList(
           requests: _requests,
           error: _requestsError,
@@ -380,21 +432,57 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
   }
 }
 
-class _IconTile extends StatelessWidget {
-  const _IconTile({required this.icon, required this.color});
+/// Title of a rule group plus one short sentence that explains it to a child.
+class _GroupHeader extends StatelessWidget {
+  const _GroupHeader({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.text,
+  });
+
   final IconData icon;
   final Color color;
+  final String title;
+  final String text;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 44,
-    height: 44,
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: .12),
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Icon(icon, color: color),
-  );
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 22, 2, 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ChildIconTile(icon: icon, color: color, size: 32),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: scheme.onSurfaceVariant,
+                    fontSize: 12.5,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _RuleCard extends StatelessWidget {
@@ -454,7 +542,12 @@ class _RuleCard extends StatelessWidget {
                   ),
                   if (trailing != null) ...[
                     const SizedBox(width: 8),
-                    trailing!,
+                    AnimatedSwitcher(
+                      duration: childReducedMotion(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 250),
+                      child: trailing,
+                    ),
                   ],
                 ],
               ),
@@ -501,29 +594,30 @@ class _AppRule extends StatelessWidget {
       bottom: value == null && onAsk == null
           ? null
           : Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(top: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (value != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
-                      child: LinearProgressIndicator(
-                        value: value,
-                        minHeight: 6,
-                        color: value >= 1 ? NigohDesign.coral : scheme.primary,
-                        backgroundColor: scheme.surfaceContainerHighest,
-                      ),
+                    ChildProgressBar(
+                      value: value,
+                      color: value >= 1
+                          ? NigohDesign.coral
+                          : value >= .8
+                          ? NigohDesign.amber
+                          : scheme.primary,
                     ),
-                  if (onAsk != null)
+                  if (onAsk != null) ...[
+                    const SizedBox(height: 12),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: TextButton.icon(
+                      child: FilledButton.tonalIcon(
                         onPressed: onAsk,
                         icon: const Icon(Icons.more_time_rounded, size: 18),
                         label: Text(tr('Вақти иловагӣ пурсидан')),
                       ),
                     ),
+                  ],
                 ],
               ),
             ),
@@ -588,7 +682,16 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
+          Text(
+            tr('Волидайн дархости шуморо мебинанд ва ҷавоб медиҳанд.'),
+            style: TextStyle(
+              color: scheme.onSurfaceVariant,
+              fontSize: 13,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 14),
           Text(
             tr('Чанд дақиқа лозим аст?'),
             style: TextStyle(color: scheme.onSurfaceVariant),
@@ -673,7 +776,7 @@ class _RequestsList extends StatelessWidget {
           FadeIn(
             index: i,
             child: _RuleCard(
-              leading: const _IconTile(
+              leading: const ChildIconTile(
                 icon: Icons.more_time_rounded,
                 color: NigohDesign.blue,
               ),
@@ -692,11 +795,24 @@ class _RequestsList extends StatelessWidget {
   }
 }
 
-/// Pill for a request status: интизор / иҷозат дода шуд / рад шуд.
+/// Pill for a request status: интизор / иҷозат дода шуд / рад шуд. The icon
+/// says it too, so a child does not have to read the word.
 Widget requestStatusPill(String status) => switch (status) {
-  'approved' => Pill(tr('иҷозат дода шуд'), color: NigohDesign.mint),
-  'denied' => Pill(tr('рад шуд'), color: NigohDesign.coral),
-  _ => Pill(tr('интизор'), color: NigohDesign.amber),
+  'approved' => Pill(
+    tr('иҷозат дода шуд'),
+    color: NigohDesign.mint,
+    icon: Icons.check_circle_rounded,
+  ),
+  'denied' => Pill(
+    tr('рад шуд'),
+    color: NigohDesign.coral,
+    icon: Icons.cancel_rounded,
+  ),
+  _ => Pill(
+    tr('интизор'),
+    color: NigohDesign.amber,
+    icon: Icons.hourglass_top_rounded,
+  ),
 };
 
 class _InlineError extends StatelessWidget {

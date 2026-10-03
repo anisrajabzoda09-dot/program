@@ -35,11 +35,7 @@ Map<String, dynamic> serverChild({bool bedtime = false, int unread = 0}) => {
       'app_name': 'Video',
       'usage_minutes_today': 70,
     },
-    {
-      'package_name': 'com.game',
-      'app_name': 'Game',
-      'usage_minutes_today': 25,
-    },
+    {'package_name': 'com.game', 'app_name': 'Game', 'usage_minutes_today': 25},
     {'package_name': 'com.idle', 'app_name': 'Idle', 'usage_minutes_today': 0},
   ],
 };
@@ -177,6 +173,133 @@ void main() {
     final (sync, _) = await pump(tester, child: serverChild(bedtime: true));
     expect(find.textContaining('Вақти хоб —'), findsNothing);
     await finish(tester, sync);
+  });
+
+  testWidgets('status cards explain themselves and offer the fix', (
+    tester,
+  ) async {
+    final (sync, _) = await pump(tester);
+    // Screen time, protection, apps and location — four plain status cards.
+    expect(find.text('Ҳолати телефон'), findsOneWidget);
+    expect(find.text('Ҳимоя'), findsOneWidget);
+    expect(
+      find.text('Қоидаҳои волидайн дар ин телефон кор мекунанд.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Волидайн рӯйхати барномаҳои ин телефонро мебинанд.'),
+      findsOneWidget,
+    );
+    // Nothing was sent for the location → amber state with a fix button.
+    expect(find.text('Ҷои шумо ҳоло ба волидайн нарасидааст.'), findsOneWidget);
+    expect(find.text('Диққат'), findsOneWidget);
+    expect(find.text('Хуб'), findsNWidgets(2));
+    expect(find.widgetWithText(FilledButton, 'Аз нав кӯшиш'), findsOneWidget);
+    await finish(tester, sync);
+  });
+
+  for (final size in const [Size(360, 780), Size(1280, 800)]) {
+    testWidgets('child home fits ${size.width.toInt()} px', (tester) async {
+      tester.view.physicalSize = size * 3;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final sync = ChildSync(
+        api: NigohApi(
+          client: MockClient((req) async {
+            if (req.url.path == '/api/mobile/v2/snapshot') {
+              return json({'child': serverChild()});
+            }
+            return json({'status': 'success'});
+          }),
+          baseUrl: 'http://t',
+        ),
+        trackLocation: false,
+        listenPackageEvents: false,
+        clock: () => DateTime(2026, 10, 1, 12),
+      );
+      await tester.pumpWidget(MaterialApp(home: ChildHome(sync: sync)));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Пайваст бо Модар'), findsOneWidget);
+      // «Қоидаҳои ман» at the same width.
+      await tester.tap(find.text('Қоидаҳо'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await finish(tester, sync);
+    });
+  }
+
+  testWidgets('pairing card shows the code in large spaced digits', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final sync = ChildSync(
+      api: NigohApi(
+        client: MockClient((req) async {
+          if (req.url.path == '/api/mobile/v2/snapshot') {
+            return json({
+              'child': {
+                'id': 5,
+                'pairing_code': '482913',
+                'is_paired': false,
+                'apps': [],
+              },
+            });
+          }
+          return json({'status': 'success'});
+        }),
+        baseUrl: 'http://t',
+      ),
+      trackLocation: false,
+      listenPackageEvents: false,
+    );
+    await tester.pumpWidget(MaterialApp(home: ChildHome(sync: sync)));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      find.text('Ин телефонро ба волидайн пайваст кунед — як маротиба.'),
+      findsOneWidget,
+    );
+    expect(find.text('Ё ин коди 6-рақама'), findsOneWidget);
+    final digits = tester.widget<SelectableText>(find.byType(SelectableText));
+    expect(digits.data, '482 913');
+    expect(digits.style!.fontSize, greaterThanOrEqualTo(34));
+    expect(digits.style!.letterSpacing, greaterThan(4));
+    // Three numbered steps in plain words.
+    expect(find.text('Чӣ тавр пайваст шавем'), findsOneWidget);
+    for (final n in ['1', '2', '3']) {
+      expect(find.text(n), findsOneWidget);
+    }
+    await finish(tester, sync);
+  });
+
+  testWidgets('progress bars animate, and jump with reduced motion', (
+    tester,
+  ) async {
+    Future<void> pumpBar({required bool reduced}) => tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: reduced),
+          child: const Scaffold(
+            body: ChildProgressBar(value: .5, color: Colors.blue),
+          ),
+        ),
+      ),
+    );
+    double barValue() => tester
+        .widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator))
+        .value!;
+
+    await pumpBar(reduced: false);
+    expect(barValue(), lessThan(.5)); // grows into place
+    await tester.pumpAndSettle();
+    expect(barValue(), closeTo(.5, .001));
+
+    await tester.pumpWidget(const SizedBox());
+    await pumpBar(reduced: true);
+    expect(barValue(), closeTo(.5, .001)); // no animation at all
   });
 
   testWidgets('chat tab shows the unread badge', (tester) async {

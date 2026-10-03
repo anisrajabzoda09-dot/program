@@ -118,6 +118,8 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
                   icon: Icons.rule_rounded,
                   title: tr('Ҳоло қоида нест'),
                   text: tr('Аввал телефонро бо волидайн пайваст кунед.'),
+                  actionLabel: tr('Кушодани пайвастшавӣ'),
+                  onAction: () => setState(() => _tab = 0),
                 ),
               );
       case 2:
@@ -151,7 +153,9 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     final unread = _tab == 2 ? 0 : (sync.child?.unreadFromParent ?? 0);
     return Scaffold(
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: childReducedMotion(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 220),
         child: KeyedSubtree(key: ValueKey(_tab), child: page),
       ),
       bottomNavigationBar: NavigationBar(
@@ -202,7 +206,9 @@ class _HomeTab extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
           children: [
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
+              duration: childReducedMotion(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 250),
               child: sync.loading && sync.childId == null
                   ? const Padding(
                       key: ValueKey('loading'),
@@ -268,54 +274,81 @@ class _PairingViewState extends State<_PairingView> {
         ),
         const SizedBox(height: 6),
         Text(
-          tr('Волидайн ин QR-ро дар телефони худ скан мекунад.'),
+          tr('Ин телефонро ба волидайн пайваст кунед — як маротиба.'),
           style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
         ),
         const SizedBox(height: 18),
         FadeIn(
           child: Card(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
               child: Column(
                 children: [
-                  if (code == null || code.isEmpty)
-                    SizedBox(
-                      height: 220,
-                      child: Center(
-                        child: sync.lastError != null
-                            ? Text(
-                                sync.lastError!,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: scheme.error),
-                              )
-                            : const CircularProgressIndicator(),
-                      ),
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        // White behind the QR so it scans in dark mode too.
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: QrImageView(
-                        data: pairingQrData(code),
-                        size: 200,
-                        backgroundColor: Colors.white,
-                      ),
+                  Text(
+                    tr('Волидайн ин QR-ро дар телефони худ скан мекунад.'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: 13,
+                      height: 1.35,
                     ),
-                  const SizedBox(height: 16),
-                  if (spaced != null && spaced.isNotEmpty)
-                    SelectableText(
-                      spaced,
+                  ),
+                  const SizedBox(height: 14),
+                  AnimatedSwitcher(
+                    duration: childReducedMotion(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 250),
+                    child: code == null || code.isEmpty
+                        ? SizedBox(
+                            key: const ValueKey('qr-wait'),
+                            height: 224,
+                            child: Center(
+                              child: sync.lastError != null
+                                  ? Text(
+                                      sync.lastError!,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: scheme.error),
+                                    )
+                                  : const CircularProgressIndicator(),
+                            ),
+                          )
+                        : Container(
+                            key: const ValueKey('qr'),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              // White behind the QR so it scans in dark mode.
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: QrImageView(
+                              data: pairingQrData(code),
+                              size: 200,
+                              backgroundColor: Colors.white,
+                            ),
+                          ),
+                  ),
+                  if (spaced != null && spaced.isNotEmpty) ...[
+                    const SizedBox(height: 18),
+                    Text(
+                      tr('Ё ин коди 6-рақама'),
                       style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 6,
-                        color: scheme.onSurface,
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 13,
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    FittedBox(
+                      child: SelectableText(
+                        spaced,
+                        style: TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 8,
+                          color: scheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   TextButton.icon(
                     onPressed: _busy ? null : _newCode,
@@ -334,17 +367,33 @@ class _PairingViewState extends State<_PairingView> {
           ),
         ),
         SectionTitle(tr('Чӣ тавр пайваст шавем')),
-        _Step(
+        FadeIn(
           index: 1,
-          text: tr('Волидайн NIGOH Family-ро дар телефони худ мекушояд.'),
-        ),
-        _Step(
-          index: 2,
-          text: tr('«Илова кардани фарзанд»-ро интихоб мекунад.'),
-        ),
-        _Step(
-          index: 3,
-          text: tr('QR-ро скан мекунад ё ин 6 рақамро ворид менамояд.'),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+              child: Column(
+                children: [
+                  _Step(
+                    index: 1,
+                    text: tr(
+                      'Волидайн NIGOH Family-ро дар телефони худ мекушояд.',
+                    ),
+                  ),
+                  _Step(
+                    index: 2,
+                    text: tr('«Илова кардани фарзанд»-ро интихоб мекунад.'),
+                  ),
+                  _Step(
+                    index: 3,
+                    text: tr(
+                      'QR-ро скан мекунад ё ин 6 рақамро ворид менамояд.',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
         if (sync.lastError != null && code != null && code.isNotEmpty) ...[
           const SizedBox(height: 12),
@@ -421,19 +470,46 @@ class _PairedView extends StatelessWidget {
     final bedtimeActive = child?.bedtime.activeAt(sync.now()) ?? false;
     final studyActive =
         !bedtimeActive && (child?.study.activeAt(sync.now()) ?? false);
+    final appsOk = sync.lastAppsSync != null;
+    final locationOk = sync.lastLocationSync != null;
+    final needsPermissions = sync.protectionKnown && !protectionOk;
+    final protectionCard = FadeIn(
+      index: 2,
+      child: _StatusCard(
+        icon: Icons.shield_rounded,
+        ok: protectionOk,
+        unknown: !sync.protectionKnown,
+        title: tr('Ҳимоя'),
+        value: !sync.protectionKnown
+            ? tr('Санҷида мешавад…')
+            : protectionOk
+            ? tr('Ҳамаи иҷозатҳо дода шудаанд')
+            : tr('{n} иҷозат намерасад', {'n': missing.length}),
+        hint: protectionOk
+            ? tr('Қоидаҳои волидайн дар ин телефон кор мекунанд.')
+            : tr('Бе ин иҷозатҳо қоидаҳо кор намекунанд: {list}', {
+                'list': missing.map(tr).join(', '),
+              }),
+        action: !sync.protectionKnown
+            ? null
+            : protectionOk
+            ? TextButton(onPressed: onOpenAccess, child: Text(tr('Иҷозатҳо')))
+            : FilledButton.icon(
+                onPressed: onOpenAccess,
+                icon: const Icon(Icons.build_rounded, size: 18),
+                label: Text(tr('Дуруст кардан')),
+              ),
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: NigohDesign.mint.withValues(alpha: .12),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(Icons.link_rounded, color: NigohDesign.mint),
+            const ChildIconTile(
+              icon: Icons.link_rounded,
+              color: NigohDesign.mint,
+              size: 48,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -452,7 +528,11 @@ class _PairedView extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     tr('NIGOH Family дар ин телефон фаъол аст.'),
-                    style: TextStyle(color: scheme.onSurfaceVariant),
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: 13,
+                      height: 1.35,
+                    ),
                   ),
                 ],
               ),
@@ -460,82 +540,129 @@ class _PairedView extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
-        if (bedtimeActive) ...[
-          FadeIn(child: BedtimeNotice(bedtime: child!.bedtime)),
-          const SizedBox(height: 12),
-        ],
-        if (studyActive) ...[
-          FadeIn(child: StudyNotice(study: child!.study)),
-          const SizedBox(height: 12),
-        ],
-        if (sync.lastError != null) ...[
-          FadeIn(
-            child: _ErrorCard(text: sync.lastError!, onRetry: sync.forceSync),
+        AnimatedSize(
+          duration: childReducedMotion(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 250),
+          alignment: Alignment.topCenter,
+          curve: Curves.easeOutCubic,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (bedtimeActive) ...[
+                FadeIn(child: BedtimeNotice(bedtime: child!.bedtime)),
+                const SizedBox(height: 12),
+              ],
+              if (studyActive) ...[
+                FadeIn(child: StudyNotice(study: child!.study)),
+                const SizedBox(height: 12),
+              ],
+              if (sync.lastError != null) ...[
+                FadeIn(
+                  child: _ErrorCard(
+                    text: sync.lastError!,
+                    onRetry: sync.forceSync,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ],
           ),
-          const SizedBox(height: 12),
-        ],
+        ),
+        // Something is missing → the fix comes before everything else.
+        if (needsPermissions) ...[protectionCard, const SizedBox(height: 12)],
         FadeIn(child: SosButton(onTriggered: () => _sendSos(context))),
-        SectionTitle(tr('Вақти экрани ман')),
-        FadeIn(index: 1, child: ScreenTimeCard(apps: child?.apps ?? const [])),
         SectionTitle(tr('Ҳолати телефон')),
+        FadeIn(index: 1, child: ScreenTimeCard(apps: child?.apps ?? const [])),
+        const SizedBox(height: 12),
+        if (!needsPermissions) ...[protectionCard, const SizedBox(height: 12)],
+        const SizedBox(height: 12),
         FadeIn(
-          index: 1,
+          index: 3,
           child: _StatusCard(
-            icon: Icons.shield_rounded,
-            color: protectionOk ? NigohDesign.mint : NigohDesign.amber,
-            title: tr('Ҳимоя'),
-            value: !sync.protectionKnown
-                ? tr('Санҷида мешавад…')
-                : protectionOk
-                ? tr('Ҳамаи иҷозатҳо дода шудаанд')
-                : tr('{n} иҷозат намерасад', {'n': missing.length}),
-            detail: protectionOk ? null : missing.map(tr).join(', '),
-            action: !sync.protectionKnown
+            icon: Icons.apps_rounded,
+            ok: appsOk,
+            okColor: NigohDesign.blue,
+            title: tr('Барномаҳо'),
+            value: appsOk
+                ? tr('{n} барнома', {'n': sync.appsCount})
+                : tr('Ҳоло фиристода нашудааст'),
+            hint: appsOk
+                ? tr('Волидайн рӯйхати барномаҳои ин телефонро мебинанд.')
+                : tr('Рӯйхати барномаҳо ҳоло ба волидайн нарасидааст.'),
+            detail: appsOk
+                ? tr('Навсозӣ: {time}', {'time': timeAgo(sync.lastAppsSync)})
+                : null,
+            action: appsOk
                 ? null
-                : protectionOk
-                ? TextButton(
-                    onPressed: onOpenAccess,
-                    child: Text(tr('Иҷозатҳо')),
-                  )
-                : FilledButton.tonal(
-                    onPressed: onOpenAccess,
-                    child: Text(tr('Иҷозатҳо')),
+                : _RetryButton(
+                    label: tr('Ҳозир фиристодан'),
+                    onTap: sync.forceSync,
                   ),
           ),
         ),
         const SizedBox(height: 12),
         FadeIn(
-          index: 2,
-          child: _StatusCard(
-            icon: Icons.apps_rounded,
-            color: NigohDesign.blue,
-            title: tr('Барномаҳо'),
-            value: sync.lastAppsSync == null
-                ? tr('Ҳоло фиристода нашудааст')
-                : tr('{n} барнома', {'n': sync.appsCount}),
-            detail: sync.lastAppsSync == null
-                ? null
-                : tr('Навсозӣ: {time}', {'time': timeAgo(sync.lastAppsSync)}),
-          ),
-        ),
-        const SizedBox(height: 12),
-        FadeIn(
-          index: 3,
+          index: 4,
           child: _StatusCard(
             icon: Icons.location_on_rounded,
-            color: NigohDesign.violet,
+            ok: locationOk,
+            okColor: NigohDesign.violet,
             title: tr('Ҷойгиршавӣ'),
-            value: sync.lastLocationSync == null
-                ? tr('Ҳоло фиристода нашудааст')
-                : tr('Фиристода шуд'),
-            detail: sync.lastLocationSync == null
+            value: locationOk
+                ? tr('Фиристода шуд')
+                : tr('Ҳоло фиристода нашудааст'),
+            hint: locationOk
+                ? tr('Волидайн мебинанд, ки шумо дар куҷо ҳастед.')
+                : tr('Ҷои шумо ҳоло ба волидайн нарасидааст.'),
+            detail: locationOk ? timeAgo(sync.lastLocationSync) : null,
+            action: locationOk
                 ? null
-                : timeAgo(sync.lastLocationSync),
+                : _RetryButton(
+                    label: tr('Аз нав кӯшиш'),
+                    onTap: sync.forceSync,
+                  ),
           ),
         ),
       ],
     );
   }
+}
+
+/// Quiet button that fixes a status card and shows its own progress.
+class _RetryButton extends StatefulWidget {
+  const _RetryButton({required this.label, required this.onTap});
+  final String label;
+  final Future<void> Function() onTap;
+
+  @override
+  State<_RetryButton> createState() => _RetryButtonState();
+}
+
+class _RetryButtonState extends State<_RetryButton> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    setState(() => _busy = true);
+    try {
+      await widget.onTap();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => FilledButton.tonalIcon(
+    onPressed: _busy ? null : _run,
+    icon: _busy
+        ? const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Icon(Icons.sync_rounded, size: 18),
+    label: Text(widget.label),
+  );
 }
 
 /// Sends the SOS (message_type 'urgent') with the latest coordinates and
@@ -567,76 +694,119 @@ Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
   }
 }
 
+/// One status line of the child's phone: a coloured tile, the plain-language
+/// state and — when something is wrong — the button that fixes it.
 class _StatusCard extends StatelessWidget {
   const _StatusCard({
     required this.icon,
-    required this.color,
     required this.title,
     required this.value,
+    required this.hint,
+    required this.ok,
+    this.unknown = false,
+    this.okColor = NigohDesign.mint,
     this.detail,
     this.action,
   });
 
   final IconData icon;
-  final Color color;
   final String title;
   final String value;
+
+  /// One plain sentence: what this means for the child.
+  final String hint;
+
+  /// Green state (mint / [okColor]) when true, amber «needs action» when not.
+  final bool ok;
+
+  /// Still being checked — neutral, no state pill.
+  final bool unknown;
+  final Color okColor;
   final String? detail;
   final Widget? action;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final color = unknown
+        ? scheme.onSurfaceVariant
+        : ok
+        ? okColor
+        : NigohDesign.amber;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: .12),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (detail != null && detail!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      detail!,
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        fontSize: 13,
-                        height: 1.35,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ChildIconTile(icon: icon, color: color),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        value,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!unknown) ...[
+                  const SizedBox(width: 8),
+                  AnimatedSwitcher(
+                    duration: childReducedMotion(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 250),
+                    child: Pill(
+                      ok ? tr('Хуб') : tr('Диққат'),
+                      key: ValueKey(ok),
+                      color: ok ? okColor : NigohDesign.amber,
+                      icon: ok
+                          ? Icons.check_circle_rounded
+                          : Icons.error_outline_rounded,
                     ),
-                  ],
-                  if (action != null) ...[const SizedBox(height: 10), action!],
+                  ),
                 ],
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              hint,
+              style: TextStyle(
+                color: scheme.onSurfaceVariant,
+                fontSize: 13,
+                height: 1.35,
               ),
             ),
+            if (detail != null && detail!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                detail!,
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: 12.5,
+                ),
+              ),
+            ],
+            if (action != null) ...[
+              const SizedBox(height: 12),
+              Align(alignment: Alignment.centerLeft, child: action!),
+            ],
           ],
         ),
       ),

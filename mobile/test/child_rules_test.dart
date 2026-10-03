@@ -9,6 +9,7 @@ import 'package:nigoh_family_parent/core/api.dart';
 import 'package:nigoh_family_parent/core/models.dart';
 import 'package:nigoh_family_parent/features/child/child_rules.dart';
 import 'package:nigoh_family_parent/features/child/child_sync.dart';
+import 'package:nigoh_family_parent/features/child/child_widgets.dart';
 
 http.Response json(Object body, [int status = 200]) => http.Response(
   jsonEncode(body),
@@ -96,7 +97,7 @@ void main() {
           usageMinutesToday: 45,
         ),
       ),
-      '45/60 дақ, +15 бонус',
+      '45 дақ аз 60, +15 бонус',
     );
     expect(minutesLabel(65), '1 соат 5 дақ');
     expect(minutesLabel(40), '40 дақ');
@@ -114,10 +115,14 @@ void main() {
     );
     await sync.ensureChild();
     final rules =
-        (nativeCalls.lastWhere((c) => c.method == 'setAppControlRules').arguments
+        (nativeCalls
+                    .lastWhere((c) => c.method == 'setAppControlRules')
+                    .arguments
                 as Map)['rules']
             as List;
-    final byPkg = <Object?, dynamic>{for (final r in rules) (r as Map)['packageName']: r};
+    final byPkg = <Object?, dynamic>{
+      for (final r in rules) (r as Map)['packageName']: r,
+    };
     expect(byPkg['com.video']['blocked'], isTrue);
     expect(byPkg['com.video']['dailyLimitMinutes'], 60); // limit + bonus
     expect(byPkg['com.school']['blocked'], isTrue);
@@ -158,7 +163,9 @@ void main() {
     );
     await sync.ensureChild();
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: ChildRulesScreen(sync: sync))),
+      MaterialApp(
+        home: Scaffold(body: ChildRulesScreen(sync: sync)),
+      ),
     );
     await tester.pumpAndSettle();
     return (sync, calls);
@@ -205,8 +212,27 @@ void main() {
     expect(find.text('21:30 – 07:00'), findsOneWidget);
     expect(find.text('Ҳозир фаъол'), findsOneWidget);
     expect(find.text('Баста (1)'), findsOneWidget);
+    // Every group says in one line what it means.
+    expect(find.text('Ин барномаҳо ҳоло кушода намешаванд.'), findsOneWidget);
+    expect(find.text('Лимити рӯзона (1)'), findsOneWidget);
+    expect(
+      find.text('Ҳар рӯз вақти муайян; баъд барнома баста мешавад.'),
+      findsOneWidget,
+    );
+    expect(find.text('Танҳо дар ин соатҳо кушода мешаванд.'), findsOneWidget);
+    expect(find.text('Шабона телефон истироҳат мекунад.'), findsOneWidget);
+    expect(
+      find.text('Инҳо ҳамеша кушодаанд — ҳатто дар вақти хоб.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Ҷавоби волидайн ба дархостҳои вақти иловагӣ.'),
+      findsOneWidget,
+    );
+    // Limited apps get an animated progress bar.
+    expect(find.byType(ChildProgressBar), findsWidgets);
     expect(find.text('Game'), findsWidgets);
-    expect(find.text('45/60 дақ, +15 бонус'), findsOneWidget);
+    expect(find.text('45 дақ аз 60, +15 бонус'), findsOneWidget);
     expect(find.text('Вақт тамом'), findsNothing); // bonus still left
     expect(find.text('16:00 – 18:00 · Дш, Сш, Чш'), findsOneWidget);
     expect(find.text('Maps'), findsOneWidget);
@@ -284,7 +310,9 @@ void main() {
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: ChildRulesScreen(sync: sync))),
+      MaterialApp(
+        home: Scaffold(body: ChildRulesScreen(sync: sync)),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('Сервер банд аст'), findsOneWidget);
