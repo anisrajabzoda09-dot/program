@@ -1,3 +1,5 @@
+// Material 3 light and dark themes of the app.
+
 import 'package:flutter/material.dart';
 
 import 'nigoh_design.dart';
@@ -11,6 +13,7 @@ abstract final class NigohTheme {
   static const soft = Color(0xFFF6F7F9);
   static const blue = Color(0xFF1F63E0);
 
+  /// Light theme: white surfaces, brand blue, dark ink text.
   static ThemeData light() => _build(
     ColorScheme.fromSeed(
       seedColor: blue,
@@ -28,6 +31,7 @@ abstract final class NigohTheme {
     scaffold: soft,
   );
 
+  /// Dark theme: deep navy surfaces with a lighter brand blue.
   static ThemeData dark() => _build(
     ColorScheme.fromSeed(
       seedColor: blue,
@@ -43,6 +47,8 @@ abstract final class NigohTheme {
     scaffold: const Color(0xFF0E1218),
   );
 
+  /// Shared theme setup (text, cards, inputs, buttons, page transitions)
+  /// applied on top of [scheme].
   static ThemeData _build(ColorScheme scheme, {required Color scaffold}) {
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     final radius = BorderRadius.circular(16);

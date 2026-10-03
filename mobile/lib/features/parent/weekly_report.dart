@@ -1,3 +1,6 @@
+// Weekly screen-time report for one child: 7-day bar chart, today vs.
+// average, and the top apps of the selected day.
+
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
@@ -18,6 +21,7 @@ class WeeklyReportScreen extends StatefulWidget {
   State<WeeklyReportScreen> createState() => _WeeklyReportScreenState();
 }
 
+/// Loads the 7-day usage history and keeps the selected day.
 class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   List<UsageDay>? _days;
   String? _error;
@@ -29,6 +33,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
     _load();
   }
 
+  /// Fetches the last 7 days of usage from the server.
   Future<void> _load() async {
     setState(() => _error = null);
     try {
@@ -246,6 +251,7 @@ class WeeklyReportView extends StatelessWidget {
     );
   }
 
+  /// Bar label: "today" for the last day, otherwise weekday and date.
   static String _dayLabel(DateTime date, DateTime last) {
     if (date == last) return tr('имрӯз');
     return '${tr(weekdayShort[date.weekday - 1])}, ${two(date.day)}.${two(date.month)}';
@@ -341,6 +347,7 @@ class WeeklyBarChart extends StatelessWidget {
     );
   }
 
+  /// Compact axis label for minutes ("45д", "1.5с").
   static String _short(int minutes) {
     if (minutes < 60) return tr('{minutes}д', {'minutes': minutes});
     final h = minutes / 60;
@@ -350,6 +357,7 @@ class WeeklyBarChart extends StatelessWidget {
   }
 }
 
+/// Small summary statistic tile (today, average…).
 class _SummaryTile extends StatelessWidget {
   const _SummaryTile({
     required this.label,
@@ -414,6 +422,7 @@ class _SummaryTile extends StatelessWidget {
   }
 }
 
+/// One top app of the day with a proportional usage bar.
 class _TopAppRow extends StatelessWidget {
   const _TopAppRow({required this.app, required this.max, this.icon = ''});
   final UsageTopApp app;

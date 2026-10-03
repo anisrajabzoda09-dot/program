@@ -1,3 +1,7 @@
+// Over-the-air config bundle: downloads checksummed JSON patches from the
+// server (UI text/visibility/colour overrides and rule defaults), merges and
+// validates them, and keeps the active bundle in shared preferences.
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -5,11 +9,13 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Performs the bundle HTTP GET; injectable so tests can fake the server.
 typedef BundleFetcher = Future<BundleHttpResponse> Function(
   Uri uri,
   Map<String, String> headers,
 );
 
+/// Minimal HTTP reply (status and body) returned by a [BundleFetcher].
 class BundleHttpResponse {
   const BundleHttpResponse(this.statusCode, this.body);
 
@@ -17,6 +23,8 @@ class BundleHttpResponse {
   final String body;
 }
 
+/// Outcome of one [DynamicConfigNotifier.sync]: applied, unchanged, needs a
+/// full app update, or failed with [error].
 class BundleSyncResult {
   const BundleSyncResult({
     required this.applied,
@@ -31,6 +39,8 @@ class BundleSyncResult {
   final String? error;
 }
 
+/// Holds the active remote config bundle and notifies listeners when a newer
+/// one is applied.
 class DynamicConfigNotifier extends ChangeNotifier {
   DynamicConfigNotifier({this.fetcher});
 
@@ -75,23 +85,27 @@ class DynamicConfigNotifier extends ChangeNotifier {
   Map<String, dynamic> get cachedRulesTemplate =>
       _map(_active['cached_rules_template']);
 
+  /// Server-overridden UI string for [key], or [fallback] when none is set.
   String text(String key, {String fallback = ''}) {
     final strings = _map(uiOverrides['strings']);
     final value = strings[key];
     return value is String && value.isNotEmpty ? value : fallback;
   }
 
+  /// Whether the UI element [key] should be shown, per the server overrides.
   bool visible(String key, {bool fallback = true}) {
     final visibility = _map(uiOverrides['visibility']);
     final value = visibility[key];
     return value is bool ? value : fallback;
   }
 
+  /// Integer rule default from the bundle's rules template, or [fallback].
   int ruleInt(String key, {required int fallback}) {
     final value = cachedRulesTemplate[key];
     return value is num ? value.toInt() : fallback;
   }
 
+  /// String rule default from the bundle's rules template, or [fallback].
   String ruleString(String key, {required String fallback}) {
     final value = cachedRulesTemplate[key];
     return value is String && value.isNotEmpty ? value : fallback;
@@ -106,6 +120,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
   Color get surfaceColor => color('surfaceColor', Colors.white);
   Color get accentColor => color('accentColor', const Color(0xFF00A98F));
 
+  /// Server-overridden theme colour ([key] as #RRGGBB / #AARRGGBB) or [fallback].
   Color color(String key, Color fallback) {
     final theme = _map(uiOverrides['theme']);
     final raw = theme[key];
@@ -116,6 +131,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     return Color(hex.length == 6 ? 0xFF000000 | value : value);
   }
 
+  /// Restores the last applied bundle from shared preferences (once).
   Future<void> loadLocal() async {
     if (_loaded) return;
     _prefs = await SharedPreferences.getInstance();
@@ -137,6 +153,8 @@ class DynamicConfigNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Fetches and applies new patches from the first reachable server; rejects
+  /// the whole update on a bad checksum, structure or too-old native app.
   Future<BundleSyncResult> sync({
     required String endpointBaseUrl,
     required int nativeVersionCode,
@@ -230,6 +248,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
   static String checksumFor(Map<String, dynamic> payload) =>
       sha256.convert(utf8.encode(_canonicalJson(payload))).toString();
 
+  /// Saves the active bundle so it survives restarts.
   Future<void> _persist() async {
     await (_prefs ??= await SharedPreferences.getInstance()).setString(
       storageKey,
@@ -237,6 +256,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     );
   }
 
+  /// Default [BundleFetcher] using dart:io's HttpClient.
   static Future<BundleHttpResponse> _fetch(
     Uri uri,
     Map<String, String> headers,
@@ -261,6 +281,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
   static Map<String, dynamic> _deepCopy(Map<String, dynamic> value) =>
       jsonDecode(jsonEncode(value)) as Map<String, dynamic>;
 
+  /// Deep-merges [patch] into a copy of [base] (nested maps are merged).
   static Map<String, dynamic> _merge(
     Map<String, dynamic> base,
     Map<dynamic, dynamic> patch,
@@ -277,6 +298,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     return result;
   }
 
+  /// Throws if a merged bundle lacks the required top-level structure.
   static void _validateState(Map<String, dynamic> value) {
     if (value['bundle_version'] is! num) {
       throw const FormatException('Invalid bundle version');
@@ -287,6 +309,7 @@ class DynamicConfigNotifier extends ChangeNotifier {
     }
   }
 
+  /// Serializes JSON with sorted keys so checksums match the server's.
   static String _canonicalJson(dynamic value) {
     dynamic normalize(dynamic item) {
       if (item is Map) {

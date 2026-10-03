@@ -1,10 +1,13 @@
+// App categories shared by the parent (filters) and the child (study mode):
+// the category enum, its labels and the package-name based classifier.
+
 import 'models.dart';
 import '../l10n/l10n.dart';
 
-/// App categories shared by the parent (filters) and the child (study mode).
-
+/// The kinds of apps the parent can filter by and study mode can close.
 enum AppCategory { games, social, education, video, other }
 
+/// Localized chip labels and icons for each [AppCategory].
 extension AppCategoryLabel on AppCategory {
   /// Chip label.
   String get label => switch (this) {
@@ -162,6 +165,7 @@ AppCategory classifyApp(String packageName, [String name = '']) {
   return AppCategory.other;
 }
 
+/// Category of an installed child app, guessed from its package and name.
 AppCategory categoryOf(ChildApp app) => classifyApp(app.packageName, app.name);
 
 /// Categories closed during «Тамаркузи дарс».

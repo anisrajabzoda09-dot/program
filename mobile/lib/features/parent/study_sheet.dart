@@ -1,3 +1,6 @@
+// Parent bottom sheet for «Тамаркузи дарс» (study mode): on/off, school hours
+// and weekdays, plus its labels.
+
 import 'package:flutter/material.dart';
 
 import '../../core/models.dart';
@@ -35,6 +38,7 @@ class StudySheet extends StatefulWidget {
   State<StudySheet> createState() => _StudySheetState();
 }
 
+/// Holds the study-mode settings being edited.
 class _StudySheetState extends State<StudySheet> {
   late bool enabled;
   late TimeOfDay start;
@@ -52,6 +56,7 @@ class _StudySheetState extends State<StudySheet> {
     weekdays = {...s.weekdays};
   }
 
+  /// Opens a 24-hour time picker for the start or end time.
   Future<void> _pick(bool isStart) async {
     final picked = await showTimePicker(
       context: context,
@@ -65,6 +70,7 @@ class _StudySheetState extends State<StudySheet> {
     setState(() => isStart ? start = picked : end = picked);
   }
 
+  /// Saves study mode via the controller and closes the sheet on success.
   Future<void> _save() async {
     final study = StudyMode(
       enabled: enabled,

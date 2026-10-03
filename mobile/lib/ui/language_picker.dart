@@ -1,3 +1,6 @@
+// Language picker: the bottom sheet for choosing Tajik / Russian / English
+// and the compact globe button that opens it.
+
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';

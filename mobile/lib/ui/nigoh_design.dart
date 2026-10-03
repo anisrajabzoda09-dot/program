@@ -1,3 +1,6 @@
+// NIGOH design system: brand colours and accents plus shared hero, section,
+// action-card, status-pill and safe app-icon widgets.
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -20,6 +23,7 @@ abstract final class NigohDesign {
   /// Soft accent palette used to give each app a stable, gentle colour.
   static const accents = <Color>[blue, mint, violet, amber, pink, sky, coral];
 
+  /// Stable accent colour derived from [seed] (e.g. a child's name).
   static Color accentFor(String seed) {
     var hash = 0;
     for (final unit in seed.codeUnits) {
@@ -35,6 +39,7 @@ abstract final class NigohDesign {
   );
 }
 
+/// Large gradient header card with icon, title, subtitle, badge and footer.
 class NigohHeroCard extends StatelessWidget {
   const NigohHeroCard({
     super.key,
@@ -143,6 +148,7 @@ class NigohHeroCard extends StatelessWidget {
   );
 }
 
+/// Section heading with optional subtitle and trailing widget.
 class NigohSectionHeader extends StatelessWidget {
   const NigohSectionHeader({
     super.key,
@@ -187,6 +193,7 @@ class NigohSectionHeader extends StatelessWidget {
   );
 }
 
+/// Tappable card for a main action with icon, title and subtitle.
 class NigohActionCard extends StatelessWidget {
   const NigohActionCard({
     super.key,
@@ -260,6 +267,7 @@ class NigohActionCard extends StatelessWidget {
   }
 }
 
+/// Small rounded label with icon used for statuses (online, battery…).
 class NigohStatusPill extends StatelessWidget {
   const NigohStatusPill({
     super.key,
@@ -323,6 +331,7 @@ class NigohAppIcon extends StatelessWidget {
 
   static final Map<String, Uint8List?> _cache = <String, Uint8List?>{};
 
+  /// Decodes a base64 app icon once and caches it; null when invalid.
   static Uint8List? decode(String raw) {
     if (raw.length < 16) return null;
     return _cache.putIfAbsent(raw, () {

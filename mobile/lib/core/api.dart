@@ -1,3 +1,7 @@
+// REST client for the NIGOH server: sign-in, family/children, apps and
+// limits, chat, location, places, calls and version check. Every server
+// failure is turned into a readable [ApiException].
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -6,6 +10,7 @@ import 'package:http/http.dart' as http;
 
 import '../l10n/l10n.dart';
 
+/// Server base URL; override at build time with --dart-define=NIGOH_API_BASE_URL.
 const nigohApiBaseUrl = String.fromEnvironment(
   'NIGOH_API_BASE_URL',
   defaultValue: 'https://nigohfamily.qobus.tj',
@@ -44,6 +49,8 @@ class NigohApi {
 
   static const _timeout = Duration(seconds: 15);
 
+  /// Sends one request with the bearer token and role header, decodes the JSON
+  /// reply and converts timeouts, network and HTTP errors into [ApiException].
   Future<Map<String, dynamic>> _send(
     String method,
     String path, {
@@ -94,6 +101,8 @@ class NigohApi {
     );
   }
 
+  /// Turns the server's `detail` field (text or validation list) into a short
+  /// user-facing message.
   static String? _detail(Object? detail) {
     if (detail is String && detail.isNotEmpty) return detail;
     if (detail is List && detail.isNotEmpty) {
@@ -108,6 +117,7 @@ class NigohApi {
 
   // ---------- Auth ----------
 
+  /// Creates an email/password account and returns the new session.
   Future<Map<String, dynamic>> register(
     String email,
     String password,
@@ -119,6 +129,7 @@ class NigohApi {
     auth: false,
   );
 
+  /// Signs in with email and password and returns the session.
   Future<Map<String, dynamic>> login(String email, String password) => _send(
     'POST',
     '/api/mobile/v3/auth/login',
@@ -126,6 +137,7 @@ class NigohApi {
     auth: false,
   );
 
+  /// Signs in with a Google ID token that the server verifies.
   Future<Map<String, dynamic>> google(String idToken) => _send(
     'POST',
     '/api/mobile/v3/auth/google',
@@ -137,6 +149,7 @@ class NigohApi {
 
   Future<Map<String, dynamic>> me() => _send('GET', '/api/mobile/v3/me');
 
+  /// Updates the signed-in user's name and/or chosen role on the server.
   Future<Map<String, dynamic>> updateMe({String? fullName, String? role}) =>
       _send(
         'PUT',
@@ -166,6 +179,7 @@ class NigohApi {
   Future<Map<String, dynamic>> snapshot() =>
       _send('GET', '/api/mobile/v2/snapshot');
 
+  /// Asks the server for a pairing code/QR the child phone shows to the parent.
   Future<Map<String, dynamic>> createPairCode({
     required String childName,
     required String gender,
@@ -184,6 +198,7 @@ class NigohApi {
 
   // ---------- Apps ----------
 
+  /// Uploads the child phone's installed-app list so the parent can see it.
   Future<Map<String, dynamic>> syncApps(
     int childId,
     List<Map<String, dynamic>> apps,
@@ -207,6 +222,7 @@ class NigohApi {
 
   // ---------- Location ----------
 
+  /// Sends the child phone's current location to the server.
   Future<void> syncLocation(int childId, Map<String, dynamic> location) =>
       _send(
         'POST',
@@ -216,6 +232,7 @@ class NigohApi {
 
   // ---------- Chat ----------
 
+  /// Loads chat messages with a child, optionally only those after [afterId].
   Future<List<Map<String, dynamic>>> chat(
     int childId, {
     int afterId = 0,
@@ -247,6 +264,7 @@ class NigohApi {
 
   // ---------- History ----------
 
+  /// Loads the child's location trail for the last [hours] hours.
   Future<List<Map<String, dynamic>>> locationHistory(
     int childId, {
     int hours = 24,
@@ -274,6 +292,7 @@ class NigohApi {
 
   // ---------- Extra time ----------
 
+  /// Child side: asks the parent for [minutes] extra time in one app.
   Future<Map<String, dynamic>> requestTime(
     int childId,
     String packageName, {
@@ -299,6 +318,7 @@ class NigohApi {
     return _list(data['requests']);
   }
 
+  /// Parent side: approves or declines a child's extra-time request.
   Future<void> decideTimeRequest(
     int childId,
     int requestId, {
@@ -310,6 +330,7 @@ class NigohApi {
     body: {'approve': approve, 'minutes': ?minutes},
   );
 
+  /// Parent side: grants a one-off bonus of [minutes] in one app.
   Future<void> giveBonus(int childId, String packageName, int minutes) => _send(
     'POST',
     '/api/mobile/v2/children/$childId/apps/${Uri.encodeComponent(packageName)}/bonus',
@@ -325,10 +346,12 @@ class NigohApi {
     body: {'bedtime': bedtime},
   );
 
+  /// Loads the child's safe places.
   Future<List<Map<String, dynamic>>> safePlaces(int childId) async => _list(
     (await _send('GET', '/api/mobile/v2/children/$childId/places'))['places'],
   );
 
+  /// Saves a named safe place (geofence) for the child.
   Future<Map<String, dynamic>> addSafePlace(
     int childId, {
     required String name,
@@ -349,6 +372,7 @@ class NigohApi {
   Future<void> deleteSafePlace(int childId, int placeId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId/places/$placeId');
 
+  /// Normalizes a JSON list into a list of string-keyed maps.
   static List<Map<String, dynamic>> _list(Object? raw) =>
       (raw as List? ?? const [])
           .whereType<Map>()
@@ -380,6 +404,7 @@ class NigohApi {
   Future<List<Map<String, dynamic>>> callConfig() async =>
       _list((await _send('GET', '/api/mobile/v3/calls/config'))['ice_servers']);
 
+  /// Starts an audio call to a child and returns the created call.
   Future<Map<String, dynamic>> startCall(int childId) async =>
       Map<String, dynamic>.from(
         (await _send(
@@ -390,6 +415,7 @@ class NigohApi {
             as Map,
       );
 
+  /// Current status of a call (ringing, active, ended…).
   Future<Map<String, dynamic>> callStatus(int callId) async =>
       Map<String, dynamic>.from(
         (await _send('GET', '/api/mobile/v3/calls/$callId'))['call'] as Map,
@@ -423,6 +449,7 @@ class NigohApi {
 
   // ---------- Updates ----------
 
+  /// Asks the server for the latest app release relative to this build.
   Future<Map<String, dynamic>> version(int currentVersionCode) => _send(
     'GET',
     '/api/mobile/version',

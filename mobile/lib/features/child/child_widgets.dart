@@ -1,3 +1,6 @@
+// Reusable child-phone widgets: the hold-to-send SOS button and its sending
+// logic, bedtime/study notices, screen-time cards and small progress/icon UI.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -115,6 +118,7 @@ class SosButton extends StatefulWidget {
   State<SosButton> createState() => _SosButtonState();
 }
 
+/// Fills a ring while the SOS button is held and fires once it completes.
 class _SosButtonState extends State<SosButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _hold = AnimationController(
@@ -129,6 +133,7 @@ class _SosButtonState extends State<SosButton>
     super.dispose();
   }
 
+  /// Sends the SOS when the hold animation completes.
   Future<void> _onStatus(AnimationStatus status) async {
     if (status != AnimationStatus.completed || _sending) return;
     setState(() => _sending = true);
@@ -143,12 +148,14 @@ class _SosButtonState extends State<SosButton>
     }
   }
 
+  /// Starts the hold animation when the finger goes down.
   void _down() {
     if (_sending) return;
     HapticFeedback.selectionClick();
     _hold.forward(from: 0);
   }
 
+  /// Cancels the SOS when the finger is lifted before the hold completes.
   void _release() {
     if (_sending || _hold.isCompleted) return;
     _hold.reverse();

@@ -1,3 +1,6 @@
+// Parent bottom sheets for bedtime and per-app options (always allowed,
+// bonus time), plus shared time helpers and tiles.
+
 import 'package:flutter/material.dart';
 
 import '../../core/models.dart';
@@ -7,6 +10,7 @@ import 'family_controller.dart';
 import 'parent_logic.dart';
 import '../../l10n/l10n.dart';
 
+/// Parses "HH:mm" into a time, or [fallback] when invalid.
 TimeOfDay parseHhmm(String value, TimeOfDay fallback) {
   final parts = value.split(':');
   if (parts.length != 2) return fallback;
@@ -18,6 +22,7 @@ TimeOfDay parseHhmm(String value, TimeOfDay fallback) {
   return TimeOfDay(hour: h, minute: m);
 }
 
+/// Formats a time as "HH:mm".
 String formatHhmm(TimeOfDay t) => '${two(t.hour)}:${two(t.minute)}';
 
 /// «Вақти хоб»: switch + start/end. Saves through the controller and
@@ -35,6 +40,7 @@ class BedtimeSheet extends StatefulWidget {
   State<BedtimeSheet> createState() => _BedtimeSheetState();
 }
 
+/// Holds the bedtime switch and times being edited.
 class _BedtimeSheetState extends State<BedtimeSheet> {
   late bool enabled;
   late TimeOfDay start;
@@ -50,6 +56,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
     end = parseHhmm(b.end, const TimeOfDay(hour: 7, minute: 0));
   }
 
+  /// Opens a 24-hour time picker for the start or end time.
   Future<void> _pick(bool isStart) async {
     final picked = await showTimePicker(
       context: context,
@@ -63,6 +70,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
     setState(() => isStart ? start = picked : end = picked);
   }
 
+  /// Saves the bedtime via the controller and closes the sheet on success.
   Future<void> _save() async {
     final bedtime = Bedtime(
       enabled: enabled,
@@ -178,6 +186,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
   }
 }
 
+/// Tappable start/end time field used in the parent sheets.
 class TimeTile extends StatelessWidget {
   const TimeTile({
     super.key,
@@ -243,9 +252,11 @@ class AppOptionsSheet extends StatefulWidget {
   State<AppOptionsSheet> createState() => _AppOptionsSheetState();
 }
 
+/// Runs the per-app actions with a busy state and a confirmation.
 class _AppOptionsSheetState extends State<AppOptionsSheet> {
   bool _busy = false;
 
+  /// Runs [action], then shows [done] or the error.
   Future<void> _run(Future<void> Function() action, String done) async {
     setState(() => _busy = true);
     try {

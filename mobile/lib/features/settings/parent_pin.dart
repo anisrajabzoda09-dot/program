@@ -1,28 +1,24 @@
-import 'dart:convert';
-import 'dart:math';
+// Parent PIN: the native-stored PIN on this phone, the dialog that asks for
+// it before protected actions and the dialog that sets or changes it.
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/platform.dart';
 import '../../core/user_journey_logic.dart';
 import '../../l10n/l10n.dart';
 
-/// Parent PIN stored on this device: natively on Android
-/// (`tj.nigoh/device_control`), as a salted hash in shared preferences on the
-/// desktop app (no Android channel there).
+/// Parent PIN stored natively on this Android device
+/// (`tj.nigoh/device_control`).
 abstract final class ParentPin {
   static const channel = MethodChannel('tj.nigoh/device_control');
 
-  static Future<bool> isSet() async => isDesktop
-      ? DesktopPinStore.isSet()
-      : await channel.invokeMethod<bool>('getLocalPinStatus') ?? false;
+  /// Whether a parent PIN has been set on this phone.
+  static Future<bool> isSet() async =>
+      await channel.invokeMethod<bool>('getLocalPinStatus') ?? false;
 
+  /// Checks [pin] against the stored parent PIN.
   static Future<bool> verify(String pin) async {
     if (!UserJourneyLogic.validPin(pin)) return false;
-    if (isDesktop) return DesktopPinStore.verify(pin);
     return await channel.invokeMethod<bool>('verifyLocalPin', {'pin': pin}) ??
         false;
   }
@@ -32,12 +28,10 @@ abstract final class ParentPin {
     required String currentPin,
     required String newPin,
   }) async {
-    final result = isDesktop
-        ? await DesktopPinStore.change(currentPin: currentPin, newPin: newPin)
-        : await channel.invokeMapMethod<String, dynamic>('setLocalPin', {
-            'currentPin': currentPin,
-            'newPin': newPin,
-          });
+    final result = await channel.invokeMapMethod<String, dynamic>(
+      'setLocalPin',
+      {'currentPin': currentPin, 'newPin': newPin},
+    );
     if (result?['ok'] == true) return null;
     return result?['error'] == 'wrong_current_pin'
         ? tr('Рамзи ҷорӣ нодуруст аст.')
@@ -73,6 +67,7 @@ abstract final class ParentPin {
   }
 }
 
+/// Dialog asking for the parent PIN before a protected action.
 class _PinDialog extends StatefulWidget {
   const _PinDialog({required this.title, this.text});
   final String title;
@@ -82,6 +77,7 @@ class _PinDialog extends StatefulWidget {
   State<_PinDialog> createState() => _PinDialogState();
 }
 
+/// Verifies the typed PIN and closes with true when it is correct.
 class _PinDialogState extends State<_PinDialog> {
   final pin = TextEditingController();
   String? error;
@@ -93,6 +89,7 @@ class _PinDialogState extends State<_PinDialog> {
     super.dispose();
   }
 
+  /// Checks the typed PIN; closes with true when correct, shows an error if not.
   Future<void> submit() async {
     setState(() {
       busy = true;
@@ -166,6 +163,7 @@ class PinSetupDialog extends StatefulWidget {
   State<PinSetupDialog> createState() => _PinSetupDialogState();
 }
 
+/// Holds the current/new/confirm fields and saves the new PIN.
 class _PinSetupDialogState extends State<PinSetupDialog> {
   final current = TextEditingController();
   final next = TextEditingController();
@@ -181,6 +179,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
     super.dispose();
   }
 
+  /// Validates the new PIN and its confirmation, then saves it natively.
   Future<void> save() async {
     final newPin = next.text.trim();
     if (!UserJourneyLogic.validPin(newPin)) {
@@ -210,6 +209,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
     }
   }
 
+  /// One obscured 4-digit PIN input field.
   Widget field(
     TextEditingController controller,
     String label, {
@@ -273,42 +273,4 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
       ),
     ],
   );
-}
-
-/// Desktop parent PIN: `salt:sha256(salt + pin)` in shared preferences.
-abstract final class DesktopPinStore {
-  static const key = 'nigoh.desktop_pin';
-
-  static Future<bool> isSet() async =>
-      (await SharedPreferences.getInstance()).getString(key) != null;
-
-  static String _hash(String salt, String pin) =>
-      sha256.convert(utf8.encode('$salt:$pin')).toString();
-
-  static Future<bool> verify(String pin) async {
-    final stored = (await SharedPreferences.getInstance()).getString(key);
-    if (stored == null) return false;
-    final parts = stored.split(':');
-    return parts.length == 2 && _hash(parts[0], pin) == parts[1];
-  }
-
-  /// Same result shape as the native `setLocalPin`.
-  static Future<Map<String, dynamic>> change({
-    required String currentPin,
-    required String newPin,
-  }) async {
-    if (!UserJourneyLogic.validPin(newPin)) return {'ok': false};
-    if (await isSet() && !await verify(currentPin)) {
-      return {'ok': false, 'error': 'wrong_current_pin'};
-    }
-    final random = Random.secure();
-    final salt = base64Url.encode(
-      List<int>.generate(16, (_) => random.nextInt(256)),
-    );
-    final saved = await (await SharedPreferences.getInstance()).setString(
-      key,
-      '$salt:${_hash(salt, newPin)}',
-    );
-    return {'ok': saved};
-  }
 }

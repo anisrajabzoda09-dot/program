@@ -1,13 +1,15 @@
+// Settings screen for both roles: profile, parent PIN, Android permissions,
+// language and theme, app update, notification status, uninstall (child)
+// and sign-out.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../core/child_profile.dart';
 import '../../core/notify_bridge.dart';
-import '../../core/platform.dart';
 import '../../core/session.dart';
 import '../../core/user_journey_logic.dart';
-import '../desktop/desktop_notifications.dart';
 import '../onboarding/permissions_wizard.dart';
 import '../../ui/language_picker.dart';
 import '../../ui/nigoh_design.dart';
@@ -27,6 +29,7 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
+/// Loads PIN, notification and version status and runs the settings actions.
 class _SettingsScreenState extends State<SettingsScreen>
     with WidgetsBindingObserver {
   bool? hasPin;
@@ -63,6 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (state == AppLifecycleState.resumed) loadNotifyStatus();
   }
 
+  /// Reads the notification and full-screen permission state.
   Future<void> loadNotifyStatus() async {
     final status = await NotifyBridge.permissionStatus();
     if (!mounted) return;
@@ -72,6 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     });
   }
 
+  /// Fixes notifications: full-screen setting or the permission request.
   Future<void> fixNotifications() async {
     final status = notifyStatus;
     if (status != null && status.notifications && !status.fullScreen) {
@@ -82,6 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     await loadNotifyStatus();
   }
 
+  /// Checks whether a parent PIN is set (shows an error if unreadable).
   Future<void> loadPin() async {
     try {
       final value = await ParentPin.isSet();
@@ -102,6 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  /// Asks for a new display name and saves it.
   Future<void> editName(Session session) async {
     final name = await showDialog<String>(
       context: context,
@@ -116,6 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  /// Opens the dialog to set or change the parent PIN.
   Future<void> editPin() async {
     final changed = await showDialog<bool>(
       context: context,
@@ -130,12 +138,15 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  /// Runs a manual update check with a spinner.
   Future<void> checkUpdate(Session session) async {
     setState(() => checkingUpdate = true);
     await AppUpdate.check(context, session.api);
     if (mounted) setState(() => checkingUpdate = false);
   }
 
+  /// Signs out after confirmation; on a child phone the parent PIN is required
+  /// first when one is set.
   Future<void> signOut(Session session) async {
     if (session.isChild) {
       bool pinSet;
@@ -225,8 +236,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     final session = SessionScope.of(context);
     final scheme = Theme.of(context).colorScheme;
     final child = session.isChild;
-    // Desktop app: no Android permissions, no native notification service.
-    final desktop = isDesktop;
     var i = 0;
     return Scaffold(
       appBar: AppBar(title: Text(tr('Танзимот'))),
@@ -280,29 +289,27 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                   onTap: pinError != null ? loadPin : editPin,
                 ),
-                if (!desktop) ...[
-                  const Divider(height: 1),
-                  _Tile(
-                    key: const ValueKey('settings-wizard'),
-                    icon: Icons.verified_user_outlined,
-                    color: NigohDesign.mint,
-                    title: tr('Иҷозатҳои Android'),
-                    subtitle: child
-                        ? tr('Ҷойгиршавӣ, истифода ва бастани барномаҳо')
-                        : tr('Огоҳиномаҳо, камера, микрофон ва батарея'),
-                    trailing: Text(
-                      tr('Санҷидан'),
-                      style: TextStyle(
-                        color: scheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                const Divider(height: 1),
+                _Tile(
+                  key: const ValueKey('settings-wizard'),
+                  icon: Icons.verified_user_outlined,
+                  color: NigohDesign.mint,
+                  title: tr('Иҷозатҳои Android'),
+                  subtitle: child
+                      ? tr('Ҷойгиршавӣ, истифода ва бастани барномаҳо')
+                      : tr('Огоҳиномаҳо, камера, микрофон ва батарея'),
+                  trailing: Text(
+                    tr('Санҷидан'),
+                    style: TextStyle(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
                     ),
-                    onTap: () async {
-                      await PermissionsWizard.open(context, childMode: child);
-                      if (mounted) await loadNotifyStatus();
-                    },
                   ),
-                ],
+                  onTap: () async {
+                    await PermissionsWizard.open(context, childMode: child);
+                    if (mounted) await loadNotifyStatus();
+                  },
+                ),
               ],
             ),
           ),
@@ -445,60 +452,57 @@ class _SettingsScreenState extends State<SettingsScreen>
                   ),
                 ),
                 const Divider(height: 1),
-                if (desktop)
-                  const _DesktopNotifyTile()
-                else
-                  ValueListenableBuilder<String?>(
-                    valueListenable: NotifyBridge.lastError,
-                    builder: (_, error, _) {
-                      final status = notifyStatus;
-                      final ok = status?.all == true;
-                      final subtitle =
-                          error ??
-                          (!notifyLoaded
-                              ? tr('Санҷида мешавад…')
-                              : status == null
-                              ? tr('Ҳолат маълум нашуд')
-                              : !status.notifications
-                              ? tr('Хомӯш аст — паёмҳо ва SOS намерасанд')
-                              : !status.fullScreen
-                              ? tr(
-                                  'Барои SOS ва зангҳо иҷозати экрани пурра лозим',
-                                )
-                              : tr('Фаъол: паёмҳо, SOS ва зангҳо'));
-                      return _Tile(
-                        icon: Icons.notifications_active_outlined,
-                        color: NigohDesign.coral,
-                        title: tr('Огоҳиномаҳо'),
-                        subtitle: subtitle,
-                        subtitleColor: error != null || (status != null && !ok)
-                            ? scheme.error
-                            : null,
-                        trailing: ok || status == null
-                            ? null
-                            : Text(
-                                status.notifications
-                                    ? tr('Дидан')
-                                    : tr('Иҷозат додан'),
-                                style: TextStyle(
-                                  color: scheme.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                ValueListenableBuilder<String?>(
+                  valueListenable: NotifyBridge.lastError,
+                  builder: (_, error, _) {
+                    final status = notifyStatus;
+                    final ok = status?.all == true;
+                    final subtitle =
+                        error ??
+                        (!notifyLoaded
+                            ? tr('Санҷида мешавад…')
+                            : status == null
+                            ? tr('Ҳолат маълум нашуд')
+                            : !status.notifications
+                            ? tr('Хомӯш аст — паёмҳо ва SOS намерасанд')
+                            : !status.fullScreen
+                            ? tr(
+                                'Барои SOS ва зангҳо иҷозати экрани пурра лозим',
+                              )
+                            : tr('Фаъол: паёмҳо, SOS ва зангҳо'));
+                    return _Tile(
+                      icon: Icons.notifications_active_outlined,
+                      color: NigohDesign.coral,
+                      title: tr('Огоҳиномаҳо'),
+                      subtitle: subtitle,
+                      subtitleColor: error != null || (status != null && !ok)
+                          ? scheme.error
+                          : null,
+                      trailing: ok || status == null
+                          ? null
+                          : Text(
+                              status.notifications
+                                  ? tr('Дидан')
+                                  : tr('Иҷозат додан'),
+                              style: TextStyle(
+                                color: scheme.primary,
+                                fontWeight: FontWeight.w600,
                               ),
-                        onTap: status == null
-                            ? loadNotifyStatus
-                            : ok
-                            ? null
-                            : fixNotifications,
-                      );
-                    },
-                  ),
+                            ),
+                      onTap: status == null
+                          ? loadNotifyStatus
+                          : ok
+                          ? null
+                          : fixNotifications,
+                    );
+                  },
+                ),
               ],
             ),
           ),
           // NIGOH is transparent: the child sees the app and may remove it —
           // with the parent's PIN. Own section so it is impossible to miss.
-          if (child && !desktop) ...[
+          if (child) ...[
             SectionTitle(
               tr('Нест кардани барнома'),
               subtitle: tr(
@@ -551,38 +555,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 }
 
-/// Desktop: events arrive while NIGOH Family is open (no background service).
-class _DesktopNotifyTile extends StatelessWidget {
-  const _DesktopNotifyTile();
-
-  @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: Listenable.merge([
-      DesktopNotifications.active,
-      DesktopNotifications.lastError,
-    ]),
-    builder: (context, _) {
-      final error = DesktopNotifications.lastError.value;
-      return _Tile(
-        key: const ValueKey('settings-desktop-notify'),
-        icon: Icons.notifications_active_outlined,
-        color: NigohDesign.coral,
-        title: tr('Огоҳиномаҳо'),
-        subtitle:
-            error ??
-            (DesktopNotifications.active.value
-                ? tr(
-                    'Фаъол: паёмҳо, SOS ва зангҳо, вақте NIGOH Family кушода аст',
-                  )
-                : tr('Хомӯш аст')),
-        subtitleColor: error != null
-            ? Theme.of(context).colorScheme.error
-            : null,
-      );
-    },
-  );
-}
-
+/// Card with the user's photo, name and role, tap to rename.
 class _ProfileCard extends StatelessWidget {
   const _ProfileCard({required this.session, required this.onEdit});
   final Session session;
@@ -647,6 +620,7 @@ class _ProfileCard extends StatelessWidget {
   }
 }
 
+/// Card grouping a set of settings tiles.
 class _Group extends StatelessWidget {
   const _Group({required this.children});
   final List<Widget> children;
@@ -658,6 +632,7 @@ class _Group extends StatelessWidget {
   );
 }
 
+/// One settings row with a coloured icon, title, subtitle and trailing.
 class _Tile extends StatelessWidget {
   const _Tile({
     super.key,
@@ -716,6 +691,7 @@ class _Tile extends StatelessWidget {
   );
 }
 
+/// Dialog for editing the display name.
 class _NameDialog extends StatefulWidget {
   const _NameDialog({required this.initial});
   final String initial;
@@ -724,6 +700,7 @@ class _NameDialog extends StatefulWidget {
   State<_NameDialog> createState() => _NameDialogState();
 }
 
+/// Holds the name field.
 class _NameDialogState extends State<_NameDialog> {
   late final name = TextEditingController(text: widget.initial);
 
@@ -733,6 +710,7 @@ class _NameDialogState extends State<_NameDialog> {
     super.dispose();
   }
 
+  /// Closes the dialog with the trimmed name (ignored when empty).
   void save() {
     if (name.text.trim().isEmpty) return;
     Navigator.pop(context, name.text.trim());
@@ -773,6 +751,7 @@ class _UninstallDialog extends StatefulWidget {
   State<_UninstallDialog> createState() => _UninstallDialogState();
 }
 
+/// Holds the PIN field and runs the PIN-protected uninstall.
 class _UninstallDialogState extends State<_UninstallDialog> {
   final pin = TextEditingController();
   String? error;
@@ -784,6 +763,7 @@ class _UninstallDialogState extends State<_UninstallDialog> {
     super.dispose();
   }
 
+  /// Validates the PIN, verifies it natively and starts the uninstall.
   Future<void> submit() async {
     final value = pin.text.trim();
     if (!UserJourneyLogic.validPin(value)) {

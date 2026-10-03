@@ -1,3 +1,6 @@
+// Child phone home screen: pairing QR/code before pairing, then status (SOS,
+// bedtime, screen time, protection), the child's rules, chat and settings.
+
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -29,6 +32,8 @@ class ChildHome extends StatefulWidget {
   State<ChildHome> createState() => _ChildHomeState();
 }
 
+/// Owns the [ChildSync] engine, switches tabs, follows notification targets
+/// and opens the permission wizard when protection is missing.
 class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   ChildSync? _sync;
   bool _ownsSync = false;
@@ -84,6 +89,8 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) sync.tick();
   }
 
+  /// Rebuilds on sync changes and opens the permission wizard once when a
+  /// required permission is missing.
   void _onSync() {
     if (!mounted) return;
     setState(() {});
@@ -98,6 +105,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     }
   }
 
+  /// Opens the permission wizard, then re-checks the protection status.
   Future<void> _openAccess() async {
     if (!mounted) return;
     _accessShown = true;
@@ -192,6 +200,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   }
 }
 
+/// First tab: the pairing view before pairing, the status view after it.
 class _HomeTab extends StatelessWidget {
   const _HomeTab({required this.sync, required this.onOpenAccess});
   final ChildSync sync;
@@ -234,6 +243,7 @@ class _HomeTab extends StatelessWidget {
 // Not paired: QR + code
 // ---------------------------------------------------------------------------
 
+/// Shows the pairing QR and 6-digit code the parent scans or types.
 class _PairingView extends StatefulWidget {
   const _PairingView({super.key, required this.sync});
   final ChildSync sync;
@@ -242,9 +252,11 @@ class _PairingView extends StatefulWidget {
   State<_PairingView> createState() => _PairingViewState();
 }
 
+/// Lets the child request a fresh pairing code.
 class _PairingViewState extends State<_PairingView> {
   bool _busy = false;
 
+  /// Asks the server for a new pairing code and reports the result.
   Future<void> _newCode() async {
     setState(() => _busy = true);
     try {
@@ -404,6 +416,7 @@ class _PairingViewState extends State<_PairingView> {
   }
 }
 
+/// Numbered instruction line of the pairing steps.
 class _Step extends StatelessWidget {
   const _Step({required this.index, required this.text});
   final int index;
@@ -450,6 +463,8 @@ class _Step extends StatelessWidget {
 // Paired: status cards
 // ---------------------------------------------------------------------------
 
+/// Paired status view: SOS, bedtime/study banners, protection status and
+/// today's screen time.
 class _PairedView extends StatelessWidget {
   const _PairedView({
     super.key,
@@ -639,9 +654,11 @@ class _RetryButton extends StatefulWidget {
   State<_RetryButton> createState() => _RetryButtonState();
 }
 
+/// Runs the retry action with a spinner and blocks double taps.
 class _RetryButtonState extends State<_RetryButton> {
   bool _busy = false;
 
+  /// Runs [onTap] while showing progress.
   Future<void> _run() async {
     setState(() => _busy = true);
     try {
@@ -814,6 +831,7 @@ class _StatusCard extends StatelessWidget {
   }
 }
 
+/// Card that shows a sync error with a retry button.
 class _ErrorCard extends StatefulWidget {
   const _ErrorCard({required this.text, required this.onRetry});
   final String text;
@@ -823,9 +841,11 @@ class _ErrorCard extends StatefulWidget {
   State<_ErrorCard> createState() => _ErrorCardState();
 }
 
+/// Runs the retry with progress.
 class _ErrorCardState extends State<_ErrorCard> {
   bool _busy = false;
 
+  /// Runs [onRetry] while showing progress.
   Future<void> _retry() async {
     setState(() => _busy = true);
     try {

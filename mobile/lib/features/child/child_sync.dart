@@ -1,3 +1,7 @@
+// Child-phone background engine (ChildSync): keeps the child record and
+// pairing code, pushes the parent's rules to the native app blocker, uploads
+// the installed-app list and reports location and battery to the server.
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -121,6 +125,7 @@ class ChildSync extends ChangeNotifier {
     'accessibility': 'Назорати барномаҳо',
   };
 
+  /// Records the latest error of one sync [area] for the UI.
   void _setError(String area, Object error) {
     _errors.remove(area);
     _errors[area] = error is String ? error : _text(error);
@@ -134,6 +139,7 @@ class ChildSync extends ChangeNotifier {
 
   // ---------- Lifecycle ----------
 
+  /// Starts the periodic sync, package-change listening and location updates.
   void start() {
     if (_running || _disposed) return;
     _running = true;
@@ -157,6 +163,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Stops all timers, streams and listeners (sign-out or dispose).
   void stop() {
     _running = false;
     _timer?.cancel();
@@ -193,6 +200,7 @@ class ChildSync extends ChangeNotifier {
     );
   }
 
+  /// Loads this phone's child record, or creates a pairing code if none exists.
   Future<void> _ensureChild() async {
     try {
       final snapshot = await api.snapshot();
@@ -211,6 +219,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Creates a pairing code using the child's locally entered profile.
   Future<void> _createCode() async {
     final profile = await _loadProfile();
     final data = await api.createPairCode(
@@ -242,6 +251,8 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Applies a fresh child record: pairing state, parent name and the rules
+  /// (cleared when the phone is no longer paired).
   Future<void> _applyChild(Map<String, dynamic> raw) async {
     final child = FamilyChild.fromJson(raw);
     this.child = child;
@@ -288,7 +299,7 @@ class ChildSync extends ChangeNotifier {
       lastRulesSync = DateTime.now();
       _clearError('rules');
     } on MissingPluginException {
-      // Not on Android (tests / desktop) — nothing to enforce.
+      // Not on Android (tests) — nothing to enforce.
     } catch (e) {
       _setError(
         'rules',
@@ -319,6 +330,8 @@ class ChildSync extends ChangeNotifier {
     return _tickInFlight ??= _tick().whenComplete(() => _tickInFlight = null);
   }
 
+  /// One sync step: refresh the child record and rules, protection status,
+  /// the app list when due, and location tracking.
   Future<void> _tick() async {
     if (childId == null) {
       await ensureChild();
@@ -356,6 +369,7 @@ class ChildSync extends ChangeNotifier {
 
   // ---------- Protection status ----------
 
+  /// Reads from native code which protections and permissions are active.
   Future<void> refreshProtection() async {
     try {
       final raw = await device.invokeMapMethod<String, dynamic>(
@@ -380,12 +394,14 @@ class ChildSync extends ChangeNotifier {
 
   // ---------- Installed apps ----------
 
+  /// Uploads the installed-app list; concurrent calls share one upload.
   Future<void> syncApps() {
     return _appsInFlight ??= _syncApps().whenComplete(
       () => _appsInFlight = null,
     );
   }
 
+  /// Collects installed apps with today's usage and sends them to the server.
   Future<void> _syncApps() async {
     final id = childId;
     if (id == null) return;
@@ -489,6 +505,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Whether a one-shot location fix is due (nothing sent for a while).
   bool get _fixDue {
     final last = lastLocationSync;
     return last == null || now().difference(last) >= locationFixEvery;
@@ -498,6 +515,8 @@ class ChildSync extends ChangeNotifier {
   @visibleForTesting
   Future<void>? get pendingFix => _fixInFlight;
 
+  /// Checks that GPS is on and location permission is granted, recording a
+  /// readable error otherwise.
   Future<bool> _locationAllowed() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
@@ -522,6 +541,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Subscribes to the GPS position stream (Android foreground notification).
   void _startStream() {
     try {
       final settings = defaultTargetPlatform == TargetPlatform.android
@@ -563,6 +583,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// User-facing message for a failed location fix.
   static String _fixErrorText(Object e) {
     if (e is LocationServiceDisabledException) return _gpsOffText;
     if (e is PermissionDeniedException) return _noPermissionText;
@@ -577,6 +598,7 @@ class ChildSync extends ChangeNotifier {
     );
   }
 
+  /// Requests a single location fix (last known first) when the stream is quiet.
   Future<void> _requestFix() async {
     if (childId == null) return;
     try {
@@ -630,6 +652,7 @@ class ChildSync extends ChangeNotifier {
     _maybePostLocation();
   }
 
+  /// Posts the latest position when it is new enough or the heartbeat is due.
   void _maybePostLocation() {
     final p = _lastPosition;
     if (p == null || childId == null) return;
@@ -663,6 +686,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Sends a position with the battery level to the server.
   Future<void> _postLocation(Position p) async {
     final id = childId;
     if (id == null) return;
@@ -694,6 +718,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Readable message for an API, platform or other error.
   static String _text(Object e) => e is ApiException
       ? e.message
       : e is PlatformException

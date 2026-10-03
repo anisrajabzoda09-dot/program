@@ -1,3 +1,7 @@
+// Parent-side state holder (FamilyController): polls the family snapshot,
+// keeps the selected child, and applies rule/place/bedtime/study changes
+// optimistically with rollback on server errors.
+
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
@@ -39,6 +43,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
 
   int? get selectedChildId => selected?.id;
 
+  /// The child currently shown (falls back to the first child).
   FamilyChild? get selected {
     if (children.isEmpty) return null;
     for (final child in children) {
@@ -47,6 +52,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return children.first;
   }
 
+  /// Child with [id], or null when not in the list.
   FamilyChild? childById(int id) {
     for (final child in children) {
       if (child.id == id) return child;
@@ -54,6 +60,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return null;
   }
 
+  /// Switches the screens to another child.
   void select(int childId) {
     if (_selectedChildId == childId) return;
     _selectedChildId = childId;
@@ -69,6 +76,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     _startTimer();
   }
 
+  /// (Re)starts the periodic background refresh.
   void _startTimer() {
     _timer?.cancel();
     final interval = pollInterval;
@@ -141,16 +149,19 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return null;
   }
 
+  /// Blocks or unblocks one app on the child's phone.
   Future<void> setBlocked(FamilyChild child, ChildApp app, bool blocked) =>
       _updateApp(child, app, _copyApp(app, blocked: blocked), {
         'is_blocked': blocked,
       });
 
+  /// Sets an app's daily time limit (0 = no limit).
   Future<void> setLimit(FamilyChild child, ChildApp app, int minutes) =>
       _updateApp(child, app, _copyApp(app, dailyLimitMinutes: minutes), {
         'daily_limit_minutes': minutes,
       });
 
+  /// Saves an app's allowed-time schedule.
   Future<void> setSchedule(
     FamilyChild child,
     ChildApp app,
@@ -184,6 +195,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Saves the child's bedtime window (optimistic, rolled back on error).
   Future<void> setBedtime(FamilyChild child, Bedtime bedtime) async {
     final before = childById(child.id) ?? child;
     _replaceChild(_copyChild(before, before.apps, bedtime: bedtime));
@@ -269,6 +281,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return ok;
   }
 
+  /// Creates a safe place for the child and adds it to the list.
   Future<void> addPlace(
     int childId, {
     required String name,
@@ -288,6 +301,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     await loadPlaces(childId);
   }
 
+  /// Deletes a safe place (optimistic, restored on error).
   Future<void> deletePlace(int childId, SafePlace place) async {
     final before = placesFor(childId);
     places[childId] = [
@@ -324,11 +338,13 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     return [for (final e in indexed) e.$2];
   }
 
+  /// Children with an unread SOS/urgent message.
   List<FamilyChild> get urgentChildren => [
     for (final c in children)
       if (c.lastUrgent != null) c,
   ];
 
+  /// Unpairs a child phone (optimistic, restored on error).
   Future<void> unlink(FamilyChild child) async {
     final before = children;
     children = [
@@ -348,6 +364,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Applies an app rule change locally, sends it, and rolls back on failure.
   Future<void> _updateApp(
     FamilyChild child,
     ChildApp original,
@@ -368,6 +385,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Replaces one child in the list with an updated copy.
   void _replaceChild(FamilyChild child) {
     children = [
       for (final c in children)
@@ -375,6 +393,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     ];
   }
 
+  /// Replaces one app of a child with an updated copy.
   void _replaceApp(int childId, ChildApp app) {
     children = [
       for (final c in children)
@@ -399,6 +418,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Copy of [app] with the given rule fields changed.
   static ChildApp _copyApp(
     ChildApp app, {
     bool? blocked,
@@ -419,6 +439,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     firstSeenAt: app.firstSeenAt,
   );
 
+  /// Copy of child [c] with new apps and optionally new bedtime/study settings.
   static FamilyChild _copyChild(
     FamilyChild c,
     List<ChildApp> apps, {
@@ -466,6 +487,7 @@ const lowBatteryPercent = 15;
 /// The phone is «Офлайн» after this long without a location report.
 const offlineAfter = Duration(minutes: 20);
 
+/// Whether the child's phone battery is below [lowBatteryPercent].
 bool isLowBattery(FamilyChild child) {
   final b = batteryOf(child);
   return b != null && b < lowBatteryPercent;

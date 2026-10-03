@@ -1,3 +1,5 @@
+// The NIGOH Family logo widget used on the splash and sign-in screens.
+
 import 'package:flutter/material.dart';
 
 /// App icon from assets, with a plain shield if the asset is missing.

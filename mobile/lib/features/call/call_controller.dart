@@ -1,3 +1,6 @@
+// Call logic for parent ↔ child audio calls: the call state machine, server
+// signaling (offer/answer/ICE over long-poll), timeouts and clean hang-up.
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
@@ -6,10 +9,10 @@ import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/api.dart';
-import '../../core/platform.dart';
 import 'rtc_engine.dart';
 import '../../l10n/l10n.dart';
 
+/// Phases of a call as shown on the call screen.
 enum CallState { idle, outgoing, incoming, connecting, active, ended }
 
 /// Why a call ended — [label] is shown on the call screen.
@@ -28,10 +31,8 @@ enum CallEndReason {
   String get label => tr(_label);
 }
 
-/// Android asks via permission_handler; Windows/desktop asks the user itself
-/// when the microphone is opened, so nothing is requested there.
+/// Asks Android for the microphone permission a call needs.
 Future<bool> requestMicrophonePermission() async {
-  if (isDesktop) return true;
   return (await Permission.microphone.request()).isGranted;
 }
 
@@ -87,6 +88,8 @@ class CallController extends ChangeNotifier {
   bool get speaker => _speaker;
 
   DateTime? _activeSince;
+
+  /// How long the call has been active (zero before it connects).
   Duration get duration => _activeSince == null
       ? Duration.zero
       : DateTime.now().difference(_activeSince!);
@@ -201,12 +204,14 @@ class CallController extends ChangeNotifier {
 
   // ---------- Controls ----------
 
+  /// Mutes or unmutes the microphone.
   void toggleMute() {
     _muted = !_muted;
     if (_engineOpen) engine.setMuted(_muted);
     _notify();
   }
 
+  /// Switches between loudspeaker and earpiece.
   Future<void> toggleSpeaker() async {
     _speaker = !_speaker;
     _notify();
@@ -222,6 +227,7 @@ class CallController extends ChangeNotifier {
 
   // ---------- Internals ----------
 
+  /// Opens the WebRTC engine and forwards its ICE candidates to the server.
   Future<void> _openEngine(List<Map<String, dynamic>> ice) async {
     engine.onIceCandidate = (c) {
       if (!ended) _send('ice', jsonEncode(c));
@@ -234,6 +240,7 @@ class CallController extends ChangeNotifier {
     if (_speaker) await engine.setSpeaker(true);
   }
 
+  /// Reacts to media-link changes: becomes active on connect, ends on failure.
   void _onLink(RtcLinkState link) {
     if (ended) return;
     switch (link) {
@@ -250,6 +257,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Enters the active state and starts the per-second duration tick.
   void _becomeActive() {
     _ringTimer?.cancel();
     _connectTimer?.cancel();
@@ -259,6 +267,7 @@ class CallController extends ChangeNotifier {
     _setState(CallState.active);
   }
 
+  /// Ends the call if the media link does not connect in [connectTimeout].
   void _startConnectTimer() {
     _connectTimer?.cancel();
     _connectTimer = Timer(connectTimeout, () {
@@ -266,6 +275,7 @@ class CallController extends ChangeNotifier {
     });
   }
 
+  /// The callee accepted: stop ringing and wait for the media link.
   void _enterConnecting() {
     if (_state != CallState.outgoing) return;
     _ringTimer?.cancel();
@@ -273,6 +283,7 @@ class CallController extends ChangeNotifier {
     _startConnectTimer();
   }
 
+  /// Sends one signal to the server, in order, after the previous ones.
   Future<void> _send(String kind, String payload) {
     final id = _callId;
     if (id == null) return Future.value();
@@ -289,6 +300,7 @@ class CallController extends ChangeNotifier {
     return next;
   }
 
+  /// Callee side: applies the caller's offer and sends back an answer.
   Future<void> _answer(Map<String, dynamic> offer) async {
     await engine.setRemote(offer);
     _remoteSet = true;
@@ -299,6 +311,7 @@ class CallController extends ChangeNotifier {
     await _send('answer', jsonEncode(answer));
   }
 
+  /// Applies ICE candidates that arrived before the remote description.
   Future<void> _flushCandidates() async {
     final queued = List.of(_pendingCandidates);
     _pendingCandidates.clear();
@@ -307,6 +320,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Adds one remote ICE candidate, tolerating a bad one.
   Future<void> _addCandidate(Map<String, dynamic> c) async {
     try {
       await engine.addCandidate(c);
@@ -316,12 +330,15 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Starts the signal long-poll loop once.
   void _startPolling() {
     if (_polling) return;
     _polling = true;
     unawaited(_pollLoop());
   }
 
+  /// Long-polls the server for new signals and call status until the call
+  /// ends, backing off after network errors.
   Future<void> _pollLoop() async {
     var failures = 0;
     while (!ended) {
@@ -357,6 +374,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Handles one server signal: offer, answer, ICE candidate or hang-up.
   Future<void> _handleSignal(Map<String, dynamic> s) async {
     final kind = s['kind'];
     final payload = s['payload'];
@@ -396,6 +414,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Maps the server's call status (active/declined/missed/ended) to the state.
   void _handleStatus(String status) {
     switch (status) {
       case 'active':
@@ -409,6 +428,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Waits [d], but wakes up early when the call ends.
   Future<void> _sleep(Duration d) {
     final c = Completer<void>();
     _sleeper = c;
@@ -418,6 +438,8 @@ class CallController extends ChangeNotifier {
     return c.future;
   }
 
+  /// Ends the call once: stops timers and media, and tells the server (decline
+  /// when it was still ringing on this side, end otherwise).
   Future<void> _end(
     CallEndReason reason, {
     bool notifyServer = true,
@@ -445,6 +467,7 @@ class CallController extends ChangeNotifier {
     if (notifyServer) await _notifyServerEnd(wasRinging: wasIncomingRinging);
   }
 
+  /// Tells the server the call was declined or ended; errors are ignored.
   Future<void> _notifyServerEnd({required bool wasRinging}) async {
     final id = _callId;
     if (id == null) return;
@@ -460,6 +483,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
+  /// Changes the call state and notifies the UI.
   void _setState(CallState s) {
     _state = s;
     _notify();

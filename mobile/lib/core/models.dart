@@ -1,10 +1,12 @@
+// Typed views over the server snapshot JSON (see app/routers/mobile.py
+// `_mobile_child_payload`): children, apps, schedules, chat, requests,
+// places, bedtime and study mode.
+
 import '../ui/widgets.dart' show parseServerTime;
 import 'app_categories.dart';
 import '../l10n/l10n.dart';
 
-/// Typed views over the server snapshot JSON (see app/routers/mobile.py
-/// `_mobile_child_payload`).
-
+/// A daily time window on chosen weekdays during which an app may be used.
 class AppSchedule {
   const AppSchedule({
     this.enabled = false,
@@ -30,6 +32,7 @@ class AppSchedule {
     );
   }
 
+  /// Serializes the schedule in the server's JSON shape.
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'start': start,
@@ -38,6 +41,7 @@ class AppSchedule {
   };
 }
 
+/// One app installed on the child's phone with its block/limit/schedule rules.
 class ChildApp {
   const ChildApp({
     required this.packageName,
@@ -116,6 +120,7 @@ class ChildApp {
   }
 }
 
+/// The child's last reported position and battery level.
 class ChildLocation {
   const ChildLocation({
     required this.latitude,
@@ -129,6 +134,7 @@ class ChildLocation {
   final int? batteryLevel;
   final DateTime? updatedAt;
 
+  /// Parses a location from the server JSON; null when it has no coordinates.
   static ChildLocation? fromJson(Object? raw) {
     if (raw is! Map) return null;
     final lat = (raw['latitude'] as num?)?.toDouble();
@@ -148,6 +154,7 @@ class ChildLocation {
       DateTime.now().toUtc().difference(updatedAt!.toUtc()).inMinutes < 15;
 }
 
+/// A paired child as seen by the parent: profile, apps, location and rules.
 class FamilyChild {
   const FamilyChild({
     required this.id,
@@ -236,6 +243,7 @@ class FamilyChild {
   );
 }
 
+/// One chat message between parent and child (text, voice, photo, location…).
 class ChatMessage {
   const ChatMessage({
     required this.id,
@@ -288,6 +296,7 @@ class Bedtime {
     );
   }
 
+  /// Serializes the bedtime window in the server's JSON shape.
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'start': start,
@@ -313,6 +322,7 @@ class Bedtime {
   }
 }
 
+/// A child's pending or decided request for extra time in one app.
 class TimeRequest {
   const TimeRequest({
     required this.id,
@@ -343,6 +353,7 @@ class TimeRequest {
   );
 }
 
+/// A safe place (geofence) that triggers arrive/leave alerts for the parent.
 class SafePlace {
   const SafePlace({
     required this.id,
@@ -394,6 +405,7 @@ class StudyMode {
     );
   }
 
+  /// Serializes the study-mode settings in the server's JSON shape.
   Map<String, dynamic> toJson() => {
     'enabled': enabled,
     'start': start,
@@ -401,6 +413,7 @@ class StudyMode {
     'weekdays': weekdays,
   };
 
+  /// Whether study hours are on at [now] (selected weekday, inside the window).
   bool activeAt(DateTime now) {
     if (!enabled || !weekdays.contains(now.weekday)) return false;
     return Bedtime(enabled: true, start: start, end: end).activeAt(now);

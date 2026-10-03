@@ -1,3 +1,6 @@
+// The child's own profile (name, gender, age) saved locally on the child
+// phone before pairing.
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Name, gender and age the child entered on this phone. Sent to the server
@@ -15,6 +18,7 @@ class ChildProfile {
 
   static const _key = 'nigoh.child_profile';
 
+  /// Reads the saved profile; null when the child has not entered it yet.
   static Future<ChildProfile?> load() async {
     final raw = (await SharedPreferences.getInstance()).getStringList(_key);
     if (raw == null || raw.length != 3) return null;

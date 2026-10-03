@@ -1,3 +1,7 @@
+// Permission-wizard model and Android actions: the list of steps per role,
+// the copy for each step, reading their status and opening the right system
+// dialog or settings screen.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -83,24 +87,30 @@ class WizardPlatform {
 
   static const device = MethodChannel('tj.nigoh/device_control');
 
+  /// Native protection/permission flags from `getProtectionStatus`.
   Future<Map<String, dynamic>> protection() async =>
       await device.invokeMapMethod<String, dynamic>('getProtectionStatus') ??
       const {};
 
+  /// Current status of a runtime permission.
   Future<ph.PermissionStatus> status(ph.Permission permission) =>
       permission.status;
 
+  /// Shows Android's dialog for a runtime permission.
   Future<ph.PermissionStatus> request(ph.Permission permission) =>
       permission.request();
 
+  /// Whether the phone's location service (GPS) is switched on.
   Future<bool> locationServiceEnabled() async =>
       await ph.Permission.location.serviceStatus == ph.ServiceStatus.enabled;
 
+  /// Opens the system location (GPS) settings.
   Future<void> openLocationSettings() async {
     final opened = await Geolocator.openLocationSettings();
     if (!opened) throw WizardException(tr('Танзимоти GPS кушода нашуд.'));
   }
 
+  /// Opens this app's page in Android settings.
   Future<void> openAppSettings() async {
     final opened = await ph.openAppSettings();
     if (!opened) {
@@ -113,6 +123,7 @@ class WizardPlatform {
     }
   }
 
+  /// Calls a no-argument method on the native device channel.
   Future<void> invoke(String method) => device.invokeMethod<Object?>(method);
 
   /// Notification permissions from the native NotifyService bridge.
@@ -126,6 +137,7 @@ class WizardPlatform {
     return status;
   }
 
+  /// Opens Android's full-screen-notification setting for this app.
   Future<void> openFullScreenSettings() async {
     NotifyBridge.lastError.value = null;
     await NotifyBridge.openFullScreenSettings();
@@ -195,6 +207,7 @@ class WizardStep {
     summaryTitle: tr('Ҷойгиршавӣ'),
   );
 
+  /// Copy (icon, title, reason, tips) for the step [id].
   static WizardStep of(WizardStepId id) => switch (id) {
     WizardStepId.location => WizardStep(
       id: WizardStepId.location,
@@ -463,6 +476,7 @@ class WizardActions {
     return result;
   }
 
+  /// Reads the status of one step from native flags or permission_handler.
   Future<StepStatus> _read(
     WizardStepId id,
     Map<String, dynamic>? protection,
@@ -509,6 +523,7 @@ class WizardActions {
     }
   }
 
+  /// Whether Android will no longer show the permission dialog.
   static bool _blocked(ph.PermissionStatus status) =>
       status.isPermanentlyDenied || status.isRestricted;
 
@@ -558,5 +573,6 @@ class WizardActions {
     }
   }
 
+  /// Opens the GPS settings (location step when GPS is off).
   Future<void> openLocationSettings() => platform.openLocationSettings();
 }

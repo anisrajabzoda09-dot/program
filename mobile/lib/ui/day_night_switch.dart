@@ -1,3 +1,5 @@
+// Animated sun/moon toggle used for the light/dark theme setting.
+
 import 'package:flutter/material.dart';
 
 /// Sun/moon theme switch — a Flutter port of the «Theme switch» by Galahhad
@@ -22,6 +24,7 @@ class DayNightSwitch extends StatefulWidget {
   State<DayNightSwitch> createState() => _DayNightSwitchState();
 }
 
+/// Animates between day and night when the value changes or is tapped.
 class _DayNightSwitchState extends State<DayNightSwitch>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
@@ -72,6 +75,7 @@ class _DayNightSwitchState extends State<DayNightSwitch>
   }
 }
 
+/// Paints the sky, sun/moon, clouds and stars at night progress [t].
 class _DayNightPainter extends CustomPainter {
   _DayNightPainter({required this.t, required this.em});
 
@@ -209,6 +213,7 @@ class _DayNightPainter extends CustomPainter {
     );
   }
 
+  /// Draws one four-pointed star sparkle of size [s] at [c].
   void _sparkle(Canvas canvas, Offset c, double s, Paint p) {
     final path = Path()
       ..moveTo(c.dx, c.dy - s)

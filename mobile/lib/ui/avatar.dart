@@ -1,3 +1,6 @@
+// Profile avatar widgets: round photo with initial-letter fallback and a
+// small online/offline badge dot.
+
 import 'package:flutter/material.dart';
 
 import 'nigoh_design.dart';
@@ -30,6 +33,7 @@ class AvatarView extends StatelessWidget {
   /// Small overlay at the bottom-right — e.g. [AvatarDot] for online state.
   final Widget? badge;
 
+  /// Upper-case first letter of [name] for the fallback avatar ('?' if empty).
   static String letterOf(String name) {
     final trimmed = name.trim();
     return trimmed.isEmpty ? '?' : trimmed.characters.first.toUpperCase();

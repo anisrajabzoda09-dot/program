@@ -1,3 +1,6 @@
+// Pure decision helpers (pairing codes, PINs, limits, schedules, app search,
+// chat merging) kept out of widgets so the user flows can be unit-tested.
+
 import 'dart:convert';
 
 import '../l10n/l10n.dart';
@@ -8,6 +11,7 @@ import '../l10n/l10n.dart';
 abstract final class UserJourneyLogic {
   static const limitChoices = <int>[15, 60, 90, 120, 240, 0];
 
+  /// The 6 digits of a pairing code from typed or scanned text, or '' if invalid.
   static String pairingCode(String raw) {
     final digits = raw.trim().replaceAll(RegExp(r'[^0-9]'), '');
     return digits.length == 6 ? digits : '';
@@ -18,11 +22,14 @@ abstract final class UserJourneyLogic {
 
   static bool validPin(String value) => RegExp(r'^\d{4}$').hasMatch(value);
 
+  /// Whether the child phone has usage access, overlay and accessibility on,
+  /// i.e. app blocking can work.
   static bool protectionReady(Map<String, dynamic> status) =>
       status['usage'] == true &&
       status['overlay'] == true &&
       status['accessibility'] == true;
 
+  /// Index of the preset limit closest to [minutes] (for the limit picker).
   static int nearestLimitIndex(int minutes) {
     var best = 0;
     var distance = 1 << 30;
@@ -36,6 +43,7 @@ abstract final class UserJourneyLogic {
     return best;
   }
 
+  /// Short human label for a daily limit, e.g. "15д", "1с 30д" or "no limit".
   static String limitLabel(int minutes) {
     if (minutes <= 0) return tr('Бе лимит');
     if (minutes < 60) return tr('{m}д', {'m': minutes});
@@ -49,6 +57,8 @@ abstract final class UserJourneyLogic {
   static double usageProgress(int used, int limit) =>
       limit <= 0 ? 0 : (used / limit).clamp(0.0, 1.0).toDouble();
 
+  /// Rough filter category (Tajik label, e.g. «Бозиҳо») of an app map from its
+  /// name and package; «Ҳама» when nothing matches.
   static String appCategory(Map<String, dynamic> app) {
     final text = '${app['name']} ${app['packageName']}'.toLowerCase();
     if (const [
@@ -75,6 +85,7 @@ abstract final class UserJourneyLogic {
     return 'Ҳама';
   }
 
+  /// Whether an app matches the search [query] and the selected [category].
   static bool appMatches(
     Map<String, dynamic> app, {
     required String query,
@@ -86,6 +97,7 @@ abstract final class UserJourneyLogic {
         (category == 'Ҳама' || appCategory(app) == category);
   }
 
+  /// Whether [now] falls inside a weekday time window (supports overnight).
   static bool scheduleActive({
     required DateTime now,
     required String start,
@@ -111,6 +123,7 @@ abstract final class UserJourneyLogic {
     return current < endMinute && selected.contains(previous);
   }
 
+  /// Merges two message lists without duplicates, sorted oldest first.
   static List<Map<String, dynamic>> mergeMessages(
     Iterable<Map<String, dynamic>> firebase,
     Iterable<Map<String, dynamic>> server,
@@ -137,6 +150,7 @@ abstract final class UserJourneyLogic {
     return result;
   }
 
+  /// Milliseconds since epoch from a number or an ISO/number string; 0 if unknown.
   static int _timestamp(Object? value) {
     if (value is num) return value.toInt();
     if (value is String) {

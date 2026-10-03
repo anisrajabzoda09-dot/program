@@ -1,3 +1,6 @@
+// Parent bottom sheets for safe places: adding one (name, radius, position),
+// listing/deleting them, and the 24-hour location timeline.
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -30,6 +33,7 @@ class AddPlaceSheet extends StatefulWidget {
   State<AddPlaceSheet> createState() => _AddPlaceSheetState();
 }
 
+/// Holds the place name, radius and position choice being edited.
 class _AddPlaceSheetState extends State<AddPlaceSheet> {
   final _name = TextEditingController();
   double _radius = 150;
@@ -44,6 +48,7 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
 
   LatLng? get _position => _useChild ? widget.childPosition : widget.tapped;
 
+  /// Saves the new safe place and closes the sheet.
   Future<void> _save() async {
     final position = _position;
     final name = _name.text.trim();
@@ -227,7 +232,9 @@ class PlacesSheet extends StatefulWidget {
   State<PlacesSheet> createState() => _PlacesSheetState();
 }
 
+/// Deletes places after confirmation.
 class _PlacesSheetState extends State<PlacesSheet> {
+  /// Asks for confirmation and deletes [place].
   Future<void> _delete(SafePlace place) async {
     final ok = await showDialog<bool>(
       context: context,
@@ -351,6 +358,7 @@ class _PlacesSheetState extends State<PlacesSheet> {
   );
 }
 
+/// One safe place row with its distance from the child and delete button.
 class _PlaceTile extends StatelessWidget {
   const _PlaceTile({
     required this.place,

@@ -1,10 +1,10 @@
-import 'dart:ui' as ui;
+// Profile photo button for Settings: pick from gallery or camera, upload,
+// or remove the user's avatar.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../core/platform.dart';
 import '../../core/session.dart';
 import '../../ui/avatar.dart';
 import '../../ui/nigoh_design.dart';
@@ -17,40 +17,16 @@ typedef PhotoPicker = Future<Uint8List?> Function(ImageSource source);
 /// Server limit is ~350 KB of base64, i.e. ~260 KB of raw bytes.
 const maxAvatarBytes = 260 * 1024;
 
+/// Default picker: a 512 px, compressed photo via image_picker.
 Future<Uint8List?> _pickWithImagePicker(ImageSource source) async {
   final file = await ImagePicker().pickImage(
-    source: isDesktop ? ImageSource.gallery : source,
+    source: source,
     maxWidth: 512,
     maxHeight: 512,
     imageQuality: 80,
     preferredCameraDevice: CameraDevice.front,
   );
-  final bytes = await file?.readAsBytes();
-  // image_picker cannot resize on Windows: shrink big photos here.
-  if (bytes != null && isDesktop && bytes.length > maxAvatarBytes) {
-    return shrinkAvatar(bytes);
-  }
-  return bytes;
-}
-
-/// Re-encodes a big photo as a small square-ish PNG that fits
-/// [maxAvatarBytes]; returns the original bytes if it cannot be decoded.
-Future<Uint8List> shrinkAvatar(Uint8List bytes) async {
-  for (final size in const [512, 384, 256, 192]) {
-    try {
-      final codec = await ui.instantiateImageCodec(bytes, targetWidth: size);
-      final frame = await codec.getNextFrame();
-      final data = await frame.image.toByteData(format: ui.ImageByteFormat.png);
-      frame.image.dispose();
-      codec.dispose();
-      if (data == null) break;
-      final png = data.buffer.asUint8List();
-      if (png.length <= maxAvatarBytes) return png;
-    } catch (_) {
-      break; // Not an image Flutter can read: let the size check report it.
-    }
-  }
-  return bytes;
+  return file?.readAsBytes();
 }
 
 /// The profile photo in Settings: tap to pick from the gallery, take a
@@ -75,9 +51,11 @@ class ProfileAvatarButton extends StatefulWidget {
   State<ProfileAvatarButton> createState() => _ProfileAvatarButtonState();
 }
 
+/// Shows the photo actions sheet and runs upload/remove with progress.
 class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
   bool busy = false;
 
+  /// Opens the gallery / camera / delete sheet and runs the chosen action.
   Future<void> choose() async {
     final hasPhoto = widget.session.avatar != null;
     final action = await showModalBottomSheet<String>(
@@ -95,14 +73,12 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
                 title: Text(tr('Аз галерея')),
                 onTap: () => Navigator.pop(sheetContext, 'gallery'),
               ),
-              // Desktop: image_picker only opens a file dialog, no camera.
-              if (!isDesktop)
-                ListTile(
-                  key: const ValueKey('avatar-camera'),
-                  leading: const Icon(Icons.photo_camera_outlined),
-                  title: Text(tr('Сурат гирифтан')),
-                  onTap: () => Navigator.pop(sheetContext, 'camera'),
-                ),
+              ListTile(
+                key: const ValueKey('avatar-camera'),
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: Text(tr('Сурат гирифтан')),
+                onTap: () => Navigator.pop(sheetContext, 'camera'),
+              ),
               if (hasPhoto)
                 ListTile(
                   key: const ValueKey('avatar-delete'),
@@ -128,6 +104,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     await upload(action == 'camera' ? ImageSource.camera : ImageSource.gallery);
   }
 
+  /// Picks a photo, checks its size and uploads it as the new avatar.
   Future<void> upload(ImageSource source) async {
     final Uint8List? bytes;
     try {
@@ -189,6 +166,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     }
   }
 
+  /// Deletes the avatar on the server.
   Future<void> remove() async {
     setState(() => busy = true);
     try {

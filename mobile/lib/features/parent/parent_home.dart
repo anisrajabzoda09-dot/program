@@ -1,3 +1,7 @@
+// Parent home shell: overview of all children (status, alerts, SOS, quick
+// actions), tab navigation to apps/map/chat/settings with a bottom bar on
+// phones and a NavigationRail on wide (≥ 900 px) screens.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -40,6 +44,8 @@ class ParentHome extends StatefulWidget {
   State<ParentHome> createState() => _ParentHomeState();
 }
 
+/// Owns the [FamilyController], the selected tab, notification deep links and
+/// the child actions (add, remove with PIN, open tools).
 class _ParentHomeState extends State<ParentHome> {
   FamilyController? _controller;
   bool _owned = false;
@@ -94,6 +100,7 @@ class _ParentHomeState extends State<ParentHome> {
     });
   }
 
+  /// Opens the extra-time requests inbox.
   void _openRequests() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -102,6 +109,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
+  /// Opens the weekly screen-time report of [child].
   void _openReport(FamilyChild child) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -110,6 +118,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
+  /// Opens the bedtime settings sheet for [child].
   void _openBedtime(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -119,6 +128,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
+  /// Opens the study-mode settings sheet for [child].
   void _openStudy(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -148,6 +158,7 @@ class _ParentHomeState extends State<ParentHome> {
     super.dispose();
   }
 
+  /// Opens the pairing screen and confirms a newly added child.
   Future<void> _addChild() async {
     final ok = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => AddChildScreen(controller: controller)),
@@ -155,6 +166,7 @@ class _ParentHomeState extends State<ParentHome> {
     if (ok == true && mounted) showMessage(context, tr('Фарзанд пайваст шуд'));
   }
 
+  /// Selects [child] and switches to tab [tab].
   void _open(int tab, FamilyChild child) {
     controller.select(child.id);
     setState(() => _tab = tab);
@@ -198,6 +210,7 @@ class _ParentHomeState extends State<ParentHome> {
     return ok && mounted;
   }
 
+  /// Unpairs [child] after the parent PIN and a confirmation dialog.
   Future<void> _removeChild(FamilyChild child) async {
     if (!await _requirePin(child) || !mounted) return;
     final confirm = await showDialog<bool>(
@@ -314,7 +327,7 @@ class _ParentHomeState extends State<ParentHome> {
             label: tr('Танзимот'),
           ),
         ];
-        // Wide windows (desktop app, tablets): side rail and a centered,
+        // Wide windows (Android tablets): side rail and a centered,
         // width-limited content column. Phones keep the bottom bar.
         final wide =
             MediaQuery.sizeOf(context).width >= ParentHome.wideBreakpoint;
@@ -419,6 +432,7 @@ class _ParentHomeState extends State<ParentHome> {
     );
   }
 
+  /// Content of the selected tab (overview, apps, map, chat or settings).
   Widget _tabBody(String parentName, String? parentAvatar) {
     if (_tab == 0) {
       return _Overview(
@@ -478,6 +492,7 @@ class _NavItem {
   final String label;
 }
 
+/// Empty overview with a call to add the first child.
 class _EmptyFamily extends StatelessWidget {
   const _EmptyFamily({required this.onAdd});
   final VoidCallback onAdd;
@@ -508,6 +523,7 @@ class _EmptyFamily extends StatelessWidget {
   );
 }
 
+/// Horizontal chips for choosing which child the tabs show.
 class _ChildSelector extends StatelessWidget {
   const _ChildSelector({
     required this.api,
@@ -555,6 +571,7 @@ class _ChildSelector extends StatelessWidget {
   );
 }
 
+/// Overview tab: greeting, SOS banners, device alerts and a card per child.
 class _Overview extends StatelessWidget {
   const _Overview({
     required this.controller,
@@ -708,6 +725,7 @@ class _Overview extends StatelessWidget {
   }
 }
 
+/// Banner for a failed refresh with a retry button.
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner({required this.message, required this.onRetry});
   final String message;
@@ -737,6 +755,7 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
+/// Overview card of one child: status, screen time, places and quick actions.
 class _ChildCard extends StatelessWidget {
   const _ChildCard({
     required this.child,
@@ -1132,6 +1151,7 @@ class _DeviceAlerts extends StatelessWidget {
   }
 }
 
+/// Small icon + value + label statistic on a child card.
 class _Stat extends StatelessWidget {
   const _Stat({
     required this.icon,
@@ -1184,6 +1204,7 @@ class _Stat extends StatelessWidget {
   );
 }
 
+/// Round quick-action button (apps, map, chat…) on a child card.
 class _QuickAction extends StatelessWidget {
   const _QuickAction({
     required this.icon,

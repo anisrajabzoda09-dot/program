@@ -1,15 +1,19 @@
+// Small shared building blocks so every screen looks the same: snackbars,
+// empty/error states, section titles, pills, entry/tap animations and
+// time formatting.
+
 import 'package:flutter/material.dart';
 
 import '../core/api.dart';
 import '../l10n/l10n.dart';
-
-/// Small shared building blocks so every screen looks the same.
 
 /// True when the user asked the system for less motion (accessibility) — all
 /// decorative animations below collapse to their end state then.
 bool reducedMotion(BuildContext context) =>
     MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
+/// Shows [message] (an [ApiException]'s text or any object) as a snackbar,
+/// red when [error] is true.
 void showMessage(BuildContext context, Object message, {bool error = false}) {
   final text = message is ApiException ? message.message : '$message';
   final scheme = Theme.of(context).colorScheme;
@@ -296,6 +300,7 @@ class TapScale extends StatefulWidget {
   State<TapScale> createState() => _TapScaleState();
 }
 
+/// Scales the child down slightly while pressed.
 class _TapScaleState extends State<TapScale> {
   bool down = false;
 

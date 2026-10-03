@@ -1,3 +1,6 @@
+// Notification deep-link target: tells the parent/child home which tab (and
+// child) to open after the app was launched from a notification.
+
 import 'package:flutter/foundation.dart';
 
 /// Where a home screen should jump after the app was opened from a

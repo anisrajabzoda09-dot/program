@@ -1,11 +1,12 @@
+// Pure helpers for the parent side (no widgets, easy to test): distances and
+// safe-place status, time labels, location history and weekly usage parsing.
+
 import 'dart:math' as math;
 
 import '../../core/models.dart';
 
 export '../../core/app_categories.dart';
 import '../../l10n/l10n.dart';
-
-/// Pure helpers for the parent side (no widgets, easy to test).
 
 // ---------- Geography ----------
 
@@ -58,6 +59,7 @@ String? placeStatus(ChildLocation? location, List<SafePlace> places) {
 
 // ---------- Small formatting ----------
 
+/// Two-digit zero-padded number for clock times.
 String two(int v) => v.toString().padLeft(2, '0');
 
 /// 'HH:mm' for a local time.
@@ -81,6 +83,7 @@ class HistoryPoint {
   final DateTime? time;
   final int? batteryLevel;
 
+  /// Parses the server's location history, skipping points without coordinates.
   static List<HistoryPoint> listFromJson(List<Map<String, dynamic>> raw) {
     final out = <HistoryPoint>[];
     for (final p in raw) {
@@ -104,6 +107,7 @@ class HistoryPoint {
     return out;
   }
 
+  /// Parses a server timestamp; values without a zone are treated as UTC.
   static DateTime? _time(Object? raw) {
     if (raw == null) return null;
     final text = raw.toString().trim();
@@ -127,6 +131,7 @@ class UsageDay {
   final int minutes;
   final List<UsageTopApp> top;
 
+  /// Parses the server's per-day usage list for the weekly report.
   static List<UsageDay> listFromJson(List<Map<String, dynamic>> raw) => [
     for (final d in raw)
       UsageDay(
@@ -147,6 +152,7 @@ class UsageDay {
   ];
 }
 
+/// One app's minutes in a day of the weekly report.
 class UsageTopApp {
   const UsageTopApp({
     required this.packageName,

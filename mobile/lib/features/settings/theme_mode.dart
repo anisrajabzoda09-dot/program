@@ -1,3 +1,5 @@
+// Persisted light/dark/system theme choice.
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,6 +10,7 @@ class ThemeModeSetting extends ValueNotifier<ThemeMode> {
 
   static const storageKey = 'nigoh.theme_mode';
 
+  /// Restores the saved theme mode (system when none or unreadable).
   Future<void> load() async {
     try {
       final raw = (await SharedPreferences.getInstance()).getString(storageKey);
@@ -20,6 +23,7 @@ class ThemeModeSetting extends ValueNotifier<ThemeMode> {
     }
   }
 
+  /// Applies and saves a new theme mode.
   Future<void> set(ThemeMode mode) async {
     value = mode;
     await (await SharedPreferences.getInstance()).setString(

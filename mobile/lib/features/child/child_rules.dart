@@ -1,3 +1,7 @@
+// «Қоидаҳои ман» tab of the child phone: shows the rules the parent set
+// (bedtime, study mode, blocked/limited/scheduled apps) and lets the child ask
+// for extra time and see the answers.
+
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
@@ -79,6 +83,8 @@ class ChildRulesScreen extends StatefulWidget {
   State<ChildRulesScreen> createState() => _ChildRulesScreenState();
 }
 
+/// Keeps the child's time requests loaded and refreshes them when the
+/// parent decides one.
 class _ChildRulesScreenState extends State<ChildRulesScreen> {
   List<TimeRequest>? _requests;
   String? _requestsError;
@@ -101,6 +107,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     super.dispose();
   }
 
+  /// Rebuilds on sync changes and reloads requests when the pending count changes.
   void _onSync() {
     if (!mounted) return;
     // A parent decision changes the pending count — refresh the list then.
@@ -112,6 +119,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     setState(() {});
   }
 
+  /// Loads the child's extra-time requests from the server.
   Future<void> _loadRequests() async {
     final id = sync.childId;
     if (id == null || _loadingRequests) return;
@@ -132,11 +140,13 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     }
   }
 
+  /// Pull-to-refresh: syncs rules now and reloads the requests.
   Future<void> _refresh() async {
     await sync.forceSync();
     await _loadRequests();
   }
 
+  /// Opens the extra-time sheet for [app] and sends the request to the parent.
   Future<void> _askTime(ChildApp app) async {
     final id = sync.childId;
     if (id == null) return;
@@ -485,6 +495,7 @@ class _GroupHeader extends StatelessWidget {
   }
 }
 
+/// Card for one rule (bedtime, study mode…) with an optional bottom part.
 class _RuleCard extends StatelessWidget {
   const _RuleCard({
     required this.leading,
@@ -560,6 +571,7 @@ class _RuleCard extends StatelessWidget {
   }
 }
 
+/// One app row with its rule (blocked, limit, schedule) and usage progress.
 class _AppRule extends StatelessWidget {
   const _AppRule({
     super.key,
@@ -625,12 +637,14 @@ class _AppRule extends StatelessWidget {
   }
 }
 
+/// What the child entered in the extra-time sheet.
 class _TimeAsk {
   const _TimeAsk(this.minutes, this.reason);
   final int minutes;
   final String? reason;
 }
 
+/// Bottom sheet where the child picks extra minutes and an optional reason.
 class _TimeRequestSheet extends StatefulWidget {
   const _TimeRequestSheet({required this.app});
   final ChildApp app;
@@ -639,6 +653,7 @@ class _TimeRequestSheet extends StatefulWidget {
   State<_TimeRequestSheet> createState() => _TimeRequestSheetState();
 }
 
+/// Holds the chosen minutes and the reason text.
 class _TimeRequestSheetState extends State<_TimeRequestSheet> {
   int _minutes = 15;
   final _reason = TextEditingController();
@@ -736,6 +751,7 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
   }
 }
 
+/// List of the child's recent extra-time requests and their status.
 class _RequestsList extends StatelessWidget {
   const _RequestsList({
     required this.requests,
@@ -815,6 +831,7 @@ Widget requestStatusPill(String status) => switch (status) {
   ),
 };
 
+/// Small error line with a retry action.
 class _InlineError extends StatelessWidget {
   const _InlineError({required this.text, required this.onRetry});
   final String text;

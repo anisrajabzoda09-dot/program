@@ -1,9 +1,13 @@
+// Dart side of the native Android notification service (NotifyService):
+// starts/stops it, asks for notification permissions, and reports which
+// notification the user tapped to open the app.
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'api.dart';
-import 'platform.dart';
 import '../l10n/l10n.dart';
 
 /// What the user tapped in a notification posted by the native NotifyService.
@@ -87,9 +91,9 @@ abstract final class NotifyBridge {
 
   static bool _listening = false;
 
-  /// Android only: the desktop app runs its own Dart loop
-  /// (features/desktop/desktop_notifications.dart).
-  static bool get _supported => isAndroidApp;
+  /// The native notification service exists only in the Android app.
+  static bool get _supported =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   /// Starts listening for launches from notifications and picks up the one
   /// that cold-started the app. Idempotent; [start] calls it.
@@ -131,6 +135,7 @@ abstract final class NotifyBridge {
     }
   }
 
+  /// Stops the native notification service (on sign-out).
   static Future<void> stop() async {
     if (!_supported) return;
     try {
@@ -174,6 +179,7 @@ abstract final class NotifyBridge {
     }
   }
 
+  /// Opens Android's "full-screen notifications" setting for SOS and calls.
   static Future<void> openFullScreenSettings() async {
     if (!_supported) return;
     try {
@@ -232,6 +238,7 @@ abstract final class NotifyBridge {
     return status.all;
   }
 
+  /// Clears static state between tests.
   @visibleForTesting
   static void resetForTest() {
     _listening = false;

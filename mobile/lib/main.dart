@@ -1,16 +1,18 @@
+// App entry point: loads the session, theme and language, then builds the
+// MaterialApp whose home is [RootGate], which picks the screen for the current
+// sign-in / role / setup state and wires notification taps to screens.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/child_profile.dart';
 import 'core/home_target.dart';
 import 'core/notify_bridge.dart';
-import 'core/platform.dart';
 import 'core/session.dart';
 import 'features/auth/auth_screen.dart';
 import 'features/auth/brand_logo.dart';
 import 'features/call/call_screen.dart';
 import 'features/child/child_home.dart';
-import 'features/desktop/desktop_notifications.dart';
 import 'features/onboarding/child_setup_screen.dart';
 import 'features/onboarding/permissions_wizard.dart';
 import 'features/onboarding/role_screen.dart';
@@ -24,6 +26,8 @@ import 'l10n/l10n.dart';
 /// App-wide navigator, used to open screens from notifications.
 final navigatorKey = GlobalKey<NavigatorState>();
 
+/// Starts the app after restoring the saved session, theme and language so the
+/// first frame already shows the right screen.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final session = Session();
@@ -35,6 +39,7 @@ Future<void> main() async {
   runApp(NigohApp(session: session));
 }
 
+/// Root widget: the MaterialApp with themes, localization and [RootGate].
 class NigohApp extends StatefulWidget {
   const NigohApp({super.key, required this.session});
   final Session session;
@@ -43,6 +48,7 @@ class NigohApp extends StatefulWidget {
   State<NigohApp> createState() => _NigohAppState();
 }
 
+/// Rebuilds the whole tree on a language switch and hosts the MaterialApp.
 class _NigohAppState extends State<NigohApp> {
   @override
   void initState() {
@@ -109,6 +115,8 @@ class RootGate extends StatefulWidget {
   State<RootGate> createState() => _RootGateState();
 }
 
+/// State of [RootGate]: loads the child profile and wizard flag for the
+/// signed-in role, keeps notifications in sync and routes notification taps.
 class _RootGateState extends State<RootGate> {
   ChildProfile? childProfile;
   bool profileLoaded = false;
@@ -136,14 +144,12 @@ class _RootGateState extends State<RootGate> {
   @override
   void dispose() {
     NotifyBridge.launch.removeListener(onLaunch);
-    if (isDesktop) DesktopNotifications.stop();
     super.dispose();
   }
 
   /// Starts the notification service when signed in with a role, stops it on
   /// sign-out, and asks for notification permissions once.
   void syncNotifications(Session session, {required bool home}) {
-    if (isDesktop) return syncDesktopNotifications(session);
     final token = session.api.token;
     final key = session.signedIn && session.role != null
         ? '$token|${session.role}'
@@ -166,21 +172,6 @@ class _RootGateState extends State<RootGate> {
     }
   }
 
-  /// Desktop (parent only): a Dart long-poll of the events shows banners,
-  /// the SOS alarm and incoming calls while the app is open.
-  void syncDesktopNotifications(Session session) {
-    final key = session.signedIn && session.isParent
-        ? '${session.api.token}|parent'
-        : null;
-    if (key == notifyKey) return;
-    notifyKey = key;
-    if (key != null) {
-      DesktopNotifications.start(session.api, navigatorKey);
-    } else {
-      DesktopNotifications.stop();
-    }
-  }
-
   /// Routes a tap on a notification: calls open [CallScreen], everything else
   /// sets [homeTarget] for the parent/child home to pick up.
   void onLaunch() {
@@ -193,6 +184,8 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
+  /// Opens what a tapped notification points to: the call screen for calls,
+  /// the matching home tab otherwise, plus a full-screen SOS alarm dialog.
   Future<void> handleLaunch(LaunchAction action) async {
     final navigator = navigatorKey.currentState;
     if (action.kind == 'call') {
@@ -236,6 +229,7 @@ class _RootGateState extends State<RootGate> {
     }
   }
 
+  /// Reads the child's locally saved profile (name/age) once after sign-in.
   Future<void> loadProfile() async {
     profileLoading = true;
     ChildProfile? profile;
@@ -252,6 +246,7 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
+  /// Loads whether the permissions wizard was already finished for [role].
   Future<void> loadWizardFlag(String role) async {
     wizardRole = role;
     wizardLoading = true;
@@ -268,12 +263,14 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
+  /// Marks the wizard finished and goes on to the home screen.
   void onWizardDone() {
     // The wizard covered notifications; do not ask again right away.
     notifyPermissionsAsked = true;
     setState(() => wizardDone = true);
   }
 
+  /// Runs the silent start-up update check once per app launch.
   void scheduleUpdateCheck(Session session) {
     if (updateChecked) return;
     updateChecked = true;
@@ -290,18 +287,10 @@ class _RootGateState extends State<RootGate> {
       profileLoaded = false;
       childProfile = null;
     }
-    // The desktop app is parent-only: a stored 'child' role means the role
-    // still has to be chosen there.
-    final desktop = isDesktop;
-    final childHere = session.isChild && !desktop;
+    final childHere = session.isChild;
     if (childHere && !profileLoaded && !profileLoading) loadProfile();
     final role = session.signedIn ? session.role : null;
-    if (desktop) {
-      // No Android permissions to set up on a computer.
-      wizardRole = role;
-      wizardDone = true;
-      wizardLoading = false;
-    } else if (role != wizardRole) {
+    if (role != wizardRole) {
       if (role == null) {
         wizardRole = null;
         wizardDone = false;
@@ -321,7 +310,7 @@ class _RootGateState extends State<RootGate> {
     } else if (!session.signedIn) {
       state = 'auth';
       screen = const AuthScreen();
-    } else if (session.role == null || (desktop && !session.isParent)) {
+    } else if (session.role == null) {
       state = 'role';
       screen = const RoleScreen();
     } else if (session.isChild && childProfile == null) {
@@ -357,6 +346,7 @@ class _RootGateState extends State<RootGate> {
   }
 }
 
+/// Logo and spinner shown while the session and flags are loading.
 class _Splash extends StatelessWidget {
   const _Splash();
 

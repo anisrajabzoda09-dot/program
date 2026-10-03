@@ -1,6 +1,8 @@
+// Role choice screen: decides whether this phone is the parent's or the
+// child's.
+
 import 'package:flutter/material.dart';
 
-import '../../core/platform.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
@@ -15,9 +17,11 @@ class RoleScreen extends StatefulWidget {
   State<RoleScreen> createState() => _RoleScreenState();
 }
 
+/// Saves the chosen role and shows progress on the tapped card.
 class _RoleScreenState extends State<RoleScreen> {
   String? saving;
 
+  /// Saves [role] for this phone; errors are shown as a snackbar.
   Future<void> choose(String role) async {
     if (saving != null) return;
     setState(() => saving = role);
@@ -34,8 +38,6 @@ class _RoleScreenState extends State<RoleScreen> {
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
     final scheme = Theme.of(context).colorScheme;
-    // Desktop app: parent only; the child side runs on the Android phone.
-    final desktop = isDesktop;
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -70,9 +72,7 @@ class _RoleScreenState extends State<RoleScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    desktop
-                        ? tr('NIGOH Family дар компютер барои волидайн аст.')
-                        : tr('Ин телефонро кӣ истифода мебарад?'),
+                    tr('Ин телефонро кӣ истифода мебарад?'),
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontSize: 15,
@@ -80,13 +80,9 @@ class _RoleScreenState extends State<RoleScreen> {
                   ),
                   const SizedBox(height: 14),
                   ScreenHint(
-                    desktop
-                        ? tr(
-                            'Баъди интихоб телефони фарзандро пайваст мекунед.',
-                          )
-                        : tr(
-                            'Як бор интихоб мекунед. Баъд NIGOH иҷозатҳои лозимиро қадам ба қадам мепурсад.',
-                          ),
+                    tr(
+                      'Як бор интихоб мекунед. Баъд NIGOH иҷозатҳои лозимиро қадам ба қадам мепурсад.',
+                    ),
                     icon: Icons.info_outline_rounded,
                   ),
                   const SizedBox(height: 20),
@@ -106,27 +102,19 @@ class _RoleScreenState extends State<RoleScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (desktop)
-                    FadeIn(
-                      index: 2,
-                      child: _ChildOnPhoneNote(
-                        key: const Key('role.child-on-phone'),
-                      ),
-                    )
-                  else
-                    FadeIn(
-                      index: 2,
-                      child: _RoleCard(
-                        key: const Key('role.child'),
-                        icon: Icons.child_care_rounded,
-                        color: NigohDesign.mint,
-                        title: tr('Фарзанд'),
-                        text: tr('Ин телефонро ба волидайн пайваст кунед.'),
-                        action: tr('Телефони фарзанд'),
-                        busy: saving == 'child',
-                        onTap: () => choose('child'),
-                      ),
+                  FadeIn(
+                    index: 2,
+                    child: _RoleCard(
+                      key: const Key('role.child'),
+                      icon: Icons.child_care_rounded,
+                      color: NigohDesign.mint,
+                      title: tr('Фарзанд'),
+                      text: tr('Ин телефонро ба волидайн пайваст кунед.'),
+                      action: tr('Телефони фарзанд'),
+                      busy: saving == 'child',
+                      onTap: () => choose('child'),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -137,38 +125,7 @@ class _RoleScreenState extends State<RoleScreen> {
   }
 }
 
-class _ChildOnPhoneNote extends StatelessWidget {
-  const _ChildOnPhoneNote({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: NigohDesign.mint.withValues(alpha: .10),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: NigohDesign.mint.withValues(alpha: .35)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.phone_android_rounded, color: NigohDesign.mint),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              tr(
-                'Қисми фарзанд дар телефони Android кор мекунад: NIGOH Family-ро дар телефони фарзанд насб кунед ва «Фарзанд»-ро интихоб кунед.',
-              ),
-              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
+/// Tappable card describing one role (parent or child).
 class _RoleCard extends StatelessWidget {
   const _RoleCard({
     super.key,

@@ -1,3 +1,7 @@
+// Family chat screen shared by parent and child: message list with day
+// separators and read receipts, quick check-in replies, call chips, sending
+// with retry, and periodic polling for new messages.
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -44,6 +48,7 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
+/// A message being sent (or failed) that is not on the server yet.
 class _Pending {
   _Pending(this.content, this.type);
   final String content;
@@ -51,6 +56,8 @@ class _Pending {
   bool failed = false;
 }
 
+/// Polls messages while visible, sends with optimistic bubbles and keeps the
+/// list scrolled to the newest message.
 class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final _input = TextEditingController();
   final _scroll = ScrollController();
@@ -126,6 +133,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Starts the periodic message refresh.
   void _startPolling() {
     _timer?.cancel();
     _timer = Timer.periodic(ChatScreen.pollInterval, (_) => _load());
@@ -140,6 +148,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Fetches new messages since the last known one and merges them in.
   Future<void> _load() async {
     if (_loading || !mounted) return;
     _loading = true;
@@ -207,6 +216,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
   }
 
+  /// Sends the text typed in the input field.
   Future<void> _send() async {
     final text = _input.text.trim();
     if (text.isEmpty || _sending) return;
@@ -214,6 +224,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     await _sendText(text);
   }
 
+  /// Adds a pending bubble for [text] and delivers it.
   Future<void> _sendText(String text) async {
     if (_sending) return;
     final pending = _Pending(text, 'text');
@@ -222,12 +233,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     await _deliver(pending);
   }
 
+  /// Re-sends a message that failed to deliver.
   Future<void> _retry(_Pending pending) async {
     if (_sending) return;
     setState(() => pending.failed = false);
     await _deliver(pending);
   }
 
+  /// Posts a pending message to the server; marks it failed on error.
   Future<void> _deliver(_Pending pending) async {
     setState(() => _sending = true);
     try {
@@ -316,6 +329,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// Message list, or loading / error / empty state before the first load.
   Widget _body(String myRole) {
     if (!_loaded) {
       if (_loadError != null) {
@@ -426,6 +440,7 @@ class _Entry extends StatefulWidget {
   State<_Entry> createState() => _EntryState();
 }
 
+/// Runs the one-time entry animation of a chat row.
 class _EntryState extends State<_Entry> with SingleTickerProviderStateMixin {
   late final AnimationController _in = AnimationController(
     vsync: this,
@@ -467,14 +482,17 @@ class _EntryState extends State<_Entry> with SingleTickerProviderStateMixin {
   }
 }
 
+/// Two-digit zero-padded number for clock times.
 String _two(int v) => v.toString().padLeft(2, '0');
 
+/// Local "HH:mm" time of a message, or '' when unknown.
 String _hhmm(DateTime? time) {
   if (time == null) return '';
   final t = time.toLocal();
   return '${_two(t.hour)}:${_two(t.minute)}';
 }
 
+/// "Today" / "Yesterday" / date label between messages of different days.
 class _DaySeparator extends StatelessWidget {
   const _DaySeparator(this.day, {super.key});
   final DateTime day;
@@ -513,6 +531,7 @@ class _DaySeparator extends StatelessWidget {
   }
 }
 
+/// One chat bubble with time, read ticks and pending/failed state.
 class _Bubble extends StatelessWidget {
   const _Bubble({
     required this.text,
@@ -708,6 +727,7 @@ class _UrgentBubble extends StatelessWidget {
   }
 }
 
+/// Row of one-tap check-in replies (e.g. "I've arrived") for the child.
 class _QuickReplies extends StatelessWidget {
   const _QuickReplies({required this.enabled, required this.onTap});
   final bool enabled;
@@ -748,6 +768,7 @@ class _QuickReplies extends StatelessWidget {
   }
 }
 
+/// Chat entry for a call event (outgoing, incoming or missed call).
 class _CallChip extends StatelessWidget {
   const _CallChip({required this.message, required this.mine});
   final ChatMessage message;
@@ -801,6 +822,7 @@ class _CallChip extends StatelessWidget {
   }
 }
 
+/// Banner shown when refreshing messages failed, with a retry button.
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner(this.text, this.onRetry);
   final String text;
@@ -830,6 +852,7 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
+/// Text field and send button at the bottom of the chat.
 class _InputBar extends StatelessWidget {
   const _InputBar({
     required this.controller,

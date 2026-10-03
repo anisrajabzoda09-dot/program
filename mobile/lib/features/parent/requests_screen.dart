@@ -1,3 +1,6 @@
+// Parent inbox of children's extra-time requests: approve with a chosen
+// number of minutes or deny, with recent decisions listed below.
+
 import 'package:flutter/material.dart';
 
 import '../../core/api.dart';
@@ -7,6 +10,7 @@ import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import '../../l10n/l10n.dart';
 
+/// A time request together with the child who sent it.
 class _Entry {
   const _Entry(this.child, this.request);
   final FamilyChild child;
@@ -23,6 +27,7 @@ class TimeRequestsScreen extends StatefulWidget {
   State<TimeRequestsScreen> createState() => _TimeRequestsScreenState();
 }
 
+/// Loads all children's requests and sends the parent's decisions.
 class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
   List<_Entry>? _entries;
   String? _error;
@@ -37,6 +42,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     _load();
   }
 
+  /// Loads the time requests of every paired child.
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -67,6 +73,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     }
   }
 
+  /// Lets the parent pick the minutes to grant, then approves the request.
   Future<void> _approve(_Entry entry) async {
     final minutes = await showModalBottomSheet<int>(
       context: context,
@@ -77,6 +84,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     await _decide(entry, approve: true, minutes: minutes);
   }
 
+  /// Sends an approve/deny decision and reloads the list.
   Future<void> _decide(
     _Entry entry, {
     required bool approve,
@@ -224,6 +232,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
   }
 }
 
+/// Card of one pending request with approve and deny buttons.
 class _RequestCard extends StatelessWidget {
   const _RequestCard({
     required this.entry,
@@ -353,6 +362,7 @@ class _RequestCard extends StatelessWidget {
   }
 }
 
+/// Sheet for choosing how many minutes to grant (requested, 15, 30, 60).
 class _ApproveSheet extends StatelessWidget {
   const _ApproveSheet({required this.entry});
   final _Entry entry;
@@ -410,6 +420,7 @@ class _ApproveSheet extends StatelessWidget {
   }
 }
 
+/// Row of an already decided request with its result.
 class _DecidedTile extends StatelessWidget {
   const _DecidedTile({required this.entry});
   final _Entry entry;

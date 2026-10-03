@@ -1,6 +1,7 @@
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+// WebRTC abstraction for audio calls: the [RtcEngine] interface used by the
+// call controller and its flutter_webrtc implementation.
 
-import '../../core/platform.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 /// Connection state of the media link, reduced to what the call UI needs.
 enum RtcLinkState { connecting, connected, disconnected, failed }
@@ -23,9 +24,16 @@ abstract class RtcEngine {
   /// Creates an answer, sets it as local description, returns {sdp, type}.
   Future<Map<String, dynamic>> createAnswer();
 
+  /// Applies the other side's offer or answer ({sdp, type}).
   Future<void> setRemote(Map<String, dynamic> description);
+
+  /// Adds an ICE candidate received from the other side.
   Future<void> addCandidate(Map<String, dynamic> candidate);
+
+  /// Mutes or unmutes the local microphone.
   void setMuted(bool muted);
+
+  /// Routes call audio to the loudspeaker (true) or the earpiece (false).
   Future<void> setSpeaker(bool on);
 
   /// Stops the microphone and closes the connection. Safe to call twice.
@@ -43,6 +51,7 @@ class FlutterRtcEngine implements RtcEngine {
   @override
   void Function(RtcLinkState state)? onLinkState;
 
+  /// The open peer connection; throws if [open] was not called.
   RTCPeerConnection get _peer {
     final pc = _pc;
     if (pc == null) throw StateError('Peer connection is not open');
@@ -92,11 +101,11 @@ class FlutterRtcEngine implements RtcEngine {
     for (final track in local.getAudioTracks()) {
       await pc.addTrack(track, local);
     }
-    // Earpiece by default, like a normal phone call. Desktop has no
-    // earpiece/speaker switch (not implemented by flutter_webrtc there).
-    if (!isDesktop) await Helper.setSpeakerphoneOn(false);
+    // Earpiece by default, like a normal phone call.
+    await Helper.setSpeakerphoneOn(false);
   }
 
+  /// Session description as the {sdp, type} map sent through the server.
   Map<String, dynamic> _desc(RTCSessionDescription d) => {
     'sdp': d.sdp,
     'type': d.type,
@@ -150,7 +159,6 @@ class FlutterRtcEngine implements RtcEngine {
 
   @override
   Future<void> setSpeaker(bool on) async {
-    if (isDesktop) return;
     await Helper.setSpeakerphoneOn(on);
   }
 

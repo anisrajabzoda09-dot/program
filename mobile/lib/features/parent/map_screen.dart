@@ -1,3 +1,6 @@
+// Parent "Map" tab: the child's live position on OpenStreetMap, 24-hour path
+// and timeline, safe places, and refresh/centre controls.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -21,6 +24,7 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
+/// Follows the child's position and manages the history path and place sheets.
 class _MapScreenState extends State<MapScreen> {
   final _map = MapController();
   bool _mapReady = false;
@@ -40,6 +44,7 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
+  /// Moves the camera to [point] when the child's position changes.
   void _follow(LatLng point) {
     if (_shown == point) return;
     _shown = point;
@@ -50,6 +55,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  /// Reloads the family snapshot and reports a failure.
   Future<void> _refresh() async {
     setState(() => _refreshing = true);
     await widget.controller.refresh();
@@ -59,6 +65,7 @@ class _MapScreenState extends State<MapScreen> {
     if (error != null) showMessage(context, error, error: true);
   }
 
+  /// Shows or hides the 24-hour path (loading it when shown).
   Future<void> _toggleHistory(FamilyChild child) async {
     if (_showHistory) {
       setState(() => _showHistory = false);
@@ -68,6 +75,7 @@ class _MapScreenState extends State<MapScreen> {
     await _loadHistory(child);
   }
 
+  /// Loads the child's last 24 h of positions for the path.
   Future<void> _loadHistory(FamilyChild child) async {
     setState(() {
       _historyLoading = true;
@@ -98,6 +106,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  /// Opens the path timeline; tapping a point centres the map on it.
   void _openTimeline(List<HistoryPoint> points) {
     showModalBottomSheet<void>(
       context: context,
@@ -113,6 +122,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  /// Opens the sheet for adding a safe place at [at] or the child's position.
   Future<void> _addPlace(FamilyChild child, LatLng? at) async {
     final location = child.location;
     await showModalBottomSheet<bool>(
@@ -130,6 +140,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  /// Opens the list of the child's safe places.
   void _openPlaces(FamilyChild child) {
     showModalBottomSheet<void>(
       context: context,
@@ -404,6 +415,7 @@ const _overlayTextScale = 1.2;
 /// Share of the screen height the bottom card may use at most.
 const _bottomCardShare = .34;
 
+/// Maximum height of the bottom info card for this screen.
 double _bottomCardLimit(BuildContext context) =>
     (MediaQuery.sizeOf(context).height * _bottomCardShare).clamp(110.0, 280.0);
 
@@ -470,6 +482,7 @@ class _MapHint extends StatelessWidget {
   }
 }
 
+/// Map marker with the child's photo/initial, coloured by online state.
 class _ChildMarker extends StatelessWidget {
   const _ChildMarker({required this.child, this.url});
   final FamilyChild child;
@@ -712,6 +725,7 @@ class _StatusLabel extends StatelessWidget {
   );
 }
 
+/// Small floating action chip over the map (path, places, refresh…).
 class _MapChip extends StatelessWidget {
   const _MapChip({
     super.key,
@@ -782,6 +796,7 @@ class _MapChip extends StatelessWidget {
   }
 }
 
+/// Start/end marker of the history path.
 class _PathDot extends StatelessWidget {
   const _PathDot({required this.color, required this.icon});
   final Color color;
@@ -798,6 +813,7 @@ class _PathDot extends StatelessWidget {
   );
 }
 
+/// Name label drawn next to a safe-place circle.
 class _PlaceLabel extends StatelessWidget {
   const _PlaceLabel({required this.name});
   final String name;

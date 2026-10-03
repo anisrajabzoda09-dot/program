@@ -1,11 +1,14 @@
+// Sign-in session: token, user and role persisted in shared preferences,
+// plus the inherited widget that exposes it to the widget tree.
+
 import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
-import 'platform.dart';
 import '../l10n/l10n.dart';
 
+/// Google OAuth web client ID the server uses to verify Google ID tokens.
 const googleServerClientId = String.fromEnvironment(
   'NIGOH_GOOGLE_WEB_CLIENT_ID',
   defaultValue: '708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com',
@@ -48,6 +51,7 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Restores the saved token, role and name at app start.
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     api.token = prefs.getString(_tokenKey);
@@ -75,6 +79,7 @@ class Session extends ChangeNotifier {
         .catchError((_) {});
   }
 
+  /// Saves the token and user returned by a successful sign-in.
   Future<void> _store(Map<String, dynamic> response) async {
     final token = response['token']?.toString();
     if (token == null || token.isEmpty) {
@@ -89,6 +94,7 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Caches the display name so it shows before the server answers.
   Future<void> _saveName() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userKey, displayName);
@@ -101,13 +107,7 @@ class Session extends ChangeNotifier {
       _store(await api.login(email.trim(), password));
 
   /// Google sign-in; the server verifies the ID token itself.
-  /// Google sign-in has no Windows/desktop implementation.
-  static bool get googleAvailable => !isDesktop;
-
   Future<void> signInWithGoogle() async {
-    if (!googleAvailable) {
-      throw ApiException(tr('Дар компютер бо почта ва рамз ворид шавед.'));
-    }
     final google = GoogleSignIn.instance;
     await google.initialize(serverClientId: googleServerClientId);
     final account = await google.authenticate();
@@ -118,6 +118,7 @@ class Session extends ChangeNotifier {
     await _store(await api.google(idToken));
   }
 
+  /// Saves the role chosen for this phone and tells the server about it.
   Future<void> chooseRole(String value) async {
     role = value;
     api.role = value;
@@ -131,6 +132,7 @@ class Session extends ChangeNotifier {
     }
   }
 
+  /// Renames the signed-in user on the server and caches the new name.
   Future<void> updateName(String name) async {
     final data = await api.updateMe(fullName: name.trim());
     final fresh = data['user'];
@@ -139,23 +141,24 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Signs out on the server and from Google, then forgets the local session.
   Future<void> signOut() async {
     try {
       await api.logout();
     } catch (_) {}
-    if (googleAvailable) {
-      try {
-        await GoogleSignIn.instance.signOut();
-      } catch (_) {}
-    }
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
     await _clear();
   }
 
+  /// Called when the server rejects the token: signs out locally.
   void _expired() {
     if (api.token == null) return;
     _clear();
   }
 
+  /// Forgets the token, user and role locally and notifies listeners.
   Future<void> _clear() async {
     api.token = null;
     user = null;

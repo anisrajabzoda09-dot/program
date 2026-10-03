@@ -1,3 +1,6 @@
+// Access center: a checklist page of every Android permission/protection
+// NIGOH needs, with buttons that open the matching dialog or settings screen.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,6 +18,8 @@ class AccessCenterPage extends StatefulWidget {
   State<AccessCenterPage> createState() => _AccessCenterPageState();
 }
 
+/// Reads the protection status from native code and runs the step actions,
+/// re-checking when the app resumes.
 class _AccessCenterPageState extends State<AccessCenterPage>
     with WidgetsBindingObserver {
   static const channel = MethodChannel('tj.nigoh/device_control');
@@ -43,6 +48,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     if (state == AppLifecycleState.resumed) refresh();
   }
 
+  /// Re-reads which permissions and protections are active.
   Future<void> refresh() async {
     try {
       final result = await channel.invokeMapMethod<String, dynamic>(
@@ -63,6 +69,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
+  /// Runs a step action once at a time, then refreshes the status.
   Future<void> act(Future<void> Function() action) async {
     if (busy) return;
     setState(() => busy = true);
@@ -82,10 +89,12 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
+  /// Calls a native method that opens a system settings screen.
   Future<void> open(String method) async {
     await channel.invokeMethod<Object?>(method);
   }
 
+  /// Requests a runtime permission, or opens app settings if it is blocked.
   Future<void> request(ph.Permission permission) async {
     final current = await permission.status;
     if (current.isPermanentlyDenied || current.isRestricted) {
@@ -95,6 +104,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     await permission.request();
   }
 
+  /// Opens the dialog or settings screen for the step [key].
   Future<void> runStep(String key) async {
     switch (key) {
       case 'location':
@@ -122,10 +132,12 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
+  /// Child phone: whether the protections needed for app blocking are on.
   bool get protectionReady =>
       !widget.childMode ||
       (allowed('usage') && allowed('overlay') && allowed('accessibility'));
 
+  /// First required step that is still missing (drives the hero image).
   String get activeKey {
     const required = [
       'location',
@@ -140,6 +152,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     return 'permissions_hero';
   }
 
+  /// Illustration for the step currently being set up.
   String get activeImage {
     switch (activeKey) {
       case 'location':
@@ -153,6 +166,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
+  /// The checklist steps with their titles, descriptions and icons.
   List<_PermissionStepData> get steps => [
     _PermissionStepData(
       key: 'location',
@@ -487,6 +501,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
   }
 }
 
+/// Static copy of one checklist step.
 class _PermissionStepData {
   const _PermissionStepData({
     required this.key,
@@ -503,6 +518,7 @@ class _PermissionStepData {
   final bool optional;
 }
 
+/// Numbered checklist card with done state and an action button.
 class _PermissionStepCard extends StatelessWidget {
   const _PermissionStepCard({
     required this.number,

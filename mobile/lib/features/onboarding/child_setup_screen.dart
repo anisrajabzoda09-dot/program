@@ -1,3 +1,6 @@
+// One-time child profile form (name, gender, age) shown on the child phone
+// before pairing.
+
 import 'package:flutter/material.dart';
 
 import '../../core/child_profile.dart';
@@ -16,6 +19,7 @@ class ChildSetupScreen extends StatefulWidget {
   State<ChildSetupScreen> createState() => _ChildSetupScreenState();
 }
 
+/// Holds the form fields and saves the profile.
 class _ChildSetupScreenState extends State<ChildSetupScreen> {
   final form = GlobalKey<FormState>();
   late final name = TextEditingController();
@@ -38,6 +42,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
     super.dispose();
   }
 
+  /// Validates the form, saves the profile locally and hands it to [onDone].
   Future<void> save() async {
     if (!(form.currentState?.validate() ?? false)) return;
     setState(() => saving = true);
@@ -62,6 +67,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
     }
   }
 
+  /// Wrong role: signs out so the role can be chosen again.
   Future<void> back() async {
     // Wrong role chosen: sign out keeps it simple and clears the choice.
     await SessionScope.read(context).signOut();

@@ -1,8 +1,9 @@
+// Parent screen for pairing a new child phone by QR scan or 6-digit code.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import '../../core/platform.dart';
 import '../../core/user_journey_logic.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
@@ -19,6 +20,7 @@ class AddChildScreen extends StatefulWidget {
   State<AddChildScreen> createState() => _AddChildScreenState();
 }
 
+/// Handles the QR scanner, the typed code and the pairing request.
 class _AddChildScreenState extends State<AddChildScreen> {
   final _code = TextEditingController();
   bool _scanning = false;
@@ -39,6 +41,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
     return match?.group(0) ?? '';
   }
 
+  /// Extracts the 6-digit code (from a QR or typed text) and pairs the child.
   Future<void> _submit(String raw) async {
     if (_busy) return;
     final code = extractCode(raw);
@@ -67,8 +70,6 @@ class _AddChildScreenState extends State<AddChildScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // No camera scanner on the desktop app: the code is typed in.
-    final desktop = isDesktop;
     return Scaffold(
       appBar: AppBar(title: Text(tr('Илова кардани фарзанд'))),
       body: Align(
@@ -109,70 +110,64 @@ class _AddChildScreenState extends State<AddChildScreen> {
                 child: _Step(
                   number: 3,
                   color: NigohDesign.mint,
-                  title: desktop
-                      ? tr('Кодро дар ин ҷо ворид кунед')
-                      : tr('QR-ро скан кунед ё кодро ворид кунед'),
+                  title: tr('QR-ро скан кунед ё кодро ворид кунед'),
                   text: tr(
                     'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
                   ),
                 ),
               ),
               SectionTitle(tr('Пайваст кардани телефон')),
-              if (!desktop) ...[
-                AnimatedSwitcher(
-                  duration: Duration(
-                    milliseconds: reducedMotion(context) ? 0 : 250,
-                  ),
-                  child: _scanning
-                      ? ClipRRect(
-                          key: const ValueKey('scanner'),
-                          borderRadius: BorderRadius.circular(20),
-                          child: SizedBox(
-                            height: 280,
-                            child: Stack(
-                              children: [
-                                MobileScanner(
-                                  onDetect: (capture) {
-                                    final value =
-                                        capture.barcodes.firstOrNull?.rawValue;
-                                    if (value != null && !_busy) _submit(value);
-                                  },
+              AnimatedSwitcher(
+                duration: Duration(
+                  milliseconds: reducedMotion(context) ? 0 : 250,
+                ),
+                child: _scanning
+                    ? ClipRRect(
+                        key: const ValueKey('scanner'),
+                        borderRadius: BorderRadius.circular(20),
+                        child: SizedBox(
+                          height: 280,
+                          child: Stack(
+                            children: [
+                              MobileScanner(
+                                onDetect: (capture) {
+                                  final value =
+                                      capture.barcodes.firstOrNull?.rawValue;
+                                  if (value != null && !_busy) _submit(value);
+                                },
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: IconButton.filledTonal(
+                                  tooltip: tr('Пӯшидан'),
+                                  onPressed: () =>
+                                      setState(() => _scanning = false),
+                                  icon: const Icon(Icons.close_rounded),
                                 ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: IconButton.filledTonal(
-                                    tooltip: tr('Пӯшидан'),
-                                    onPressed: () =>
-                                        setState(() => _scanning = false),
-                                    icon: const Icon(Icons.close_rounded),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : SizedBox(
-                          key: const ValueKey('scan-button'),
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size.fromHeight(54),
-                            ),
-                            onPressed: _busy
-                                ? null
-                                : () => setState(() => _scanning = true),
-                            icon: const Icon(Icons.qr_code_scanner_rounded),
-                            label: Text(tr('Скан кардани QR')),
+                              ),
+                            ],
                           ),
                         ),
-                ),
-                const SizedBox(height: 22),
-              ],
+                      )
+                    : SizedBox(
+                        key: const ValueKey('scan-button'),
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(54),
+                          ),
+                          onPressed: _busy
+                              ? null
+                              : () => setState(() => _scanning = true),
+                          icon: const Icon(Icons.qr_code_scanner_rounded),
+                          label: Text(tr('Скан кардани QR')),
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 22),
               Text(
-                desktop
-                    ? tr('Рамзи 6-рақамаро аз телефони фарзанд ворид кунед')
-                    : tr('Ё кодро дастӣ ворид кунед'),
+                tr('Ё кодро дастӣ ворид кунед'),
                 key: const Key('add-child.code-hint'),
                 style: TextStyle(color: scheme.onSurfaceVariant),
               ),
@@ -180,7 +175,6 @@ class _AddChildScreenState extends State<AddChildScreen> {
               TextField(
                 key: const Key('add-child.code'),
                 controller: _code,
-                autofocus: desktop,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 textAlign: TextAlign.center,
@@ -201,44 +195,22 @@ class _AddChildScreenState extends State<AddChildScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                // On a computer there is no scanner, so this is the one
-                // primary action and it is filled; on a phone the QR button
-                // above stays dominant and this one is quiet.
-                child: desktop
-                    ? FilledButton.icon(
-                        key: const Key('add-child.submit'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
-                        ),
-                        onPressed: _busy ? null : () => _submit(_code.text),
-                        icon: _busy
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.link_rounded),
-                        label: Text(tr('Пайваст кардан')),
-                      )
-                    : OutlinedButton.icon(
-                        key: const Key('add-child.submit'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50),
-                        ),
-                        onPressed: _busy ? null : () => _submit(_code.text),
-                        icon: _busy
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.link_rounded),
-                        label: Text(tr('Пайваст кардан')),
-                      ),
+                // The QR button above stays dominant; this one is quiet.
+                child: OutlinedButton.icon(
+                  key: const Key('add-child.submit'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                  onPressed: _busy ? null : () => _submit(_code.text),
+                  icon: _busy
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.link_rounded),
+                  label: Text(tr('Пайваст кардан')),
+                ),
               ),
             ],
           ),
@@ -248,6 +220,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
   }
 }
 
+/// Numbered step card of the pairing instructions.
 class _Step extends StatelessWidget {
   const _Step({
     required this.number,

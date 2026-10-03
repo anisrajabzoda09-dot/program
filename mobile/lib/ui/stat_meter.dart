@@ -1,13 +1,13 @@
+// Shared, animated «how much of the limit is used» widgets.
+//
+// Both are safe on every screen (parent, child, settings) and respect
+// reduced motion: with animations switched off they paint their end state.
+// Numbers always carry their unit, e.g. «45 дақ аз 60».
+
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import 'widgets.dart';
-
-/// Shared, animated «how much of the limit is used» widgets.
-///
-/// Both are safe on every screen (parent, child, settings) and respect
-/// reduced motion: with animations switched off they paint their end state.
-/// Numbers always carry their unit, e.g. «45 дақ аз 60».
 
 /// A labelled meter: title on the left, value + unit on the right, an animated
 /// bar underneath. [value] and [max] are in the same unit as [unit].
@@ -47,6 +47,7 @@ class StatMeter extends StatelessWidget {
 
   double get fraction => max <= 0 ? 0 : (value / max).clamp(0.0, 1.0);
 
+  /// Number text without a needless ".0".
   String _number(double v) {
     final rounded = v.roundToDouble();
     return rounded == v ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
@@ -236,6 +237,7 @@ class StatTile extends StatelessWidget {
     );
   }
 
+  /// Text style of the big number in a [StatTile].
   static TextStyle _numberStyle(Color color) => TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w800,

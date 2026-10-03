@@ -1,3 +1,6 @@
+// Permissions wizard UI: one page per Android permission with grant and
+// fallback buttons, help tips, a summary page and the per-role "done" flag.
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -42,11 +45,13 @@ class PermissionsWizard extends StatefulWidget {
 
   static String doneKey(String role) => 'nigoh.wizard_done.$role';
 
+  /// Whether the wizard was already finished for [role] on this phone.
   static Future<bool> isDone(String role) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(doneKey(role)) ?? false;
   }
 
+  /// Remembers that the wizard was finished for [role].
   static Future<void> markDone(String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(doneKey(role), true);
@@ -64,6 +69,8 @@ class PermissionsWizard extends StatefulWidget {
   State<PermissionsWizard> createState() => _PermissionsWizardState();
 }
 
+/// Tracks the current step and each step's status, re-checks on resume and
+/// advances automatically once a permission is granted.
 class _PermissionsWizardState extends State<PermissionsWizard>
     with WidgetsBindingObserver {
   late final List<WizardStepId> steps = wizardStepsFor(
@@ -109,6 +116,8 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     if (state == AppLifecycleState.resumed) refresh();
   }
 
+  /// Re-reads every step's status; schedules moving on when the current one
+  /// just became granted.
   Future<void> refresh({bool initial = false}) async {
     final watched = currentId;
     final wasGranted = watched == null ? null : statuses[watched]?.granted;
@@ -144,6 +153,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     }
   }
 
+  /// Moves to the next page after a short pause if still on step [id].
   void scheduleAdvance(WizardStepId id) {
     advanceTimer?.cancel();
     advanceTimer = Timer(widget.advanceDelay, () {
@@ -151,6 +161,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     });
   }
 
+  /// Shows page [target] (the summary page after the last step).
   void go(int target) {
     advanceTimer?.cancel();
     final next = target.clamp(0, steps.length);
@@ -163,6 +174,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     if (onSummary) refresh();
   }
 
+  /// Runs a grant/settings action with a busy state and a readable error.
   Future<void> run(Future<void> Function() action, {String? attemptKey}) async {
     if (busy) return;
     setState(() {
@@ -181,6 +193,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     await refresh();
   }
 
+  /// Saves the "wizard done" flag for this role and closes the wizard.
   Future<void> finish() async {
     if (finishing) return;
     setState(() => finishing = true);
@@ -402,6 +415,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
   }
 }
 
+/// Row of dots showing which permission page is open.
 class _ProgressDots extends StatelessWidget {
   const _ProgressDots({
     required this.count,
@@ -444,6 +458,7 @@ class _ProgressDots extends StatelessWidget {
   }
 }
 
+/// Large coloured icon of a permission page with an optional status badge.
 class _IconTile extends StatelessWidget {
   const _IconTile({
     required this.icon,
@@ -474,6 +489,7 @@ class _IconTile extends StatelessWidget {
   );
 }
 
+/// One permission page: icon, reason, status, grant/fallback buttons and help.
 class _StepPage extends StatelessWidget {
   const _StepPage({
     required this.step,
@@ -697,6 +713,7 @@ class _StepPage extends StatelessWidget {
   }
 }
 
+/// Coloured hint line inside a step page with an optional action.
 class _Notice extends StatelessWidget {
   const _Notice({
     required this.icon,
@@ -727,6 +744,7 @@ class _Notice extends StatelessWidget {
   );
 }
 
+/// Collapsible "What to do?" card with step-by-step tips.
 class _HelpCard extends StatelessWidget {
   const _HelpCard({
     required this.open,
@@ -852,6 +870,7 @@ class _HelpCard extends StatelessWidget {
   }
 }
 
+/// Final page listing every permission with its granted/missing state.
 class _SummaryPage extends StatelessWidget {
   const _SummaryPage({
     required this.steps,
@@ -933,6 +952,7 @@ class _SummaryPage extends StatelessWidget {
   }
 }
 
+/// One permission row on the summary page; tap reopens that step.
 class _SummaryRow extends StatelessWidget {
   const _SummaryRow({
     required this.step,
@@ -971,6 +991,7 @@ class _SummaryRow extends StatelessWidget {
   );
 }
 
+/// Banner shown when Android could not be asked for the status.
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner({required this.text, required this.onRetry});
   final String text;

@@ -1,3 +1,7 @@
+// Parent "Apps" tab: the selected child's installed apps with block switches,
+// daily limits, schedules, category filters, search, bulk pause and the
+// bedtime / study / weekly-report tools.
+
 import 'package:flutter/material.dart';
 
 import '../../core/models.dart';
@@ -22,6 +26,7 @@ class AppsScreen extends StatefulWidget {
   State<AppsScreen> createState() => _AppsScreenState();
 }
 
+/// Holds search, filter, limit-slider drafts and bulk-pause progress.
 class _AppsScreenState extends State<AppsScreen> {
   final _search = TextEditingController();
   String _query = '';
@@ -44,6 +49,7 @@ class _AppsScreenState extends State<AppsScreen> {
     super.dispose();
   }
 
+  /// Runs a rule change and shows any error as a snackbar.
   Future<void> _run(Future<void> Function() action) async {
     try {
       await action();
@@ -148,6 +154,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
+  /// Opens the schedule sheet for [app] and saves the chosen schedule.
   Future<void> _editSchedule(FamilyChild child, ChildApp app) async {
     final result = await showModalBottomSheet<AppSchedule>(
       context: context,
@@ -160,6 +167,7 @@ class _AppsScreenState extends State<AppsScreen> {
     await _run(() => controller.setSchedule(fresh, app, result));
   }
 
+  /// Opens the per-app options sheet (bonus time, always allowed…).
   void _openOptions(FamilyChild child, ChildApp app) {
     showModalBottomSheet<void>(
       context: context,
@@ -173,6 +181,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Grants [minutes] of bonus time in [app] and confirms it.
   Future<void> _bonus(FamilyChild child, ChildApp app, int minutes) async {
     try {
       await controller.giveBonus(
@@ -193,6 +202,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
+  /// Opens the weekly screen-time report of [child].
   void _openReport(FamilyChild child) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -201,6 +211,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Opens the bedtime settings sheet.
   void _openBedtime(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -210,6 +221,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Opens the study-mode settings sheet.
   void _openStudy(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -219,6 +231,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Whether [app] passes the selected filter chip (new / category).
   bool _matchesFilter(ChildApp app) {
     final filter = _filter;
     if (filter == null) return true;
@@ -241,6 +254,7 @@ class _AppsScreenState extends State<AppsScreen> {
     },
   );
 
+  /// Builds the apps tab for [child]: tools, summary, filters and the app list.
   Widget _buildFor(BuildContext context, FamilyChild child) {
     if (child.apps.isEmpty) {
       return RefreshIndicator(
@@ -421,6 +435,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Pull-to-refresh: reloads the family and reports a failure.
   Future<void> _refresh() async {
     await controller.refresh();
     if (mounted && controller.error != null) {
@@ -428,6 +443,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
+  /// Rule card of one app wired to the controller actions.
   Widget _appCard(FamilyChild child, ChildApp app) {
     final limitIndex =
         _draftLimit[app.packageName] ??
@@ -467,6 +483,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// One filter chip (all / new / a category).
   Widget _chip(String label, Object? value, {Color? color}) => Padding(
     padding: const EdgeInsets.only(right: 8),
     child: ChoiceChip(
@@ -569,6 +586,7 @@ class _StudyButton extends StatelessWidget {
   }
 }
 
+/// Tile of the tools row showing a label, its current value and state.
 class _ToolTile extends StatelessWidget {
   const _ToolTile({
     required this.tileKey,
@@ -853,6 +871,7 @@ class _ScreenTimeSummary extends StatelessWidget {
   }
 }
 
+/// "Pause all" card that blocks or unblocks every app, with progress.
 class _PauseCard extends StatelessWidget {
   const _PauseCard({
     required this.busy,
@@ -1277,6 +1296,7 @@ class AppRuleCard extends StatelessWidget {
   }
 }
 
+/// Bottom sheet for editing an app's allowed-time schedule.
 class _ScheduleSheet extends StatefulWidget {
   const _ScheduleSheet({required this.app});
   final ChildApp app;
@@ -1285,6 +1305,7 @@ class _ScheduleSheet extends StatefulWidget {
   State<_ScheduleSheet> createState() => _ScheduleSheetState();
 }
 
+/// Holds the schedule being edited (on/off, start, end, weekdays).
 class _ScheduleSheetState extends State<_ScheduleSheet> {
   late bool enabled;
   late TimeOfDay start;
@@ -1302,6 +1323,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
     weekdays = s.weekdays.toSet();
   }
 
+  /// Parses "HH:mm" into a time, or [fallback] when invalid.
   static TimeOfDay _parse(String value, TimeOfDay fallback) {
     final parts = value.split(':');
     if (parts.length != 2) return fallback;
@@ -1316,6 +1338,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   static String _format(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
+  /// Opens a 24-hour time picker for the start or end time.
   Future<void> _pick(bool isStart) async {
     final picked = await showTimePicker(
       context: context,
@@ -1445,6 +1468,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   }
 }
 
+/// Tappable start/end time field of the schedule sheet.
 class _TimeTile extends StatelessWidget {
   const _TimeTile({
     required this.label,

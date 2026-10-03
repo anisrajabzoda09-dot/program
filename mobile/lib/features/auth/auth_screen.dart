@@ -1,3 +1,6 @@
+// Sign-in / registration screen: email and password form plus "Continue
+// with Google".
+
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -15,6 +18,8 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
+/// Form state of [AuthScreen]: switches between sign-in and register and runs
+/// the chosen sign-in method with progress and error messages.
 class _AuthScreenState extends State<AuthScreen> {
   final form = GlobalKey<FormState>();
   final name = TextEditingController();
@@ -35,6 +40,7 @@ class _AuthScreenState extends State<AuthScreen> {
     super.dispose();
   }
 
+  /// Validates the form and signs in or registers with email and password.
   Future<void> submit() async {
     if (busy || googleBusy) return;
     if (!(form.currentState?.validate() ?? false)) return;
@@ -54,6 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  /// Runs Google sign-in; a user cancel is silent, other errors are shown.
   Future<void> google() async {
     if (busy || googleBusy) return;
     final session = SessionScope.read(context);
@@ -300,46 +307,42 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                   ),
-                  if (Session.googleAvailable) ...[
-                    const SizedBox(height: 16),
-                    FadeIn(
-                      index: 2,
-                      child: Row(
-                        children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text(
-                              tr('ё'),
-                              style: TextStyle(color: scheme.onSurfaceVariant),
-                            ),
+                  const SizedBox(height: 16),
+                  FadeIn(
+                    index: 2,
+                    child: Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            tr('ё'),
+                            style: TextStyle(color: scheme.onSurfaceVariant),
                           ),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    FadeIn(
-                      index: 2,
-                      child: OutlinedButton.icon(
-                        key: const Key('auth.google'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(50),
                         ),
-                        onPressed: busy || googleBusy ? null : google,
-                        icon: googleBusy
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.g_mobiledata_rounded, size: 30),
-                        label: Text(tr('Идома бо Google')),
-                      ),
+                        const Expanded(child: Divider()),
+                      ],
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 16),
+                  FadeIn(
+                    index: 2,
+                    child: OutlinedButton.icon(
+                      key: const Key('auth.google'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                      ),
+                      onPressed: busy || googleBusy ? null : google,
+                      icon: googleBusy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.g_mobiledata_rounded, size: 30),
+                      label: Text(tr('Идома бо Google')),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   Text(
                     tr(

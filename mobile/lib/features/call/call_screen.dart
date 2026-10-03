@@ -1,10 +1,12 @@
+// Full-screen call UI (outgoing/incoming/active) and the helpers that open it
+// for a new call or a notification-launched incoming call.
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/api.dart';
-import '../../core/platform.dart';
 import '../../core/session.dart';
 import 'call_controller.dart';
 import 'rtc_engine.dart';
@@ -38,6 +40,7 @@ class CallScreen extends StatefulWidget {
   /// True while a call screen is shown (prevents two calls at once).
   static bool get isOpen => _open;
 
+  /// Builds a controller with the test-overridable engine and mic permission.
   static CallController _controller(NigohApi api) => CallController(
     api: api,
     engine: engineFactory(),
@@ -79,6 +82,7 @@ class CallScreen extends StatefulWidget {
     await _push(navigator, controller, peerName);
   }
 
+  /// Pushes the call screen and keeps [isOpen] true until it is closed.
   static Future<void> _push(
     NavigatorState navigator,
     CallController controller,
@@ -108,6 +112,7 @@ class CallScreen extends StatefulWidget {
   State<CallScreen> createState() => _CallScreenState();
 }
 
+/// Drives the pulse animation and closes the screen shortly after the call ends.
 class _CallScreenState extends State<CallScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pulse = AnimationController(
@@ -125,11 +130,13 @@ class _CallScreenState extends State<CallScreen>
     _sync();
   }
 
+  /// Syncs animations/closing with the controller and rebuilds.
   void _onChange() {
     _sync();
     if (mounted) setState(() {});
   }
 
+  /// Starts/stops the ringing pulse and schedules closing after the call ends.
   void _sync() {
     final ringing =
         _c.state == CallState.outgoing ||
@@ -156,6 +163,7 @@ class _CallScreenState extends State<CallScreen>
     super.dispose();
   }
 
+  /// Status line under the name: ringing, connecting, duration or end reason.
   String get _status => switch (_c.state) {
     CallState.idle || CallState.outgoing => tr('Занг задан…'),
     CallState.incoming => tr('Занги даромада'),
@@ -164,6 +172,7 @@ class _CallScreenState extends State<CallScreen>
     CallState.ended => _c.endMessage ?? tr('Занг тамом шуд'),
   };
 
+  /// Whether the call ended abnormally (declined, no answer, failure).
   bool get _endIsProblem =>
       _c.ended &&
       _c.endReason != CallEndReason.hangup &&
@@ -223,6 +232,7 @@ class _CallScreenState extends State<CallScreen>
     );
   }
 
+  /// Avatar, name and status block in the middle of the call screen.
   Widget _content(String name, String letter) => Column(
     children: [
       const SizedBox(height: 48),
@@ -288,6 +298,7 @@ class _CallScreenState extends State<CallScreen>
     _ => null,
   };
 
+  /// Bottom buttons: accept/decline while ringing, else speaker/mute/hang-up.
   Widget _controls() {
     if (_c.state == CallState.incoming) {
       return Row(
@@ -314,16 +325,14 @@ class _CallScreenState extends State<CallScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        // Desktop plays through the computer's speakers/headset anyway.
-        if (!isDesktop)
-          _RoundButton(
-            icon: _c.speaker
-                ? Icons.volume_up_rounded
-                : Icons.volume_down_rounded,
-            label: tr('Динамик'),
-            active: _c.speaker,
-            onTap: ended ? null : _c.toggleSpeaker,
-          ),
+        _RoundButton(
+          icon: _c.speaker
+              ? Icons.volume_up_rounded
+              : Icons.volume_down_rounded,
+          label: tr('Динамик'),
+          active: _c.speaker,
+          onTap: ended ? null : _c.toggleSpeaker,
+        ),
         _RoundButton(
           icon: _c.muted ? Icons.mic_off_rounded : Icons.mic_rounded,
           label: tr('Микрофон'),
@@ -349,6 +358,7 @@ String formatCallDuration(Duration d) {
   return h > 0 ? '$h:$m:$s' : '$m:$s';
 }
 
+/// Round avatar (photo or initial) with pulsing rings while ringing.
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.letter, required this.pulse, this.url});
   final String letter;
@@ -357,6 +367,7 @@ class _Avatar extends StatelessWidget {
 
   static const _size = 128.0;
 
+  /// Initial letter shown when there is no photo or it fails to load.
   Widget get letterText => Text(
     letter,
     style: const TextStyle(
@@ -412,6 +423,7 @@ class _Avatar extends StatelessWidget {
     );
   }
 
+  /// One expanding, fading pulse ring at animation progress [t].
   Widget _ring(double t) {
     final size = _size * (1 + 0.85 * t);
     return Container(
@@ -425,6 +437,7 @@ class _Avatar extends StatelessWidget {
   }
 }
 
+/// Round labeled call button (accept, decline, mute, speaker, hang-up).
 class _RoundButton extends StatelessWidget {
   const _RoundButton({
     required this.icon,
@@ -530,6 +543,7 @@ class _StatusLine extends StatelessWidget {
   );
 }
 
+/// Small status dot that blinks while the call is ringing or connecting.
 class _Dot extends StatefulWidget {
   const _Dot({required this.color, required this.pulse});
   final Color color;
@@ -539,6 +553,7 @@ class _Dot extends StatefulWidget {
   State<_Dot> createState() => _DotState();
 }
 
+/// Runs the blink animation while [pulse] is on.
 class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this,
