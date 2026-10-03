@@ -101,6 +101,19 @@
 :root[data-theme="dark"] .qr-open,
 :root[data-theme="dark"] .qr-big { background: #fff; }
 
+.qr-desktop-hint {
+  max-width: 340px;
+  margin: 18px auto 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--blue-soft);
+  color: var(--ink-2);
+  font-size: .9rem;
+}
+
+:root[data-get-device="android"] .qr-desktop-hint,
+:root[data-get-device="ios"] .qr-desktop-hint { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .qr-open { transition: none; }
 }
