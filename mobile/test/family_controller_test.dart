@@ -15,7 +15,8 @@ Map<String, dynamic> snapshotJson({List<Map<String, dynamic>>? apps}) => {
       'age': 10,
       'pairing_code': '123456',
       'is_paired': true,
-      'apps': apps ??
+      'apps':
+          apps ??
           [
             {
               'package_name': 'com.roblox.client',
@@ -83,10 +84,7 @@ void main() {
     final child = c.selected!;
     await c.setBlocked(child, child.apps.first, true);
     expect(put, isNotNull);
-    expect(
-      put!.url.path,
-      '/api/mobile/v2/children/7/apps/com.roblox.client',
-    );
+    expect(put!.url.path, '/api/mobile/v2/children/7/apps/com.roblox.client');
     expect(jsonDecode(put!.body), {'is_blocked': true});
     expect(c.selected!.apps.first.blocked, isTrue);
   });

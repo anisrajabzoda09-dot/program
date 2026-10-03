@@ -17,6 +17,11 @@ void main() {
     WidgetTester tester,
     Future<http.Response> Function(http.Request) handler,
   ) async {
+    // A tall window: the Apps tab opens with today's summary, the modes and
+    // the filters above the list, so a 600 px test viewport shows no card.
+    tester.view.physicalSize = const Size(900, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final api = NigohApi(client: MockClient(handler));
     final c = FamilyController(api, pollInterval: null);
     await tester.runAsync(c.refresh);
@@ -33,14 +38,12 @@ void main() {
     await pumpApps(tester, (_) async => jsonResponse(snapshotJson()));
     expect(find.text('Roblox'), findsOneWidget);
     expect(find.text('Ҳолати танаффус'), findsOneWidget);
-    // The header grew (report, bedtime, filters): scroll to the second card.
-    await tester.scrollUntilVisible(
-      find.text('08:00–13:00'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
     expect(find.text('Telegram'), findsOneWidget);
-    expect(find.text('08:00–13:00'), findsOneWidget);
+    // The schedule button now says what the hours are for.
+    expect(find.text('Дарс 08:00–13:00'), findsOneWidget);
+    // Units on every number.
+    expect(find.text('Лимити рӯзона'), findsWidgets);
+    expect(find.textContaining('дақ аз '), findsWidgets);
   });
 
   testWidgets('toggling block calls PUT with is_blocked', (tester) async {

@@ -197,7 +197,9 @@ void main() {
         ),
       );
       expect(find.text('42%'), findsOneWidget);
-      expect(find.text('Вақти хоб: 21:30–07:00'), findsOneWidget);
+      // The child card labels the row and shows the hours as its value.
+      expect(find.text('Вақти хоб'), findsOneWidget);
+      expect(find.text('21:30–07:00'), findsOneWidget);
       expect(find.text('2 дархост'), findsOneWidget);
       expect(find.text('1 барномаи нав'), findsOneWidget);
       expect(find.text('3 паёми нав'), findsOneWidget);

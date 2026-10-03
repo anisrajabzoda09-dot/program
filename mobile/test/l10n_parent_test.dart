@@ -23,9 +23,9 @@ List<String> _placeholders(String s) =>
 Set<String> _parentKeys() {
   final keys = <String>{};
   final call = RegExp(r"\btr\(\s*'((?:[^'\\]|\\.)*)'");
-  for (final file in Directory('lib/features/parent').listSync(
-    recursive: true,
-  )) {
+  for (final file in Directory(
+    'lib/features/parent',
+  ).listSync(recursive: true)) {
     if (file is! File || !file.path.endsWith('.dart')) continue;
     for (final m in call.allMatches(file.readAsStringSync())) {
       keys.add(m[1]!.replaceAll(r"\'", "'"));
@@ -140,11 +140,21 @@ void main() {
     expect(find.text('Пауза'), findsOneWidget);
     expect(find.text('Заблокировать все'), findsOneWidget);
     expect(find.text('Поиск приложения'), findsOneWidget);
+    // v2.17.0 copy: the group label, the mode tiles and their values.
+    expect(find.text('Режимы и отчёт'), findsOneWidget);
+    expect(find.text('Отчёт'), findsOneWidget);
+    expect(find.text('Последние 7 дней'), findsOneWidget);
+    expect(find.text('Учебный режим'), findsOneWidget);
+    expect(find.text('выключено'), findsWidgets);
 
     appLanguage.value = 'en';
     await pumpApps(tester);
     expect(find.text('Pause'), findsOneWidget);
     expect(find.text('Block all'), findsOneWidget);
     expect(find.text('Search apps'), findsOneWidget);
+    expect(find.text('Modes and report'), findsOneWidget);
+    expect(find.text('Last 7 days'), findsOneWidget);
+    expect(find.text('Study mode'), findsOneWidget);
+    expect(find.text('off'), findsWidgets);
   });
 }
