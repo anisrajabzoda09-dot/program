@@ -21,7 +21,11 @@ void main() {
     final session = Session(
       api: NigohApi(
         client: MockClient((request) {
-          requests.add(request);
+          // The Apple config fetched on screen open is covered by
+          // apple_sign_in_test.dart; keep it out of these assertions.
+          if (!request.url.path.endsWith('/auth/apple/config')) {
+            requests.add(request);
+          }
           return handler(request);
         }),
       ),
