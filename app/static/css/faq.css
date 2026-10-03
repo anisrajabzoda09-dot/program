@@ -42,6 +42,25 @@
   text-align: end;
 }
 
+.faq-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.faq-actions button {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .faq-tools input[type="search"] {
   width: 100%;
   min-height: 48px;

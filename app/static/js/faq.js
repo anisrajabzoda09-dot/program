@@ -58,8 +58,13 @@ function initFaqSearch() {
   const count = form.querySelector('[data-faq-count]');
   const countJoiner = count?.textContent.includes(' аз ') ? ' аз ' : count?.textContent.includes(' из ') ? ' из ' : ' of ';
   const total = groups.reduce((sum, group) => sum + group.querySelectorAll('details').length, 0);
+  const questions = Array.from(document.querySelectorAll('.faq details'));
+  const expand = form.querySelector('[data-faq-expand]');
+  const collapse = form.querySelector('[data-faq-collapse]');
 
   form.addEventListener('submit', (event) => event.preventDefault());
+  expand?.addEventListener('click', () => questions.filter((question) => !question.hidden).forEach((question) => { question.open = true; }));
+  collapse?.addEventListener('click', () => questions.forEach((question) => { question.open = false; }));
   document.addEventListener('keydown', (event) => {
     const isTyping = event.target.matches('input, textarea, select, [contenteditable="true"]');
     if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
