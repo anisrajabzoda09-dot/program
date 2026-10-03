@@ -131,3 +131,27 @@
   font: 400 1.6rem/1 inherit;
   cursor: pointer;
 }
+
+.sticky-download { display: none; }
+
+@media (max-width: 640px) {
+  :root[data-get-device="android"] .sticky-download:not([hidden]) {
+    position: fixed;
+    z-index: 60;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 10px 10px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--ink-2);
+    box-shadow: 0 14px 44px rgba(0, 0, 0, .2);
+    font-size: .82rem;
+    font-weight: 600;
+  }
+}

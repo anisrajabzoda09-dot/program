@@ -77,6 +77,17 @@
     });
   }
 
+  /* Reveal the Android mobile download bar after the hero action leaves view. */
+  function setupStickyDownload(device) {
+    var primary = document.querySelector('.get-download-primary');
+    var sticky = document.querySelector('.sticky-download');
+    if (device !== 'android' || !primary || !sticky || !('IntersectionObserver' in window)) return;
+    var observer = new IntersectionObserver(function (entries) {
+      sticky.hidden = entries[0].isIntersecting;
+    }, { threshold: 0 });
+    observer.observe(primary);
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -84,6 +95,7 @@
       note.hidden = false;
     });
   }
+  setupStickyDownload(device);
 
   document.querySelectorAll('.verify-copy').forEach(function (button) {
     button.addEventListener('click', function () { copyCertificate(button); });
