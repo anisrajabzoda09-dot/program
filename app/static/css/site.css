@@ -136,7 +136,7 @@ p { margin: 0; text-wrap: pretty; }
   font: 600 .95rem/1 inherit; font-family: inherit; cursor: pointer; white-space: nowrap;
   transition: background .15s, border-color .15s, color .15s, transform .15s;
 }
-.btn:active { transform: translateY(1px); }
+.btn:active, .nav-toggle:active, .back-to-top:active { transform: scale(.97); }
 .btn-primary { background: var(--ink); color: var(--on-ink); }
 .btn-primary:hover { background: var(--ink-hover); color: var(--on-ink); }
 .btn-blue { background: var(--blue); color: #fff; }
@@ -380,6 +380,7 @@ p { margin: 0; text-wrap: pretty; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
   .brand:hover img { transform: none !important; }
+  .btn:active, .nav-toggle:active, .back-to-top:active { transform: none !important; }
   .site-header.open .nav-links, .site-header.open .nav-actions { animation: none !important; }
 }
 
