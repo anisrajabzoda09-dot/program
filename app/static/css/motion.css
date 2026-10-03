@@ -98,6 +98,8 @@
   transition: opacity .52s cubic-bezier(.2,.8,.2,1) var(--motion-delay, 0ms),
               transform .52s cubic-bezier(.2,.8,.2,1) var(--motion-delay, 0ms);
 }
+.js-motion .site-footer.motion-reveal { transform: translateY(12px); }
+.js-motion .site-footer.motion-reveal.is-visible { transform: translateY(0); }
 
 /* Cards and tiles: light lift plus a compact icon response on fine pointers. */
 @media (hover: hover) and (pointer: fine) {
@@ -170,7 +172,8 @@ html.motion-theme-transition::view-transition-new(root) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
   .js-motion .motion-hero-item,
   .js-motion .motion-hero-visual,
-  .js-motion .motion-reveal {
+  .js-motion .motion-reveal,
+  .js-motion .site-footer.motion-reveal {
     opacity: 1 !important; transform: none !important; transition: none !important;
   }
   .js-motion .motion-hero-visual img[src*="hero_phone_clean"],

@@ -165,6 +165,12 @@
         revealItems.push(item);
       });
     });
+    var footer = document.querySelector('.site-footer');
+    if (footer) {
+      footer.classList.add('motion-reveal');
+      revealItems.push(footer);
+      seen.add(footer);
+    }
 
     if ('IntersectionObserver' in window) {
       var observer = new IntersectionObserver(function (entries) {
