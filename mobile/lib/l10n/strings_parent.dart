@@ -1,4 +1,5 @@
-/// Translations for the parent area: 'Tajik source': ['Русский', 'English'].
+// Файл: луғати тарҷумаҳои бахши волид.
+/// Map-и матни тоҷикӣ ба тарҷумаҳои русӣ ва англисиро нигоҳ медорад.
 const Map<String, List<String>> parentStrings = {
   'Код бояд 6 рақам бошад.': [
     'Код должен состоять из 6 цифр.',

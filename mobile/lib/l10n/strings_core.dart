@@ -1,5 +1,5 @@
-/// Translations for the core area (shell, sign-in, onboarding, settings,
-/// shared widgets): 'Tajik source': ['Русский', 'English'].
+// Файл: луғати тарҷумаҳои умумӣ, воридшавӣ ва танзимот.
+/// Map-и матни тоҷикӣ ба тарҷумаҳои русӣ ва англисиро нигоҳ медорад.
 const Map<String, List<String>> coreStrings = {
   // Server and network (core/api.dart, core/session.dart)
   'Сервер ҷавоб надод. Интернетро санҷед.': [

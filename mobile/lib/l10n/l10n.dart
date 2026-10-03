@@ -1,5 +1,4 @@
-// Localization: the app language setting (Tajik, Russian, English) and the
-// [tr] lookup that translates Tajik source texts via the string tables.
+// Файл: интихоби забон ва тарҷумаи матнҳо.
 
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,14 +7,7 @@ import 'strings_child.dart';
 import 'strings_core.dart';
 import 'strings_parent.dart';
 
-/// App language: 'tg' (default, source texts), 'ru' or 'en'.
-///
-/// Usage: wrap every user-visible Tajik literal with [tr]:
-///   Text(tr('Барномаҳо'))
-///   Text(tr('Пайваст бо {name}', {'name': parentName}))
-/// Translations live in strings_core.dart / strings_parent.dart /
-/// strings_child.dart as `'Tajik source': ['Русский', 'English']`.
-/// A missing translation falls back to the Tajik text.
+/// Додаҳо ва рафтори марбут ба интихоби забон ва тарҷумаи матнҳоро ифода мекунад.
 class AppLanguage extends ValueNotifier<String> {
   AppLanguage() : super('tg');
 
@@ -23,7 +15,7 @@ class AppLanguage extends ValueNotifier<String> {
   static const names = {'tg': 'Тоҷикӣ', 'ru': 'Русский', 'en': 'English'};
   static const _key = 'nigoh.locale';
 
-  /// Restores the saved language at app start.
+  /// load додаҳои l10n-ро мехонад ва ҳолати AppLanguage-ро нав мекунад.
   Future<void> load() async {
     try {
       final saved = (await SharedPreferences.getInstance()).getString(_key);
@@ -31,7 +23,7 @@ class AppLanguage extends ValueNotifier<String> {
     } catch (_) {}
   }
 
-  /// Switches the app language and saves it.
+  /// set ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> set(String lang) async {
     if (!supported.contains(lang)) return;
     value = lang;
@@ -40,8 +32,7 @@ class AppLanguage extends ValueNotifier<String> {
     } catch (_) {}
   }
 
-  /// Locale for Flutter's own widgets (date/time pickers, etc.).
-  /// Material has no Tajik localizations, so Tajik uses Russian ones.
+  /// Қимати materialLocale-ро барои интихоби забон ва тарҷумаи матнҳо нигоҳ медорад.
   Locale get materialLocale => Locale(value == 'en' ? 'en' : 'ru');
 }
 
@@ -53,8 +44,7 @@ final Map<String, List<String>> _dictionary = {
   ...childStrings,
 };
 
-/// Translates a Tajik source text into the current language and fills its
-/// {placeholders} from [args]; falls back to the Tajik text.
+/// tr мантиқи зарурии интихоби забон ва тарҷумаи матнҳоро иҷро мекунад.
 String tr(String tajik, [Map<String, Object?> args = const {}]) {
   final lang = appLanguage.value;
   var text = tajik;
@@ -71,6 +61,6 @@ String tr(String tajik, [Map<String, Object?> args = const {}]) {
   );
 }
 
-/// All Tajik keys that have no translation (used by tests).
+/// untranslatedKeys мантиқи зарурии интихоби забон ва тарҷумаи матнҳоро иҷро мекунад.
 Iterable<String> untranslatedKeys(Iterable<String> keys) =>
     keys.where((k) => !_dictionary.containsKey(k));

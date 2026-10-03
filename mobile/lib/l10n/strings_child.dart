@@ -1,5 +1,5 @@
-/// Translations for the child area (child home, rules, SOS, chat, calls):
-/// 'Tajik source': ['Русский', 'English'].
+// Файл: луғати тарҷумаҳои бахши фарзанд.
+/// Map-и матни тоҷикӣ ба тарҷумаҳои русӣ ва англисиро нигоҳ медорад.
 const Map<String, List<String>> childStrings = {
   // ---------- Call screen ----------
   'Сигнали нодуруст': ['Неверный сигнал', 'Invalid signal'],
