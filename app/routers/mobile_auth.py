@@ -1,4 +1,4 @@
-"""Sign-in endpoints for the NIGOH Android app (no Firebase)."""
+"""Файл: endpoint-ҳои воридшавӣ ва профили app-и Android."""
 
 import base64
 import os
@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/mobile/v3", tags=["Mobile auth"])
 
 
 class RegisterRequest(BaseModel):
-    """Validate credentials and a display name for mobile registration."""
+    """Маълумоти `RegisterRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     email: str = Field(..., min_length=3, max_length=254)
     password: str = Field(..., min_length=8, max_length=128)
@@ -35,33 +35,33 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    """Validate email and password input for mobile sign-in."""
+    """Маълумоти `LoginRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     email: str = Field(..., min_length=1, max_length=254)
     password: str = Field(..., min_length=1, max_length=128)
 
 
 class GoogleRequest(BaseModel):
-    """Carry the Google ID token to verify for mobile sign-in."""
+    """Маълумоти `GoogleRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     id_token: str = Field(..., min_length=20)
 
 
 class ProfileUpdate(BaseModel):
-    """Validate optional mobile profile name and family-role changes."""
+    """Маълумоти `ProfileUpdate`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     full_name: Optional[str] = Field(default=None, min_length=1, max_length=120)
     role: Optional[str] = Field(default=None, pattern="^(parent|child)$")
 
 
 def _device(request: Request) -> str:
-    """Return a client-provided device label or fall back to its user agent."""
+    """Маълумоти ёрирасони дастгоҳ-ро омода карда, ба caller бармегардонад."""
 
     return request.headers.get("X-NIGOH-Device") or request.headers.get("user-agent", "")
 
 
 def _auth_response(db: Session, user: User, request: Request) -> dict:
-    """Issue a bearer session and build the standard mobile sign-in response."""
+    """Маълумоти ёрирасони auth response-ро омода карда, ба caller бармегардонад."""
 
     return {
         "status": "success",
@@ -78,7 +78,7 @@ def _auth_response(db: Session, user: User, request: Request) -> dict:
 
 @router.post("/auth/register")
 def register(payload: RegisterRequest, request: Request, db: Session = Depends(get_db)):
-    """Create a local mobile account and return a new authenticated session."""
+    """Дархости `POST /auth/register`-ро барои register коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     check_rate_limit(request, "mobile_register", max_requests=10, window_seconds=600)
     email = payload.email.strip().lower()
@@ -100,7 +100,7 @@ def register(payload: RegisterRequest, request: Request, db: Session = Depends(g
 
 @router.post("/auth/login")
 def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
-    """Verify mobile credentials, upgrade legacy hashes, and issue a session."""
+    """Дархости `POST /auth/login`-ро барои login коркард мекунад."""
 
     check_rate_limit(request, "mobile_login", max_requests=20, window_seconds=300)
     user = db.query(User).filter(User.email == payload.email.strip().lower()).first()
@@ -116,7 +116,7 @@ def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)
 
 @router.post("/auth/google")
 def google(payload: GoogleRequest, request: Request, db: Session = Depends(get_db)):
-    """Verify Google identity, synchronize its account, and issue a session."""
+    """Дархости `POST /auth/google`-ро барои Google коркард мекунад."""
 
     check_rate_limit(request, "mobile_google", max_requests=20, window_seconds=300)
     user = upsert_google_user(db, verify_google_id_token(payload.id_token))
@@ -127,7 +127,7 @@ def google(payload: GoogleRequest, request: Request, db: Session = Depends(get_d
 
 @router.get("/auth/apple/config")
 def apple_config():
-    """Public Apple settings the app needs to show and start Sign in with Apple (no secrets)."""
+    """Дархости `GET /auth/apple/config`-ро барои Apple танзимот коркард мекунад."""
     enabled = apple_auth.apple_configured()
     return {
         "enabled": enabled,
@@ -137,7 +137,7 @@ def apple_config():
 
 
 class AppleRequest(BaseModel):
-    """Identity token from Sign in with Apple on the phone, plus the raw nonce we generated."""
+    """Маълумоти `AppleRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     identity_token: str = Field(..., min_length=20)
     nonce: str = Field(..., min_length=16, max_length=128)
@@ -146,7 +146,7 @@ class AppleRequest(BaseModel):
 
 @router.post("/auth/apple")
 def apple(payload: AppleRequest, request: Request, db: Session = Depends(get_db)):
-    """Verify an Apple identity token from the app, link the account and issue a session."""
+    """Дархости `POST /auth/apple`-ро барои Apple коркард мекунад."""
     check_rate_limit(request, "mobile_apple", max_requests=20, window_seconds=300)
     if not apple_auth.apple_configured():
         raise HTTPException(status_code=503, detail="Sign in with Apple дар сервер танзим нашудааст")
@@ -160,7 +160,7 @@ def apple(payload: AppleRequest, request: Request, db: Session = Depends(get_db)
 
 @router.get("/auth/github/config")
 def github_config():
-    """Public GitHub settings the app needs to show the button and open the browser flow."""
+    """Дархости `GET /auth/github/config`-ро барои GitHub танзимот коркард мекунад."""
     enabled = github_auth.github_configured()
     base = settings.GITHUB_REDIRECT_URI.rsplit("/", 1)[0]
     return {"enabled": enabled,
@@ -169,7 +169,7 @@ def github_config():
 
 
 class GitHubRequest(BaseModel):
-    """One-time ticket from the browser flow plus the raw nonce the app generated."""
+    """Маълумоти `GitHubRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     ticket: str = Field(..., min_length=20, max_length=128)
     nonce: str = Field(..., min_length=16, max_length=128)
@@ -177,7 +177,7 @@ class GitHubRequest(BaseModel):
 
 @router.post("/auth/github")
 def github(payload: GitHubRequest, request: Request, db: Session = Depends(get_db)):
-    """Trade a GitHub login ticket (and its nonce) for a mobile session."""
+    """Дархости `POST /auth/github`-ро барои GitHub коркард мекунад."""
     check_rate_limit(request, "mobile_github", max_requests=20, window_seconds=300)
     user_id = github_auth.redeem_ticket(payload.ticket, payload.nonce)
     user = db.query(User).filter(User.id == user_id).first()
@@ -190,7 +190,7 @@ def github(payload: GitHubRequest, request: Request, db: Session = Depends(get_d
 
 @router.post("/auth/logout")
 def logout(request: Request, db: Session = Depends(get_db)):
-    """Revoke the mobile bearer session supplied with the request."""
+    """Дархости `POST /auth/logout`-ро барои logout коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     revoke_token(db, bearer_token(request))
     return {"status": "success"}
@@ -198,7 +198,7 @@ def logout(request: Request, db: Session = Depends(get_db)):
 
 @router.get("/me")
 def me(request: Request, db: Session = Depends(get_db)):
-    """Return the currently authenticated mobile user's profile."""
+    """Дархости `GET /me`-ро барои me коркард мекунад."""
 
     user = require_mobile_user(request, db)
     return {"status": "success", "user": user}
@@ -206,7 +206,7 @@ def me(request: Request, db: Session = Depends(get_db)):
 
 @router.put("/me")
 def update_me(payload: ProfileUpdate, request: Request, db: Session = Depends(get_db)):
-    """Persist editable fields on the authenticated mobile user's profile."""
+    """Дархости `PUT /me`-ро барои update me коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     current = require_mobile_user(request, db)
     user = db.query(User).filter(User.id == current["id"]).first()
@@ -220,7 +220,7 @@ def update_me(payload: ProfileUpdate, request: Request, db: Session = Depends(ge
 
 
 class AvatarUpload(BaseModel):
-    """Validate the bounded base64 image uploaded as a profile photo."""
+    """Маълумоти `AvatarUpload`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     # JPEG/PNG, already resized on the phone (≈512 px); ~350 KB of base64 max.
     image_base64: str = Field(..., min_length=100, max_length=480_000)
@@ -231,7 +231,7 @@ _AVATAR_DIR = os.path.join(settings.STATIC_DIR, "avatars")
 
 @router.post("/me/avatar")
 def upload_avatar(payload: AvatarUpload, request: Request, db: Session = Depends(get_db)):
-    """Profile photo. Stored as a static file; only the URL is kept in the DB."""
+    """Дархости `POST /me/avatar`-ро барои upload avatar коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     current = require_mobile_user(request, db)
     try:
         raw = base64.b64decode(payload.image_base64.split(",")[-1], validate=True)
@@ -261,7 +261,7 @@ def upload_avatar(payload: AvatarUpload, request: Request, db: Session = Depends
 
 @router.delete("/me/avatar")
 def delete_avatar(request: Request, db: Session = Depends(get_db)):
-    """Clear the user's avatar URL and remove its managed image file."""
+    """Дархости `DELETE /me/avatar`-ро барои delete avatar коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     current = require_mobile_user(request, db)
     user = db.query(User).filter(User.id == current["id"]).first()
