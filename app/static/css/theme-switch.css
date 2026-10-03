@@ -37,7 +37,9 @@
   border-radius: var(--container-radius);
 }
 .theme-switch__checkbox { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
-.theme-switch__checkbox:focus-visible + .theme-switch__container { outline: 2px solid var(--blue, #1f63e0); outline-offset: 3px; }
+.theme-switch__checkbox:focus-visible + .theme-switch__container {
+  outline: 3px solid var(--focus-ring, var(--blue, #1f63e0)); outline-offset: 3px;
+}
 .theme-switch__circle-container {
   width: var(--circle-container-diameter); height: var(--circle-container-diameter);
   background-color: rgba(255, 255, 255, 0.1); position: absolute;
