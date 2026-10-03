@@ -13,6 +13,9 @@ function initFaqSearch() {
   const input = form.querySelector('input[type="search"]');
   const groups = Array.from(document.querySelectorAll('.faq'));
   const empty = document.querySelector('[data-faq-empty]');
+  const count = form.querySelector('[data-faq-count]');
+  const countJoiner = count?.textContent.includes(' аз ') ? ' аз ' : count?.textContent.includes(' из ') ? ' из ' : ' of ';
+  const total = groups.reduce((sum, group) => sum + group.querySelectorAll('details').length, 0);
 
   form.addEventListener('submit', (event) => event.preventDefault());
   input.addEventListener('input', () => {
@@ -32,6 +35,8 @@ function initFaqSearch() {
 
     const hasAnyMatch = groups.some((group) => !group.classList.contains('faq-section-hidden'));
     if (empty) empty.hidden = hasAnyMatch;
+    const visible = groups.reduce((sum, group) => sum + group.querySelectorAll('details:not([hidden])').length, 0);
+    if (count) count.textContent = `${visible}${countJoiner}${total}`;
   });
 }
 

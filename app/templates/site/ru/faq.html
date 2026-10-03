@@ -49,7 +49,10 @@
 
     <form class="faq-tools" role="search" data-faq-search>
       <label for="faq-search">Поиск по вопросам и ответам</label>
-      <input id="faq-search" type="search" placeholder="Введите вопрос или слово…" autocomplete="off">
+      <div class="faq-search-row">
+        <input id="faq-search" type="search" placeholder="Введите вопрос или слово…" autocomplete="off">
+        <output data-faq-count>20 из 20</output>
+      </div>
     </form>
     <p class="faq-empty" data-faq-empty hidden>Ничего не найдено. Попробуйте другие слова.</p>
 

@@ -10,6 +10,20 @@
   font-weight: 600;
 }
 
+.faq-search-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.faq-search-row output {
+  min-width: 68px;
+  color: var(--muted);
+  font-size: .9rem;
+  text-align: end;
+}
+
 .faq-tools input[type="search"] {
   width: 100%;
   min-height: 48px;
