@@ -5,6 +5,38 @@
   margin-bottom: 40px;
 }
 
+.faq-popular {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.faq-popular > span {
+  flex-basis: 100%;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.faq-popular a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--ink-2);
+  font-size: .86rem;
+  line-height: 1.25;
+}
+
+.faq-popular a:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
 .faq-tools label {
   display: flex;
   justify-content: space-between;

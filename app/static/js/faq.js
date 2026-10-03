@@ -50,7 +50,7 @@ function highlightFaqMatches(query) {
 
 // Assigns predictable fragment identifiers to every FAQ question.
 function assignFaqIds(questions) {
-  questions.forEach((question, index) => { question.id = `q-${index + 1}`; });
+  questions.forEach((question, index) => { question.id ||= `q-${index + 1}`; });
 }
 
 // Copies text in browsers that do not expose the asynchronous Clipboard API.
@@ -144,6 +144,7 @@ function initFaqSearch() {
   addFaqCopyButtons(questions, form);
   syncFaqHash(questions);
   if (window.location.hash) requestAnimationFrame(openFaqHash);
+  window.addEventListener('hashchange', openFaqHash);
 
   form.addEventListener('submit', (event) => event.preventDefault());
   expand?.addEventListener('click', () => questions.filter((question) => !question.hidden).forEach((question) => { question.open = true; }));
