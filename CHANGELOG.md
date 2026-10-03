@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.18.0 — 2026-10-03
+- Sign in with Apple on the website and in the Android app (appears once Apple keys are set on the server; see docs/APPLE_SIGNIN_SETUP.md).
+- Website: a new tall 19.5:9 phone in the hero and on the features page, drawn in HTML/CSS (three languages, light/dark).
+- Website motion system: hero entrance, phone float and tilt, scroll reveals, header progress bar, smooth FAQ, theme view transition, page cross-fade — all off with reduced motion.
+- FAQ: live search with highlighting, result count, «/» shortcut, expand/collapse all, deep links with copy buttons, shareable ?q= searches.
+- Download page: device-aware layout (Android / iPhone / computer), APK signing-certificate fingerprint, QR enlarge dialog, share and copy links, sticky Android download bar.
+- Site-wide: skip link, consistent focus rings, back-to-top, better contrast, print styles, breadcrumbs, "next page" links and many smaller polish items.
+- App: Windows/Linux/web platform code removed; every Dart and Kotlin file documented.
+
 ## 2.17.0 — 2026-10-03
 - Clearer interface on every screen: one-line purpose text, labelled groups, units on every number («45 min of 60»), empty states that say what to do next, dominant primary actions.
 - Motion throughout: staggered list entrances, animated progress bars and pills, fade-through between tabs, smooth chat message entry — all off when the system asks for reduced motion.
