@@ -1,4 +1,4 @@
-"""Define the shared SQLAlchemy declarative base for all database models."""
+"""Файл: пойгоҳи умумии declarative-и SQLAlchemy барои model-ҳои система."""
 
 from sqlalchemy.orm import declarative_base
 

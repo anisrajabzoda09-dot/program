@@ -1,4 +1,4 @@
-"""Configure the SQLite engine and provide request-scoped database sessions."""
+"""Файл: танзими SQLite ва session-и пойгоҳи додаҳо барои ҳар request."""
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -13,7 +13,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-    """FastAPI dependency for scoped database sessions."""
+    """Барои request session-и SQLAlchemy медиҳад ва баъд онро мебандад."""
     db = SessionLocal()
     try:
         yield db

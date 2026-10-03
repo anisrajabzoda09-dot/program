@@ -1,4 +1,4 @@
-"""Create and migrate local tables, seed configuration, and provision admin access."""
+"""Файл: сохтани ҷадвалҳо, migration ва ҳисоби admin."""
 
 import os
 import sqlite3
@@ -20,7 +20,7 @@ from app.crud.crud_bundle import ensure_initial_bundle
 from app.core.security import hash_password
 
 def init_db():
-    """Create tables, apply additive migrations and ensure the admin account."""
+    """Ҷадвалҳоро месозад, migration-ро татбиқ мекунад ва admin-ро омода месозад."""
     Base.metadata.create_all(bind=engine)
 
     # Lightweight migration check for legacy sqlite columns
