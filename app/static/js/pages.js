@@ -1,4 +1,10 @@
-/* Progressive interactions shared by the four core marketing pages. */
+/* Progressive interactions shared by the four core marketing pages.
+   Feature map:
+   - home: fine-pointer card spotlights and staged rules-table rows;
+   - how: scroll-linked connector progress and observed number badges;
+   - features: sticky-chip scroll spy and observed checklist ticks;
+   - security: one-time sequenced card highlights.
+   Each initializer exits when its page hook or browser API is unavailable. */
 
 // Move each home feature card's soft highlight toward the pointer.
 function initCardSpotlights() {

@@ -1,4 +1,8 @@
-/* Page-specific presentation and interaction styles for the core marketing pages. */
+/* Page-specific presentation and interaction styles for the core marketing pages.
+   Sections follow the numbered delivery plan: home motion and cards, how-to
+   timeline, feature navigation and checklists, security cards, shared mobile
+   rhythm, continuation links, table hints, image treatment, and reduced motion.
+   JavaScript-dependent starting states are always scoped beneath .js-motion. */
 
 /* Give the home hero's key phrase a calm, brand-colored shimmer. */
 .hero-key-phrase {
