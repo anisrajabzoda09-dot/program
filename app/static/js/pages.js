@@ -1,12 +1,7 @@
-/* Progressive interactions shared by the four core marketing pages.
-   Feature map:
-   - home: fine-pointer card spotlights and staged rules-table rows;
-   - how: scroll-linked connector progress and observed number badges;
-   - features: sticky-chip scroll spy and observed checklist ticks;
-   - security: one-time sequenced card highlights.
-   Each initializer exits when its page hook or browser API is unavailable. */
+/* Файл: interaction-ҳои муштараки саҳифаҳои асосии муаррифӣ.
+   Равшании кортҳо, timeline, scroll spy ва пайдоиши марҳилавии унсурҳоро идора мекунад. */
 
-// Move each home feature card's soft highlight toward the pointer.
+// Равшании нарми корти имкониятро аз паси pointer ҳаракат медиҳад.
 function initCardSpotlights() {
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   document.querySelectorAll('.hero + .section .card-link').forEach((card) => {
@@ -19,7 +14,7 @@ function initCardSpotlights() {
   });
 }
 
-// Reveal the home rules rows in order when their table enters the viewport.
+// Ҳангоми ба viewport расидани ҷадвал сатрҳои қоидаҳоро пайдарпай нишон медиҳад.
 function initRulesTable() {
   const table = document.querySelector('.home-rules-card .meta-table');
   if (!table || !('IntersectionObserver' in window)) return;
@@ -32,10 +27,11 @@ function initRulesTable() {
   observer.observe(table);
 }
 
-// Map scroll progress through the setup steps to the timeline connector.
+// Пешрафти scroll-ро ба пуршавии хати марҳилаҳои насб табдил медиҳад.
 function initHowTimeline() {
   const timeline = document.querySelector('.how-timeline');
   if (!timeline) return;
+  // Мавқеи timeline-ро ҳисоб карда, пешрафти намоишии онро нав мекунад.
   const update = () => {
     const bounds = timeline.getBoundingClientRect();
     const viewportPoint = window.innerHeight * .7;
@@ -47,7 +43,7 @@ function initHowTimeline() {
   addEventListener('resize', update);
 }
 
-// Mark each setup step when its numbered badge reaches the viewport.
+// Ҳангоми ба viewport расидани нишона ҳар марҳилаи насбро намоён мекунад.
 function initStepBadges() {
   const steps = document.querySelectorAll('.how-timeline .step');
   if (!steps.length || !('IntersectionObserver' in window)) return;
@@ -64,7 +60,7 @@ function initStepBadges() {
   });
 }
 
-// Highlight the sticky feature chip for the section nearest the viewport top.
+// Пайванди часпандаи бахши наздиктар ба болои viewport-ро фаъол мекунад.
 function initFeatureScrollSpy() {
   const links = [...document.querySelectorAll('.feature-chips a[href^="#"]')];
   if (!links.length || !('IntersectionObserver' in window)) return;
@@ -81,7 +77,7 @@ function initFeatureScrollSpy() {
   });
 }
 
-// Reveal feature checklist ticks in order when each list appears.
+// Ҳангоми пайдо шудани рӯйхат аломатҳои checklist-ро пайдарпай нишон медиҳад.
 function initChecklistTicks() {
   const lists = document.querySelectorAll('.feature-chip-bar ~ .section .feature-list');
   if (!lists.length || !('IntersectionObserver' in window)) return;
@@ -98,7 +94,7 @@ function initChecklistTicks() {
   });
 }
 
-// Start the security card highlight sequence when the grid enters view.
+// Ҳангоми намоён шудани grid равшансозии пайдарпайи кортҳои амниятро оғоз мекунад.
 function initSecurityCards() {
   const grid = document.querySelector('.security-grid');
   if (!grid || !('IntersectionObserver' in window)) return;
