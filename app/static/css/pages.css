@@ -113,6 +113,19 @@
 .feature-chips::-webkit-scrollbar { display: none; }
 .feature-chips .tag[aria-current="true"] { color: var(--blue); border-color: var(--blue); background: var(--blue-soft); }
 
+/* Give alternating feature sections a consistent visual cadence. */
+.feature-chip-bar ~ .section[id] .split { gap: clamp(40px, 7vw, 84px); }
+.feature-chip-bar ~ .section[id] .split > div:first-child { max-width: 620px; }
+.feature-chip-bar ~ .section[id] .screen {
+  min-height: 280px;
+  padding: clamp(20px, 4vw, 42px);
+  border-radius: calc(var(--radius-lg) + 6px);
+}
+@media (max-width: 960px) {
+  .feature-chip-bar ~ .section[id] .split.reverse > :first-child { order: 0; }
+  .feature-chip-bar ~ .section[id] .screen { min-height: 220px; }
+}
+
 /* Reveal feature checklist ticks with a short readable cascade. */
 .js-motion .feature-list.is-staged li::before { opacity: 0; transform: scale(.55); }
 .js-motion .feature-list.is-visible li::before {
