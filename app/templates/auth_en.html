@@ -1,3 +1,4 @@
+{#- Файл: нусхаи англисии саҳифаи бақайдгирӣ ва воридшавии корбарон бо OAuth. -#}
 {% set admin_required = request.query_params.get('admin') == 'required' %}<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +27,7 @@
 <body class="auth-body">
   <div class="auth">
 
-    <!-- Left: calm brand panel (desktop only) -->
+{# Панели чапи бренд дар нусхаи англисӣ — танҳо барои desktop. #}
     <aside class="auth-aside" aria-label="About NIGOH Family">
       <a class="brand" href="/en">
         <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
@@ -74,7 +75,7 @@
       </div>
     </aside>
 
-    <!-- Right: form -->
+{# Панели form-ҳои англисӣ ва тугмаҳои OAuth-ро ҷойгир мекунад. #}
     <main class="auth-main">
       <div class="auth-top">
         <a class="brand" href="/en">
@@ -130,7 +131,7 @@
           <div><div class="alert" id="alertBox" role="alert"></div></div>
         </div>
 
-        <!-- LOGIN FORM -->
+{# Form-и англисии воридшавӣ почта ва рамзро қабул мекунад. #}
         <form id="loginForm" class="auth-form" role="tabpanel" aria-labelledby="tabLogin" novalidate>
           <div class="field">
             <label for="logEmail">Email or username</label>
@@ -158,7 +159,7 @@
           <p class="form-foot">Don't have an account? <button type="button" data-switch="register">Sign up</button></p>
         </form>
 
-        <!-- REGISTER FORM -->
+{# Form-и англисии бақайдгирӣ ҳисоби нави корбар месозад. #}
         <form id="registerForm" class="auth-form" role="tabpanel" aria-labelledby="tabRegister" novalidate hidden>
           <div class="field">
             <label for="regName">Full name</label>
@@ -210,6 +211,7 @@
   </div>
 
   <script>
+  // Рафтори form-ҳои англисӣ ва OAuth-ро пас аз омодашавии DOM фаъол мекунад.
   (function () {
     var params = new URLSearchParams(window.location.search);
     var segmented = document.getElementById('segmented');
@@ -229,6 +231,7 @@
     var ICON_ERR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16v.01"/></svg>';
     var ICON_OK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>';
 
+    // Паёми натиҷаро дар болои form-и англисӣ нишон медиҳад.
     function showAlert(msg, isError) {
       alertBox.className = 'alert ' + (isError ? 'error' : 'success');
       alertBox.innerHTML = (isError ? ICON_ERR : ICON_OK) + '<span></span>';
@@ -237,8 +240,10 @@
       void alertSlot.offsetWidth;
       alertSlot.classList.add('show');
     }
+    // Паёми пешинаи form-и англисиро пок ва пинҳон мекунад.
     function hideAlert() { alertSlot.classList.remove('show'); }
 
+    // Байни form-ҳои англисии воридшавӣ ва бақайдгирӣ мегузарад ва focus-ро мекӯчонад.
     function setMode(mode, focus) {
       if (mode !== 'login' && mode !== 'register') return;
       var changed = mode !== current;
@@ -276,7 +281,7 @@
 
     if (params.get('mode') === 'register' || window.location.hash === '#register') setMode('register');
 
-    // Password visibility
+    // Намоиши рамзро дар майдонҳои form-и англисӣ иваз мекунад.
     document.querySelectorAll('.pw-toggle').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var input = document.getElementById(btn.getAttribute('aria-controls'));
@@ -287,7 +292,7 @@
       });
     });
 
-    // Inline validation
+    // Қоидаҳои англисии санҷиши фаврии майдонҳоро муайян мекунад.
     var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     var rules = {
       regName: function (v) { return v.trim().length >= 2 ? '' : 'Enter your full name (at least 2 letters).'; },
@@ -299,6 +304,7 @@
     var hints = { regPassword: 'At least 8 characters.' };
     var touched = {};
 
+    // Як майдони англисиро санҷида, хато ва aria-invalid-ро нав мекунад.
     function validate(id) {
       var input = document.getElementById(id);
       var field = input.closest('.field');
@@ -314,6 +320,7 @@
       input.addEventListener('blur', function () { if (input.value) { touched[id] = true; validate(id); } });
       input.addEventListener('input', function () { if (touched[id]) validate(id); });
     });
+    // Ҳамаи майдонҳои form-и англисиро санҷида, аввалин хатогиро focus мекунад.
     function validateForm(ids) {
       var firstBad = null;
       ids.forEach(function (id) {
@@ -324,6 +331,7 @@
       return !firstBad;
     }
 
+    // Ҳангоми API request тугмаи form-и англисиро ба ҳолати боршавӣ мегузорад.
     function setLoading(btn, on) {
       btn.disabled = on;
       btn.classList.toggle('loading', on);
@@ -333,11 +341,13 @@
       else if (btn.dataset.label) { label.textContent = btn.dataset.label; }
     }
 
+    // Аз ҷавоби API паёми хатои мувофиқро барои нусхаи англисӣ мегирад.
     function errorText(data, fallback) {
       if (!data || data.detail == null) return fallback;
       return typeof data.detail === 'string' ? data.detail : fallback;
     }
 
+    // Маълумоти form-и англисиро ба API мефиристад ва баъди муваффақият redirect мекунад.
     async function submitAuth(url, payload, btn, okMsg, failMsg) {
       setLoading(btn, true);
       hideAlert();
@@ -385,7 +395,7 @@
         'Incorrect email or password');
     });
 
-    // Google (server redirects back with ?google=not_configured if not set up)
+    // OAuth-и Google-ро аз саҳифаи англисӣ оғоз мекунад ва хатои танзимро аз query мехонад.
     googleBtn.addEventListener('click', function () {
       googleBtn.disabled = true;
       googleBtn.querySelector('span').textContent = 'Redirecting to Google...';
@@ -404,7 +414,7 @@
     } else if (oauthStatus === 'cancelled') {
       showAlert('Google sign-in was cancelled.', true);
     }
-    // Sign in with Apple (button exists only when the server has Apple keys)
+    // OAuth-и Apple-ро дар нусхаи англисӣ танҳо бо калидҳои server оғоз мекунад.
     var appleBtn = document.getElementById('appleSignInBtn');
     if (appleBtn) {
       appleBtn.addEventListener('click', function () {
@@ -426,7 +436,7 @@
       showAlert('Sign in with Apple did not complete. Please try again.', true);
     }
 
-    // Sign in with GitHub (button exists only when the server has GitHub keys)
+    // OAuth-и GitHub-ро дар нусхаи англисӣ танҳо бо калидҳои server оғоз мекунад.
     var githubBtn = document.getElementById('githubSignInBtn');
     if (githubBtn) {
       githubBtn.addEventListener('click', function () {
