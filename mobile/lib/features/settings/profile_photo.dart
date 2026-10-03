@@ -1,5 +1,4 @@
-// Profile photo button for Settings: pick from gallery or camera, upload,
-// or remove the user's avatar.
+// Файл: интихоб ва нигоҳдории акси профил.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,13 +10,13 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import '../../l10n/l10n.dart';
 
-/// Returns the picked image bytes, or null when the user cancelled.
+/// Шакли callback-и истифодашавандаро барои интихоб ва нигоҳдории акси профил муайян мекунад.
 typedef PhotoPicker = Future<Uint8List?> Function(ImageSource source);
 
-/// Server limit is ~350 KB of base64, i.e. ~260 KB of raw bytes.
+/// Қимати maxAvatarBytes-ро барои интихоб ва нигоҳдории акси профил нигоҳ медорад.
 const maxAvatarBytes = 260 * 1024;
 
-/// Default picker: a 512 px, compressed photo via image_picker.
+/// pickWithImagePicker мантиқи зарурии интихоб ва нигоҳдории акси профилро иҷро мекунад.
 Future<Uint8List?> _pickWithImagePicker(ImageSource source) async {
   final file = await ImagePicker().pickImage(
     source: source,
@@ -29,8 +28,7 @@ Future<Uint8List?> _pickWithImagePicker(ImageSource source) async {
   return file?.readAsBytes();
 }
 
-/// The profile photo in Settings: tap to pick from the gallery, take a
-/// photo or remove it. Shows progress while uploading and every error.
+/// Widget-и ProfileAvatarButton-ро барои интихоб ва нигоҳдории акси профил месозад.
 class ProfileAvatarButton extends StatefulWidget {
   const ProfileAvatarButton({
     super.key,
@@ -43,19 +41,20 @@ class ProfileAvatarButton extends StatefulWidget {
   final double size;
   final Color? color;
 
-  /// Replaced in tests (no platform picker there).
+  /// Қимати debugPicker-ро барои интихоб ва нигоҳдории акси профил нигоҳ медорад.
   @visibleForTesting
   static PhotoPicker? debugPicker;
 
+  /// Ҳолати ProfileAvatarButton-ро барои интихоб ва сабти акси профил месозад.
   @override
   State<ProfileAvatarButton> createState() => _ProfileAvatarButtonState();
 }
 
-/// Shows the photo actions sheet and runs upload/remove with progress.
+/// Ҳолат ва рафтори ProfileAvatarButtonState-ро барои навсозии интерфейс идора мекунад.
 class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
   bool busy = false;
 
-  /// Opens the gallery / camera / delete sheet and runs the chosen action.
+  /// choose ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> choose() async {
     final hasPhoto = widget.session.avatar != null;
     final action = await showModalBottomSheet<String>(
@@ -104,7 +103,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     await upload(action == 'camera' ? ImageSource.camera : ImageSource.gallery);
   }
 
-  /// Picks a photo, checks its size and uploads it as the new avatar.
+  /// upload додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<void> upload(ImageSource source) async {
     final Uint8List? bytes;
     try {
@@ -153,7 +152,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
       final path = await widget.session.api.uploadAvatar(bytes);
       if (!mounted) return;
       if (path == null || path.isEmpty) {
-        // Saved, but the reply had no path: reload the profile.
+        // Маълумоти маҳаллӣ нигоҳ дошта ё барқарор карда мешавад.
         widget.session.unawaitedRefresh();
       } else {
         widget.session.setAvatar(path);
@@ -166,7 +165,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     }
   }
 
-  /// Deletes the avatar on the server.
+  /// remove маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> remove() async {
     setState(() => busy = true);
     try {
@@ -181,6 +180,7 @@ class _ProfileAvatarButtonState extends State<ProfileAvatarButton> {
     }
   }
 
+  /// Widget-и ProfileAvatarButton-ро барои интихоб ва сабти акси профил месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

@@ -1,5 +1,4 @@
-// Parent PIN: the native-stored PIN on this phone, the dialog that asks for
-// it before protected actions and the dialog that sets or changes it.
+// Файл: сохтан ва санҷидани PIN-и волид.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,23 +6,22 @@ import 'package:flutter/services.dart';
 import '../../core/user_journey_logic.dart';
 import '../../l10n/l10n.dart';
 
-/// Parent PIN stored natively on this Android device
-/// (`tj.nigoh/device_control`).
+/// PIN-и волидайнро тавассути channel-и муҳофизати Android идора мекунад.
 abstract final class ParentPin {
   static const channel = MethodChannel('tj.nigoh/device_control');
 
-  /// Whether a parent PIN has been set on this phone.
+  /// isSet иҷро шудани шарти вобастаро муайян мекунад.
   static Future<bool> isSet() async =>
       await channel.invokeMethod<bool>('getLocalPinStatus') ?? false;
 
-  /// Checks [pin] against the stored parent PIN.
+  /// verify дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   static Future<bool> verify(String pin) async {
     if (!UserJourneyLogic.validPin(pin)) return false;
     return await channel.invokeMethod<bool>('verifyLocalPin', {'pin': pin}) ??
         false;
   }
 
-  /// Returns null on success, otherwise a message for the user.
+  /// change ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   static Future<String?> change({
     required String currentPin,
     required String newPin,
@@ -38,8 +36,7 @@ abstract final class ParentPin {
         : tr('Рамз нигоҳ дошта нашуд. Дубора кӯшиш кунед.');
   }
 
-  /// Opens [PinSetupDialog] to create a PIN (or change it when [hasPin]);
-  /// true when a new PIN was saved.
+  /// setUp ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   static Future<bool> setUp(
     BuildContext context, {
     bool hasPin = false,
@@ -52,7 +49,7 @@ abstract final class ParentPin {
     return ok == true;
   }
 
-  /// Asks for the PIN in a dialog; true when it was correct.
+  /// ask иҷозат ё маълумоти лозимро дархост мекунад.
   static Future<bool> ask(
     BuildContext context, {
     String? title,
@@ -67,29 +64,31 @@ abstract final class ParentPin {
   }
 }
 
-/// Dialog asking for the parent PIN before a protected action.
+/// Равзанаи PinDialog-ро барои сохтан ва санҷидани PIN-и волид нишон медиҳад.
 class _PinDialog extends StatefulWidget {
   const _PinDialog({required this.title, this.text});
   final String title;
   final String? text;
 
+  /// Ҳолати PinDialog-ро барои санҷиш ва гузоштани PIN-и волидайн месозад.
   @override
   State<_PinDialog> createState() => _PinDialogState();
 }
 
-/// Verifies the typed PIN and closes with true when it is correct.
+/// Ҳолат ва рафтори PinDialogState-ро барои навсозии интерфейс идора мекунад.
 class _PinDialogState extends State<_PinDialog> {
   final pin = TextEditingController();
   String? error;
   bool busy = false;
 
+  /// Controller ва listener-ҳои PinDialog-ро озод мекунад.
   @override
   void dispose() {
     pin.dispose();
     super.dispose();
   }
 
-  /// Checks the typed PIN; closes with true when correct, shows an error if not.
+  /// submit дархости PIN-и волидайн-ро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> submit() async {
     setState(() {
       busy = true;
@@ -109,6 +108,7 @@ class _PinDialogState extends State<_PinDialog> {
     }
   }
 
+  /// Widget-и PinDialog-ро барои санҷиш ва гузоштани PIN-и волидайн месозад.
   @override
   Widget build(BuildContext context) => AlertDialog(
     icon: const Icon(Icons.lock_outline_rounded),
@@ -151,19 +151,20 @@ class _PinDialogState extends State<_PinDialog> {
   );
 }
 
-/// Set (first time) or change the parent PIN — legacy SecurityCodePage flow.
+/// Равзанаи PinSetupDialog-ро барои сохтан ва санҷидани PIN-и волид нишон медиҳад.
 class PinSetupDialog extends StatefulWidget {
   const PinSetupDialog({super.key, required this.hasPin, this.text});
   final bool hasPin;
 
-  /// Optional reason shown above the fields (e.g. why a PIN is needed now).
+  /// Қимати text-ро барои сохтан ва санҷидани PIN-и волид нигоҳ медорад.
   final String? text;
 
+  /// Ҳолати PinSetupDialog-ро барои санҷиш ва гузоштани PIN-и волидайн месозад.
   @override
   State<PinSetupDialog> createState() => _PinSetupDialogState();
 }
 
-/// Holds the current/new/confirm fields and saves the new PIN.
+/// Ҳолат ва рафтори PinSetupDialogState-ро барои навсозии интерфейс идора мекунад.
 class _PinSetupDialogState extends State<PinSetupDialog> {
   final current = TextEditingController();
   final next = TextEditingController();
@@ -171,6 +172,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
   String? error;
   bool saving = false;
 
+  /// Controller ва listener-ҳои PinSetupDialog-ро озод мекунад.
   @override
   void dispose() {
     current.dispose();
@@ -179,7 +181,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
     super.dispose();
   }
 
-  /// Validates the new PIN and its confirmation, then saves it natively.
+  /// save тағйироти PIN-и волидайн-ро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> save() async {
     final newPin = next.text.trim();
     if (!UserJourneyLogic.validPin(newPin)) {
@@ -209,7 +211,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
     }
   }
 
-  /// One obscured 4-digit PIN input field.
+  /// field мантиқи зарурии сохтан ва санҷидани PIN-и волидро иҷро мекунад.
   Widget field(
     TextEditingController controller,
     String label, {
@@ -227,6 +229,7 @@ class _PinSetupDialogState extends State<PinSetupDialog> {
     ),
   );
 
+  /// Widget-и PinSetupDialog-ро барои санҷиш ва гузоштани PIN-и волидайн месозад.
   @override
   Widget build(BuildContext context) => AlertDialog(
     icon: const Icon(Icons.pin_outlined),

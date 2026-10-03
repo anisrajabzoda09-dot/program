@@ -1,6 +1,4 @@
-// Settings screen for both roles: profile, parent PIN, Android permissions,
-// language and theme, app update, notification status, uninstall (child)
-// and sign-out.
+// Файл: танзимоти ҳисоб, забон, theme ва амният.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,15 +19,16 @@ import 'profile_photo.dart';
 import 'theme_mode.dart';
 import '../../l10n/l10n.dart';
 
-/// Settings tab shared by the parent and child homes. Has its own Scaffold.
+/// Экрани SettingsScreen-ро барои танзимоти ҳисоб, забон, theme ва амният месозад.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
+  /// Ҳолати SettingsScreen-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-/// Loads PIN, notification and version status and runs the settings actions.
+/// Ҳолат ва рафтори SettingsScreenState-ро барои навсозии интерфейс идора мекунад.
 class _SettingsScreenState extends State<SettingsScreen>
     with WidgetsBindingObserver {
   bool? hasPin;
@@ -39,6 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   String version = '';
   bool checkingUpdate = false;
 
+  /// Вазъи огоҳинома, PIN ва версияи насбшударо барои экрани танзимот мехонад.
   @override
   void initState() {
     super.initState();
@@ -54,19 +54,21 @@ class _SettingsScreenState extends State<SettingsScreen>
         .catchError((_) {});
   }
 
+  /// Controller ва listener-ҳои SettingsScreen-ро озод мекунад.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// Ба тағйири lifecycle-и SettingsScreen ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Permissions are granted in Android settings; refresh on return.
+    // loadNotifyStatus иҷозати зарурии Android-ро месанҷад ё дархост мекунад.
     if (state == AppLifecycleState.resumed) loadNotifyStatus();
   }
 
-  /// Reads the notification and full-screen permission state.
+  /// loadNotifyStatus додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> loadNotifyStatus() async {
     final status = await NotifyBridge.permissionStatus();
     if (!mounted) return;
@@ -76,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     });
   }
 
-  /// Fixes notifications: full-screen setting or the permission request.
+  /// fixNotifications мантиқи зарурии танзимоти ҳисоб, забон, theme ва амниятро иҷро мекунад.
   Future<void> fixNotifications() async {
     final status = notifyStatus;
     if (status != null && status.notifications && !status.fullScreen) {
@@ -87,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     await loadNotifyStatus();
   }
 
-  /// Checks whether a parent PIN is set (shows an error if unreadable).
+  /// loadPin додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> loadPin() async {
     try {
       final value = await ParentPin.isSet();
@@ -108,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
-  /// Asks for a new display name and saves it.
+  /// editName мантиқи зарурии танзимоти ҳисоб, забон, theme ва амниятро иҷро мекунад.
   Future<void> editName(Session session) async {
     final name = await showDialog<String>(
       context: context,
@@ -123,7 +125,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
-  /// Opens the dialog to set or change the parent PIN.
+  /// editPin мантиқи зарурии танзимоти ҳисоб, забон, theme ва амниятро иҷро мекунад.
   Future<void> editPin() async {
     final changed = await showDialog<bool>(
       context: context,
@@ -138,15 +140,14 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
-  /// Runs a manual update check with a spinner.
+  /// checkUpdate дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   Future<void> checkUpdate(Session session) async {
     setState(() => checkingUpdate = true);
     await AppUpdate.check(context, session.api);
     if (mounted) setState(() => checkingUpdate = false);
   }
 
-  /// Signs out after confirmation; on a child phone the parent PIN is required
-  /// first when one is set.
+  /// signOut мантиқи зарурии танзимоти ҳисоб, забон, theme ва амниятро иҷро мекунад.
   Future<void> signOut(Session session) async {
     if (session.isChild) {
       bool pinSet;
@@ -187,8 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     await session.signOut();
   }
 
-  /// «Нест кардани барнома»: NIGOH is a transparent app, so the child may
-  /// remove it — but only the parent's PIN opens Android's uninstall screen.
+  /// requestUninstall иҷозат ё маълумоти лозимро дархост мекунад.
   Future<void> requestUninstall() async {
     if (hasPin == false) {
       final setNow = await showDialog<bool>(
@@ -231,6 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  /// Экрани танзимотро бо профил, PIN, огоҳиномаҳо, мавзӯъ ва навсозӣ месозад.
   @override
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
@@ -500,8 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               ],
             ),
           ),
-          // NIGOH is transparent: the child sees the app and may remove it —
-          // with the parent's PIN. Own section so it is impossible to miss.
+          // Қадами дохилии танзимоти ҳисоб, забон, theme ва амният.
           if (child) ...[
             SectionTitle(
               tr('Нест кардани барнома'),
@@ -555,12 +555,13 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 }
 
-/// Card with the user's photo, name and role, tap to rename.
+/// Widget-и ProfileCard-ро барои танзимоти ҳисоб, забон, theme ва амният месозад.
 class _ProfileCard extends StatelessWidget {
   const _ProfileCard({required this.session, required this.onEdit});
   final Session session;
   final VoidCallback onEdit;
 
+  /// Widget-и ProfileCard-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -620,11 +621,12 @@ class _ProfileCard extends StatelessWidget {
   }
 }
 
-/// Card grouping a set of settings tiles.
+/// Додаҳо ва рафтори марбут ба танзимоти ҳисоб, забон, theme ва амниятро ифода мекунад.
 class _Group extends StatelessWidget {
   const _Group({required this.children});
   final List<Widget> children;
 
+  /// Widget-и Group-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   Widget build(BuildContext context) => Card(
     clipBehavior: Clip.antiAlias,
@@ -632,7 +634,7 @@ class _Group extends StatelessWidget {
   );
 }
 
-/// One settings row with a coloured icon, title, subtitle and trailing.
+/// Widget-и Tile-ро барои танзимоти ҳисоб, забон, theme ва амният месозад.
 class _Tile extends StatelessWidget {
   const _Tile({
     super.key,
@@ -653,6 +655,7 @@ class _Tile extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
+  /// Widget-и Tile-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   Widget build(BuildContext context) => ListTile(
     onTap: onTap,
@@ -667,8 +670,7 @@ class _Tile extends StatelessWidget {
       child: Icon(icon, color: color, size: 21),
     ),
     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-    // Statuses change while the screen is open (PIN, notifications, updates):
-    // fade between them instead of swapping the text hard.
+    // Огоҳиномаи воридшударо дар Tile ба амали мувофиқ равона мекунад.
     subtitle: subtitle == null
         ? null
         : AnimatedSwitcher(
@@ -691,31 +693,34 @@ class _Tile extends StatelessWidget {
   );
 }
 
-/// Dialog for editing the display name.
+/// Равзанаи NameDialog-ро барои танзимоти ҳисоб, забон, theme ва амният нишон медиҳад.
 class _NameDialog extends StatefulWidget {
   const _NameDialog({required this.initial});
   final String initial;
 
+  /// Ҳолати NameDialog-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   State<_NameDialog> createState() => _NameDialogState();
 }
 
-/// Holds the name field.
+/// Ҳолат ва рафтори NameDialogState-ро барои навсозии интерфейс идора мекунад.
 class _NameDialogState extends State<_NameDialog> {
   late final name = TextEditingController(text: widget.initial);
 
+  /// Controller ва listener-ҳои NameDialog-ро озод мекунад.
   @override
   void dispose() {
     name.dispose();
     super.dispose();
   }
 
-  /// Closes the dialog with the trimmed name (ignored when empty).
+  /// save тағйироти танзимот-ро барои истифодаи баъдӣ нигоҳ медорад.
   void save() {
     if (name.text.trim().isEmpty) return;
     Navigator.pop(context, name.text.trim());
   }
 
+  /// Widget-и NameDialog-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: Text(tr('Ном')),
@@ -740,30 +745,29 @@ class _NameDialogState extends State<_NameDialog> {
   );
 }
 
-/// «Нест кардани барнома»: the PIN is checked first (`verifyLocalPin`), and
-/// only a correct one reaches `requestUninstallWithPin`, which drops the device
-/// admin and opens Android's own uninstall screen. A wrong PIN just shows the
-/// error — nothing is removed.
+/// Равзанаи UninstallDialog-ро барои танзимоти ҳисоб, забон, theme ва амният нишон медиҳад.
 class _UninstallDialog extends StatefulWidget {
   const _UninstallDialog();
 
+  /// Ҳолати UninstallDialog-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   State<_UninstallDialog> createState() => _UninstallDialogState();
 }
 
-/// Holds the PIN field and runs the PIN-protected uninstall.
+/// Ҳолат ва рафтори UninstallDialogState-ро барои навсозии интерфейс идора мекунад.
 class _UninstallDialogState extends State<_UninstallDialog> {
   final pin = TextEditingController();
   String? error;
   bool busy = false;
 
+  /// Controller ва listener-ҳои UninstallDialog-ро озод мекунад.
   @override
   void dispose() {
     pin.dispose();
     super.dispose();
   }
 
-  /// Validates the PIN, verifies it natively and starts the uninstall.
+  /// submit дархости танзимот-ро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> submit() async {
     final value = pin.text.trim();
     if (!UserJourneyLogic.validPin(value)) {
@@ -774,7 +778,7 @@ class _UninstallDialogState extends State<_UninstallDialog> {
       error = null;
     });
     try {
-      // Check first, so a wrong PIN never reaches the uninstall call.
+      // Қадами дохилии танзимоти ҳисоб, забон, theme ва амният.
       final correct = await ParentPin.verify(value);
       if (!mounted) return;
       if (!correct) {
@@ -806,6 +810,7 @@ class _UninstallDialogState extends State<_UninstallDialog> {
     }
   }
 
+  /// Widget-и UninstallDialog-ро барои танзимоти ҳисоб ва барнома месозад.
   @override
   Widget build(BuildContext context) => AlertDialog(
     icon: const Icon(Icons.delete_outline_rounded, color: NigohDesign.coral),

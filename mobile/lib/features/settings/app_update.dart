@@ -1,6 +1,4 @@
-// In-app APK update: asks the server for the latest version, offers the
-// update and drives the native download → verify → install flow with a
-// progress dialog.
+// Файл: санҷиш, зеркашӣ ва насби навсозии Android.
 
 import 'dart:async';
 
@@ -14,20 +12,18 @@ import '../../core/user_journey_logic.dart';
 import '../../ui/widgets.dart';
 import '../../l10n/l10n.dart';
 
-/// Checks `/api/mobile/version` and offers the in-app APK update
-/// (native `tj.nigoh/update` → installUpdate).
+/// Ин қадам ҷавоби server ё хатои API-ро коркард мекунад.
 abstract final class AppUpdate {
   static const channel = MethodChannel('tj.nigoh/update');
 
-  /// Last error of the automatic (silent) check, for a visible status.
+  /// Қимати lastError-ро барои санҷиш, зеркашӣ ва насби навсозии Android нигоҳ медорад.
   static final lastError = ValueNotifier<String?>(null);
 
-  /// Build number (version code) of the installed app.
+  /// installedCode мантиқи зарурии санҷиш, зеркашӣ ва насби навсозии Android-ро иҷро мекунад.
   static Future<int> installedCode() async =>
       int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0;
 
-  /// [silent]: automatic start-up check — no "up to date" message and errors
-  /// are kept in [lastError] instead of a snackbar.
+  /// check дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   static Future<void> check(
     BuildContext context,
     NigohApi api, {
@@ -89,14 +85,13 @@ abstract final class AppUpdate {
 
   static const progressChannel = EventChannel('tj.nigoh/update_progress');
 
-  /// One tap: download → verify signature → install over the current app.
-  /// Data, sign-in and permissions stay. Progress is shown in a dialog.
+  /// install мантиқи зарурии санҷиш, зеркашӣ ва насби навсозии Android-ро иҷро мекунад.
   static Future<void> install(
     BuildContext context,
     String url,
     String version,
   ) async {
-    // The APK installer exists only on Android.
+    // Боргирӣ ва насби APK танҳо дар Android дастгирӣ мешавад.
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
     final uri = Uri.tryParse(url);
     if (uri == null || !uri.hasScheme) {
@@ -109,7 +104,7 @@ abstract final class AppUpdate {
         .asBroadcastStream();
     String? status;
     try {
-      // Listen before starting so no early progress event is lost.
+      // Қадами дохилии санҷиш, зеркашӣ ва насби навсозии Android.
       final first = events.first.catchError(
         (_) => const UpdateProgress('error'),
       );
@@ -145,15 +140,16 @@ abstract final class AppUpdate {
   }
 }
 
-/// State reported by the native updater.
+/// Додаҳо ва рафтори марбут ба санҷиш, зеркашӣ ва насби навсозии Android-ро ифода мекунад.
 class UpdateProgress {
   const UpdateProgress(this.state, {this.progress, this.message});
 
-  /// downloading | verifying | installing | done | error
+  /// Қимати state-ро барои санҷиш, зеркашӣ ва насби навсозии Android нигоҳ медорад.
   final String state;
   final double? progress;
   final String? message;
 
+  /// UpdateProgress-ро аз event-и пешрафти Android месозад.
   factory UpdateProgress.fromEvent(Object? raw) {
     if (raw is! Map) return const UpdateProgress('error');
     return UpdateProgress(
@@ -163,7 +159,7 @@ class UpdateProgress {
     );
   }
 
-  /// Localized status line for the progress dialog.
+  /// Қимати label-ро барои санҷиш, зеркашӣ ва насби навсозии Android нигоҳ медорад.
   String get label => switch (state) {
     'downloading' => tr('Боргирӣ… {percent}%', {
       'percent': ((progress ?? 0) * 100).round(),
@@ -175,7 +171,7 @@ class UpdateProgress {
   };
 }
 
-/// Dialog that shows download/verify/install progress of an update.
+/// Равзанаи UpdateProgressDialog-ро барои санҷиш, зеркашӣ ва насби навсозии Android нишон медиҳад.
 class UpdateProgressDialog extends StatelessWidget {
   const UpdateProgressDialog({
     super.key,
@@ -186,6 +182,7 @@ class UpdateProgressDialog extends StatelessWidget {
   final String version;
   final Stream<UpdateProgress> events;
 
+  /// Widget-и UpdateProgressDialog-ро барои боргирӣ ва насби навсозӣ месозад.
   @override
   Widget build(BuildContext context) => StreamBuilder<UpdateProgress>(
     stream: events,
