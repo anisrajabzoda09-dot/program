@@ -1,3 +1,5 @@
+"""Assemble the FastAPI application, middleware, startup, and route modules."""
+
 import os
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
@@ -44,6 +46,8 @@ app.add_middleware(
 # 2. Advanced Security Headers & Analytics Tracking Middleware
 @app.middleware("http")
 async def security_and_analytics_middleware(request: Request, call_next):
+    """Track public visits and add browser security headers to every response."""
+
     # Extract client IP supporting Nginx reverse proxy
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
@@ -84,6 +88,8 @@ app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 # 4. Startup Database Initialization
 @app.on_event("startup")
 async def on_startup():
+    """Initialize persistent data and expand capacity for mobile long polling."""
+
     init_db()
     # Phones keep long-poll requests open (notifications, call signaling);
     # each one holds a worker thread, so allow more than the default 40.
@@ -99,6 +105,8 @@ from app.core.i18n import request_lang, translate  # noqa: E402
 
 @app.exception_handler(_HTTPException)
 async def localized_http_exception(request: Request, exc: _HTTPException):
+    """Translate mobile HTTP errors into the language requested by the phone."""
+
     if request.url.path.startswith("/api/mobile") and isinstance(exc.detail, str):
         exc = _HTTPException(
             status_code=exc.status_code,

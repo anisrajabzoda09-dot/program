@@ -1,3 +1,5 @@
+"""Handle browser registration, login, logout, and Google OAuth sessions."""
+
 import secrets
 import time
 from typing import Any, Dict, Optional
@@ -28,21 +30,29 @@ OAUTH_STATES: Dict[str, Dict[str, Any]] = {}
 
 
 def _google_configured() -> bool:
+    """Report whether both credentials needed for browser Google OAuth exist."""
+
     return bool(settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET)
 
 
 def _safe_next_path(next_path: Optional[str]) -> str:
+    """Accept only local redirect paths to prevent open redirects."""
+
     if next_path and next_path.startswith("/") and not next_path.startswith("//"):
         return next_path
     return "/"
 
 
 def _request_is_https(request: Request) -> bool:
+    """Detect HTTPS directly or through a trusted reverse-proxy header."""
+
     forwarded_scheme = request.headers.get("x-forwarded-proto", "").split(",", 1)[0].strip()
     return request.url.scheme == "https" or forwarded_scheme == "https"
 
 
 def _prune_oauth_states() -> None:
+    """Discard expired one-time OAuth state records from memory."""
+
     cutoff = time.time() - settings.GOOGLE_OAUTH_STATE_MAX_AGE
     for state, record in list(OAUTH_STATES.items()):
         if record["created_at"] < cutoff:
@@ -50,6 +60,8 @@ def _prune_oauth_states() -> None:
 
 
 def _set_session_cookie(response: Response, request: Request, user_dict: dict) -> None:
+    """Create a web session and attach its protected cookie to a response."""
+
     token = create_session(user_dict)
     response.set_cookie(
         key=settings.SESSION_COOKIE_NAME,
@@ -62,6 +74,8 @@ def _set_session_cookie(response: Response, request: Request, user_dict: dict) -
 
 
 def _google_userinfo_from_access_token(access_token: str) -> dict:
+    """Fetch and validate the Google profile represented by an access token."""
+
     try:
         with httpx.Client(timeout=10.0) as client:
             result = client.get(
@@ -85,6 +99,8 @@ def _google_userinfo_from_access_token(access_token: str) -> dict:
 
 
 def _exchange_google_code(code: str) -> dict:
+    """Exchange an OAuth authorization code and return verified Google profile data."""
+
     try:
         with httpx.Client(timeout=10.0) as client:
             token_result = client.post(
@@ -112,6 +128,8 @@ def _exchange_google_code(code: str) -> dict:
 
 
 def _sign_in_google_user(request: Request, response: Response, db: Session, userinfo: dict) -> dict:
+    """Upsert a Google-backed account and establish its browser session."""
+
     user_obj = upsert_google_user(
         db=db,
         email=userinfo["email"],
@@ -125,6 +143,8 @@ def _sign_in_google_user(request: Request, response: Response, db: Session, user
 
 @router.get("/auth", response_class=HTMLResponse)
 def auth_page(request: Request):
+    """Render the localized sign-in page or redirect an existing session."""
+
     user = get_current_user(request)
     if user:
         if user.get("role") == "admin":
@@ -138,6 +158,8 @@ def auth_page(request: Request):
 
 @router.post("/api/auth/register")
 def api_register(payload: UserRegister, request: Request, response: Response, db: Session = Depends(get_db)):
+    """Register a parent account and start an authenticated browser session."""
+
     # Rate limit registration attempts to mitigate spam bots
     check_rate_limit(request, action="register", max_requests=10, window_seconds=60)
 
@@ -168,6 +190,8 @@ def api_register(payload: UserRegister, request: Request, response: Response, db
 
 @router.post("/api/auth/login")
 def api_login(payload: UserLogin, request: Request, response: Response, db: Session = Depends(get_db)):
+    """Verify local credentials and start a rate-limited browser session."""
+
     # Anti brute-force protection
     check_rate_limit(request, action="login", max_requests=15, window_seconds=60)
 
@@ -208,6 +232,8 @@ def api_google_auth(payload: GoogleAuthRequest, request: Request, response: Resp
 
 @router.get("/auth/google/login")
 def google_login(request: Request, next: str = "/"):
+    """Start browser OAuth with a short-lived state and safe return path."""
+
     if not _google_configured():
         return RedirectResponse("/auth?google=not_configured", status_code=303)
 
@@ -250,6 +276,8 @@ def google_callback(
     state: Optional[str] = None,
     error: Optional[str] = None,
 ):
+    """Validate the OAuth callback, sign in the user, and redirect safely."""
+
     if error:
         return RedirectResponse("/auth?google=cancelled", status_code=303)
     if not code or not state:
@@ -270,6 +298,8 @@ def google_callback(
 
 @router.get("/logout")
 def logout(request: Request, response: Response):
+    """Remove the active in-memory session and clear its browser cookie."""
+
     token = request.cookies.get(settings.SESSION_COOKIE_NAME)
     if token in SESSIONS:
         del SESSIONS[token]

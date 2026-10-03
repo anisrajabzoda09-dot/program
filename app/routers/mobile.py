@@ -1,3 +1,5 @@
+"""Provide legacy and v2 mobile family-control, telemetry, chat, and sync APIs."""
+
 from fastapi import APIRouter, Request, Depends, Header, HTTPException, Query, status
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
@@ -65,6 +67,8 @@ router = APIRouter(tags=["Mobile API & OTA"])
 # --- Request Schemas for New Features ---
 
 class ChildRenameRequest(BaseModel):
+    """Validate profile fields a parent may change for an owned child."""
+
     child_id: Optional[int] = None
     name: str = Field(..., min_length=1, description="New name for the child")
     gender: Optional[str] = None
@@ -72,31 +76,43 @@ class ChildRenameRequest(BaseModel):
     device_name: Optional[str] = None
 
 class SOSAlertRequest(BaseModel):
+    """Describe an emergency alert with optional location and battery context."""
+
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     battery_level: Optional[int] = None
     message: Optional[str] = "ХАТАР! Кӯдак тугмаи SOS-ро пахш намуд!"
 
 class GeofenceRequest(BaseModel):
+    """Describe a named circular safe zone requested by a parent."""
+
     zone_name: str
     latitude: float
     longitude: float
     radius_meters: int = 200
 
 class BedtimeScheduleRequest(BaseModel):
+    """Describe whether and when the child's bedtime lock should apply."""
+
     is_enabled: bool = True
     bedtime_start: str = "21:30"
     bedtime_end: str = "07:00"
 
 class DeviceLockRequest(BaseModel):
+    """Carry an immediate device lock state and message for the child."""
+
     is_locked: bool
     lock_message: Optional[str] = "Вақти дарс ва тамаркуз аст! Телефон баста шуд."
 
 class WebFilterRequest(BaseModel):
+    """Carry adult-content and safe-search preferences for web access."""
+
     block_adult_content: bool
     safe_search_enabled: bool = True
 
 class ScreenTimeBonusRequest(BaseModel):
+    """Describe a screen-time reward and its parent-facing reason."""
+
     bonus_minutes: int = 15
     reason: Optional[str] = "Барои иҷрои супоришҳои мактабӣ"
 
@@ -117,6 +133,8 @@ def _get_owned_child(db: Session, user: dict, child_id: int) -> Child:
 
 
 def _rule_payload(rule: AppRule, usage: Optional[AppUsageDaily] = None) -> dict:
+    """Combine an app rule with today's usage and remaining allowance."""
+
     minutes = usage.minutes if usage else 0
     limit = rule.daily_limit_minutes or 0
     schedule = None
@@ -139,6 +157,8 @@ def _rule_payload(rule: AppRule, usage: Optional[AppUsageDaily] = None) -> dict:
 
 
 def _mobile_child(db: Session, user: dict, child_id: Optional[int] = None) -> Child:
+    """Resolve a child accessible to the authenticated mobile family member."""
+
     query = db.query(Child)
     if user.get("role") == "parent":
         query = query.filter(Child.parent_id == user["id"])
@@ -153,6 +173,8 @@ def _mobile_child(db: Session, user: dict, child_id: Optional[int] = None) -> Ch
 
 
 def _mobile_child_payload(db: Session, child: Child) -> dict:
+    """Build a child snapshot with real synced apps, usage, and chat counts."""
+
     # The mobile app shows only apps really reported by the child's phone;
     # placeholder defaults (never synced) must not appear or block anything.
     today = date.today()
@@ -200,6 +222,8 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
 
 
 def _json_or_none(raw: Optional[str]):
+    """Decode an optional JSON database field, returning none when invalid."""
+
     if not raw:
         return None
     try:
@@ -209,6 +233,8 @@ def _json_or_none(raw: Optional[str]):
 
 
 def _unread(db: Session, child_id: int, sender_role: str) -> int:
+    """Count unread family chat messages sent by one side of the family."""
+
     return db.query(ChatMessage).filter(
         ChatMessage.child_id == child_id,
         ChatMessage.sender_role == sender_role,
@@ -233,6 +259,8 @@ def _last_urgent(db: Session, child_id: int) -> Optional[dict]:
 
 
 def _mobile_snapshot(db: Session, user: dict) -> dict:
+    """Build the complete family snapshot appropriate to a parent or child."""
+
     if user.get("role") == "parent":
         children = db.query(Child).filter(Child.parent_id == user["id"]).order_by(Child.id.desc()).all()
         return {
@@ -340,6 +368,8 @@ def publish_dynamic_bundle(
 
 @router.post("/api/mobile/role-select")
 def set_user_role(payload: RoleSelectRequest, request: Request, db: Session = Depends(get_db)):
+    """Persist the selected family role and refresh all active web sessions."""
+
     user = require_auth(request)
     updated = update_user_role(db, user["id"], payload.role)
     user_dict = updated.to_dict() if updated else user
@@ -350,6 +380,8 @@ def set_user_role(payload: RoleSelectRequest, request: Request, db: Session = De
 
 @router.post("/api/mobile/setup-child")
 def setup_child_profile(payload: ChildProfileSetupRequest, request: Request, db: Session = Depends(get_db)):
+    """Create or update the child profile used by the signed-in account."""
+
     user = require_auth(request)
     child = create_or_get_child_for_user(
         db=db,
@@ -363,6 +395,8 @@ def setup_child_profile(payload: ChildProfileSetupRequest, request: Request, db:
 
 @router.get("/api/mobile/status")
 def get_mobile_status(request: Request, db: Session = Depends(get_db)):
+    """Return legacy mobile user, child, app-rule, and chat state."""
+
     user = require_auth(request)
     role = user.get("role", "child")
     child = get_child_for_user(db, user["id"], role)
@@ -384,6 +418,8 @@ def get_mobile_status(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/api/mobile/chat/send")
 def send_mobile_chat_message(payload: SendChatMessageRequest, request: Request, db: Session = Depends(get_db)):
+    """Persist a legacy family chat message for the user's linked child."""
+
     user = require_auth(request)
     role = user.get("role", "parent")
     child = get_child_for_user(db, user["id"], role)
@@ -404,6 +440,8 @@ def send_mobile_chat_message(payload: SendChatMessageRequest, request: Request, 
 
 @router.post("/api/mobile/pair")
 def pair_device(payload: PairRequest, request: Request, db: Session = Depends(get_db)):
+    """Pair a legacy child code to the authenticated parent account."""
+
     user = require_auth(request)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо ҳисоби волидайн метавонад пайваст кунад")
@@ -424,6 +462,8 @@ def pair_device(payload: PairRequest, request: Request, db: Session = Depends(ge
 
 @router.get("/api/mobile/v2/snapshot")
 def mobile_snapshot_v2(request: Request, db: Session = Depends(get_db)):
+    """Return the authenticated mobile user's current family snapshot."""
+
     user = require_mobile_user(request, db)
     return _mobile_snapshot(db, user)
 
@@ -434,6 +474,8 @@ def create_mobile_pair_code_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Create or refresh a child profile and issue its device pairing code."""
+
     user = require_mobile_user(request, db)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Коди пайвастшавиро танҳо телефони фарзанд месозад")
@@ -473,6 +515,8 @@ def pair_mobile_device_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Attach an unclaimed child device to the authenticated parent."""
+
     user = require_mobile_user(request, db)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн метавонад дастгоҳ пайваст кунад")
@@ -516,6 +560,8 @@ def sync_mobile_apps_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Replace the child's reported app inventory and update usage metadata."""
+
     user = require_mobile_user(request, db)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад рӯйхати барномаҳоро фиристад")
@@ -577,6 +623,8 @@ def update_mobile_app_rule_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Persist a parent's controls for one app installed on an owned child."""
+
     user = require_mobile_user(request, db)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн қоида гузошта метавонад")
@@ -607,6 +655,8 @@ def update_mobile_location_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Store child-device location and battery telemetry for the parent."""
+
     user = require_mobile_user(request, db)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад ҷойгиршавиро фиристад")
@@ -638,6 +688,8 @@ def get_mobile_chat_v2(
     db: Session = Depends(get_db),
     after_id: int = Query(default=0, ge=0),
 ):
+    """Return family messages newer than an optional polling cursor."""
+
     user = require_mobile_user(request, db)
     child = _mobile_child(db, user, child_id)
     query = db.query(ChatMessage).filter(ChatMessage.child_id == child.id, ChatMessage.id > after_id)
@@ -655,6 +707,8 @@ def send_mobile_chat_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Persist a mobile family message and return its serialized record."""
+
     user = require_mobile_user(request, db)
     child = _mobile_child(db, user, child_id)
     role = "parent" if user.get("role") == "parent" else "child"
@@ -696,6 +750,8 @@ def unlink_mobile_child_v2(child_id: int, request: Request, db: Session = Depend
 
 @router.get("/api/v1/children/{child_id}/apps/")
 def list_child_apps_v1(child_id: int, request: Request, db: Session = Depends(get_db)):
+    """Return an owned child's app controls combined with today's usage."""
+
     user = require_auth(request)
     child = _get_owned_child(db, user, child_id)
     ensure_default_child_apps(db, child.id)
@@ -722,6 +778,8 @@ def update_child_app_limit_v1(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Persist a parent's blocking, allowance, schedule, or exemption changes."""
+
     user = require_auth(request)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн метавонанд қоида гузоранд")
@@ -771,6 +829,8 @@ def report_child_usage_v1(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Upsert daily app-usage telemetry reported by the owned child device."""
+
     user = require_auth(request)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад telemetry фиристад")
@@ -804,6 +864,8 @@ def process_time_extension_v1(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Create a child's time request or persist its parent's decision."""
+
     user = require_auth(request)
     child = _get_owned_child(db, user, child_id)
     if user.get("role") == "child":
@@ -837,6 +899,8 @@ def process_time_extension_v1(
 
 @router.post("/api/mobile/apps/toggle")
 def toggle_child_app(payload: AppRuleToggleRequest, request: Request, db: Session = Depends(get_db)):
+    """Persist an app's blocked state for the parent's linked child."""
+
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "parent")
     if not child:
@@ -849,6 +913,8 @@ def toggle_child_app(payload: AppRuleToggleRequest, request: Request, db: Sessio
 
 @router.post("/api/mobile/apps/limit")
 def set_child_app_limit_endpoint(payload: AppLimitRequest, request: Request, db: Session = Depends(get_db)):
+    """Persist an app's daily limit for the parent's linked child."""
+
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "parent")
     if not child:
@@ -890,6 +956,8 @@ def rename_child_profile(payload: ChildRenameRequest, request: Request, db: Sess
 # 1. SOS Emergency Panic Alert
 @router.post("/api/mobile/sos")
 def trigger_sos_alert(payload: SOSAlertRequest, request: Request, db: Session = Depends(get_db)):
+    """Record an urgent child chat alert with location and battery context."""
+
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "child")
     child_name = child["name"] if child else "Фарзанд"
@@ -902,6 +970,8 @@ def trigger_sos_alert(payload: SOSAlertRequest, request: Request, db: Session = 
 # 2. Geofence Safe Zones (School / Home)
 @router.post("/api/mobile/geofence")
 def set_geofence_safe_zone(payload: GeofenceRequest, request: Request, db: Session = Depends(get_db)):
+    """Validate and echo a requested legacy safe-zone configuration."""
+
     user = require_auth(request)
     return {
         "status": "success",
@@ -918,6 +988,8 @@ def set_geofence_safe_zone(payload: GeofenceRequest, request: Request, db: Sessi
 # 3. Bedtime Schedule Lock
 @router.post("/api/mobile/schedule/bedtime")
 def set_bedtime_schedule(payload: BedtimeScheduleRequest, request: Request, db: Session = Depends(get_db)):
+    """Validate and echo a requested legacy bedtime configuration."""
+
     user = require_auth(request)
     return {
         "status": "success",
@@ -932,6 +1004,8 @@ def set_bedtime_schedule(payload: BedtimeScheduleRequest, request: Request, db: 
 # 4. Instant Remote Device Lock / Unlock
 @router.post("/api/mobile/device/lock")
 def toggle_device_lock(payload: DeviceLockRequest, request: Request, db: Session = Depends(get_db)):
+    """Acknowledge a requested legacy remote lock or unlock state."""
+
     user = require_auth(request)
     return {
         "status": "success",
@@ -943,6 +1017,8 @@ def toggle_device_lock(payload: DeviceLockRequest, request: Request, db: Session
 # 5. SafeSearch & Web Filtering
 @router.post("/api/mobile/webfilter")
 def set_web_filter(payload: WebFilterRequest, request: Request, db: Session = Depends(get_db)):
+    """Persist adult-content filtering for the parent's linked child."""
+
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "parent")
     if child:
@@ -960,6 +1036,8 @@ def set_web_filter(payload: WebFilterRequest, request: Request, db: Session = De
 # 6. Live Location Ping
 @router.get("/api/mobile/location/ping")
 def ping_live_location(request: Request, db: Session = Depends(get_db)):
+    """Return the parent's latest known child location when available."""
+
     user = require_auth(request)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн метавонанд маконро бинанд")
@@ -1004,6 +1082,8 @@ def update_child_location(payload: LocationUpdateRequest, request: Request, db: 
 # 7. Screen Time Bonus (+15m, +30m)
 @router.post("/api/mobile/screentime/bonus")
 def reward_screen_time_bonus(payload: ScreenTimeBonusRequest, request: Request, db: Session = Depends(get_db)):
+    """Acknowledge a requested legacy screen-time reward."""
+
     user = require_auth(request)
     return {
         "status": "success",
@@ -1015,6 +1095,8 @@ def reward_screen_time_bonus(payload: ScreenTimeBonusRequest, request: Request, 
 # 8. Recent App Installation Tracker
 @router.get("/api/mobile/apps/recent")
 def get_recently_installed_apps(request: Request, db: Session = Depends(get_db)):
+    """Return the legacy sample feed of recently installed applications."""
+
     user = require_auth(request)
     return {
         "status": "success",
@@ -1027,6 +1109,8 @@ def get_recently_installed_apps(request: Request, db: Session = Depends(get_db))
 # 9. Low Battery Threshold Alert
 @router.get("/api/mobile/battery/alert")
 def check_battery_status(request: Request, db: Session = Depends(get_db)):
+    """Report the linked child's battery and whether it is below the threshold."""
+
     user = require_auth(request)
     role = user.get("role", "parent")
     child = get_child_for_user(db, user["id"], role)
@@ -1042,6 +1126,8 @@ def check_battery_status(request: Request, db: Session = Depends(get_db)):
 # 10. Family Daily Summary Report
 @router.get("/api/mobile/reports/daily")
 def get_daily_family_report(request: Request, db: Session = Depends(get_db)):
+    """Return the legacy daily family summary payload."""
+
     user = require_auth(request)
     return {
         "status": "success",

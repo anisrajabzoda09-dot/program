@@ -1,3 +1,5 @@
+"""Generate APK QR codes and serve the current Android package with analytics."""
+
 import os
 import io
 import socket

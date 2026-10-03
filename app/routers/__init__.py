@@ -1,3 +1,5 @@
+"""Re-export the route groups assembled by the FastAPI application."""
+
 from app.routers.public import router as public_router
 from app.routers.auth import router as auth_router
 from app.routers.admin import router as admin_router

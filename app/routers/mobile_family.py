@@ -27,6 +27,8 @@ _TIME = r"^([01]\d|2[0-3]):[0-5]\d$"
 
 
 def _child(db: Session, user: dict, child_id: int) -> Child:
+    """Resolve a child only when it belongs to the authenticated family member."""
+
     query = db.query(Child).filter(Child.id == child_id)
     if user.get("role") == "parent":
         query = query.filter(Child.parent_id == user["id"])
@@ -39,16 +41,22 @@ def _child(db: Session, user: dict, child_id: int) -> Child:
 
 
 def _parent_only(user: dict) -> None:
+    """Reject a family action unless the mobile user acts as a parent."""
+
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн ин амалро карда метавонад")
 
 
 def _child_only(user: dict) -> None:
+    """Reject a device action unless the mobile user acts as a child."""
+
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд ин амалро карда метавонад")
 
 
 def _add_bonus(rule: AppRule, minutes: int) -> None:
+    """Add bounded bonus minutes to an app rule for the current day."""
+
     today = date.today().isoformat()
     current = rule.bonus_minutes if rule.bonus_date == today else 0
     rule.bonus_minutes = min(720, (current or 0) + minutes)
@@ -64,6 +72,8 @@ def location_history(
     db: Session = Depends(get_db),
     hours: int = Query(default=24, ge=1, le=168),
 ):
+    """Return bounded recent location samples for an accessible child."""
+
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
     since = datetime.now(timezone.utc) - timedelta(hours=hours)
@@ -83,6 +93,8 @@ def usage_history(
     db: Session = Depends(get_db),
     days: int = Query(default=7, ge=1, le=31),
 ):
+    """Return daily screen-time totals and top apps over a requested period."""
+
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
     start = date.today() - timedelta(days=days - 1)
@@ -112,23 +124,31 @@ def usage_history(
 # ---------- Extra-time requests ----------
 
 class TimeRequestCreate(BaseModel):
+    """Validate a child's request for additional time in one app."""
+
     package_name: str = Field(..., min_length=1, max_length=255)
     minutes: int = Field(default=15, ge=5, le=120)
     reason: Optional[str] = Field(default=None, max_length=300)
 
 
 class TimeRequestDecision(BaseModel):
+    """Validate a parent's approval choice and optional awarded minutes."""
+
     approve: bool
     minutes: Optional[int] = Field(default=None, ge=5, le=240)
 
 
 def _request_payload(db: Session, row: AppExtensionRequest) -> dict:
+    """Serialize a time request with its human-readable app name."""
+
     rule = db.query(AppRule).filter(AppRule.child_id == row.child_id, AppRule.package_name == row.package_name).first()
     return {**row.to_dict(), "app_name": rule.app_name if rule else row.package_name}
 
 
 @router.post("/requests")
 def create_time_request(child_id: int, payload: TimeRequestCreate, request: Request, db: Session = Depends(get_db)):
+    """Persist a child's pending extra-time request and notify its parent."""
+
     user = require_mobile_user(request, db)
     _child_only(user)
     child = _child(db, user, child_id)
@@ -165,6 +185,8 @@ def list_time_requests(
     db: Session = Depends(get_db),
     status: str = Query(default="all", pattern="^(all|pending)$"),
 ):
+    """Return recent extra-time requests for an accessible child."""
+
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
     query = db.query(AppExtensionRequest).filter(AppExtensionRequest.child_id == child.id)
@@ -182,6 +204,8 @@ def decide_time_request(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Persist a parent's decision, award approved time, and notify the child."""
+
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)
@@ -216,11 +240,15 @@ def decide_time_request(
 # ---------- Bonus time ----------
 
 class BonusRequest(BaseModel):
+    """Validate the number of app minutes a parent wants to award."""
+
     minutes: int = Field(..., ge=5, le=240)
 
 
 @router.post("/apps/{package_name}/bonus")
 def give_bonus(child_id: int, package_name: str, payload: BonusRequest, request: Request, db: Session = Depends(get_db)):
+    """Add today's bonus minutes to an installed app for an owned child."""
+
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)
@@ -235,12 +263,16 @@ def give_bonus(child_id: int, package_name: str, payload: BonusRequest, request:
 # ---------- Bedtime ----------
 
 class Bedtime(BaseModel):
+    """Validate an optional daily bedtime restriction window."""
+
     enabled: bool = False
     start: str = Field(default="21:30", pattern=_TIME)
     end: str = Field(default="07:00", pattern=_TIME)
 
 
 class StudyMode(BaseModel):
+    """Validate a recurring study-mode window and its weekdays."""
+
     enabled: bool = False
     start: str = Field(default="08:00", pattern=_TIME)
     end: str = Field(default="13:00", pattern=_TIME)
@@ -248,12 +280,16 @@ class StudyMode(BaseModel):
 
 
 class ChildSettings(BaseModel):
+    """Group optional bedtime and study-mode settings for a child."""
+
     bedtime: Optional[Bedtime] = None
     study: Optional[StudyMode] = None
 
 
 @router.put("/settings")
 def update_child_settings(child_id: int, payload: ChildSettings, request: Request, db: Session = Depends(get_db)):
+    """Persist a parent's bedtime and study settings for an owned child."""
+
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)
@@ -274,6 +310,8 @@ def update_child_settings(child_id: int, payload: ChildSettings, request: Reques
 # ---------- Safe places ----------
 
 class SafePlaceCreate(BaseModel):
+    """Validate the name, center, and radius of a new safe-place geofence."""
+
     name: str = Field(..., min_length=1, max_length=80)
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
@@ -282,6 +320,8 @@ class SafePlaceCreate(BaseModel):
 
 @router.get("/places")
 def list_places(child_id: int, request: Request, db: Session = Depends(get_db)):
+    """Return all saved safe places for an accessible child."""
+
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
     rows = db.query(SafePlace).filter(SafePlace.child_id == child.id).order_by(SafePlace.id.asc()).all()
@@ -290,6 +330,8 @@ def list_places(child_id: int, request: Request, db: Session = Depends(get_db)):
 
 @router.post("/places")
 def add_place(child_id: int, payload: SafePlaceCreate, request: Request, db: Session = Depends(get_db)):
+    """Persist a parent's safe place while enforcing the per-child limit."""
+
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)
@@ -305,6 +347,8 @@ def add_place(child_id: int, payload: SafePlaceCreate, request: Request, db: Ses
 
 @router.delete("/places/{place_id}")
 def delete_place(child_id: int, place_id: int, request: Request, db: Session = Depends(get_db)):
+    """Delete an owned child's safe place after parent authorization."""
+
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)

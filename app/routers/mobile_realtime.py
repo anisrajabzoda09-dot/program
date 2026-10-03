@@ -28,12 +28,16 @@ RING_TIMEOUT = timedelta(seconds=45)
 
 
 def _my_children(db: Session, user: dict) -> list:
+    """Return every child profile accessible to the mobile family member."""
+
     if user.get("role") == "parent":
         return db.query(Child).filter(Child.parent_id == user["id"]).all()
     return db.query(Child).filter(Child.user_id == user["id"]).all()
 
 
 def _role(user: dict) -> str:
+    """Normalize the authenticated user's effective side of the family."""
+
     return "parent" if user.get("role") == "parent" else "child"
 
 
@@ -80,15 +84,21 @@ def events(
 # ---------- Calls ----------
 
 class CallCreate(BaseModel):
+    """Identify the child profile involved in a new family call."""
+
     child_id: int
 
 
 class SignalCreate(BaseModel):
+    """Validate a WebRTC offer, answer, or ICE signaling payload."""
+
     kind: str = Field(..., pattern="^(offer|answer|ice)$")
     payload: str = Field(..., min_length=1, max_length=20_000)
 
 
 def _call(db: Session, user: dict, call_id: int) -> tuple:
+    """Resolve an accessible call and expire it when ringing timed out."""
+
     call = db.query(CallSession).filter(CallSession.id == call_id).first()
     if call is None:
         raise HTTPException(status_code=404, detail="Занг ёфт нашуд")
@@ -130,6 +140,8 @@ def call_config(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/calls")
 def start_call(payload: CallCreate, request: Request, db: Session = Depends(get_db)):
+    """Create a ringing family call and notify the other party."""
+
     user = require_mobile_user(request, db)
     role = _role(user)
     child = next((c for c in _my_children(db, user) if c.id == payload.child_id), None)
@@ -160,12 +172,16 @@ def start_call(payload: CallCreate, request: Request, db: Session = Depends(get_
 
 @router.get("/calls/{call_id}")
 def get_call(call_id: int, request: Request, db: Session = Depends(get_db)):
+    """Return the current state of an accessible family call."""
+
     user = require_mobile_user(request, db)
     call, _ = _call(db, user, call_id)
     return {"status": "success", "call": call.to_dict()}
 
 
 def _set_status(db: Session, user: dict, call_id: int, action: str) -> dict:
+    """Apply a valid accept, decline, or end transition and notify the peer."""
+
     call, child = _call(db, user, call_id)
     role = _role(user)
     now = datetime.now(timezone.utc)
@@ -192,21 +208,29 @@ def _set_status(db: Session, user: dict, call_id: int, action: str) -> dict:
 
 @router.post("/calls/{call_id}/accept")
 def accept_call(call_id: int, request: Request, db: Session = Depends(get_db)):
+    """Accept an incoming ringing call for the authenticated family member."""
+
     return _set_status(db, require_mobile_user(request, db), call_id, "accept")
 
 
 @router.post("/calls/{call_id}/decline")
 def decline_call(call_id: int, request: Request, db: Session = Depends(get_db)):
+    """Decline a ringing call and notify the other family member."""
+
     return _set_status(db, require_mobile_user(request, db), call_id, "decline")
 
 
 @router.post("/calls/{call_id}/end")
 def end_call(call_id: int, request: Request, db: Session = Depends(get_db)):
+    """End a ringing or active call and notify the other family member."""
+
     return _set_status(db, require_mobile_user(request, db), call_id, "end")
 
 
 @router.post("/calls/{call_id}/signal")
 def send_signal(call_id: int, payload: SignalCreate, request: Request, db: Session = Depends(get_db)):
+    """Persist a WebRTC signaling message for polling by the other caller."""
+
     user = require_mobile_user(request, db)
     call, _ = _call(db, user, call_id)
     if call.status not in ("ringing", "active"):

@@ -26,30 +26,42 @@ router = APIRouter(prefix="/api/mobile/v3", tags=["Mobile auth"])
 
 
 class RegisterRequest(BaseModel):
+    """Validate credentials and a display name for mobile registration."""
+
     email: str = Field(..., min_length=3, max_length=254)
     password: str = Field(..., min_length=8, max_length=128)
     full_name: str = Field(..., min_length=1, max_length=120)
 
 
 class LoginRequest(BaseModel):
+    """Validate email and password input for mobile sign-in."""
+
     email: str = Field(..., min_length=1, max_length=254)
     password: str = Field(..., min_length=1, max_length=128)
 
 
 class GoogleRequest(BaseModel):
+    """Carry the Google ID token to verify for mobile sign-in."""
+
     id_token: str = Field(..., min_length=20)
 
 
 class ProfileUpdate(BaseModel):
+    """Validate optional mobile profile name and family-role changes."""
+
     full_name: Optional[str] = Field(default=None, min_length=1, max_length=120)
     role: Optional[str] = Field(default=None, pattern="^(parent|child)$")
 
 
 def _device(request: Request) -> str:
+    """Return a client-provided device label or fall back to its user agent."""
+
     return request.headers.get("X-NIGOH-Device") or request.headers.get("user-agent", "")
 
 
 def _auth_response(db: Session, user: User, request: Request) -> dict:
+    """Issue a bearer session and build the standard mobile sign-in response."""
+
     return {
         "status": "success",
         "token": issue_token(db, user, _device(request)),
@@ -65,6 +77,8 @@ def _auth_response(db: Session, user: User, request: Request) -> dict:
 
 @router.post("/auth/register")
 def register(payload: RegisterRequest, request: Request, db: Session = Depends(get_db)):
+    """Create a local mobile account and return a new authenticated session."""
+
     check_rate_limit(request, "mobile_register", max_requests=10, window_seconds=600)
     email = payload.email.strip().lower()
     if "@" not in email or "." not in email.split("@")[-1]:
@@ -85,6 +99,8 @@ def register(payload: RegisterRequest, request: Request, db: Session = Depends(g
 
 @router.post("/auth/login")
 def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
+    """Verify mobile credentials, upgrade legacy hashes, and issue a session."""
+
     check_rate_limit(request, "mobile_login", max_requests=20, window_seconds=300)
     user = db.query(User).filter(User.email == payload.email.strip().lower()).first()
     if user is None or not user.password_hash or not verify_password(payload.password, user.password_hash):
@@ -99,6 +115,8 @@ def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)
 
 @router.post("/auth/google")
 def google(payload: GoogleRequest, request: Request, db: Session = Depends(get_db)):
+    """Verify Google identity, synchronize its account, and issue a session."""
+
     check_rate_limit(request, "mobile_google", max_requests=20, window_seconds=300)
     user = upsert_google_user(db, verify_google_id_token(payload.id_token))
     if user.role == "admin":
@@ -108,18 +126,24 @@ def google(payload: GoogleRequest, request: Request, db: Session = Depends(get_d
 
 @router.post("/auth/logout")
 def logout(request: Request, db: Session = Depends(get_db)):
+    """Revoke the mobile bearer session supplied with the request."""
+
     revoke_token(db, bearer_token(request))
     return {"status": "success"}
 
 
 @router.get("/me")
 def me(request: Request, db: Session = Depends(get_db)):
+    """Return the currently authenticated mobile user's profile."""
+
     user = require_mobile_user(request, db)
     return {"status": "success", "user": user}
 
 
 @router.put("/me")
 def update_me(payload: ProfileUpdate, request: Request, db: Session = Depends(get_db)):
+    """Persist editable fields on the authenticated mobile user's profile."""
+
     current = require_mobile_user(request, db)
     user = db.query(User).filter(User.id == current["id"]).first()
     if payload.full_name:
@@ -132,6 +156,8 @@ def update_me(payload: ProfileUpdate, request: Request, db: Session = Depends(ge
 
 
 class AvatarUpload(BaseModel):
+    """Validate the bounded base64 image uploaded as a profile photo."""
+
     # JPEG/PNG, already resized on the phone (≈512 px); ~350 KB of base64 max.
     image_base64: str = Field(..., min_length=100, max_length=480_000)
 
@@ -171,6 +197,8 @@ def upload_avatar(payload: AvatarUpload, request: Request, db: Session = Depends
 
 @router.delete("/me/avatar")
 def delete_avatar(request: Request, db: Session = Depends(get_db)):
+    """Clear the user's avatar URL and remove its managed image file."""
+
     current = require_mobile_user(request, db)
     user = db.query(User).filter(User.id == current["id"]).first()
     old = user.avatar or ""
