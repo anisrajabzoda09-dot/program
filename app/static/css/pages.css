@@ -85,6 +85,16 @@
   transition: opacity .35s ease, transform .45s cubic-bezier(.2, .8, .2, 1.25);
 }
 
+/* Preserve readable step spacing and full-width actions at 360px. */
+@media (max-width: 400px) {
+  .how-timeline .step { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 24px 0; }
+  .how-timeline::before,
+  .how-timeline::after { left: 19px; }
+  .how-timeline + .btn-row .btn,
+  .how-timeline ~ .btn-row .btn { width: 100%; }
+  .page-hero br { display: none; }
+}
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
