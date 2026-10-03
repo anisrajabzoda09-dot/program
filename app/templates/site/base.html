@@ -1,3 +1,4 @@
+{#- Файл: қолаби асосии сайт бо сарлавҳа, паймоиш, footer ва идоракунии мавзӯъ. -#}
 {%- set lang = lang | default('tg') -%}
 {%- set P = lang_prefix | default('') -%}
 {%- set L = {
@@ -65,6 +66,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
   <script>
+    // Пеш аз намоиши саҳифа мавзӯи захирашуда ё мавзӯи системаро татбиқ мекунад.
     (function () {
       var t = null;
       try { t = localStorage.getItem('nigoh-theme'); } catch (e) {}
@@ -113,7 +115,7 @@
         {% else %}
           <a class="btn btn-ghost btn-sm" href="/auth{{ '?lang=' ~ lang if lang != 'tg' else '' }}">{{ L.login }}</a>
         {% endif %}
-        <!-- Theme switch from Uiverse.io by Galahhad (MIT) -->
+{# Тугмаи рӯз/шаб — аз Uiverse.io, муаллиф Galahhad (иҷозатномаи MIT). #}
         <label class="theme-switch" title="{{ L.theme }}">
           <input type="checkbox" class="theme-switch__checkbox" id="theme-toggle" aria-label="{{ L.theme }}">
           <div class="theme-switch__container">
@@ -193,8 +195,9 @@
   </a>
 
   <script>
+    // Менюи мобилиро баъд аз омода шудани document фаъол мекунад.
     (function () {
-      /* Initialize the mobile menu only after the document is ready. */
+      /* Тугмаи менюро ба ҳолати кушодаи header ва aria-expanded мепайвандад. */
       function setupMobileMenu() {
         var header = document.querySelector('.site-header');
         var toggle = document.querySelector('.nav-toggle');
