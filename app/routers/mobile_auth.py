@@ -17,6 +17,7 @@ from app.core.mobile_auth import (
     upsert_google_user,
     verify_google_id_token,
 )
+from app.core import apple_auth
 from app.core.config import settings
 from app.core.security import check_rate_limit, hash_password, verify_password
 from app.db.session import get_db
@@ -119,6 +120,39 @@ def google(payload: GoogleRequest, request: Request, db: Session = Depends(get_d
 
     check_rate_limit(request, "mobile_google", max_requests=20, window_seconds=300)
     user = upsert_google_user(db, verify_google_id_token(payload.id_token))
+    if user.role == "admin":
+        raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
+    return _auth_response(db, user, request)
+
+
+@router.get("/auth/apple/config")
+def apple_config():
+    """Public Apple settings the app needs to show and start Sign in with Apple (no secrets)."""
+    enabled = apple_auth.apple_configured()
+    return {
+        "enabled": enabled,
+        "client_id": settings.APPLE_CLIENT_ID if enabled else None,
+        "redirect_uri": settings.APPLE_REDIRECT_URI.rsplit("/", 1)[0] + "/android" if enabled else None,
+    }
+
+
+class AppleRequest(BaseModel):
+    """Identity token from Sign in with Apple on the phone, plus the raw nonce we generated."""
+
+    identity_token: str = Field(..., min_length=20)
+    nonce: str = Field(..., min_length=16, max_length=128)
+    full_name: Optional[str] = Field(None, max_length=120)
+
+
+@router.post("/auth/apple")
+def apple(payload: AppleRequest, request: Request, db: Session = Depends(get_db)):
+    """Verify an Apple identity token from the app, link the account and issue a session."""
+    check_rate_limit(request, "mobile_apple", max_requests=20, window_seconds=300)
+    if not apple_auth.apple_configured():
+        raise HTTPException(status_code=503, detail="Sign in with Apple дар сервер танзим нашудааст")
+    claims = apple_auth.verify_identity_token(payload.identity_token, apple_auth.apple_audiences(),
+                                              nonce=payload.nonce)
+    user = apple_auth.upsert_apple_user(db, claims, payload.full_name)
     if user.role == "admin":
         raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
     return _auth_response(db, user, request)
