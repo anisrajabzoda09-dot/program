@@ -256,6 +256,8 @@ class _AppsScreenState extends State<AppsScreen> {
                 {'name': child.name},
               ),
               actionLabel: tr('Навсозӣ'),
+              actionIcon: Icons.refresh_rounded,
+              primaryAction: true,
               onAction: () => _refresh(),
             ),
             if (controller.error != null)
@@ -295,13 +297,26 @@ class _AppsScreenState extends State<AppsScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
+          // What this screen is for, in one line.
+          Text(
+            tr(
+              'Қоидаҳои телефони {name}: барномаро бандед, лимити рӯзона ва вақти дарс гузоред.',
+              {'name': child.name},
+            ),
+            key: const ValueKey('apps-purpose'),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 12),
           _ScreenTimeSummary(
             usedMinutes: child.usageMinutesToday,
             limitMinutes: limits,
             blockedCount: child.blockedCount,
             appCount: child.apps.length,
           ),
-          const SizedBox(height: 10),
+          SectionTitle(tr('Реҷаҳо ва ҳисобот')),
           _ToolsRow(
             bedtime: child.bedtime,
             onReport: () => _openReport(child),
@@ -329,6 +344,7 @@ class _AppsScreenState extends State<AppsScreen> {
               suffixIcon: _query.isEmpty
                   ? null
                   : IconButton(
+                      tooltip: tr('Ҷустуҷӯро тоза кардан'),
                       icon: const Icon(Icons.close_rounded),
                       onPressed: () {
                         _search.clear();
@@ -343,7 +359,7 @@ class _AppsScreenState extends State<AppsScreen> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _chip(tr('Ҳама'), null),
+                _chip(tr('Ҳама ({count})', {'count': child.apps.length}), null),
                 if (newCount > 0)
                   _chip(
                     tr('Нав ({newCount})', {'newCount': newCount}),
@@ -365,11 +381,34 @@ class _AppsScreenState extends State<AppsScreen> {
               onUnblock: () => _bulk(child, false, category: category),
             ),
           ],
-          SectionTitle(tr('Барномаҳо ({count})', {'count': apps.length})),
+          SectionTitle(
+            tr('Барномаҳо ({count})', {'count': apps.length}),
+            trailing: apps.length == child.apps.length
+                ? null
+                : Text(
+                    tr('аз {total}', {'total': child.apps.length}),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+          ),
           if (apps.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(24),
-              child: Center(child: Text(tr('Чизе ёфт нашуд'))),
+            StateMessage(
+              icon: Icons.search_off_rounded,
+              title: tr('Чизе ёфт нашуд'),
+              text: tr(
+                'Ҷустуҷӯ ё филтрро иваз кунед, то ҳамаи барномаҳо бинед.',
+              ),
+              actionLabel: tr('Ҳамаи барномаҳоро нишон додан'),
+              actionIcon: Icons.filter_alt_off_rounded,
+              onAction: () {
+                _search.clear();
+                setState(() {
+                  _query = '';
+                  _filter = null;
+                });
+              },
             ),
           for (final (index, app) in apps.indexed)
             FadeIn(
@@ -443,7 +482,8 @@ class _AppsScreenState extends State<AppsScreen> {
   );
 }
 
-/// «Ҳисобот» and «Вақти хоб» shortcuts above the rules.
+/// Report, bedtime and study-mode tiles: each says what it is and its
+/// current value, instead of a bare time range on a button.
 class _ToolsRow extends StatelessWidget {
   const _ToolsRow({
     required this.bedtime,
@@ -460,48 +500,50 @@ class _ToolsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = bedtime.activeAt(DateTime.now());
-    return Row(
-      children: [
-        Expanded(
-          child: FilledButton.tonalIcon(
-            key: const ValueKey('open-report'),
-            onPressed: onReport,
-            icon: const Icon(Icons.bar_chart_rounded, size: 18),
-            label: Text(tr('Ҳисобот')),
+    // IntrinsicHeight: the three tiles share the tallest one's height; inside
+    // a scroll view «stretch» alone would be an unbounded constraint.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _ToolTile(
+              tileKey: const ValueKey('open-report'),
+              icon: Icons.bar_chart_rounded,
+              color: NigohDesign.blue,
+              label: tr('Ҳисобот'),
+              value: tr('7 рӯзи охир'),
+              tooltip: tr('Вақти экран дар 7 рӯзи охир'),
+              onTap: onReport,
+            ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: FilledButton.tonalIcon(
-            key: const ValueKey('open-bedtime'),
-            style: FilledButton.styleFrom(
-              backgroundColor: bedtime.enabled
-                  ? NigohDesign.violet.withValues(alpha: .14)
-                  : null,
-              foregroundColor: bedtime.enabled ? NigohDesign.violet : null,
-            ),
-            onPressed: onBedtime,
-            icon: Icon(
-              active ? Icons.bedtime_rounded : Icons.bedtime_outlined,
-              size: 18,
-            ),
-            label: Text(
-              bedtime.enabled
+          const SizedBox(width: 10),
+          Expanded(
+            child: _ToolTile(
+              tileKey: const ValueKey('open-bedtime'),
+              icon: active ? Icons.bedtime_rounded : Icons.bedtime_outlined,
+              color: NigohDesign.violet,
+              label: tr('Вақти хоб'),
+              value: bedtime.enabled
                   ? '${bedtime.start}–${bedtime.end}'
-                  : tr('Вақти хоб'),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+                  : tr('хомӯш'),
+              on: bedtime.enabled,
+              activeNow: active,
+              tooltip: bedtime.enabled
+                  ? bedtimeLabel(bedtime)
+                  : tr('Вақти хоб гузошта нашудааст'),
+              onTap: onBedtime,
             ),
           ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(child: study),
-      ],
+          const SizedBox(width: 10),
+          Expanded(child: study),
+        ],
+      ),
     );
   }
 }
 
-/// «Тамаркузи дарс» entry under the bedtime shortcut.
+/// «Тамаркузи дарс» tile next to the bedtime one.
 class _StudyButton extends StatelessWidget {
   const _StudyButton({required this.study, required this.onTap});
 
@@ -511,27 +553,125 @@ class _StudyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = study.activeAt(DateTime.now());
-    return Tooltip(
-      message: study.enabled
+    return _ToolTile(
+      tileKey: const ValueKey('open-study'),
+      icon: active ? Icons.school_rounded : Icons.school_outlined,
+      color: NigohDesign.mint,
+      label: tr('Тамаркузи дарс'),
+      value: study.enabled ? '${study.start}–${study.end}' : tr('хомӯш'),
+      on: study.enabled,
+      activeNow: active,
+      tooltip: study.enabled
           ? '${studyLabel(study)}${active ? ' · ${tr('Ҳозир фаъол')}' : ''}'
-          : tr('Тамаркузи дарс'),
-      child: FilledButton.tonalIcon(
-        key: const ValueKey('open-study'),
-        style: FilledButton.styleFrom(
-          backgroundColor: study.enabled
-              ? NigohDesign.mint.withValues(alpha: .14)
-              : null,
-          foregroundColor: study.enabled ? NigohDesign.mint : null,
-        ),
-        onPressed: onTap,
-        icon: Icon(
-          active ? Icons.school_rounded : Icons.school_outlined,
-          size: 18,
-        ),
-        label: Text(
-          study.enabled ? '${study.start}–${study.end}' : tr('Дарс'),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+          : tr('Тамаркузи дарс хомӯш аст'),
+      onTap: onTap,
+    );
+  }
+}
+
+class _ToolTile extends StatelessWidget {
+  const _ToolTile({
+    required this.tileKey,
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+    required this.tooltip,
+    required this.onTap,
+    this.on = true,
+    this.activeNow = false,
+  });
+
+  final Key tileKey;
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  /// The feature is switched on (coloured) rather than off (quiet).
+  final bool on;
+
+  /// It is running right now — shown with a dot.
+  final bool activeNow;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fg = on ? color : scheme.onSurfaceVariant;
+    return Tooltip(
+      message: tooltip,
+      child: TapScale(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: reducedMotion(context) ? 0 : 220),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: on ? color.withValues(alpha: .10) : scheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: on ? color.withValues(alpha: .35) : scheme.outlineVariant,
+            ),
+          ),
+          child: Material(
+            key: tileKey,
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(icon, size: 18, color: fg),
+                        if (activeNow) ...[
+                          const Spacer(),
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: fg,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -568,10 +708,15 @@ class _CategoryActions extends StatelessWidget {
         ),
       ),
       const SizedBox(width: 8),
-      IconButton.outlined(
-        tooltip: tr('Ҳамаро кушодан'),
+      OutlinedButton.icon(
+        key: const ValueKey('category-unblock'),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
         onPressed: busy ? null : onUnblock,
         icon: const Icon(Icons.lock_open_rounded, size: 18),
+        label: Text(tr('Кушодан')),
       ),
     ],
   );
@@ -662,10 +807,12 @@ class _ScreenTimeSummary extends StatelessWidget {
                 ),
                 Text(
                   limitMinutes > 0
-                      ? tr('Лимитҳо: {time}', {
+                      ? tr('Ҳамаи лимитҳо: {time} дар рӯз', {
                           'time': formatMinutes(limitMinutes),
                         })
                       : tr('Лимит гузошта нашудааст'),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: ringColor,
                     fontSize: 12,
@@ -681,11 +828,17 @@ class _ScreenTimeSummary extends StatelessWidget {
                       tr('{blockedCount} баста', {
                         'blockedCount': blockedCount,
                       }),
+                      tooltip: tr('{count} барнома баста аст', {
+                        'count': blockedCount,
+                      }),
                       color: NigohDesign.coral,
                       icon: Icons.lock_outline_rounded,
                     ),
                     Pill(
                       tr('{appCount} барнома', {'appCount': appCount}),
+                      tooltip: tr('Ҳамагӣ {count} барнома дар телефон', {
+                        'count': appCount,
+                      }),
                       color: NigohDesign.blue,
                       icon: Icons.apps_rounded,
                     ),
@@ -761,7 +914,9 @@ class _PauseCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
+              duration: Duration(
+                milliseconds: reducedMotion(context) ? 0 : 250,
+              ),
               child: busy
                   ? Column(
                       key: const ValueKey('busy'),
@@ -774,7 +929,10 @@ class _PauseCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '$done / $total',
+                          tr('{done} аз {total} барнома', {
+                            'done': done,
+                            'total': total,
+                          }),
                           style: TextStyle(
                             color: scheme.onSurfaceVariant,
                             fontSize: 12,
@@ -856,10 +1014,17 @@ class AppRuleCard extends StatelessWidget {
     final barColor = progress >= 1 ? NigohDesign.coral : accent;
     final count = UserJourneyLogic.limitChoices.length;
     final limitText = limitLabelText(shownLimit);
-    return Container(
+    return AnimatedContainer(
+      duration: Duration(milliseconds: reducedMotion(context) ? 0 : 240),
+      curve: Curves.easeOut,
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: scheme.surface,
+        color: blocked
+            ? Color.alphaBlend(
+                NigohDesign.coral.withValues(alpha: .05),
+                scheme.surface,
+              )
+            : scheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: blocked
@@ -926,9 +1091,16 @@ class AppRuleCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Pill(
-                blocked ? tr('Баста') : tr('Фаъол'),
-                color: blocked ? NigohDesign.coral : NigohDesign.mint,
+              AnimatedSwitcher(
+                duration: Duration(
+                  milliseconds: reducedMotion(context) ? 0 : 200,
+                ),
+                child: Pill(
+                  key: ValueKey(blocked),
+                  blocked ? tr('Баста') : tr('Кушода'),
+                  color: blocked ? NigohDesign.coral : NigohDesign.mint,
+                  icon: blocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                ),
               ),
               Switch(
                 key: ValueKey('block-${app.packageName}'),
@@ -955,12 +1127,55 @@ class AppRuleCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(
                   app.dailyLimitMinutes > 0
-                      ? '${tr('{minutes}д', {'minutes': minutes})} / ${limitLabelText(app.effectiveLimitMinutes)}'
-                      : tr('{minutes}д', {'minutes': minutes}),
+                      ? tr('{minutes} дақ аз {limit}', {
+                          'minutes': minutes,
+                          'limit': formatMinutes(app.effectiveLimitMinutes),
+                        })
+                      : tr('{minutes} дақ', {'minutes': minutes}),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: barColor,
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Labelled limit group: the slider alone said nothing.
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Row(
+              children: [
+                Icon(Icons.timer_outlined, size: 16, color: accent),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    tr('Лимити рӯзона'),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                AnimatedSwitcher(
+                  duration: Duration(
+                    milliseconds: reducedMotion(context) ? 0 : 180,
+                  ),
+                  child: Pill(
+                    key: ValueKey(shownLimit),
+                    shownLimit <= 0
+                        ? tr('Бе лимит')
+                        : formatMinutes(shownLimit),
+                    tooltip: shownLimit <= 0
+                        ? tr('Барнома бе маҳдудияти вақт кор мекунад')
+                        : tr('Ҳар рӯз {time} иҷозат дода мешавад', {
+                            'time': formatMinutes(shownLimit),
+                          }),
+                    color: accent,
+                    big: true,
                   ),
                 ),
               ],
@@ -985,72 +1200,74 @@ class AppRuleCard extends StatelessWidget {
               onChangeEnd: (v) => onLimitDone(v.round()),
             ),
           ),
-          Row(
-            children: [
-              const SizedBox(width: 4),
-              Icon(Icons.timer_outlined, size: 16, color: accent),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  tr('Лимит: {limit}', {'limit': limitText}),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+          // Icon + label, never bare icons: both actions say what they do.
+          Padding(
+            padding: const EdgeInsets.only(right: 6, bottom: 2),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                TextButton.icon(
+                  onPressed: onSchedule,
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheduleLabel != null
+                        ? NigohDesign.violet
+                        : scheme.primary,
+                    backgroundColor:
+                        (scheduleLabel != null
+                                ? NigohDesign.violet
+                                : scheme.primary)
+                            .withValues(alpha: .08),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  icon: Icon(
+                    scheduleLabel != null
+                        ? Icons.event_available_rounded
+                        : Icons.menu_book_rounded,
+                    size: 18,
+                  ),
+                  label: Text(
+                    scheduleLabel == null
+                        ? tr('Вақти дарс')
+                        : tr('Дарс {hours}', {'hours': scheduleLabel}),
                   ),
                 ),
-              ),
-              TextButton.icon(
-                onPressed: onSchedule,
-                style: TextButton.styleFrom(
-                  foregroundColor: scheduleLabel != null
-                      ? NigohDesign.violet
-                      : scheme.primary,
-                  backgroundColor:
-                      (scheduleLabel != null
-                              ? NigohDesign.violet
-                              : scheme.primary)
-                          .withValues(alpha: .08),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                if (onOptions != null)
+                  TextButton.icon(
+                    key: ValueKey('options-${app.packageName}'),
+                    onPressed: onOptions,
+                    style: TextButton.styleFrom(
+                      foregroundColor: scheme.onSurfaceVariant,
+                      visualDensity: VisualDensity.compact,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.tune_rounded, size: 18),
+                    label: Text(tr('Танзимоти дигар')),
                   ),
-                  visualDensity: VisualDensity.compact,
-                ),
-                icon: Icon(
-                  scheduleLabel != null
-                      ? Icons.event_available_rounded
-                      : Icons.menu_book_rounded,
-                  size: 18,
-                ),
-                label: Text(scheduleLabel ?? tr('Вақти дарс')),
-              ),
-              if (onOptions != null)
-                IconButton(
-                  key: ValueKey('options-${app.packageName}'),
-                  tooltip: tr('Бештар'),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: onOptions,
-                  icon: const Icon(Icons.tune_rounded, size: 20),
-                ),
-            ],
+              ],
+            ),
           ),
           if (onBonus != null && app.dailyLimitMinutes > 0)
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 4, 6, 4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              padding: const EdgeInsets.fromLTRB(2, 2, 6, 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    tr('Вақти иловагӣ'),
+                    tr('Вақти иловагӣ барои имрӯз'),
                     style: TextStyle(
                       color: scheme.onSurfaceVariant,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: BonusButtons(app: app, onBonus: onBonus!),
-                  ),
+                  const SizedBox(height: 4),
+                  BonusButtons(app: app, onBonus: onBonus!),
                 ],
               ),
             ),
@@ -1115,8 +1332,10 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // Scrolls so the weekday chips and save button stay reachable on small
+    // phones and with large system fonts.
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           20,
           0,
@@ -1142,14 +1361,20 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(tr('Ҷадвал фаъол')),
+              subtitle: Text(
+                enabled
+                    ? tr('Дар рӯзҳо ва соатҳои зер баста мешавад')
+                    : tr('Ҳоло ҷадвал кор намекунад'),
+              ),
               value: enabled,
               onChanged: (v) => setState(() => enabled = v),
             ),
+            SectionTitle(tr('Соатҳои дарс')),
             Row(
               children: [
                 Expanded(
                   child: _TimeTile(
-                    label: tr('Аз'),
+                    label: tr('Аз соати'),
                     value: _format(start),
                     enabled: enabled,
                     onTap: () => _pick(true),
@@ -1158,7 +1383,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _TimeTile(
-                    label: tr('То'),
+                    label: tr('То соати'),
                     value: _format(end),
                     enabled: enabled,
                     onTap: () => _pick(false),
@@ -1166,7 +1391,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SectionTitle(tr('Рӯзҳои ҳафта')),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -1183,10 +1408,21 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                   ),
               ],
             ),
+            if (enabled && weekdays.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  tr('Ақаллан як рӯзро интихоб кунед.'),
+                  style: TextStyle(color: scheme.error, fontSize: 12),
+                ),
+              ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(54),
+                ),
                 onPressed: enabled && weekdays.isEmpty
                     ? null
                     : () => Navigator.pop(
@@ -1198,7 +1434,8 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
                           weekdays: weekdays.toList()..sort(),
                         ),
                       ),
-                child: Text(tr('Нигоҳ доштан')),
+                icon: const Icon(Icons.check_rounded),
+                label: Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],
