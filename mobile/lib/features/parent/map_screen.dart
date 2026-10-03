@@ -161,6 +161,9 @@ class _MapScreenState extends State<MapScreen> {
         return StateMessage(
           icon: Icons.family_restroom_rounded,
           title: tr('Фарзанд ҳоло нест'),
+          text: tr(
+            'Аввал телефони фарзандро пайваст кунед — баъд ҷойи ӯ дар ин ҷо нишон дода мешавад.',
+          ),
         );
       }
       final location = child.location;
@@ -172,6 +175,8 @@ class _MapScreenState extends State<MapScreen> {
             'Дар телефони фарзанд интернет, GPS ва иҷозати ҷойгиршавиро фаъол кунед. Харита пас аз аввалин навсозӣ пайдо мешавад.',
           ),
           actionLabel: tr('Навсозӣ'),
+          actionIcon: Icons.refresh_rounded,
+          primaryAction: true,
           onAction: _refresh,
           error: widget.controller.error != null,
         );
@@ -277,40 +282,60 @@ class _MapScreenState extends State<MapScreen> {
             left: 0,
             right: 0,
             top: 0,
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                child: Row(
+            // The overlay chrome keeps its own type scale: at the system's
+            // largest font setting it would otherwise swallow the map.
+            child: MediaQuery.withClampedTextScaling(
+              maxScaleFactor: _overlayTextScale,
+              child: SafeArea(
+                bottom: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _MapChip(
-                      key: const ValueKey('history-toggle'),
-                      icon: Icons.timeline_rounded,
-                      label: tr('Таърихи 24 соат'),
-                      selected: _showHistory,
-                      busy: _historyLoading,
-                      onTap: () => _toggleHistory(child),
-                    ),
-                    if (_showHistory && history.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      _MapChip(
-                        icon: Icons.list_rounded,
-                        label: tr('Нуқтаҳо ({count})', {
-                          'count': history.length,
-                        }),
-                        onTap: () => _openTimeline(history),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                      child: Row(
+                        children: [
+                          _MapChip(
+                            key: const ValueKey('history-toggle'),
+                            icon: Icons.timeline_rounded,
+                            label: tr('Таърихи 24 соат'),
+                            tooltip: tr(
+                              'Роҳи фарзанд дар 24 соати охир дар харита',
+                            ),
+                            selected: _showHistory,
+                            busy: _historyLoading,
+                            onTap: () => _toggleHistory(child),
+                          ),
+                          if (_showHistory && history.isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            _MapChip(
+                              icon: Icons.list_rounded,
+                              label: tr('{count} нуқта', {
+                                'count': history.length,
+                              }),
+                              tooltip: tr('Рӯйхати нуқтаҳо бо вақт'),
+                              onTap: () => _openTimeline(history),
+                            ),
+                          ],
+                          const SizedBox(width: 8),
+                          _MapChip(
+                            key: const ValueKey('places-open'),
+                            icon: Icons.shield_outlined,
+                            label: places.isEmpty
+                                ? tr('Ҷойҳои бехатар')
+                                : tr('{count} ҷойи бехатар', {
+                                    'count': places.length,
+                                  }),
+                            tooltip: tr(
+                              'Хона, мактаб — вақте фарзанд дар он ҷост, мебинед',
+                            ),
+                            onTap: () => _openPlaces(child),
+                          ),
+                        ],
                       ),
-                    ],
-                    const SizedBox(width: 8),
-                    _MapChip(
-                      key: const ValueKey('places-open'),
-                      icon: Icons.shield_outlined,
-                      label: places.isEmpty
-                          ? tr('Ҷойҳои бехатар')
-                          : tr('Ҷойҳо ({count})', {'count': places.length}),
-                      onTap: () => _openPlaces(child),
                     ),
+                    const _MapHint(),
                   ],
                 ),
               ),
@@ -320,39 +345,47 @@ class _MapScreenState extends State<MapScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: SafeArea(
-              top: false,
-              minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Center(
-                // Stays compact on tablets / landscape.
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 520),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const _OsmCredit(),
-                      const SizedBox(height: 6),
-                      _LocationCard(
-                        child: child,
-                        avatarUrl: widget.controller.api.fileUrl(
-                          child.childAvatar,
+            child: MediaQuery.withClampedTextScaling(
+              maxScaleFactor: _overlayTextScale,
+              child: SafeArea(
+                top: false,
+                minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                // Bottom-anchored, never taller than [_bottomCardShare] of the
+                // screen: the card scrolls inside the cap instead of growing
+                // over the map.
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: ConstrainedBox(
+                    key: const ValueKey('map-card-area'),
+                    constraints: BoxConstraints(
+                      maxWidth: 520,
+                      maxHeight: _bottomCardLimit(context),
+                    ),
+                    child: SingleChildScrollView(
+                      reverse: true,
+                      physics: const ClampingScrollPhysics(),
+                      child: _AnimatedBox(
+                        child: _LocationCard(
+                          child: child,
+                          avatarUrl: widget.controller.api.fileUrl(
+                            child.childAvatar,
+                          ),
+                          location: location,
+                          refreshing: _refreshing,
+                          onRefresh: _refresh,
+                          placeStatus: status,
+                          inSafePlace:
+                              status != null &&
+                              placeContaining(
+                                    location.latitude,
+                                    location.longitude,
+                                    places,
+                                  ) !=
+                                  null,
+                          error: _historyError ?? widget.controller.placesError,
                         ),
-                        location: location,
-                        refreshing: _refreshing,
-                        onRefresh: _refresh,
-                        placeStatus: status,
-                        inSafePlace:
-                            status != null &&
-                            placeContaining(
-                                  location.latitude,
-                                  location.longitude,
-                                  places,
-                                ) !=
-                                null,
-                        error: _historyError ?? widget.controller.placesError,
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -362,6 +395,79 @@ class _MapScreenState extends State<MapScreen> {
       );
     },
   );
+}
+
+/// The map overlay never follows the system font scale past this: a 2× scale
+/// turned the compact card into a panel over half the map.
+const _overlayTextScale = 1.2;
+
+/// Share of the screen height the bottom card may use at most.
+const _bottomCardShare = .34;
+
+double _bottomCardLimit(BuildContext context) =>
+    (MediaQuery.sizeOf(context).height * _bottomCardShare).clamp(110.0, 280.0);
+
+/// Smooth height changes (a pill or an error line appearing) instead of the
+/// card jumping; collapses when the user asked for less motion.
+class _AnimatedBox extends StatelessWidget {
+  const _AnimatedBox({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (reducedMotion(context)) return child;
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.bottomCenter,
+      child: child,
+    );
+  }
+}
+
+/// One line that says what the map is for and how to add a safe place —
+/// long-press is invisible otherwise.
+class _MapHint extends StatelessWidget {
+  const _MapHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: scheme.surface.withValues(alpha: .92),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.touch_app_rounded,
+              size: 14,
+              color: scheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                tr('Нуқтаро дароз пахш кунед — ҷойи бехатар илова мешавад'),
+                key: const ValueKey('map-hint'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ChildMarker extends StatelessWidget {
@@ -391,9 +497,10 @@ class _ChildMarker extends StatelessWidget {
   }
 }
 
-/// Compact floating card under the map: avatar, name, last update, pills
-/// and a refresh button. Every text is single-line with an ellipsis so the
-/// card never grows or wraps letter by letter on narrow phones.
+/// Compact floating card under the map: avatar, name, last update, status
+/// labels, the OpenStreetMap credit and a refresh button. Every text is
+/// single-line with an ellipsis and the whole card is height-capped by the
+/// caller, so it can never grow into a panel over the map.
 class _LocationCard extends StatelessWidget {
   const _LocationCard({
     required this.child,
@@ -475,7 +582,7 @@ class _LocationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        tr('Навсозӣ: {ago}', {
+                        tr('Ҷойи охирин: {ago}', {
                           'ago': timeAgo(location.updatedAt),
                         }),
                         key: const ValueKey('map-updated'),
@@ -493,7 +600,7 @@ class _LocationCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 IconButton.filledTonal(
                   key: const ValueKey('map-refresh'),
-                  tooltip: tr('Навсозӣ'),
+                  tooltip: tr('Ҷойгиршавиро навсозӣ кардан'),
                   onPressed: refreshing ? null : onRefresh,
                   icon: refreshing
                       ? const SizedBox(
@@ -507,21 +614,27 @@ class _LocationCard extends StatelessWidget {
             ),
             if (battery != null || placeStatus != null) ...[
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
+              // One single-line row, so a long place name can never wrap the
+              // card into a tall panel.
+              Row(
                 children: [
                   if (placeStatus != null)
-                    Pill(
-                      placeStatus!,
-                      color: inSafePlace ? NigohDesign.mint : NigohDesign.amber,
-                      icon: inSafePlace
-                          ? Icons.shield_rounded
-                          : Icons.shield_outlined,
+                    Flexible(
+                      child: _StatusLabel(
+                        text: placeStatus!,
+                        color: inSafePlace
+                            ? NigohDesign.mint
+                            : NigohDesign.amber,
+                        icon: inSafePlace
+                            ? Icons.shield_rounded
+                            : Icons.shield_outlined,
+                      ),
                     ),
+                  if (placeStatus != null && battery != null)
+                    const SizedBox(width: 6),
                   if (battery != null)
-                    Pill(
-                      tr('Батарея {battery}%', {'battery': battery}),
+                    _StatusLabel(
+                      text: tr('Батарея {battery}%', {'battery': battery}),
                       color: battery <= 15
                           ? NigohDesign.coral
                           : NigohDesign.mint,
@@ -541,6 +654,15 @@ class _LocationCard extends StatelessWidget {
                 style: TextStyle(color: scheme.error, fontSize: 12),
               ),
             ],
+            const SizedBox(height: 6),
+            // Required by the OpenStreetMap tile licence; inside the card so
+            // the map keeps only one floating surface at the bottom.
+            Text(
+              '© OpenStreetMap contributors',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 10, color: scheme.onSurfaceVariant),
+            ),
           ],
         ),
       ),
@@ -548,26 +670,46 @@ class _LocationCard extends StatelessWidget {
   }
 }
 
-/// OpenStreetMap credit (required by the tile licence), kept just above the
-/// card so it never hides under it.
-class _OsmCredit extends StatelessWidget {
-  const _OsmCredit();
+/// Rounded status label that shrinks instead of overflowing — the shared
+/// [Pill] keeps its text on one unbreakable line.
+class _StatusLabel extends StatelessWidget {
+  const _StatusLabel({
+    required this.text,
+    required this.color,
+    required this.icon,
+  });
+
+  final String text;
+  final Color color;
+  final IconData icon;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: .85),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        '© OpenStreetMap contributors',
-        style: TextStyle(fontSize: 10, color: scheme.onSurfaceVariant),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+    decoration: BoxDecoration(
+      color: color.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(999),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _MapChip extends StatelessWidget {
@@ -576,6 +718,7 @@ class _MapChip extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.tooltip,
     this.selected = false,
     this.busy = false,
   });
@@ -583,6 +726,7 @@ class _MapChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final String? tooltip;
   final bool selected;
   final bool busy;
 
@@ -590,39 +734,51 @@ class _MapChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final fg = selected ? Colors.white : scheme.onSurface;
-    return Material(
-      color: selected ? NigohDesign.violet : scheme.surface,
-      elevation: 2,
-      shadowColor: Colors.black26,
-      borderRadius: BorderRadius.circular(999),
-      child: InkWell(
+    final chip = AnimatedContainer(
+      duration: Duration(milliseconds: reducedMotion(context) ? 0 : 200),
+      curve: Curves.easeOut,
+      decoration: BoxDecoration(
+        color: selected ? NigohDesign.violet : scheme.surface,
         borderRadius: BorderRadius.circular(999),
-        onTap: busy ? null : onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              busy
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: fg,
-                      ),
-                    )
-                  : Icon(icon, size: 17, color: fg),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(color: fg, fontWeight: FontWeight.w600),
-              ),
-            ],
+        border: Border.all(
+          color: selected ? NigohDesign.violet : scheme.outlineVariant,
+        ),
+        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: busy ? null : onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                busy
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: fg,
+                        ),
+                      )
+                    : Icon(icon, size: 17, color: fg),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(color: fg, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
+    final hint = tooltip;
+    return hint == null ? chip : Tooltip(message: hint, child: chip);
   }
 }
 
