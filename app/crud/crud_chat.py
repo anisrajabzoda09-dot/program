@@ -1,11 +1,11 @@
-"""Read and write chat messages exchanged within a family."""
+"""Файл: амалиёти пойгоҳи додаҳо барои бахши `crud_chat`."""
 
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.chat import ChatMessage
 
 def get_child_messages(db: Session, child_id: int, limit: int = 50) -> List[dict]:
-    """Retrieve family chat history for a specific child."""
+    """Барои гирифтан ё санҷидани get фарзанд паёмҳо истифода мешавад."""
     msgs = db.query(ChatMessage).filter(ChatMessage.child_id == child_id).order_by(ChatMessage.id.asc()).limit(limit).all()
     return [m.to_dict() for m in msgs]
 
@@ -18,7 +18,7 @@ def send_message(
     message_type: str = "text",
     duration_sec: int = 0
 ) -> dict:
-    """Record a text, voice, or alert message in the family chat."""
+    """send паём-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     msg = ChatMessage(
         child_id=child_id,
         sender_role=sender_role,

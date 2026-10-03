@@ -1,4 +1,4 @@
-"""Re-export the database operations used by API routers."""
+"""Файл: амалиёти пойгоҳи додаҳо барои бахши `__init__`."""
 
 from app.crud.crud_user import (
     get_user_by_email,

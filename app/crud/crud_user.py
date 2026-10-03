@@ -1,4 +1,4 @@
-"""Create, find, update, and list local user accounts."""
+"""Файл: амалиёти пойгоҳи додаҳо барои бахши `crud_user`."""
 
 from typing import Optional, List
 from sqlalchemy.orm import Session
@@ -8,18 +8,18 @@ from app.core.security import hash_password
 import secrets
 
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
-    """Find an account by a trimmed, case-tolerant email address."""
+    """Барои гирифтан ё санҷидани get корбар by email истифода мешавад."""
 
     clean = email.strip()
     return db.query(User).filter(or_(User.email == clean, User.email == clean.lower())).first()
 
 def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
-    """Return the account with the given database identifier, if present."""
+    """Барои гирифтан ё санҷидани get корбар by id истифода мешавад."""
 
     return db.query(User).filter(User.id == user_id).first()
 
 def create_user(db: Session, email: str, password: str, full_name: str, role: str = "parent") -> User:
-    """Hash credentials and persist a new local account."""
+    """create корбар-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     pwd_hash = hash_password(password)
     new_user = User(
@@ -34,7 +34,7 @@ def create_user(db: Session, email: str, password: str, full_name: str, role: st
     return new_user
 
 def update_user_role(db: Session, user_id: int, role: str) -> Optional[User]:
-    """Persist a user's selected family role and return the updated account."""
+    """update корбар нақш-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = get_user_by_id(db, user_id)
     if user:
@@ -44,7 +44,7 @@ def update_user_role(db: Session, user_id: int, role: str) -> Optional[User]:
     return user
 
 def upsert_google_user(db: Session, email: str, full_name: Optional[str], avatar: Optional[str], google_id: Optional[str]) -> User:
-    """Create or refresh an account using trusted Google profile fields."""
+    """Ҳисоби Google-ро месозад ё маълумоти онро нав мекунад."""
 
     clean_email = email.strip().lower()
     name = full_name.strip() if full_name else clean_email.split("@")[0]
@@ -74,7 +74,7 @@ def upsert_google_user(db: Session, email: str, full_name: Optional[str], avatar
         return new_user
 
 def get_registered_users(db: Session) -> List[dict]:
-    """Return all non-admin accounts with the newest registrations first."""
+    """Барои гирифтан ё санҷидани get registered корбарон истифода мешавад."""
 
     users = db.query(User).filter(User.role != "admin").order_by(User.id.desc()).all()
     return [u.to_dict() for u in users]

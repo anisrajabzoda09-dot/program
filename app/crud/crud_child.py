@@ -1,4 +1,4 @@
-"""Manage child profiles, device pairing, and their initial app rules."""
+"""Файл: амалиёти пойгоҳи додаҳо барои бахши `crud_child`."""
 
 import secrets
 from typing import Optional, List, Dict
@@ -9,7 +9,7 @@ from app.models.chat import ChatMessage
 from app.core.config import settings
 
 def ensure_default_child_apps(db: Session, child_id: int):
-    """Ensure all default apps exist for child profile."""
+    """Маълумоти ёрирасони ensure default фарзанд app-ҳо-ро омода карда, ба caller бармегардонад."""
     existing_packages = {r.package_name for r in db.query(AppRule.package_name).filter(AppRule.child_id == child_id).all()}
     new_rules = []
     for app in settings.DEFAULT_APPS:
@@ -35,7 +35,7 @@ def create_or_get_child_for_user(
     age: int = 11,
     role: str = "child"
 ) -> dict:
-    """Create or update the child profile associated with a user or parent."""
+    """create or get фарзанд for корбар-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     pairing_code = f"NIGOH-{secrets.randbelow(8999)+1000}-X"
 
@@ -78,7 +78,7 @@ def create_or_get_child_for_user(
     return child.to_dict()
 
 def get_child_for_user(db: Session, user_id: int, role: str) -> Optional[dict]:
-    """Return the relevant child profile for a child or parent account."""
+    """Барои гирифтан ё санҷидани get фарзанд for корбар истифода мешавад."""
 
     if role == "child":
         child = db.query(Child).filter(Child.user_id == user_id).first()
@@ -87,13 +87,13 @@ def get_child_for_user(db: Session, user_id: int, role: str) -> Optional[dict]:
     return child.to_dict() if child else None
 
 def get_child_by_pairing_code(db: Session, pairing_code: str) -> Optional[Child]:
-    """Look up the child device that issued a normalized pairing code."""
+    """Барои гирифтан ё санҷидани get фарзанд by pairing code истифода мешавад."""
 
     clean_code = pairing_code.strip().upper()
     return db.query(Child).filter(Child.pairing_code == clean_code).first()
 
 def pair_child_with_parent(db: Session, parent_id: int, pairing_code: str) -> Optional[dict]:
-    """Attach a child device to a parent and persist its paired state."""
+    """pairing фарзанд with parent-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     child = get_child_by_pairing_code(db, pairing_code)
     if not child:
@@ -105,7 +105,7 @@ def pair_child_with_parent(db: Session, parent_id: int, pairing_code: str) -> Op
     return child.to_dict()
 
 def get_children_list(db: Session, limit: int = 10) -> List[dict]:
-    """Return the most recently created child profiles up to a limit."""
+    """Барои гирифтан ё санҷидани get фарзандон list истифода мешавад."""
 
     children = db.query(Child).order_by(Child.id.desc()).limit(limit).all()
     return [c.to_dict() for c in children]
@@ -118,7 +118,7 @@ def update_child_profile(
     age: Optional[int] = None,
     device_name: Optional[str] = None
 ) -> Optional[dict]:
-    """Change child's name, gender, age, or device."""
+    """update фарзанд профил-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     child = db.query(Child).filter(Child.id == child_id).first()
     if not child:
         return None
@@ -135,7 +135,7 @@ def update_child_profile(
     return child.to_dict()
 
 def delete_child(db: Session, child_id: int) -> bool:
-    """Delete child and associated rules and chat."""
+    """delete фарзанд-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     child = db.query(Child).filter(Child.id == child_id).first()
     if not child:
         return False

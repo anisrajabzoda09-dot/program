@@ -1,4 +1,4 @@
-"""Record site activity and assemble real metrics for the admin dashboard."""
+"""Файл: амалиёти пойгоҳи додаҳо барои бахши `crud_analytics`."""
 
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
@@ -20,7 +20,7 @@ def log_analytics_event(
     event_type: str = "page_view",
     version: str = "v2.8.1"
 ):
-    """Log visit, APK download, or QR scan into site_analytics."""
+    """log омор event-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     try:
         event = SiteAnalytics(
             ip=ip or "127.0.0.1",
@@ -40,7 +40,7 @@ _DAY_NAMES = ["Дш", "Сш", "Чш", "Пш", "Ҷм", "Шб", "Яш"]
 
 
 def _is_recent(moment: Optional[datetime], minutes: int) -> bool:
-    """Report whether a timestamp falls within the requested recent interval."""
+    """Маълумоти ёрирасони is recent-ро омода карда, ба caller бармегардонад."""
 
     if moment is None:
         return False
@@ -50,7 +50,7 @@ def _is_recent(moment: Optional[datetime], minutes: int) -> bool:
 
 
 def _daily_series(db: Session, days: int = 14) -> list:
-    """Page views, downloads and unique visitors per day, oldest first."""
+    """Маълумоти ёрирасони рӯзона series-ро омода карда, ба caller бармегардонад."""
     since = date.today() - timedelta(days=days - 1)
     day = func.date(SiteAnalytics.created_at)
     rows = db.query(
@@ -76,7 +76,7 @@ def _daily_series(db: Session, days: int = 14) -> list:
 
 
 def _top_apps(db: Session, limit: int = 8) -> list:
-    """Apps really reported by children's phones, most common first."""
+    """Маълумоти ёрирасони top app-ҳо-ро омода карда, ба caller бармегардонад."""
     rows = db.query(
         AppRule.package_name,
         func.max(AppRule.app_name),
@@ -100,7 +100,7 @@ def _top_apps(db: Session, limit: int = 8) -> list:
 
 
 def get_admin_dashboard_data(db: Session) -> dict:
-    """Real site and family statistics for the admin panel — no sample values."""
+    """Омори воқеии сайт ва оиларо барои dashboard-и admin ҳисоб мекунад."""
     total_downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type.in_(_DOWNLOAD_EVENTS)).count()
     total_qr_downloads = db.query(SiteAnalytics).filter(SiteAnalytics.event_type == "qr_scan").count()
     total_page_views = db.query(SiteAnalytics).filter(SiteAnalytics.event_type == "page_view").count()

@@ -1,4 +1,4 @@
-"""Create, checksum, and retrieve versioned mobile configuration bundles."""
+"""Файл: амалиёти пойгоҳи додаҳо барои бахши `crud_bundle`."""
 
 import hashlib
 import json
@@ -11,7 +11,7 @@ from app.models.app_bundle import AppBundle
 
 
 def canonical_json(value: Any) -> str:
-    """Serialize a value deterministically for stable bundle checksums."""
+    """Маълумоти ёрирасони canonical json-ро омода карда, ба caller бармегардонад."""
 
     return json.dumps(
         value,
@@ -22,13 +22,13 @@ def canonical_json(value: Any) -> str:
 
 
 def payload_checksum(payload: dict) -> str:
-    """Return the SHA-256 checksum of a canonical bundle payload."""
+    """Маълумоти ёрирасони payload checksum-ро омода карда, ба caller бармегардонад."""
 
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
 
 
 def default_bundle_payload() -> dict:
-    """Build the initial UI and parental-rule configuration for mobile apps."""
+    """Маълумоти ёрирасони default bundle payload-ро омода карда, ба caller бармегардонад."""
 
     return {
         "ui_overrides": {
@@ -60,7 +60,7 @@ def default_bundle_payload() -> dict:
 
 
 def ensure_initial_bundle(db: Session) -> AppBundle:
-    """Return the newest bundle, creating the default first version if absent."""
+    """Маълумоти ёрирасони ensure initial bundle-ро омода карда, ба caller бармегардонад."""
 
     bundle = db.query(AppBundle).order_by(AppBundle.bundle_version.desc()).first()
     if bundle:
@@ -80,7 +80,7 @@ def ensure_initial_bundle(db: Session) -> AppBundle:
 
 
 def list_after(db: Session, version: int) -> list[AppBundle]:
-    """Return configuration patches newer than a client's installed version."""
+    """Барои гирифтан ё санҷидани list after истифода мешавад."""
 
     return (
         db.query(AppBundle)
@@ -97,7 +97,7 @@ def create_bundle(
     patch_type: str,
     payload: dict,
 ) -> AppBundle:
-    """Persist a new sequential configuration bundle and return it."""
+    """create bundle-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     latest = db.query(AppBundle).order_by(AppBundle.bundle_version.desc()).first()
     next_version = (latest.bundle_version if latest else 0) + 1
