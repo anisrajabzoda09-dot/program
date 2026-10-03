@@ -1,6 +1,4 @@
-/* NIGOH Family — public site
-   One quiet system: neutral surfaces, one brand blue, a teal accent from the
-   logo, Inter type. Components below are the only building blocks pages use. */
+/* Файл: услубҳои асосии сайти оммавии NIGOH Family — рангҳо, тарҳ ва компонентҳо. */
 
 :root {
   --ink: #0b1220;
@@ -36,8 +34,7 @@
   color-scheme: light;
 }
 
-/* Dark mode: set by the theme switch (data-theme on <html>), defaulting to the
-   system preference on first visit. */
+/* Мавзӯи торикро аз `data-theme` ё танзими системаи корбар муайян мекунад. */
 :root[data-theme="dark"] {
   --ink: #e8ecf3;
   --ink-2: #c9d1de;
@@ -96,7 +93,7 @@ a:hover { color: var(--blue-ink); }
 }
 .skip-link:focus-visible { color: var(--on-ink); transform: translateY(0); }
 
-/* ---------- Layout ---------- */
+/* Чаҳорчӯба, паҳно ва фосилаҳои умумии саҳифаро танзим мекунад. */
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 .section { padding: 96px 0; }
 .section-sm { padding: 64px 0; }
@@ -111,7 +108,7 @@ a:hover { color: var(--blue-ink); }
 .center { text-align: center; }
 .center .lead { margin-left: auto; margin-right: auto; }
 
-/* ---------- Type ---------- */
+/* Андоза ва вазни сарлавҳаю матнҳоро муайян мекунад. */
 h1, h2, h3, h4 { margin: 0; color: var(--ink); letter-spacing: -.022em; font-weight: 700; text-wrap: balance; }
 h1 { font-size: clamp(2.3rem, 5.2vw, 3.9rem); line-height: 1.06; letter-spacing: -.035em; }
 h2 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); line-height: 1.12; }
@@ -129,7 +126,7 @@ p { margin: 0; text-wrap: pretty; }
 .section-head.center { margin-left: auto; margin-right: auto; }
 .section-head h2 + .lead { margin-top: 16px; }
 
-/* ---------- Buttons ---------- */
+/* Тугмаҳои асосӣ ва дуюмдараҷаро оро медиҳад. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid transparent;
@@ -151,7 +148,7 @@ p { margin: 0; text-wrap: pretty; }
 .link-arrow::after { content: "→"; transition: transform .15s; }
 .link-arrow:hover::after { transform: translateX(3px); }
 
-/* ---------- Header ---------- */
+/* Header, logo ва паймоиши болоро ҷойгир мекунад. */
 .site-header {
   position: sticky; top: 0; z-index: 50;
   background: var(--header-bg);
@@ -192,7 +189,7 @@ p { margin: 0; text-wrap: pretty; }
 .nav-toggle span::before { position: absolute; top: -6px; }
 .nav-toggle span::after { position: absolute; top: 6px; }
 
-/* ---------- Hero ---------- */
+/* Hero ва муаррифии аввали саҳифаро месозад. */
 .hero { padding: 88px 0 72px; }
 .hero .lead { margin-top: 22px; }
 .hero .btn-row { margin-top: 34px; }
@@ -208,7 +205,7 @@ p { margin: 0; text-wrap: pretty; }
 .page-hero { padding: 80px 0 56px; border-bottom: 1px solid var(--line); }
 .page-hero .lead { margin-top: 18px; }
 
-/* ---------- Cards & features ---------- */
+/* Кортҳо ва рӯйхати имкониятҳоро оро медиҳад. */
 .card {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg);
   padding: 28px;
@@ -242,7 +239,7 @@ p { margin: 0; text-wrap: pretty; }
 .tag.blue { background: var(--blue-soft); color: var(--blue); border-color: transparent; }
 .tag.teal { background: var(--teal-soft); color: #0d8579; border-color: transparent; }
 
-/* ---------- Steps ---------- */
+/* Марҳилаҳои рақамдори роҳнаморо ҷойгир мекунад. */
 .steps { counter-reset: step; display: grid; gap: 0; }
 .step { counter-increment: step; display: grid; grid-template-columns: 56px 1fr; gap: 20px; padding: 28px 0; border-top: 1px solid var(--line); }
 .step:last-child { border-bottom: 1px solid var(--line); }
@@ -253,14 +250,14 @@ p { margin: 0; text-wrap: pretty; }
 }
 .step p { margin-top: 6px; color: var(--muted); }
 
-/* ---------- Stats ---------- */
+/* Нишондиҳандаҳои кӯтоҳи оморро оро медиҳад. */
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .stat { padding: 28px 20px; }
 .stat + .stat { border-left: 1px solid var(--line); }
 .stat b { display: block; font-size: 1.9rem; letter-spacing: -.03em; color: var(--ink); }
 .stat span { color: var(--muted); font-size: .9rem; }
 
-/* ---------- QR / download ---------- */
+/* Кортҳои QR ва боргириро ҷойгир мекунад. */
 .qr-card {
   display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 24px;
@@ -275,7 +272,7 @@ p { margin: 0; text-wrap: pretty; }
 .meta-table th { color: var(--muted); font-weight: 500; width: 42%; }
 .meta-table td { color: var(--ink); font-weight: 600; }
 
-/* ---------- FAQ ---------- */
+/* Рӯйхати саволу ҷавобҳоро оро медиҳад. */
 .faq { border-top: 1px solid var(--line); }
 .faq details { border-bottom: 1px solid var(--line); }
 .faq summary {
@@ -292,7 +289,7 @@ p { margin: 0; text-wrap: pretty; }
 .faq details > div { padding: 0 0 24px; color: var(--muted); max-width: 760px; }
 .faq details > div p + p { margin-top: 10px; }
 
-/* ---------- Callout / CTA ---------- */
+/* Блокҳои огоҳӣ ва даъват ба амалро ҷудо мекунад. */
 .callout {
   border-radius: var(--radius-lg); padding: 20px 22px; background: var(--blue-soft); color: var(--ink-2);
   display: grid; grid-template-columns: 24px 1fr; gap: 12px; font-size: .95rem;
@@ -312,14 +309,14 @@ p { margin: 0; text-wrap: pretty; }
 .cta .btn-primary:hover { background: #e9edf3; }
 .cta img { width: 132px; height: 132px; border-radius: 14px; background: #fff; padding: 8px; }
 
-/* ---------- Screens ---------- */
+/* Намунаҳои экран ва расмҳои барномаро оро медиҳад. */
 .screen {
   border-radius: 28px; background: var(--soft); border: 1px solid var(--line);
   padding: 32px; display: flex; align-items: center; justify-content: center; min-height: 320px;
 }
 .screen img { max-height: 420px; width: auto; }
 
-/* ---------- Footer ---------- */
+/* Footer ва пайвандҳои поёни сайтро ҷойгир мекунад. */
 .site-footer { border-top: 1px solid var(--line); padding: 56px 0 40px; margin-top: 0; font-size: .9rem; }
 .footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 32px; }
 .footer-grid h4 { font-size: .85rem; font-weight: 600; color: var(--ink); margin-bottom: 14px; }
@@ -334,7 +331,7 @@ p { margin: 0; text-wrap: pretty; }
 .footer-grid ul a:hover { background-size: 100% 1px; }
 .footer-bottom { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--faint); }
 
-/* ---------- Responsive ---------- */
+/* Тарҳро ба планшет ва телефон мутобиқ мекунад. */
 @media (max-width: 960px) {
   .split, .split.reverse { grid-template-columns: 1fr; gap: 48px; }
   .split.reverse > :first-child { order: 0; }
@@ -389,7 +386,7 @@ p { margin: 0; text-wrap: pretty; }
   .site-header.open .nav-links, .site-header.open .nav-actions { animation: none !important; }
 }
 
-/* ---------- Language switch ---------- */
+/* Интихобгари забон ва ҳолати фаъоли онро оро медиҳад. */
 .lang-switch { display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 2px; gap: 2px; }
 .lang-switch a { font-size: .75rem; font-weight: 600; color: var(--muted); padding: 4px 8px; border-radius: 999px; letter-spacing: .02em; }
 .lang-switch a:hover { color: var(--ink); }
@@ -404,7 +401,7 @@ p { margin: 0; text-wrap: pretty; }
 }
 
 
-/* ---------- Print ---------- */
+/* Намуди саҳифаро барои чоп сода мекунад. */
 @media print {
   .site-header, .site-footer, .nav-toggle, .nav-actions, .lang-switch,
   .theme-switch, .back-to-top, .scroll-progress { display: none !important; }

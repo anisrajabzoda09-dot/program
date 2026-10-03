@@ -1,5 +1,6 @@
-/* Theme switch — from Uiverse.io by Galahhad (https://uiverse.io/Galahhad), MIT License.
-   Used as-is; only the size (--toggle-size) and the light/dark wiring are ours. */
+/* Файл: тугмаи ивазкунии мавзӯи равшан ва торик.
+   Тарҳи Uiverse.io аз Galahhad (MIT License); танҳо андоза ва пайвасти мавзӯъ мутобиқ шудаанд. */
+/* Андоза, ранг ва суръати ҳаракати switch-ро муайян мекунад. */
 .theme-switch {
   --toggle-size: 11px;
   --container-width: 5.625em;
@@ -24,6 +25,7 @@
 .theme-switch, .theme-switch *, .theme-switch *::before, .theme-switch *::after {
   box-sizing: border-box; margin: 0; padding: 0; font-size: var(--toggle-size);
 }
+/* Қуттии асосии switch ва сояи дохилии онро месозад. */
 .theme-switch__container {
   width: var(--container-width); height: var(--container-height);
   background-color: var(--container-light-bg); border-radius: var(--container-radius);
@@ -37,9 +39,11 @@
   border-radius: var(--container-radius);
 }
 .theme-switch__checkbox { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+/* Ҳангоми keyboard focus ҳалқаи дастрасро нишон медиҳад. */
 .theme-switch__checkbox:focus-visible + .theme-switch__container {
   outline: 3px solid var(--focus-ring, var(--blue, #1f63e0)); outline-offset: 3px;
 }
+/* Доирҳои ҳаракаткунандаи атрофи офтобу моҳро ҷойгир мекунад. */
 .theme-switch__circle-container {
   width: var(--circle-container-diameter); height: var(--circle-container-diameter);
   background-color: rgba(255, 255, 255, 0.1); position: absolute;
@@ -48,6 +52,7 @@
   box-shadow: inset 0 0 0 3.375em rgba(255, 255, 255, 0.1), inset 0 0 0 3.375em rgba(255, 255, 255, 0.1), 0 0 0 0.625em rgba(255, 255, 255, 0.1), 0 0 0 1.25em rgba(255, 255, 255, 0.1);
   display: flex; transition: var(--circle-transition); pointer-events: none;
 }
+/* Офтоб ва моҳро дар маркази switch ҷойгир мекунад. */
 .theme-switch__sun-moon-container {
   pointer-events: auto; position: relative; z-index: 2;
   width: var(--sun-moon-diameter); height: var(--sun-moon-diameter); margin: auto;
@@ -56,6 +61,7 @@
   filter: drop-shadow(0.062em 0.125em 0.125em rgba(0, 0, 0, 0.25)) drop-shadow(0em 0.062em 0.125em rgba(0, 0, 0, 0.25));
   overflow: hidden; transition: var(--transition);
 }
+/* Моҳ, доғҳо, абрҳо ва ситораҳоро барои ду ҳолати мавзӯъ месозад. */
 .theme-switch__moon {
   transform: translateX(100%); width: 100%; height: 100%;
   background-color: var(--moon-bg); border-radius: inherit;
@@ -79,6 +85,7 @@
   position: absolute; color: var(--stars-color); top: -100%; left: 0.312em;
   width: 2.75em; height: auto; transition: var(--transition);
 }
+/* Ҳолати интихобшудаи мавзӯи торикро бо ҷойивазкунии унсурҳо нишон медиҳад. */
 .theme-switch__checkbox:checked + .theme-switch__container { background-color: var(--container-night-bg); }
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__circle-container {
   left: calc(100% - var(--circle-container-offset) - var(--circle-container-diameter));
@@ -90,6 +97,7 @@
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__moon { transform: translate(0); }
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__clouds { bottom: -4.062em; }
 .theme-switch__checkbox:checked + .theme-switch__container .theme-switch__stars-container { top: 50%; transform: translateY(-50%); }
+/* Барои reduced motion ҳамаи гузаришҳои switch-ро хомӯш мекунад. */
 @media (prefers-reduced-motion: reduce) {
   .theme-switch * { transition: none !important; }
 }

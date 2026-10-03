@@ -1,13 +1,13 @@
-/* NIGOH Family motion layer: calm progressive enhancement for public pages. */
+/* Файл: қабати ҳаракатҳои ороми саҳифаҳои оммавии NIGOH Family. */
 
-/* Cross-document navigation: a restrained browser-native page cross-fade. */
+/* Гузариши нарми аслии браузерро байни саҳифаҳо танзим мекунад. */
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: motion-page-out .18s ease both; }
 ::view-transition-new(root) { animation: motion-page-in .28s ease both; }
 @keyframes motion-page-out { to { opacity: 0; } }
 @keyframes motion-page-in { from { opacity: 0; } }
 
-/* Header state and the compositor-only reading progress indicator. */
+/* Ҳолати header ва нишондиҳандаи пешрафти хонданро оро медиҳад. */
 .site-header {
   transition: box-shadow .22s ease, background-color .22s ease, backdrop-filter .22s ease;
 }
@@ -43,7 +43,7 @@
   transition-delay: 0s;
 }
 
-/* Hero entrance: content staggers in, while the visual settles independently. */
+/* Қисмҳои hero-ро пайдарпай нишон медиҳад. */
 .js-motion .motion-hero-item,
 .js-motion .motion-hero-visual {
   opacity: 0; transform: translateY(18px);
@@ -67,7 +67,7 @@
   transition: transform .18s ease-out;
 }
 
-/* Hero glow: brand-blue and teal light drift softly behind the device. */
+/* Нури кабуду сабзро паси дастгоҳ ором ҳаракат медиҳад. */
 .hero-visual::before {
   inset: 5% -2% 1%; border-radius: 45%;
   background:
@@ -81,7 +81,7 @@
   to { transform: translate3d(8px, -10px, 0) scale(1.04); opacity: .9; }
 }
 
-/* Scroll reveals: only JS-marked natural children start hidden. */
+/* Танҳо унсурҳои бо JS нишонашударо то вақти пайдоиш пинҳон мекунад. */
 .js-motion .motion-reveal {
   opacity: 0; transform: translateY(18px);
 }
@@ -93,7 +93,7 @@
 .js-motion .site-footer.motion-reveal { transform: translateY(12px); }
 .js-motion .site-footer.motion-reveal.is-visible { transform: translateY(0); }
 
-/* Cards and tiles: light lift plus a compact icon response on fine pointers. */
+/* Ба кортҳо ва нишонаҳо ҷавоби сабуки ҳаракат медиҳад. */
 @media (hover: hover) and (pointer: fine) {
   .card, .step, .qr-card, .screen, .callout {
     transition: transform .2s ease, box-shadow .2s ease, border-color .15s ease;
@@ -111,7 +111,7 @@
   .card:hover .icon { transform: scale(1.07); }
 }
 
-/* Primary-button shine: a small original highlight sweep on hover. */
+/* Дар hover аз рӯи тугмаи асосӣ равшании кӯтоҳ мегузаронад. */
 .btn-primary { position: relative; isolation: isolate; overflow: hidden; }
 .btn-primary::after {
   content: ""; position: absolute; z-index: -1; inset: -60% -35%;
@@ -125,7 +125,7 @@
   }
 }
 
-/* Original Uiverse-style treatment: an animated brand gradient frames the download CTA. */
+/* Дар гирди тугмаи боргирӣ gradient-и ҳаракаткунандаи бренд месозад. */
 .download-cta {
   border-color: transparent;
   background: linear-gradient(var(--ink), var(--ink)) padding-box,
@@ -144,10 +144,10 @@
 }
 @keyframes download-border-flow { to { background-position: 0 0, 220% 0; } }
 
-/* FAQ response: native details semantics stay intact; answer content eases in/out. */
+/* Кушодану бастани ҷавоби FAQ-ро бе тағйири маъно нарм мекунад. */
 .faq details > div { transform-origin: top; }
 
-/* Theme switch: View Transitions reveal the new theme from the switch position. */
+/* Мавзӯи навро аз ҷойи тугма бо View Transitions мекушояд. */
 html.motion-theme-transition::view-transition-old(root) { animation: none; z-index: 1; }
 html.motion-theme-transition::view-transition-new(root) {
   z-index: 2;
@@ -158,7 +158,7 @@ html.motion-theme-transition::view-transition-new(root) {
   to { clip-path: circle(var(--theme-radius) at var(--theme-x) var(--theme-y)); }
 }
 
-/* Reduced motion: keep every element visible and disable all decorative movement. */
+/* Барои reduced motion ҳама унсурҳоро намоён ва ҳаракатҳоро хомӯш мекунад. */
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
@@ -173,14 +173,14 @@ html.motion-theme-transition::view-transition-new(root) {
   .card:hover .icon { transform: none !important; }
   .btn-primary::after { display: none; }
   .download-cta:hover { animation: none !important; box-shadow: none; }
-  /* No hover/scroll transitions at all for reduced-motion visitors. */
+  /* Барои reduced motion гузаришҳои hover ва scroll-ро низ хомӯш мекунад. */
   .site-header, .nav, .card, .step, .qr-card, .screen, .callout, .icon, .btn {
     transition: none !important;
   }
   .js-motion .back-to-top { transform: none !important; transition: none !important; }
 }
 
-/* Small screens: contain the decorative glow and avoid edge clipping. */
+/* Дар экранҳои хурд нурро дар ҳудуди саҳифа нигоҳ медорад. */
 @media (max-width: 640px) {
   .hero-visual::before { inset-inline: 3%; }
 }
