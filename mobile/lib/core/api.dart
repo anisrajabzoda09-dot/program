@@ -61,6 +61,39 @@ class AppleSignInConfig {
   final String? redirectUri;
 }
 
+/// Server-side Sign in with GitHub settings (`/auth/github/config`).
+class GitHubSignInConfig {
+  const GitHubSignInConfig({
+    required this.enabled,
+    this.startUrl,
+    this.callbackScheme,
+  });
+
+  /// Reads the config reply; it only counts as enabled when the browser start
+  /// URL and the app callback scheme are both present.
+  factory GitHubSignInConfig.fromJson(Map<String, dynamic> json) {
+    final startUrl = json['start_url']?.toString() ?? '';
+    final callbackScheme = json['callback_scheme']?.toString() ?? '';
+    return GitHubSignInConfig(
+      enabled:
+          json['enabled'] == true &&
+          startUrl.isNotEmpty &&
+          callbackScheme.isNotEmpty,
+      startUrl: startUrl.isEmpty ? null : startUrl,
+      callbackScheme: callbackScheme.isEmpty ? null : callbackScheme,
+    );
+  }
+
+  /// Whether the "Continue with GitHub" button may be shown.
+  final bool enabled;
+
+  /// Server page that starts GitHub OAuth (`/auth/github/mobile`).
+  final String? startUrl;
+
+  /// URL scheme the server finally redirects to (`nigohfamily`).
+  final String? callbackScheme;
+}
+
 /// HTTP client for the NIGOH server. No Firebase: the server issues an opaque
 /// bearer token at sign-in. Every failure becomes an [ApiException] with a
 /// readable message — callers should show it, never swallow it silently.
@@ -198,6 +231,25 @@ class NigohApi {
       'nonce': nonce,
       'full_name': fullName,
     },
+    auth: false,
+  );
+
+  /// Asks the server whether Sign in with GitHub is switched on and where the
+  /// browser flow starts.
+  Future<GitHubSignInConfig> githubConfig() async =>
+      GitHubSignInConfig.fromJson(
+        await _send('GET', '/api/mobile/v3/auth/github/config', auth: false),
+      );
+
+  /// Exchanges the one-time GitHub [ticket] for a session; [nonce] is the RAW
+  /// nonce whose sha256 started the browser flow.
+  Future<Map<String, dynamic>> signInWithGitHub({
+    required String ticket,
+    required String nonce,
+  }) => _send(
+    'POST',
+    '/api/mobile/v3/auth/github',
+    body: {'ticket': ticket, 'nonce': nonce},
     auth: false,
   );
 
