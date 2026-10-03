@@ -1,5 +1,4 @@
-// Sign-in / registration screen: email and password form plus "Continue
-// with Google" and (when the server enables it) "Continue with Apple".
+// Файл: экрани бақайдгирӣ ва воридшавӣ.
 
 import 'dart:async';
 
@@ -14,16 +13,16 @@ import 'brand_logo.dart';
 import '../../l10n/l10n.dart';
 import '../../ui/language_picker.dart';
 
-/// Sign in / register with email, or continue with Google or Apple.
+/// Экрани AuthScreen-ро барои экрани бақайдгирӣ ва воридшавӣ месозад.
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
+  /// Ҳолати AuthScreen-ро барои воридшавӣ бо почта ва OAuth месозад.
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-/// Form state of [AuthScreen]: switches between sign-in and register and runs
-/// the chosen sign-in method with progress and error messages.
+/// Ҳолат ва рафтори AuthScreenState-ро барои навсозии интерфейс идора мекунад.
 class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
   final form = GlobalKey<FormState>();
   final name = TextEditingController();
@@ -35,30 +34,30 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
   bool googleBusy = false;
   bool appleBusy = false;
 
-  /// True once the server says Sign in with Apple is configured.
+  /// Қимати appleEnabled-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   bool appleEnabled = false;
 
-  /// Counts Apple attempts so only the latest one updates the screen.
+  /// Қимати _appleAttempt-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   int _appleAttempt = 0;
 
-  /// Whether the current Apple attempt is still waiting for Apple's answer.
+  /// Қимати _awaitingAppleCredential-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   bool _awaitingAppleCredential = false;
 
-  /// Clears the Apple spinner if the user closed the browser tab (on Android
-  /// the plugin's future then never completes).
+  /// Қимати _appleResumeTimer-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   Timer? _appleResumeTimer;
 
-  /// Any sign-in in progress (blocks the other buttons).
-  /// Дуруст, вақте ки воридшавӣ бо GitHub идома дорад.
+  /// Қимати githubBusy-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   bool githubBusy = false;
 
-  /// Дуруст, вақте ки сервер мегӯяд воридшавӣ бо GitHub фаъол аст.
+  /// Қимати githubEnabled-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   bool githubEnabled = false;
 
+  /// Қимати ҳисобшудаи anyBusy-ро аз ҳолати ҷорӣ бармегардонад.
   bool get anyBusy => busy || googleBusy || appleBusy || githubBusy;
 
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
+  /// Пас аз frame-и аввал танзимоти воридшавии Apple ва GitHub-ро аз сервер мегирад.
   @override
   void initState() {
     super.initState();
@@ -69,7 +68,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     });
   }
 
-  /// Asks the server once whether to show the Apple button; hidden on error.
+  /// loadAppleConfig додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> _loadAppleConfig() async {
     if (!mounted) return;
     try {
@@ -80,7 +79,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Як бор аз сервер мепурсад, ки тугмаи GitHub-ро нишон диҳад ё не; дар хато пинҳон мемонад.
+  /// loadGitHubConfig додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> _loadGitHubConfig() async {
     try {
       final config = await SessionScope.read(context).api.githubConfig();
@@ -90,7 +89,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Back from the Apple browser tab without a credential: stop the spinner.
+  /// Ба тағйири lifecycle-и AuthScreen ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed || !appleBusy) return;
@@ -102,6 +101,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     });
   }
 
+  /// Controller ва listener-ҳои AuthScreen-ро озод мекунад.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -112,7 +112,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// Validates the form and signs in or registers with email and password.
+  /// submit дархости воридшавӣ-ро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> submit() async {
     if (anyBusy) return;
     if (!(form.currentState?.validate() ?? false)) return;
@@ -132,7 +132,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Runs Google sign-in; a user cancel is silent, other errors are shown.
+  /// google экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> google() async {
     if (anyBusy) return;
     final session = SessionScope.read(context);
@@ -156,7 +156,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Воридшавӣ бо GitHub-ро иҷро мекунад: агар корбар бекор кунад — хомӯш, хатоҳои дигар нишон дода мешаванд.
+  /// github мантиқи зарурии экрани бақайдгирӣ ва воридшавӣро иҷро мекунад.
   Future<void> github() async {
     if (anyBusy) return;
     final session = SessionScope.read(context);
@@ -164,7 +164,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     try {
       await session.signInWithGitHub();
     } on GitHubSignInCancelled {
-      // Корбар худаш баргашт — паём лозим нест.
+      // Қадами дохилии экрани бақайдгирӣ ва воридшавӣ.
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
     } finally {
@@ -172,7 +172,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Runs Sign in with Apple; a user cancel is silent, other errors are shown.
+  /// apple мантиқи зарурии экрани бақайдгирӣ ва воридшавӣро иҷро мекунад.
   Future<void> apple() async {
     if (anyBusy) return;
     final session = SessionScope.read(context);
@@ -222,6 +222,7 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Экрани воридшавиро бо формаи почта ва тугмаҳои Google, Apple ва GitHub месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

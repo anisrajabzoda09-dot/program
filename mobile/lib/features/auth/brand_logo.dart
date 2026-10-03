@@ -1,12 +1,13 @@
-// The NIGOH Family logo widget used on the splash and sign-in screens.
+// Файл: нишонаи бренди NIGOH.
 
 import 'package:flutter/material.dart';
 
-/// App icon from assets, with a plain shield if the asset is missing.
+/// Додаҳо ва рафтори марбут ба нишонаи бренди NIGOH-ро ифода мекунад.
 class BrandLogo extends StatelessWidget {
   const BrandLogo({super.key, this.size = 72});
   final double size;
 
+  /// Widget-и BrandLogo-ро барои нишони бренди NIGOH месозад.
   @override
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(size * .28),
