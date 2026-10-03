@@ -27,6 +27,7 @@ function highlightFaqMatches(query) {
     while (walker.nextNode()) nodes.push(walker.currentNode);
 
     nodes.forEach((node) => {
+      if (node.parentElement?.closest('button')) return;
       expression.lastIndex = 0;
       if (!expression.test(node.data)) return;
 
@@ -50,6 +51,45 @@ function highlightFaqMatches(query) {
 // Assigns predictable fragment identifiers to every FAQ question.
 function assignFaqIds(questions) {
   questions.forEach((question, index) => { question.id = `q-${index + 1}`; });
+}
+
+// Copies text in browsers that do not expose the asynchronous Clipboard API.
+function fallbackFaqCopy(value) {
+  const field = document.createElement('textarea');
+  field.value = value;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.opacity = '0';
+  document.body.append(field);
+  field.select();
+  document.execCommand('copy');
+  field.remove();
+}
+
+// Copies a question URL and briefly confirms the successful action.
+async function copyFaqLink(button, question, labels) {
+  const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${question.id}`;
+  try {
+    if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+    else fallbackFaqCopy(url);
+  } catch {
+    fallbackFaqCopy(url);
+  }
+  button.textContent = labels.copied;
+  window.setTimeout(() => { button.textContent = labels.copy; }, 1600);
+}
+
+// Adds a localized copy-link button to each question.
+function addFaqCopyButtons(questions, form) {
+  const labels = { copy: form.dataset.copyLabel, copied: form.dataset.copiedLabel };
+  questions.forEach((question) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'faq-copy';
+    button.textContent = labels.copy;
+    button.addEventListener('click', () => copyFaqLink(button, question, labels));
+    question.append(button);
+  });
 }
 
 // Opens and scrolls to the question named by the current URL fragment.
@@ -78,6 +118,7 @@ function initFaqSearch() {
   const collapse = form.querySelector('[data-faq-collapse]');
 
   assignFaqIds(questions);
+  addFaqCopyButtons(questions, form);
   if (window.location.hash) requestAnimationFrame(openFaqHash);
 
   form.addEventListener('submit', (event) => event.preventDefault());
@@ -101,7 +142,8 @@ function initFaqSearch() {
     groups.forEach((group) => {
       const questions = Array.from(group.querySelectorAll('details'));
       questions.forEach((question) => {
-        question.hidden = Boolean(query) && !normalizeFaqText(question.textContent).includes(query);
+        const searchable = `${question.querySelector('summary').textContent} ${question.querySelector(':scope > div').textContent}`;
+        question.hidden = Boolean(query) && !normalizeFaqText(searchable).includes(query);
       });
 
       const heading = group.previousElementSibling;

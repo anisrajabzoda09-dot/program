@@ -95,3 +95,37 @@
   background: var(--amber-soft);
   color: var(--ink);
 }
+
+.faq details {
+  position: relative;
+}
+
+.faq details > summary {
+  padding-right: 154px;
+}
+
+.faq-copy {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  right: 38px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  font-size: .82rem;
+  cursor: pointer;
+}
+
+.faq-copy:hover {
+  border-color: var(--line);
+  background: var(--soft);
+}
+
+@media (max-width: 480px) {
+  .faq details > summary { padding-right: 40px; }
+  .faq-copy { position: static; margin: -10px 0 8px; }
+}
