@@ -92,9 +92,23 @@ function initChecklistTicks() {
   });
 }
 
+// Start the security card highlight sequence when the grid enters view.
+function initSecurityCards() {
+  const grid = document.querySelector('.security-grid');
+  if (!grid || !('IntersectionObserver' in window)) return;
+  grid.classList.add('is-staged');
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    grid.classList.add('is-visible');
+    observer.disconnect();
+  }, { threshold: .18 });
+  observer.observe(grid);
+}
+
 initCardSpotlights();
 initRulesTable();
 initHowTimeline();
 initStepBadges();
 initFeatureScrollSpy();
 initChecklistTicks();
+initSecurityCards();
