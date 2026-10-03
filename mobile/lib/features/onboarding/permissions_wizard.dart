@@ -355,6 +355,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                               run(widget.actions.openLocationSettings),
                           onToggleHelp: () =>
                               setState(() => helpOpen = !helpOpen),
+                          onAppInfo: () => run(widget.actions.openAppInfo),
                         ),
                 ),
               ),
@@ -500,6 +501,7 @@ class _StepPage extends StatelessWidget {
     required this.onFallback,
     required this.onOpenGps,
     required this.onToggleHelp,
+    required this.onAppInfo,
   });
 
   final WizardStep step;
@@ -512,6 +514,9 @@ class _StepPage extends StatelessWidget {
   final VoidCallback onFallback;
   final VoidCallback onOpenGps;
   final VoidCallback onToggleHelp;
+
+  /// Саҳифаи маълумоти барномаро мекушояд (барои қадамҳои бо маҳдудият).
+  final VoidCallback onAppInfo;
 
   /// Widget-и StepPage-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
@@ -690,6 +695,10 @@ class _StepPage extends StatelessWidget {
                 )
               : const SizedBox(width: double.infinity),
         ),
+        if (usesRestrictedSettings(step.id) && !status.granted) ...[
+          const SizedBox(height: 14),
+          _RestrictedSettingsCard(onAppInfo: busy ? null : onAppInfo),
+        ],
         if (error != null) ...[
           const SizedBox(height: 10),
           Text(
@@ -1018,6 +1027,99 @@ class _ErrorBanner extends StatelessWidget {
             child: Text(text, style: TextStyle(color: scheme.onErrorContainer)),
           ),
           TextButton(onPressed: onRetry, child: Text(tr('Аз нав'))),
+        ],
+      ),
+    );
+  }
+}
+
+/// Корти ёрирасон барои қадамҳое, ки Android бо «Controlled by restricted setting»
+/// мебандад: тугмаи «App info» ва чор қадами рақамдор, ки чӣ тавр иҷозати маҳдудшударо
+/// барои NIGOH Family дар Android 13+ фаъол кардан мумкин аст.
+class _RestrictedSettingsCard extends StatelessWidget {
+  const _RestrictedSettingsCard({required this.onAppInfo});
+
+  /// Пахши тугмаи «App info»; ҳангоми кор `null` (тугма хомӯш мешавад).
+  final VoidCallback? onAppInfo;
+
+  /// Кортро бо сарлавҳа, чор қадами рақамдор, эзоҳ ва тугмаи «App info» месозад.
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final steps = [
+      tr('Тугмаи «App info»-ро пахш кунед — саҳифаи маълумоти NIGOH Family кушода мешавад.'),
+      tr('Дар кунҷи рости боло ⋮ (се нуқта)-ро пахш кунед.'),
+      tr('«Разрешить ограниченные настройки»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.'),
+      tr('Ба NIGOH баргардед ва «Иҷозат додан»-ро аз нав пахш кунед.'),
+    ];
+    return Container(
+      key: const Key('wizard-restricted'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: NigohDesign.violet.withValues(alpha: .08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: NigohDesign.violet.withValues(alpha: .35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.lock_open_rounded, color: NigohDesign.violet),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  tr('Агар Android иҷозатро бо маҳдудият баста бошад'),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          for (var i = 0; i < steps.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 11,
+                    backgroundColor: NigohDesign.violet,
+                    child: Text(
+                      '${i + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(steps[i])),
+                ],
+              ),
+            ),
+          Text(
+            tr('Агар дар менюи ⋮ ин банд набошад, аввал як бор «Иҷозат додан»-ро пахш кунед, баъд ин ҷо баргардед.'),
+            style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.tonalIcon(
+              key: const Key('wizard-app-info'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+              onPressed: onAppInfo,
+              icon: const Icon(Icons.more_vert_rounded),
+              label: Text(tr('Кушодани App info')),
+            ),
+          ),
         ],
       ),
     );
