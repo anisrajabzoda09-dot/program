@@ -50,4 +50,4 @@ Every authenticated request sends:
 ## Updates
 `GET /api/mobile/version?current_version_code=N` → `{version, version_code, update_available, release_notes, download_url}`.
 
-End-to-end check of all of the above: `venv/bin/python test_mobile_v3.py`.
+End-to-end check of all of the above: `venv/bin/python tests/test_mobile_v3.py`.
