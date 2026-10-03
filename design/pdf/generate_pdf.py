@@ -1,3 +1,5 @@
+import os as _os  # _os_chdir_design: paths below are relative to design/
+_os.chdir(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
 import os
 from PIL import Image, ImageDraw, ImageFont
 
