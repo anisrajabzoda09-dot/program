@@ -1,4 +1,7 @@
-/* Download page controller: progressive device-aware guidance. */
+/* Download page controller: progressive device-aware guidance.
+   Features: Android/iOS/desktop emphasis, resilient copy and Web Share,
+   download feedback, a scroll-driven install timeline, an accessible QR
+   dialog, the Android sticky action, and a reduced-motion version shine. */
 (function () {
   'use strict';
 
@@ -130,6 +133,7 @@
     if (badge) window.requestAnimationFrame(function () { badge.classList.add('js-version-shine'); });
   }
 
+  /* Device setup controls only emphasis; the server-rendered page stays usable. */
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -140,6 +144,7 @@
   setupStickyDownload(device);
   shineVersionBadge();
 
+  /* Copy and download bindings share localized feedback from template data. */
   document.querySelectorAll('.verify-copy').forEach(function (button) {
     button.addEventListener('click', function () { copyCertificate(button); });
   });
@@ -150,6 +155,7 @@
     link.addEventListener('click', showDownloadToast);
   });
 
+  /* Timeline motion is opt-in and never runs for reduced-motion visitors. */
   var timeline = document.querySelector('.install-timeline');
   if (timeline && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     timeline.classList.add('js-get-timeline');
@@ -158,6 +164,7 @@
     updateTimeline();
   }
 
+  /* QR dialog bindings cover pointer, backdrop, Escape, Tab, and focus return. */
   document.querySelectorAll('.qr-open').forEach(function (button) {
     button.addEventListener('click', function () { openQrDialog(button); });
   });
@@ -175,6 +182,7 @@
       if (dialog.qrOpener) dialog.qrOpener.focus();
     });
   });
+  /* Share controls use the native sheet when available and copy otherwise. */
   document.querySelectorAll('.share-page').forEach(function (button) {
     button.addEventListener('click', function () { sharePage(button); });
   });

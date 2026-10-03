@@ -1,5 +1,9 @@
-/* Download page enhancements: device-aware emphasis and page-specific components. */
+/* Download page enhancements: device-aware emphasis and page-specific components.
+   Sections cover device guidance, verification/copy feedback, the install
+   timeline, QR enlargement, sharing-adjacent hints, sticky Android download,
+   version shine, dark mode, reduced motion, and narrow-phone containment. */
 
+/* Device guidance promotes the action best suited to each detected platform. */
 .device-note {
   max-width: 640px;
   margin-top: 22px;
@@ -22,6 +26,7 @@
   box-shadow: var(--shadow);
 }
 
+/* Certificate verification keeps the long SHA-256 fingerprint wrap-safe. */
 .verify-box {
   margin-top: 28px;
   padding: 20px;
@@ -39,6 +44,7 @@
   font-size: .78rem;
 }
 
+/* Download and clipboard feedback stays visible and screen-reader announced. */
 .download-toast {
   position: fixed;
   z-index: 70;
@@ -68,6 +74,7 @@
   white-space: nowrap;
 }
 
+/* Installation progress draws behind numbered tiles; no-JS defaults to complete. */
 .install-timeline { position: relative; }
 .install-timeline::after {
   content: "";
@@ -108,6 +115,7 @@
   .install-timeline .step:hover::before { transform: none; }
 }
 
+/* QR controls retain a white scanning surface in both color schemes. */
 .qr-open {
   display: inline-block;
   padding: 0;
@@ -144,6 +152,7 @@
   .qr-open { transition: none; }
 }
 
+/* Native dialog styling supports the enlarged QR and 44 px close target. */
 .qr-dialog {
   width: min(460px, calc(100% - 32px));
   padding: 0;
@@ -171,8 +180,10 @@
   cursor: pointer;
 }
 
+/* Android-only sticky action is enabled by JS after the hero action scrolls away. */
 .sticky-download { display: none; }
 
+/* The current-version badge receives one brief, reduced-motion-safe shine. */
 .version-badge { position: relative; overflow: hidden; }
 .version-badge::after {
   content: "";
