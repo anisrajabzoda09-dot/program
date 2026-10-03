@@ -1,5 +1,12 @@
 """Regression checks for the mobile release and application-control API."""
 
+# Run from anywhere: make the project root importable and the working directory.
+import os as _os, sys as _sys
+_ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+_sys.path.insert(0, _ROOT)
+_os.chdir(_ROOT)
+
+
 import json
 import threading
 import time

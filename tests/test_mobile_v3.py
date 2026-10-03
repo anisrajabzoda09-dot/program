@@ -2,8 +2,15 @@
 
 Runs against the local SQLite database through FastAPI's TestClient and
 leaves only throwaway @example.com rows, which are removed at the end.
-    venv/bin/python test_mobile_v3.py
+    venv/bin/python tests/test_mobile_v3.py
 """
+
+# Run from anywhere: make the project root importable and the working directory.
+import os as _os, sys as _sys
+_ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+_sys.path.insert(0, _ROOT)
+_os.chdir(_ROOT)
+
 import sqlite3
 import uuid
 
