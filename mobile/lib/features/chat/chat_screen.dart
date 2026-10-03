@@ -187,14 +187,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return added;
   }
 
-  void _scrollToBottom() {
+  /// Gentle auto-scroll to the newest message. While the child is reading
+  /// older messages ([force] false and the list scrolled up) it stays put.
+  void _scrollToBottom({bool force = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scroll.hasClients) return;
       // The list is reversed: offset 0 is the newest message.
+      if (!force && _scroll.offset > 260) return;
+      final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+      if (reduced) {
+        _scroll.jumpTo(0);
+        return;
+      }
       _scroll.animateTo(
         0,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
       );
     });
   }
@@ -210,7 +218,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (_sending) return;
     final pending = _Pending(text, 'text');
     setState(() => _pending.add(pending));
-    _scrollToBottom();
+    _scrollToBottom(force: true);
     await _deliver(pending);
   }
 
@@ -237,7 +245,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         }
       });
       if (raw is! Map) unawaited(_load());
-      _scrollToBottom();
+      _scrollToBottom(force: true);
     } catch (e) {
       if (!mounted) return;
       setState(() => pending.failed = true);
@@ -346,47 +354,115 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       if (local != null) {
         final day = DateTime(local.year, local.month, local.day);
         if (lastDay == null || day != lastDay) {
-          rows.add(_DaySeparator(day));
+          rows.add(_DaySeparator(day, key: ValueKey('day-$day')));
           lastDay = day;
         }
       }
       final mine = m.senderRole == myRole;
       final time = _hhmm(m.createdAt);
       final read = mine && m.isRead && identical(m, myLast);
-      rows.add(switch (m.type) {
-        'call' => _CallChip(message: m, mine: mine),
-        'urgent' => _UrgentBubble(
-          message: m,
+      rows.add(
+        _Entry(
+          // Keyed by message, so only genuinely new bubbles animate in.
+          key: ValueKey('msg-${m.id}'),
           mine: mine,
-          time: read ? tr('{time} · Хонда шуд', {'time': time}) : time,
+          child: switch (m.type) {
+            'call' => _CallChip(message: m, mine: mine),
+            'urgent' => _UrgentBubble(
+              message: m,
+              mine: mine,
+              time: time,
+              read: read,
+            ),
+            _ => _Bubble(text: m.content, mine: mine, time: time, read: read),
+          },
         ),
-        _ => _Bubble(
-          text: m.content,
-          mine: mine,
-          time: read ? tr('{time} · Хонда шуд', {'time': time}) : time,
-        ),
-      });
+      );
     }
     for (final p in _pending) {
       rows.add(
-        _Bubble(
-          text: p.content,
+        _Entry(
+          key: ObjectKey(p),
           mine: true,
-          time: p.failed ? tr('Фиристода нашуд') : tr('Фиристода мешавад…'),
-          pending: !p.failed,
-          failed: p.failed,
-          onRetry: () => _retry(p),
+          child: _Bubble(
+            text: p.content,
+            mine: true,
+            time: p.failed ? tr('Фиристода нашуд') : tr('Фиристода мешавад…'),
+            pending: !p.failed,
+            failed: p.failed,
+            onRetry: () => _retry(p),
+          ),
         ),
       );
     }
     final reversed = rows.reversed.toList();
+    // Every row is keyed; this lets the list follow a row that only moved
+    // (a new message shifts all indices) instead of rebuilding it — so only
+    // genuinely new rows play their entry animation.
+    final rowIndex = <Key, int>{
+      for (final (i, row) in reversed.indexed)
+        if (row.key != null) row.key!: i,
+    };
     return ListView.builder(
       key: const ValueKey('list'),
       controller: _scroll,
       reverse: true,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
       itemCount: reversed.length,
+      findChildIndexCallback: (key) => rowIndex[key],
       itemBuilder: (_, i) => reversed[i],
+    );
+  }
+}
+
+/// Fades and slides a chat row in the first time it is built (so a new
+/// message arrives instead of appearing). Reduced motion skips it.
+class _Entry extends StatefulWidget {
+  const _Entry({super.key, required this.child, required this.mine});
+  final Widget child;
+  final bool mine;
+
+  @override
+  State<_Entry> createState() => _EntryState();
+}
+
+class _EntryState extends State<_Entry> with SingleTickerProviderStateMixin {
+  late final AnimationController _in = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _in.forward();
+  }
+
+  @override
+  void dispose() {
+    _in.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      return widget.child;
+    }
+    final curved = CurvedAnimation(parent: _in, curve: Curves.easeOutCubic);
+    return AnimatedBuilder(
+      animation: curved,
+      builder: (context, child) => Opacity(
+        opacity: curved.value.clamp(0, 1),
+        child: Transform.translate(
+          offset: Offset(
+            (widget.mine ? 18 : -18) * (1 - curved.value),
+            10 * (1 - curved.value),
+          ),
+          child: child,
+        ),
+      ),
+      child: widget.child,
     );
   }
 }
@@ -400,11 +476,12 @@ String _hhmm(DateTime? time) {
 }
 
 class _DaySeparator extends StatelessWidget {
-  const _DaySeparator(this.day);
+  const _DaySeparator(this.day, {super.key});
   final DateTime day;
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final diff = today.difference(day).inDays;
@@ -414,14 +491,21 @@ class _DaySeparator extends StatelessWidget {
         ? tr('Дирӯз')
         : '${_two(day.day)}.${_two(day.month)}.${day.year}';
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Center(
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurfaceVariant,
+            ),
           ),
         ),
       ),
@@ -434,6 +518,7 @@ class _Bubble extends StatelessWidget {
     required this.text,
     required this.mine,
     required this.time,
+    this.read = false,
     this.pending = false,
     this.failed = false,
     this.onRetry,
@@ -442,6 +527,9 @@ class _Bubble extends StatelessWidget {
   final String text;
   final bool mine;
   final String time;
+
+  /// My newest message was read by the other side («Хонда шуд»).
+  final bool read;
   final bool pending;
   final bool failed;
   final VoidCallback? onRetry;
@@ -449,25 +537,31 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final bg = mine ? scheme.primary : scheme.surface;
+    final bg = mine ? scheme.primary : scheme.surfaceContainerHighest;
     final fg = mine ? scheme.onPrimary : scheme.onSurface;
     final bubble = Container(
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.sizeOf(context).width * .74,
+        maxWidth: MediaQuery.sizeOf(context).width * .76,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
         color: pending || failed ? bg.withValues(alpha: .6) : bg,
         border: mine ? null : Border.all(color: scheme.outlineVariant),
         borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(18),
-          topRight: const Radius.circular(18),
-          bottomLeft: Radius.circular(mine ? 18 : 6),
-          bottomRight: Radius.circular(mine ? 6 : 18),
+          topLeft: const Radius.circular(20),
+          topRight: const Radius.circular(20),
+          bottomLeft: Radius.circular(mine ? 20 : 6),
+          bottomRight: Radius.circular(mine ? 6 : 20),
         ),
       ),
-      child: Text(text, style: TextStyle(color: fg, height: 1.35)),
+      child: Text(
+        text,
+        style: TextStyle(color: fg, height: 1.38, fontSize: 15.5),
+      ),
     );
+    final label = read && time.isNotEmpty
+        ? tr('{time} · Хонда шуд', {'time': time})
+        : time;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Column(
@@ -489,15 +583,33 @@ class _Bubble extends StatelessWidget {
               Flexible(child: bubble),
             ],
           ),
-          if (time.isNotEmpty)
+          if (label.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(6, 3, 6, 2),
-              child: Text(
-                time,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: failed ? scheme.error : scheme.onSurfaceVariant,
-                ),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (read) ...[
+                    Icon(
+                      Icons.done_all_rounded,
+                      size: 13,
+                      color: scheme.primary,
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: failed
+                          ? scheme.error
+                          : read
+                          ? scheme.primary
+                          : scheme.onSurfaceVariant,
+                      fontWeight: read ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
@@ -512,11 +624,13 @@ class _UrgentBubble extends StatelessWidget {
     required this.message,
     required this.mine,
     required this.time,
+    this.read = false,
   });
 
   final ChatMessage message;
   final bool mine;
   final String time;
+  final bool read;
 
   @override
   Widget build(BuildContext context) {
@@ -529,6 +643,9 @@ class _UrgentBubble extends StatelessWidget {
                 ? tr('Фарзанд')
                 : message.senderName.trim(),
           });
+    final label = read && time.isNotEmpty
+        ? tr('{time} · Хонда шуд', {'time': time})
+        : time;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
@@ -574,12 +691,15 @@ class _UrgentBubble extends StatelessWidget {
               ],
             ),
           ),
-          if (time.isNotEmpty)
+          if (label.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(6, 3, 6, 2),
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
               child: Text(
-                time,
-                style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+                label,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
             ),
         ],
@@ -593,19 +713,33 @@ class _QuickReplies extends StatelessWidget {
   final bool enabled;
   final ValueChanged<String> onTap;
 
+  /// Same order as [chatQuickReplies] — a picture makes each chip readable
+  /// at a glance.
+  static const _icons = [
+    Icons.check_circle_rounded,
+    Icons.directions_walk_rounded,
+    Icons.directions_car_rounded,
+    Icons.thumb_up_rounded,
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: 48,
+      height: 54,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
         itemCount: chatQuickReplies.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
           final text = chatQuickReplies[i];
           return ActionChip(
+            avatar: i < _icons.length
+                ? Icon(_icons[i], size: 18, color: scheme.primary)
+                : null,
             label: Text(text),
+            side: BorderSide(color: scheme.outlineVariant),
             onPressed: enabled ? () => onTap(text) : null,
           );
         },
@@ -737,10 +871,18 @@ class _InputBar extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            IconButton.filled(
-              tooltip: tr('Фиристодан'),
-              onPressed: canSend ? onSend : null,
-              icon: const Icon(Icons.send_rounded),
+            AnimatedScale(
+              duration:
+                  (MediaQuery.maybeOf(context)?.disableAnimations ?? false)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
+              scale: canSend ? 1 : .88,
+              curve: Curves.easeOutBack,
+              child: IconButton.filled(
+                tooltip: tr('Фиристодан'),
+                onPressed: canSend ? onSend : null,
+                icon: const Icon(Icons.send_rounded),
+              ),
             ),
           ],
         ),

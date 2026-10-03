@@ -169,8 +169,13 @@ class _CallScreenState extends State<CallScreen>
       _c.endReason != CallEndReason.hangup &&
       _c.endReason != CallEndReason.remoteEnded;
 
+  /// Accessibility: no pulsing rings / cross-fades when motion is reduced.
+  bool _reduced = false;
+
   @override
   Widget build(BuildContext context) {
+    _reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (_reduced && _pulse.isAnimating) _pulse.stop();
     final name = widget.peerName.trim();
     final letter = name.isEmpty ? '?' : name.characters.first.toUpperCase();
     return PopScope(
@@ -237,20 +242,28 @@ class _CallScreenState extends State<CallScreen>
           ),
         ),
       ),
-      const SizedBox(height: 10),
+      const SizedBox(height: 12),
       AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: Text(
-          _status,
+        duration: _reduced ? Duration.zero : const Duration(milliseconds: 200),
+        child: _StatusLine(
           key: ValueKey(_c.state == CallState.active ? 'active' : _status),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: _endIsProblem ? const Color(0xFFFF8A80) : Colors.white70,
-            fontSize: 16,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+          text: _status,
+          color: _endIsProblem ? const Color(0xFFFF8A80) : Colors.white,
+          dot: _dotColor,
+          pulse: _pulse.isAnimating,
         ),
       ),
+      if (_hint != null) ...[
+        const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Text(
+            _hint!,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white54, fontSize: 13.5),
+          ),
+        ),
+      ],
       const Spacer(),
       const SizedBox(height: 32),
       Padding(
@@ -259,6 +272,21 @@ class _CallScreenState extends State<CallScreen>
       ),
     ],
   );
+
+  /// Colour of the dot in front of the state line: green while talking,
+  /// blue while ringing, red when the call ended badly.
+  Color get _dotColor => switch (_c.state) {
+    CallState.active => const Color(0xFF2EB872),
+    CallState.ended => _endIsProblem ? const Color(0xFFFF8A80) : Colors.white54,
+    _ => const Color(0xFF5B8CFF),
+  };
+
+  /// One line telling the user what to do next (incoming / active only).
+  String? get _hint => switch (_c.state) {
+    CallState.incoming => tr('«Қабул» — ҷавоб додан, «Рад» — рад кардан'),
+    CallState.active => tr('Барои хотима «Хотима»-ро пахш кунед'),
+    _ => null,
+  };
 
   Widget _controls() {
     if (_c.state == CallState.incoming) {
@@ -269,12 +297,14 @@ class _CallScreenState extends State<CallScreen>
             icon: Icons.call_end_rounded,
             label: tr('Рад'),
             color: const Color(0xFFE53935),
+            size: 78,
             onTap: _c.decline,
           ),
           _RoundButton(
             icon: Icons.call_rounded,
             label: tr('Қабул'),
             color: const Color(0xFF2EB872),
+            size: 78,
             onTap: _c.accept,
           ),
         ],
@@ -402,6 +432,7 @@ class _RoundButton extends StatelessWidget {
     required this.onTap,
     this.color,
     this.active = false,
+    this.size = 68,
   });
 
   final IconData icon;
@@ -409,9 +440,11 @@ class _RoundButton extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? color;
   final bool active;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
+    final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     final bg =
         color ?? (active ? Colors.white : Colors.white.withValues(alpha: 0.14));
     final fg = color != null
@@ -422,25 +455,139 @@ class _RoundButton extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Material(
-            color: bg,
-            shape: const CircleBorder(),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: onTap,
-              child: SizedBox(
-                width: 68,
-                height: 68,
-                child: Icon(icon, color: fg, size: 30),
+          Tooltip(
+            message: label,
+            child: Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: onTap,
+                child: AnimatedContainer(
+                  duration: reduced
+                      ? Duration.zero
+                      : const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                  width: size,
+                  height: size,
+                  decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+                  child: Icon(icon, color: fg, size: size * .44),
+                ),
               ),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The state of the call in one unmistakable line: a coloured dot (pulsing
+/// while it rings) plus the text.
+class _StatusLine extends StatelessWidget {
+  const _StatusLine({
+    super.key,
+    required this.text,
+    required this.color,
+    required this.dot,
+    required this.pulse,
+  });
+
+  final String text;
+  final Color color;
+  final Color dot;
+  final bool pulse;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      _Dot(color: dot, pulse: pulse),
+      const SizedBox(width: 8),
+      Flexible(
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: color,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+class _Dot extends StatefulWidget {
+  const _Dot({required this.color, required this.pulse});
+  final Color color;
+  final bool pulse;
+
+  @override
+  State<_Dot> createState() => _DotState();
+}
+
+class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.pulse) {
+      _c.repeat(reverse: true);
+    } else {
+      _c.value = 1;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _Dot old) {
+    super.didUpdateWidget(old);
+    if (widget.pulse && !_c.isAnimating) {
+      _c.repeat(reverse: true);
+    } else if (!widget.pulse && _c.isAnimating) {
+      _c.stop();
+      _c.value = 1;
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduced && _c.isAnimating) {
+      _c.stop();
+      _c.value = 1;
+    }
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) => Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: widget.color.withValues(alpha: .45 + .55 * _c.value),
+        ),
       ),
     );
   }

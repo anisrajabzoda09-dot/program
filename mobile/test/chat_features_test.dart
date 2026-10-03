@@ -36,9 +36,12 @@ Future<void> pumpChat(
   MockClient client, {
   String role = 'child',
 }) async {
-  final session = Session(api: NigohApi(client: client, baseUrl: 'http://t'))
-    ..role = role
-    ..api.role = role;
+  final session =
+      Session(
+          api: NigohApi(client: client, baseUrl: 'http://t'),
+        )
+        ..role = role
+        ..api.role = role;
   await tester.pumpWidget(
     SessionScope(
       session: session,
@@ -106,6 +109,7 @@ void main() {
     // The poll re-fetched my unread message to refresh its flag.
     expect(afterIds.last, '1');
     expect(find.textContaining('Хонда шуд'), findsOneWidget);
+    expect(find.byIcon(Icons.done_all_rounded), findsOneWidget);
     await unmount(tester);
   });
 
@@ -160,6 +164,69 @@ void main() {
     });
     // Shown as a bubble (the chip text appears twice: chip + bubble).
     expect(find.text('Ман расидам'), findsNWidgets(2));
+    await unmount(tester);
+  });
+
+  testWidgets('new messages slide in and the day separator says «Имрӯз»', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    String stamp(DateTime t) =>
+        '${t.year}-${t.month.toString().padLeft(2, '0')}-'
+        '${t.day.toString().padLeft(2, '0')} '
+        '${t.hour.toString().padLeft(2, '0')}:'
+        '${t.minute.toString().padLeft(2, '0')}:00';
+    final now = DateTime.now().toUtc();
+    final messages = [msg(1, 'parent', 'Салом')..['created_at'] = stamp(now)];
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
+      final after = int.tryParse(req.url.queryParameters['after_id'] ?? '0')!;
+      return json({
+        'messages': messages.where((m) => (m['id'] as int) > after).toList(),
+      });
+    });
+    await pumpChat(tester, client);
+    expect(find.text('Имрӯз'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    messages.add(msg(2, 'parent', 'Куҷоӣ?')..['created_at'] = stamp(now));
+    await tester.pump(ChatScreen.pollInterval);
+    await tester.pump(const Duration(milliseconds: 16));
+    // Still fading/sliding in.
+    final fade = tester.widgetList<Opacity>(
+      find.ancestor(of: find.text('Куҷоӣ?'), matching: find.byType(Opacity)),
+    );
+    expect(fade.any((o) => o.opacity < 1), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.text('Куҷоӣ?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await unmount(tester);
+  });
+
+  testWidgets('chat fits a 360 px phone', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final client = MockClient((req) async {
+      if (req.url.path.endsWith('/chat/read')) return json({'status': 'ok'});
+      return json({
+        'messages': [
+          msg(1, 'parent', 'Салом, писарам, имрӯз чӣ хел буд дар мактаб?'),
+          msg(2, 'child', 'Ҳама хуб аст, ман дар роҳам ба хона'),
+          msg(3, 'child', 'SOS — ба кӯмак ниёз дорам!', type: 'urgent'),
+        ],
+      });
+    });
+    await pumpChat(tester, client);
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('urgent-bubble')), findsOneWidget);
+    // The quick-reply row is scrollable, so only the first chips are built.
+    expect(
+      find.widgetWithText(ActionChip, chatQuickReplies.first),
+      findsOneWidget,
+    );
     await unmount(tester);
   });
 }

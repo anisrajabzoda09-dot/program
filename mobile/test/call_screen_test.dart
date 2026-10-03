@@ -50,6 +50,13 @@ void main() {
     expect(find.text('Қабул'), findsOneWidget);
     expect(find.text('Рад'), findsOneWidget);
     expect(find.text('Хотима'), findsNothing);
+    // The state line is followed by a hint telling the child what to do.
+    expect(
+      find.text('«Қабул» — ҷавоб додан, «Рад» — рад кардан'),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('Қабул'), findsOneWidget);
+    expect(find.byTooltip('Рад'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.call_end_rounded));
     await tester.pump(const Duration(milliseconds: 100));
@@ -97,6 +104,7 @@ void main() {
     engine.emitLink(RtcLinkState.connected);
     await tester.pump();
     expect(find.text('00:00'), findsOneWidget);
+    expect(find.text('Барои хотима «Хотима»-ро пахш кунед'), findsOneWidget);
     await unmount(tester);
   });
 
