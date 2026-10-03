@@ -102,6 +102,18 @@ function openFaqHash() {
   question.scrollIntoView({ block: 'center' });
 }
 
+// Replaces the URL fragment when a question is opened without moving the page.
+function syncFaqHash(questions) {
+  questions.forEach((question) => {
+    question.addEventListener('toggle', () => {
+      if (!question.open) return;
+      const url = new URL(window.location.href);
+      url.hash = question.id;
+      history.replaceState(history.state, '', url);
+    });
+  });
+}
+
 // Filters questions and hides section headings that have no matches.
 function initFaqSearch() {
   const form = document.querySelector('[data-faq-search]');
@@ -119,6 +131,7 @@ function initFaqSearch() {
 
   assignFaqIds(questions);
   addFaqCopyButtons(questions, form);
+  syncFaqHash(questions);
   if (window.location.hash) requestAnimationFrame(openFaqHash);
 
   form.addEventListener('submit', (event) => event.preventDefault());
