@@ -19,6 +19,16 @@
     });
   }
 
+  /* Copy the absolute APK URL and show localized confirmation. */
+  function copyDownloadLink(button) {
+    var url = new URL('/download/android', window.location.origin).href;
+    navigator.clipboard.writeText(url).then(function () {
+      var original = button.textContent;
+      button.textContent = button.dataset.copySuccess;
+      window.setTimeout(function () { button.textContent = original; }, 1800);
+    });
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -29,5 +39,8 @@
 
   document.querySelectorAll('.verify-copy').forEach(function (button) {
     button.addEventListener('click', function () { copyCertificate(button); });
+  });
+  document.querySelectorAll('.copy-download').forEach(function (button) {
+    button.addEventListener('click', function () { copyDownloadLink(button); });
   });
 }());
