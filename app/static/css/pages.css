@@ -16,9 +16,26 @@
   50% { background-position: 100% 50%; }
 }
 
+/* Give each home feature icon a small motion cue that matches its meaning. */
+@media (hover: hover) and (pointer: fine) {
+  .hero + .section .card-link:nth-child(1):hover .icon { animation: pages-pin-bounce .55s ease; }
+  .hero + .section .card-link:nth-child(2):hover .icon { animation: pages-grid-pulse .55s ease; }
+  .hero + .section .card-link:nth-child(3):hover .icon { animation: pages-lock-click .42s ease; }
+  .hero + .section .card-link:nth-child(4):hover .icon { animation: pages-clock-tick .55s ease; }
+  .hero + .section .card-link:nth-child(5):hover .icon { animation: pages-chat-nod .5s ease; }
+  .hero + .section .card-link:nth-child(6):hover .icon { animation: pages-lock-click .42s ease; }
+}
+
+@keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
+@keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
+@keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
+@keyframes pages-clock-tick { 50% { transform: rotate(9deg); } }
+@keyframes pages-chat-nod { 40% { transform: rotate(-5deg); } 70% { transform: rotate(3deg); } }
+
 @media (prefers-reduced-motion: reduce) {
   .hero-key-phrase {
     animation: none;
     background-position: 50% 50%;
   }
+  .hero + .section .card-link .icon { animation: none !important; transform: none !important; }
 }
