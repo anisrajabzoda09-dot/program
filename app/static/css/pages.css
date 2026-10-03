@@ -160,6 +160,7 @@
 
 /* Add a quiet hover affordance without implying that security cards are links. */
 .security-grid .card { transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.security-overview ~ .section { content-visibility: auto; contain-intrinsic-size: auto 560px; }
 @media (hover: hover) and (pointer: fine) {
   .security-grid .card:hover { transform: translateY(-3px); border-color: var(--line-2); box-shadow: var(--shadow); }
 }
