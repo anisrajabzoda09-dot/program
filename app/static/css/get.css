@@ -235,3 +235,28 @@
 :root[data-theme="dark"] .version-badge::after {
   background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .3) 50%, transparent 62%);
 }
+
+/* Narrow-phone layout keeps actions, fingerprints, and dialogs inside 360 px. */
+@media (max-width: 380px) {
+  .get-primary-actions > .btn,
+  .get-primary-actions > .tag {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .get-qr-panel,
+  .verify-box,
+  .split > * { min-width: 0; }
+
+  .verify-box { padding: 16px; }
+  .verify-box code { word-break: break-all; }
+  .verify-box .btn { width: 100%; min-height: 44px; }
+  .meta-table { table-layout: fixed; }
+  .meta-table td { overflow-wrap: anywhere; }
+  .qr-dialog-card { padding: 56px 16px 20px; }
+  .download-toast { right: 16px; bottom: 16px; width: calc(100% - 32px); }
+  .sticky-download { right: 8px !important; bottom: 8px !important; left: 8px !important; }
+  .sticky-download .btn { padding-inline: 16px; }
+}
