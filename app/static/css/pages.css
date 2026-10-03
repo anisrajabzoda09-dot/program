@@ -121,6 +121,7 @@
   padding: clamp(20px, 4vw, 42px);
   border-radius: calc(var(--radius-lg) + 6px);
 }
+.feature-chip-bar ~ .section[id] .card h3 { font-size: 1rem; line-height: 1.35; letter-spacing: -.022em; }
 @media (max-width: 960px) {
   .feature-chip-bar ~ .section[id] .split.reverse > :first-child { order: 0; }
   .feature-chip-bar ~ .section[id] .screen { min-height: 220px; }
