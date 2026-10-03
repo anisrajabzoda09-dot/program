@@ -1,20 +1,11 @@
-// Shared, animated «how much of the limit is used» widgets.
-//
-// Both are safe on every screen (parent, child, settings) and respect
-// reduced motion: with animations switched off they paint their end state.
-// Numbers always carry their unit, e.g. «45 дақ аз 60».
+// Файл: нишондиҳандаҳои аниматсионии омор ва маҳдудият.
 
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import 'widgets.dart';
 
-/// A labelled meter: title on the left, value + unit on the right, an animated
-/// bar underneath. [value] and [max] are in the same unit as [unit].
-///
-/// Wrap the label and the unit with `tr(...)` at the call site, e.g.
-/// `StatMeter(label: …, value: usedMinutes, max: limitMinutes, unit: …,
-/// color: NigohDesign.amber)`.
+/// Додаҳо ва рафтори марбут ба нишондиҳандаҳои аниматсионии омор ва маҳдудиятро ифода мекунад.
 class StatMeter extends StatelessWidget {
   const StatMeter({
     super.key,
@@ -31,33 +22,35 @@ class StatMeter extends StatelessWidget {
   final String label;
   final double value;
 
-  /// Full scale; a value of 0 or less draws an empty bar.
+  /// Қимати max-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият нигоҳ медорад.
   final double max;
 
-  /// Unit shown after the value («дақ», «соат», «%»).
+  /// Қимати unit-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият нигоҳ медорад.
   final String? unit;
   final Color? color;
 
-  /// Overrides the generated «45 дақ аз 60» text.
+  /// Қимати valueText-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият нигоҳ медорад.
   final String? valueText;
   final IconData? icon;
 
-  /// Thinner bar and smaller type, for use inside a dense list row.
+  /// Қимати compact-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият нигоҳ медорад.
   final bool compact;
 
+  /// Қимати ҳисобшудаи fraction-ро аз ҳолати ҷорӣ бармегардонад.
   double get fraction => max <= 0 ? 0 : (value / max).clamp(0.0, 1.0);
 
-  /// Number text without a needless ".0".
+  /// number мантиқи зарурии нишондиҳандаҳои аниматсионии омор ва маҳдудиятро иҷро мекунад.
   String _number(double v) {
     final rounded = v.roundToDouble();
     return rounded == v ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
   }
 
+  /// Widget-и StatMeter-ро барои нишондиҳандаҳои омор ва маҳдудият месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final accent = color ?? scheme.primary;
-    // «45 дақ аз 60» — the number always carries its unit.
+    // Қадами дохилии нишондиҳандаҳои аниматсионии омор ва маҳдудият.
     final text =
         valueText ??
         (unit == null
@@ -109,8 +102,7 @@ class StatMeter extends StatelessWidget {
   }
 }
 
-/// Just the animated bar of [StatMeter] — for places that already have their
-/// own label row.
+/// Додаҳо ва рафтори марбут ба нишондиҳандаҳои аниматсионии омор ва маҳдудиятро ифода мекунад.
 class StatBar extends StatelessWidget {
   const StatBar({
     super.key,
@@ -119,17 +111,19 @@ class StatBar extends StatelessWidget {
     this.height = 8,
   });
 
-  /// 0…1; values outside are clamped.
+  /// Қимати fraction-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият нигоҳ медорад.
   final double fraction;
   final Color? color;
   final double height;
 
+  /// Widget-и StatBar-ро барои нишондиҳандаҳои омор ва маҳдудият месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final accent = color ?? scheme.primary;
     final target = fraction.clamp(0.0, 1.0);
     final radius = BorderRadius.circular(height);
+    /// fill мантиқи зарурии нишондиҳандаҳои аниматсионии омор ва маҳдудиятро иҷро мекунад.
     Widget fill(double t) => Align(
       alignment: AlignmentDirectional.centerStart,
       child: FractionallySizedBox(
@@ -159,8 +153,7 @@ class StatBar extends StatelessWidget {
   }
 }
 
-/// One number in a soft accent tile: the number counts up, the label says what
-/// it is. Use for small «3 барнома баста», «2 дархост» summaries.
+/// Widget-и StatTile-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият месозад.
 class StatTile extends StatelessWidget {
   const StatTile({
     super.key,
@@ -177,10 +170,11 @@ class StatTile extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  /// Unit printed after the number («дақ», «соат»).
+  /// Қимати unit-ро барои нишондиҳандаҳои аниматсионии омор ва маҳдудият нигоҳ медорад.
   final String? unit;
   final VoidCallback? onTap;
 
+  /// Widget-и StatTile-ро барои нишондиҳандаҳои омор ва маҳдудият месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -237,7 +231,7 @@ class StatTile extends StatelessWidget {
     );
   }
 
-  /// Text style of the big number in a [StatTile].
+  /// numberStyle мантиқи зарурии нишондиҳандаҳои аниматсионии омор ва маҳдудиятро иҷро мекунад.
   static TextStyle _numberStyle(Color color) => TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w800,

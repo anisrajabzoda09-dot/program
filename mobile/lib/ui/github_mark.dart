@@ -1,18 +1,17 @@
-// Файл: нишонаи GitHub (Octocat) барои тугмаи «Идома бо GitHub».
-// Нишона аз роҳи SVG-и расмии GitHub Octicons (MIT) ба фармонҳои кашидани
-// Flutter табдил дода шудааст, то бастаи иловагӣ лозим нашавад.
+// Файл: нишонаи GitHub барои OAuth.
 import 'package:flutter/material.dart';
 
-/// Нишонаи GitHub-ро дар андозаи [size] бо ранги [color] мекашад.
+/// Додаҳо ва рафтори марбут ба нишонаи GitHub барои OAuth-ро ифода мекунад.
 class GitHubMark extends StatelessWidget {
   const GitHubMark({super.key, this.size = 22, this.color = Colors.white});
 
-  /// Паҳно ва баландии нишона (бо пиксели мантиқӣ).
+  /// Қимати size-ро барои нишонаи GitHub барои OAuth нигоҳ медорад.
   final double size;
 
-  /// Ранги нишона.
+  /// Қимати color-ро барои нишонаи GitHub барои OAuth нигоҳ медорад.
   final Color color;
 
+  /// Нишони GitHub-ро бо андоза ва ранги додашуда мекашад.
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: size,
@@ -20,12 +19,13 @@ class GitHubMark extends StatelessWidget {
   );
 }
 
-/// Роҳи нишонаи GitHub-ро дар майдони 16×16 мекашад ва ба андозаи виҷет мувофиқ мекунад.
+/// Додаҳо ва рафтори марбут ба нишонаи GitHub барои OAuth-ро ифода мекунад.
 class _GitHubMarkPainter extends CustomPainter {
   _GitHubMarkPainter(this.color);
 
   final Color color;
 
+  /// Унсурҳои графикиро дар canvas мекашад.
   @override
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / 16, size.height / 16);
@@ -65,6 +65,7 @@ class _GitHubMarkPainter extends CustomPainter {
     canvas.drawPath(path, Paint()..color = color);
   }
 
+  /// Муайян мекунад, ки CustomPainter бояд аз нав кашида шавад ё не.
   @override
   bool shouldRepaint(_GitHubMarkPainter old) => old.color != color;
 }

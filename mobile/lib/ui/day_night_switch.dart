@@ -1,10 +1,8 @@
-// Animated sun/moon toggle used for the light/dark theme setting.
+// Файл: калиди аниматсионии theme-и рӯз ва шаб.
 
 import 'package:flutter/material.dart';
 
-/// Sun/moon theme switch — a Flutter port of the «Theme switch» by Galahhad
-/// on Uiverse.io (MIT). Same proportions (5.625 × 2.5 em), colours and
-/// motion: sun with clouds by day, moon with craters and stars by night.
+/// Додаҳо ва рафтори марбут ба калиди аниматсионии theme-и рӯз ва шабро ифода мекунад.
 class DayNightSwitch extends StatefulWidget {
   const DayNightSwitch({
     super.key,
@@ -14,17 +12,18 @@ class DayNightSwitch extends StatefulWidget {
     this.semanticLabel,
   });
 
-  /// true = dark (night).
+  /// Қимати value-ро барои калиди аниматсионии theme-и рӯз ва шаб нигоҳ медорад.
   final bool value;
   final ValueChanged<bool> onChanged;
   final double height;
   final String? semanticLabel;
 
+  /// Ҳолати DayNightSwitch-ро барои иваз кардани мавзӯи рӯзу шаб месозад.
   @override
   State<DayNightSwitch> createState() => _DayNightSwitchState();
 }
 
-/// Animates between day and night when the value changes or is tapped.
+/// Ҳолат ва рафтори DayNightSwitchState-ро барои навсозии интерфейс идора мекунад.
 class _DayNightSwitchState extends State<DayNightSwitch>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
@@ -33,6 +32,7 @@ class _DayNightSwitchState extends State<DayNightSwitch>
     value: widget.value ? 1 : 0,
   );
 
+  /// Пас аз иваз шудани параметрҳои widget ҳолати дохилиро ҳамоҳанг месозад.
   @override
   void didUpdateWidget(DayNightSwitch old) {
     super.didUpdateWidget(old);
@@ -41,12 +41,14 @@ class _DayNightSwitchState extends State<DayNightSwitch>
     }
   }
 
+  /// Controller ва listener-ҳои DayNightSwitch-ро озод мекунад.
   @override
   void dispose() {
     _c.dispose();
     super.dispose();
   }
 
+  /// Widget-и DayNightSwitch-ро барои иваз кардани мавзӯи рӯзу шаб месозад.
   @override
   Widget build(BuildContext context) {
     final em = widget.height / 2.5;
@@ -63,7 +65,7 @@ class _DayNightSwitchState extends State<DayNightSwitch>
             animation: _c,
             builder: (_, _) => CustomPaint(
               painter: _DayNightPainter(
-                // cubic-bezier(0, -0.02, 0.4, 1.25) from the original CSS
+                // Қадами дохилии transform барои мавзӯи рӯзу шаб.
                 t: const Cubic(0, -0.02, 0.4, 1.25).transform(_c.value),
                 em: em,
               ),
@@ -75,11 +77,11 @@ class _DayNightSwitchState extends State<DayNightSwitch>
   }
 }
 
-/// Paints the sky, sun/moon, clouds and stars at night progress [t].
+/// Додаҳо ва рафтори марбут ба калиди аниматсионии theme-и рӯз ва шабро ифода мекунад.
 class _DayNightPainter extends CustomPainter {
   _DayNightPainter({required this.t, required this.em});
 
-  final double t; // 0 day … 1 night (may overshoot slightly)
+  final double t; // 0 — рӯз, 1 — шаб; қимат метавонад каме аз ҳудуд гузарад.
   final double em;
 
   static const _dayBg = Color(0xFF3D7EAE);
@@ -90,6 +92,7 @@ class _DayNightPainter extends CustomPainter {
   static const _cloud = Color(0xFFF3FDFF);
   static const _backCloud = Color(0xFFAACADF);
 
+  /// Унсурҳои графикиро дар canvas мекашад.
   @override
   void paint(Canvas canvas, Size size) {
     final k = t.clamp(0.0, 1.0);
@@ -101,7 +104,7 @@ class _DayNightPainter extends CustomPainter {
     canvas.clipRRect(rrect);
     canvas.drawRRect(rrect, Paint()..color = Color.lerp(_dayBg, _nightBg, k)!);
 
-    // Stars slide in from the top at night.
+    // Қадами дохилии starsDy барои мавзӯи рӯзу шаб.
     final starsDy = (-1 + t) * size.height * .9;
     final star = Paint()..color = Colors.white.withValues(alpha: k);
     for (final s in const [
@@ -119,7 +122,7 @@ class _DayNightPainter extends CustomPainter {
       );
     }
 
-    // Clouds sink below the edge at night.
+    // Қадами дохилии cloudsDy барои мавзӯи рӯзу шаб.
     final cloudsDy = t * 3.4 * em;
     final back = Paint()..color = _backCloud;
     final front = Paint()..color = _cloud;
@@ -155,7 +158,7 @@ class _DayNightPainter extends CustomPainter {
       );
     }
 
-    // Halo rings + sun/moon travel from left to right.
+    // Қадами дохилии d барои мавзӯи рӯзу шаб.
     final d = 3.375 * em;
     final offset = (d - 2.5 * em) / 2;
     final startX = -offset + d / 2;
@@ -180,7 +183,7 @@ class _DayNightPainter extends CustomPainter {
       Path()..addOval(Rect.fromCircle(center: center, radius: r)),
     );
     canvas.drawCircle(center, r, Paint()..color = _sun);
-    // The moon slides over the sun from the right.
+    // Қадами дохилии translate барои мавзӯи рӯзу шаб.
     final moonCenter = center.translate((1 - t) * 2 * r, 0);
     canvas.drawCircle(moonCenter, r, Paint()..color = _moon);
     final spot = Paint()..color = _spot;
@@ -203,7 +206,7 @@ class _DayNightPainter extends CustomPainter {
     canvas.restore();
 
     canvas.restore();
-    // Inner shadow of the track, like the original's ::before.
+    // Қадами дохилии drawRRect барои мавзӯи рӯзу шаб.
     canvas.drawRRect(
       rrect.deflate(.5),
       Paint()
@@ -213,7 +216,7 @@ class _DayNightPainter extends CustomPainter {
     );
   }
 
-  /// Draws one four-pointed star sparkle of size [s] at [c].
+  /// sparkle мантиқи зарурии калиди аниматсионии theme-и рӯз ва шабро иҷро мекунад.
   void _sparkle(Canvas canvas, Offset c, double s, Paint p) {
     final path = Path()
       ..moveTo(c.dx, c.dy - s)
@@ -225,6 +228,7 @@ class _DayNightPainter extends CustomPainter {
     canvas.drawPath(path, p);
   }
 
+  /// Муайян мекунад, ки CustomPainter бояд аз нав кашида шавад ё не.
   @override
   bool shouldRepaint(_DayNightPainter old) => old.t != t || old.em != em;
 }

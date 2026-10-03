@@ -1,11 +1,10 @@
-// Material 3 light and dark themes of the app.
+// Файл: theme-ҳои равшан ва торики Material 3.
 
 import 'package:flutter/material.dart';
 
 import 'nigoh_design.dart';
 
-/// App theme matching nigohfamily.qobus.tj: quiet neutral surfaces, one
-/// brand blue, soft accents from [NigohDesign]. Light and dark.
+/// Қадами дохилии theme-ҳои равшан ва торики Material 3.
 abstract final class NigohTheme {
   static const ink = Color(0xFF0B1220);
   static const muted = Color(0xFF5D6676);
@@ -13,7 +12,7 @@ abstract final class NigohTheme {
   static const soft = Color(0xFFF6F7F9);
   static const blue = Color(0xFF1F63E0);
 
-  /// Light theme: white surfaces, brand blue, dark ink text.
+  /// light мантиқи зарурии theme-ҳои равшан ва торики Material 3-ро иҷро мекунад.
   static ThemeData light() => _build(
     ColorScheme.fromSeed(
       seedColor: blue,
@@ -31,7 +30,7 @@ abstract final class NigohTheme {
     scaffold: soft,
   );
 
-  /// Dark theme: deep navy surfaces with a lighter brand blue.
+  /// dark мантиқи зарурии theme-ҳои равшан ва торики Material 3-ро иҷро мекунад.
   static ThemeData dark() => _build(
     ColorScheme.fromSeed(
       seedColor: blue,
@@ -47,8 +46,7 @@ abstract final class NigohTheme {
     scaffold: const Color(0xFF0E1218),
   );
 
-  /// Shared theme setup (text, cards, inputs, buttons, page transitions)
-  /// applied on top of [scheme].
+  /// Widget-и -ро барои мавзӯъ ва рангҳои барнома месозад.
   static ThemeData _build(ColorScheme scheme, {required Color scaffold}) {
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     final radius = BorderRadius.circular(16);
@@ -120,7 +118,7 @@ abstract final class NigohTheme {
         indicatorColor: scheme.primary.withValues(alpha: .12),
         elevation: 0,
         height: 68,
-        // Five tabs on a 360 dp phone leave ~72 dp per label («Барномаҳо»).
+        // Қадами дохилии theme-ҳои равшан ва торики Material 3.
         labelTextStyle: WidgetStatePropertyAll(
           TextStyle(
             fontSize: 11.5,

@@ -1,19 +1,17 @@
-// Language picker: the bottom sheet for choosing Tajik / Russian / English
-// and the compact globe button that opens it.
+// Файл: интихоби забон ва тугмаи он.
 
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 
-/// Short code shown next to the globe icon.
+/// languageCode мантиқи зарурии интихоби забон ва тугмаи онро иҷро мекунад.
 String languageCode(String lang) => switch (lang) {
   'ru' => 'RU',
   'en' => 'EN',
   _ => 'TJ',
 };
 
-/// Bottom sheet with Тоҷикӣ / Русский / English. Picking one saves it and
-/// the whole app switches language right away.
+/// showLanguageSheet экран, dialog ё танзимоти мувофиқро мекушояд.
 Future<void> showLanguageSheet(BuildContext context) async {
   final picked = await showModalBottomSheet<String>(
     context: context,
@@ -61,10 +59,11 @@ Future<void> showLanguageSheet(BuildContext context) async {
   }
 }
 
-/// Compact globe + code button for screens before sign-in.
+/// Widget-и LanguageButton-ро барои интихоби забон ва тугмаи он месозад.
 class LanguageButton extends StatelessWidget {
   const LanguageButton({super.key});
 
+  /// Widget-и LanguageButton-ро барои интихоб ва иваз кардани забон месозад.
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<String>(
     valueListenable: appLanguage,

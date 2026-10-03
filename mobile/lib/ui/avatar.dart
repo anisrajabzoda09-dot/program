@@ -1,14 +1,10 @@
-// Profile avatar widgets: round photo with initial-letter fallback and a
-// small online/offline badge dot.
+// Файл: avatar ва нишондиҳандаи online.
 
 import 'package:flutter/material.dart';
 
 import 'nigoh_design.dart';
 
-/// Round profile picture: the photo at [url] when there is one, otherwise
-/// (and while it fails to load) the first letter of [name] on a soft accent.
-///
-/// Callers resolve a server path with `NigohApi.fileUrl(path)`.
+/// Widget-и AvatarView-ро барои avatar ва нишондиҳандаи online месозад.
 class AvatarView extends StatelessWidget {
   const AvatarView({
     super.key,
@@ -24,21 +20,22 @@ class AvatarView extends StatelessWidget {
   final String? url;
   final double size;
 
-  /// Accent for the letter fallback; defaults to one derived from [name].
+  /// Қимати color-ро барои avatar ва нишондиҳандаи online нигоҳ медорад.
   final Color? color;
 
-  /// Optional ring (e.g. white on the map marker).
+  /// Қимати border-ро барои avatar ва нишондиҳандаи online нигоҳ медорад.
   final BoxBorder? border;
 
-  /// Small overlay at the bottom-right — e.g. [AvatarDot] for online state.
+  /// Қимати badge-ро барои avatar ва нишондиҳандаи online нигоҳ медорад.
   final Widget? badge;
 
-  /// Upper-case first letter of [name] for the fallback avatar ('?' if empty).
+  /// letterOf мантиқи зарурии avatar ва нишондиҳандаи online-ро иҷро мекунад.
   static String letterOf(String name) {
     final trimmed = name.trim();
     return trimmed.isEmpty ? '?' : trimmed.characters.first.toUpperCase();
   }
 
+  /// Widget-и AvatarView-ро барои аватар ва ҳолати он месозад.
   @override
   Widget build(BuildContext context) {
     final accent = color ?? NigohDesign.accentFor(name);
@@ -76,10 +73,10 @@ class AvatarView extends StatelessWidget {
               height: size,
               fit: BoxFit.cover,
               gaplessPlayback: true,
-              // Decode at display size: avatars are small.
+              // Додаҳо ба шакли бехатар табдил ва санҷида мешаванд.
               cacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
                   .round(),
-              // Letter until the first frame arrives (and on errors).
+              // Қадами дохилии avatar ва нишондиҳандаи online.
               frameBuilder: (_, child, frame, sync) =>
                   sync || frame != null ? child : letter,
               errorBuilder: (_, _, _) => letter,
@@ -101,12 +98,13 @@ class AvatarView extends StatelessWidget {
   }
 }
 
-/// Small state dot for [AvatarView.badge] (mint = online, grey = offline).
+/// Додаҳо ва рафтори марбут ба avatar ва нишондиҳандаи online-ро ифода мекунад.
 class AvatarDot extends StatelessWidget {
   const AvatarDot({super.key, required this.color, this.size = 13});
   final Color color;
   final double size;
 
+  /// Widget-и AvatarDot-ро барои аватар ва ҳолати он месозад.
   @override
   Widget build(BuildContext context) => AnimatedContainer(
     duration: const Duration(milliseconds: 240),

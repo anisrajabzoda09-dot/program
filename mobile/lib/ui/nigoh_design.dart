@@ -1,15 +1,11 @@
-// NIGOH design system: brand colours and accents plus shared hero, section,
-// action-card, status-pill and safe app-icon widgets.
+// Файл: рангҳо ва widget-ҳои системаи тарроҳии NIGOH.
 
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-/// Shared visual language for the NIGOH Family experience.
-///
-/// The components are intentionally brand-owned: they follow familiar family
-/// safety patterns without copying third-party artwork or layouts.
+/// Қадами дохилии рангҳо ва widget-ҳои системаи тарроҳии NIGOH.
 abstract final class NigohDesign {
   static const navy = Color(0xFF111827);
   static const blue = Color(0xFF2563EB);
@@ -20,10 +16,10 @@ abstract final class NigohDesign {
   static const violet = Color(0xFF7C5CFF);
   static const pink = Color(0xFFEC4899);
 
-  /// Soft accent palette used to give each app a stable, gentle colour.
+  /// Қимати accents-ро барои рангҳо ва widget-ҳои системаи тарроҳии NIGOH нигоҳ медорад.
   static const accents = <Color>[blue, mint, violet, amber, pink, sky, coral];
 
-  /// Stable accent colour derived from [seed] (e.g. a child's name).
+  /// accentFor мантиқи зарурии рангҳо ва widget-ҳои системаи тарроҳии NIGOH-ро иҷро мекунад.
   static Color accentFor(String seed) {
     var hash = 0;
     for (final unit in seed.codeUnits) {
@@ -39,7 +35,7 @@ abstract final class NigohDesign {
   );
 }
 
-/// Large gradient header card with icon, title, subtitle, badge and footer.
+/// Widget-и NigohHeroCard-ро барои рангҳо ва widget-ҳои системаи тарроҳии NIGOH месозад.
 class NigohHeroCard extends StatelessWidget {
   const NigohHeroCard({
     super.key,
@@ -56,6 +52,7 @@ class NigohHeroCard extends StatelessWidget {
   final String? badge;
   final Widget? footer;
 
+  /// Widget-и NigohHeroCard-ро барои ҷузъҳои низоми тарроҳии NIGOH месозад.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(20),
@@ -148,7 +145,7 @@ class NigohHeroCard extends StatelessWidget {
   );
 }
 
-/// Section heading with optional subtitle and trailing widget.
+/// Widget-и NigohSectionHeader-ро барои рангҳо ва widget-ҳои системаи тарроҳии NIGOH месозад.
 class NigohSectionHeader extends StatelessWidget {
   const NigohSectionHeader({
     super.key,
@@ -161,6 +158,7 @@ class NigohSectionHeader extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
 
+  /// Widget-и NigohSectionHeader-ро барои ҷузъҳои низоми тарроҳии NIGOH месозад.
   @override
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.end,
@@ -193,7 +191,7 @@ class NigohSectionHeader extends StatelessWidget {
   );
 }
 
-/// Tappable card for a main action with icon, title and subtitle.
+/// Widget-и NigohActionCard-ро барои рангҳо ва widget-ҳои системаи тарроҳии NIGOH месозад.
 class NigohActionCard extends StatelessWidget {
   const NigohActionCard({
     super.key,
@@ -210,6 +208,7 @@ class NigohActionCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
+  /// Widget-и NigohActionCard-ро барои ҷузъҳои низоми тарроҳии NIGOH месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -267,7 +266,7 @@ class NigohActionCard extends StatelessWidget {
   }
 }
 
-/// Small rounded label with icon used for statuses (online, battery…).
+/// Додаҳо ва рафтори марбут ба рангҳо ва widget-ҳои системаи тарроҳии NIGOH-ро ифода мекунад.
 class NigohStatusPill extends StatelessWidget {
   const NigohStatusPill({
     super.key,
@@ -282,6 +281,7 @@ class NigohStatusPill extends StatelessWidget {
   final Color color;
   final bool onDark;
 
+  /// Widget-и NigohStatusPill-ро барои ҷузъҳои низоми тарроҳии NIGOH месозад.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -313,8 +313,7 @@ class NigohStatusPill extends StatelessWidget {
   );
 }
 
-/// App icon that never throws: invalid or non-base64 icons (for example the
-/// emoji placeholders stored by the server) fall back to text or an icon.
+/// Додаҳо ва рафтори марбут ба рангҳо ва widget-ҳои системаи тарроҳии NIGOH-ро ифода мекунад.
 class NigohAppIcon extends StatelessWidget {
   const NigohAppIcon({
     super.key,
@@ -331,7 +330,7 @@ class NigohAppIcon extends StatelessWidget {
 
   static final Map<String, Uint8List?> _cache = <String, Uint8List?>{};
 
-  /// Decodes a base64 app icon once and caches it; null when invalid.
+  /// decode додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
   static Uint8List? decode(String raw) {
     if (raw.length < 16) return null;
     return _cache.putIfAbsent(raw, () {
@@ -344,6 +343,7 @@ class NigohAppIcon extends StatelessWidget {
     });
   }
 
+  /// Widget-и NigohAppIcon-ро барои ҷузъҳои низоми тарроҳии NIGOH месозад.
   @override
   Widget build(BuildContext context) {
     final accent = locked ? NigohDesign.coral : NigohDesign.accentFor(seed);

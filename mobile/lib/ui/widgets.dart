@@ -1,19 +1,15 @@
-// Small shared building blocks so every screen looks the same: snackbars,
-// empty/error states, section titles, pills, entry/tap animations and
-// time formatting.
+// Файл: widget, animation ва helper-ҳои муштараки интерфейс.
 
 import 'package:flutter/material.dart';
 
 import '../core/api.dart';
 import '../l10n/l10n.dart';
 
-/// True when the user asked the system for less motion (accessibility) — all
-/// decorative animations below collapse to their end state then.
+/// reducedMotion мантиқи зарурии widget, animation ва helper-ҳои муштараки интерфейсро иҷро мекунад.
 bool reducedMotion(BuildContext context) =>
     MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-/// Shows [message] (an [ApiException]'s text or any object) as a snackbar,
-/// red when [error] is true.
+/// showMessage экран, dialog ё танзимоти мувофиқро мекушояд.
 void showMessage(BuildContext context, Object message, {bool error = false}) {
   final text = message is ApiException ? message.message : '$message';
   final scheme = Theme.of(context).colorScheme;
@@ -27,7 +23,7 @@ void showMessage(BuildContext context, Object message, {bool error = false}) {
     );
 }
 
-/// Calm empty / error state with an optional action.
+/// StateMessage додаҳо ва рафтори widget-ҳои умумӣ-ро ифода мекунад.
 class StateMessage extends StatelessWidget {
   const StateMessage({
     super.key,
@@ -49,17 +45,16 @@ class StateMessage extends StatelessWidget {
   final VoidCallback? onAction;
   final bool error;
 
-  /// Accent for the icon tile and the action (defaults to the primary colour,
-  /// or the error colour when [error]). Use a NigohDesign accent for meaning.
+  /// Қимати color-ро барои widget, animation ва helper-ҳои муштараки интерфейс нигоҳ медорад.
   final Color? color;
 
-  /// Optional icon on the action button.
+  /// Қимати actionIcon-ро барои widget, animation ва helper-ҳои муштараки интерфейс нигоҳ медорад.
   final IconData? actionIcon;
 
-  /// Makes the action a filled (dominant) button — for empty states where
-  /// tapping it is the one thing to do next.
+  /// Қимати primaryAction-ро барои widget, animation ва helper-ҳои муштараки интерфейс нигоҳ медорад.
   final bool primaryAction;
 
+  /// Widget-и StateMessage-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -123,14 +118,14 @@ class StateMessage extends StatelessWidget {
   }
 }
 
-/// Section title used above groups of cards. [subtitle] is the one plain
-/// sentence that says what the group is for — keep it short.
+/// SectionTitle додаҳо ва рафтори widget-ҳои умумӣ-ро ифода мекунад.
 class SectionTitle extends StatelessWidget {
   const SectionTitle(this.text, {super.key, this.subtitle, this.trailing});
   final String text;
   final String? subtitle;
   final Widget? trailing;
 
+  /// Widget-и SectionTitle-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -172,12 +167,13 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
-/// One muted sentence that says what a screen is for.
+/// ScreenHint додаҳо ва рафтори widget-ҳои умумӣ-ро ифода мекунад.
 class ScreenHint extends StatelessWidget {
   const ScreenHint(this.text, {super.key, this.icon});
   final String text;
   final IconData? icon;
 
+  /// Widget-и ScreenHint-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -198,7 +194,7 @@ class ScreenHint extends StatelessWidget {
   }
 }
 
-/// Rounded status label, e.g. «Онлайн», «Баста».
+/// Pill додаҳо ва рафтори widget-ҳои умумӣ-ро ифода мекунад.
 class Pill extends StatelessWidget {
   const Pill(
     this.text, {
@@ -212,12 +208,13 @@ class Pill extends StatelessWidget {
   final Color color;
   final IconData? icon;
 
-  /// Long-press / hover explanation, so a short pill can stay short.
+  /// Қимати tooltip-ро барои widget, animation ва helper-ҳои муштараки интерфейс нигоҳ медорад.
   final String? tooltip;
 
-  /// Slightly larger type and padding for pills that carry a number + unit.
+  /// Қимати big-ро барои widget, animation ва helper-ҳои муштараки интерфейс нигоҳ медорад.
   final bool big;
 
+  /// Widget-и Pill-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   Widget build(BuildContext context) {
     final pill = Container(
@@ -235,8 +232,6 @@ class Pill extends StatelessWidget {
             Icon(icon, size: big ? 15 : 13, color: color),
             const SizedBox(width: 4),
           ],
-          // Flexible so a long label ellipsizes in a narrow row instead of
-          // overflowing it.
           Flexible(
             child: Text(
               text,
@@ -257,13 +252,13 @@ class Pill extends StatelessWidget {
   }
 }
 
-/// Fades and slides its child in once (staggered with [index]).
-/// Collapses to the end state when the user asked for less motion.
+/// FadeIn додаҳо ва рафтори widget-ҳои умумӣ-ро ифода мекунад.
 class FadeIn extends StatelessWidget {
   const FadeIn({super.key, required this.child, this.index = 0});
   final Widget child;
   final int index;
 
+  /// Widget-и FadeIn-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   Widget build(BuildContext context) {
     if (reducedMotion(context)) return child;
@@ -283,8 +278,7 @@ class FadeIn extends StatelessWidget {
   }
 }
 
-/// Presses its child in a little while it is held down — use it on big tap
-/// targets (role cards, action cards) so a tap feels answered.
+/// TapScale додаҳо ва рафтори widget-ҳои умумӣ-ро ифода мекунад.
 class TapScale extends StatefulWidget {
   const TapScale({
     super.key,
@@ -296,14 +290,16 @@ class TapScale extends StatefulWidget {
   final VoidCallback? onTap;
   final double scale;
 
+  /// Ҳолати TapScale-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   State<TapScale> createState() => _TapScaleState();
 }
 
-/// Scales the child down slightly while pressed.
+/// Ҳолат ва рафтори TapScaleState-ро барои навсозии интерфейс идора мекунад.
 class _TapScaleState extends State<TapScale> {
   bool down = false;
 
+  /// Widget-и TapScale-ро барои ҷузъҳои умумии интерфейс месозад.
   @override
   Widget build(BuildContext context) {
     final enabled = widget.onTap != null && !reducedMotion(context);
@@ -322,7 +318,7 @@ class _TapScaleState extends State<TapScale> {
   }
 }
 
-/// Relative time in Tajik: «ҳозир», «5 дақ пеш», «2 соат пеш», «12.09 14:30».
+/// timeAgo мантиқи зарурии widget, animation ва helper-ҳои муштараки интерфейсро иҷро мекунад.
 String timeAgo(DateTime? time) {
   if (time == null) return '—';
   final diff = DateTime.now().difference(time.toLocal());
@@ -330,11 +326,12 @@ String timeAgo(DateTime? time) {
   if (diff.inMinutes < 60) return tr('{n} дақ пеш', {'n': diff.inMinutes});
   if (diff.inHours < 24) return tr('{n} соат пеш', {'n': diff.inHours});
   final t = time.toLocal();
+  /// two мантиқи зарурии widget, animation ва helper-ҳои муштараки интерфейсро иҷро мекунад.
   String two(int v) => v.toString().padLeft(2, '0');
   return '${two(t.day)}.${two(t.month)} ${two(t.hour)}:${two(t.minute)}';
 }
 
-/// Server timestamps come as 'YYYY-MM-DD HH:MM:SS' (UTC) or ISO.
+/// parseServerTime додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
 DateTime? parseServerTime(Object? raw) {
   if (raw == null) return null;
   final text = raw.toString().trim();
