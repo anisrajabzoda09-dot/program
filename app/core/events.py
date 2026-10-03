@@ -1,4 +1,4 @@
-"""Creating notification events for the phones (see FamilyEvent)."""
+"""Файл: сохтан ва навбатгузории notification-ҳои оилавӣ."""
 
 import json
 from datetime import datetime, timedelta, timezone
@@ -23,7 +23,7 @@ def emit(
     body: str = "",
     data: Optional[dict] = None,
 ) -> FamilyEvent:
-    """Queue an event; the caller commits."""
+    """Event-и оилавиро ба навбат мегузорад; commit-ро caller анҷом медиҳад."""
     event = FamilyEvent(
         child_id=child.id,
         target_role=target_role,
@@ -37,7 +37,7 @@ def emit(
 
 
 def on_battery(db: Session, child: Child, level: Optional[int]) -> None:
-    """Notify the parent once when the battery drops below 15 %."""
+    """Ҳангоми аз 15% паст шудани батарея як бор волидро огоҳ мекунад."""
     if level is None:
         return
     if level < LOW_BATTERY and not child.low_battery_notified:
@@ -49,12 +49,12 @@ def on_battery(db: Session, child: Child, level: Optional[int]) -> None:
 
 
 def on_seen(child: Child) -> None:
-    """The phone reported in: allow a new «offline» alert later."""
+    """Ҳозир будани телефонро сабт карда, огоҳии offline-и ояндаро иҷозат медиҳад."""
     child.offline_notified = 0
 
 
 def check_offline(db: Session, children: list) -> None:
-    """Notify the parent once when a child's phone has been silent for 20 min."""
+    """Пас аз 20 дақиқа хомӯш будани телефон волидро огоҳ мекунад."""
     now = datetime.now(timezone.utc)
     for child in children:
         seen = child.location_updated_at

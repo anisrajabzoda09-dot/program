@@ -1,9 +1,4 @@
-"""Translations of API error messages for the mobile app.
-
-The app sends `X-NIGOH-Lang: tg | ru | en`. Messages in the code are Tajik;
-for ru/en the `detail` of an error response is translated here. Unknown
-messages fall back to Tajik.
-"""
+"""Файл: интихоб ва тарҷумаи паёмҳои API барои app-и mobile."""
 
 from typing import Optional
 
@@ -67,14 +62,14 @@ _MESSAGES = {
 
 
 def request_lang(headers) -> str:
-    """Select a supported response language from the mobile request headers."""
+    """Забони ҷавоби mobile-ро аз header-и request интихоб мекунад."""
 
     lang = (headers.get("X-NIGOH-Lang") or "").strip().lower()[:2]
     return lang if lang in LANGS else "tg"
 
 
 def translate(message: Optional[str], lang: str) -> Optional[str]:
-    """Translate a known Tajik API message, preserving unknown messages."""
+    """Паёми маълуми тоҷикиро тарҷума карда, паёми номаълумро нигоҳ медорад."""
 
     if not message or lang == "tg" or not isinstance(message, str):
         return message

@@ -1,4 +1,4 @@
-"""Load environment settings and expose application-wide configuration values."""
+"""Файл: танзимоти server, роҳҳо, credential-ҳо ва қиматҳои пешфарз."""
 
 import os
 
@@ -9,7 +9,7 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(APP_DIR))
 load_dotenv(os.path.join(PROJECT_DIR, ".env"))
 
 class Settings:
-    """Collect server paths, integration credentials, versions, and defaults."""
+    """Маълумоти `Settings`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"

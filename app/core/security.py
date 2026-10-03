@@ -1,4 +1,4 @@
-"""Provide password hashing, web sessions, authentication guards, and rate limits."""
+"""Файл: hash-и password, session-и web, муҳофизати route ва rate limit."""
 
 import base64
 import hashlib
@@ -14,17 +14,14 @@ SESSIONS: Dict[str, dict] = {}
 SESSION_EXPIRY: Dict[str, float] = {}
 
 class RateLimiter:
-    """
-    Sliding window in-memory Rate Limiter to prevent Brute-Force attacks.
-    Protects against automated credential stuffing and DDoS on sensitive endpoints.
-    """
+    """Маълумоти `RateLimiter`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
     def __init__(self):
-        """Initialize an empty request-timestamp history for each client key."""
+        """Маълумоти ёрирасони init-ро омода карда, ба caller бармегардонад."""
 
         self._history: Dict[str, List[float]] = {}
 
     def is_rate_limited(self, key: str, max_requests: int = 15, window_seconds: int = 60) -> bool:
-        """Record a request and report whether its key exceeds the sliding window."""
+        """is rate limited-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
         now = time.time()
         timestamps = self._history.get(key, [])
@@ -40,11 +37,7 @@ class RateLimiter:
 rate_limiter = RateLimiter()
 
 def hash_password(password: str) -> str:
-    """Hash passwords with memory-hard scrypt and a per-password salt.
-
-    The legacy SHA-256 format is still accepted by ``verify_password`` so
-    existing accounts can log in once and be upgraded by the next write.
-    """
+    """Password-ро бо scrypt ва salt-и ҷудогона hash мекунад."""
     salt = secrets.token_bytes(16)
     digest = hashlib.scrypt(
         password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1, dklen=32
@@ -55,7 +48,7 @@ def hash_password(password: str) -> str:
     )
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify scrypt hashes and transparently support old SHA-256 records."""
+    """Password-ро бо hash-и scrypt ё SHA-256-и кӯҳна муқоиса мекунад."""
     if hashed_password.startswith("scrypt$"):
         try:
             _, n, r, p, salt_b64, digest_b64 = hashed_password.split("$", 5)
@@ -76,14 +69,14 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return hmac.compare_digest(legacy, hashed_password)
 
 def create_session(user: dict) -> str:
-    """Generate a cryptographically secure 64-char hex token and store in session map."""
+    """Session token-и бехатар месозад ва дар хотира нигоҳ медорад."""
     token = secrets.token_hex(32)
     SESSIONS[token] = dict(user)
     SESSION_EXPIRY[token] = time.time() + settings.SESSION_MAX_AGE
     return token
 
 def get_current_user(request: Request) -> Optional[dict]:
-    """Extract authenticated user from cookies or Authorization Bearer header."""
+    """Корбари воридшударо аз cookie ё Authorization header муайян мекунад."""
     token = request.cookies.get(settings.SESSION_COOKIE_NAME)
     if token and token in SESSION_EXPIRY and SESSION_EXPIRY[token] <= time.time():
         SESSIONS.pop(token, None)
@@ -99,7 +92,7 @@ def get_current_user(request: Request) -> Optional[dict]:
     return SESSIONS[token]
 
 def require_auth(request: Request) -> dict:
-    """FastAPI route guard ensuring user is logged in."""
+    """Route-ро танҳо барои корбари воридшуда иҷозат медиҳад."""
     user = get_current_user(request)
     if not user:
         raise HTTPException(
@@ -109,7 +102,7 @@ def require_auth(request: Request) -> dict:
     return user
 
 def check_rate_limit(request: Request, action: str = "auth", max_requests: int = 20, window_seconds: int = 60):
-    """Raise 429 Too Many Requests if client IP exceeds threshold."""
+    """Ҳангоми зиёд шудани request-ҳо хатои HTTP 429 мебарорад."""
     forwarded = request.headers.get("X-Forwarded-For")
     ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
     key = f"{ip}:{action}"
