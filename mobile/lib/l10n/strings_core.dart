@@ -35,6 +35,14 @@ const Map<String, List<String>> coreStrings = {
     'Google не выдал токен. Попробуйте ещё раз.',
     'Google did not return a token. Please try again.',
   ],
+  'Apple токен надод. Аз нав кӯшиш кунед.': [
+    'Apple не выдал токен. Попробуйте ещё раз.',
+    'Apple did not return a token. Please try again.',
+  ],
+  'Воридшавӣ бо Apple ҳоло дастрас нест.': [
+    'Вход через Apple сейчас недоступен.',
+    'Sign in with Apple is not available right now.',
+  ],
   // Notifications (core/notify_bridge.dart, main.dart)
   'Огоҳиномаҳо кор накарданд.': [
     'Уведомления не работают.',
@@ -109,6 +117,11 @@ const Map<String, List<String>> coreStrings = {
   'Сохтани аккаунт': ['Создать аккаунт', 'Create account'],
   'ё': ['или', 'or'],
   'Идома бо Google': ['Продолжить с Google', 'Continue with Google'],
+  'Идома бо Apple': ['Продолжить с Apple', 'Continue with Apple'],
+  'Воридшавӣ бо Apple нашуд. {details}': [
+    'Не удалось войти через Apple. {details}',
+    'Apple sign-in failed. {details}',
+  ],
   'Агар пештар бо почта ворид мешудед, як бор аз нав бақайдгирӣ кунед.': [
     'Если раньше вы входили по почте, зарегистрируйтесь заново один раз.',
     'If you used to sign in with email, please sign up again once.',

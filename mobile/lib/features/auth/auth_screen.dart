@@ -1,8 +1,11 @@
 // Sign-in / registration screen: email and password form plus "Continue
-// with Google".
+// with Google" and (when the server enables it) "Continue with Apple".
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../core/session.dart';
 import '../../ui/widgets.dart';
@@ -10,7 +13,7 @@ import 'brand_logo.dart';
 import '../../l10n/l10n.dart';
 import '../../ui/language_picker.dart';
 
-/// Sign in / register with email, or continue with Google.
+/// Sign in / register with email, or continue with Google or Apple.
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -20,7 +23,7 @@ class AuthScreen extends StatefulWidget {
 
 /// Form state of [AuthScreen]: switches between sign-in and register and runs
 /// the chosen sign-in method with progress and error messages.
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
   final form = GlobalKey<FormState>();
   final name = TextEditingController();
   final email = TextEditingController();
@@ -29,11 +32,60 @@ class _AuthScreenState extends State<AuthScreen> {
   bool hidePassword = true;
   bool busy = false;
   bool googleBusy = false;
+  bool appleBusy = false;
+
+  /// True once the server says Sign in with Apple is configured.
+  bool appleEnabled = false;
+
+  /// Counts Apple attempts so only the latest one updates the screen.
+  int _appleAttempt = 0;
+
+  /// Whether the current Apple attempt is still waiting for Apple's answer.
+  bool _awaitingAppleCredential = false;
+
+  /// Clears the Apple spinner if the user closed the browser tab (on Android
+  /// the plugin's future then never completes).
+  Timer? _appleResumeTimer;
+
+  /// Any sign-in in progress (blocks the other buttons).
+  bool get anyBusy => busy || googleBusy || appleBusy;
 
   static final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAppleConfig());
+  }
+
+  /// Asks the server once whether to show the Apple button; hidden on error.
+  Future<void> _loadAppleConfig() async {
+    if (!mounted) return;
+    try {
+      final config = await SessionScope.read(context).api.appleConfig();
+      if (mounted) setState(() => appleEnabled = config.enabled);
+    } catch (_) {
+      if (mounted) setState(() => appleEnabled = false);
+    }
+  }
+
+  /// Back from the Apple browser tab without a credential: stop the spinner.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed || !appleBusy) return;
+    _appleResumeTimer?.cancel();
+    _appleResumeTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && appleBusy && _awaitingAppleCredential) {
+        setState(() => appleBusy = false);
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _appleResumeTimer?.cancel();
     name.dispose();
     email.dispose();
     password.dispose();
@@ -42,7 +94,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   /// Validates the form and signs in or registers with email and password.
   Future<void> submit() async {
-    if (busy || googleBusy) return;
+    if (anyBusy) return;
     if (!(form.currentState?.validate() ?? false)) return;
     FocusScope.of(context).unfocus();
     final session = SessionScope.read(context);
@@ -62,7 +114,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   /// Runs Google sign-in; a user cancel is silent, other errors are shown.
   Future<void> google() async {
-    if (busy || googleBusy) return;
+    if (anyBusy) return;
     final session = SessionScope.read(context);
     setState(() => googleBusy = true);
     try {
@@ -81,6 +133,56 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) showMessage(context, e, error: true);
     } finally {
       if (mounted) setState(() => googleBusy = false);
+    }
+  }
+
+  /// Runs Sign in with Apple; a user cancel is silent, other errors are shown.
+  Future<void> apple() async {
+    if (anyBusy) return;
+    final session = SessionScope.read(context);
+    final attempt = ++_appleAttempt;
+    setState(() {
+      appleBusy = true;
+      _awaitingAppleCredential = true;
+    });
+    try {
+      await session.signInWithApple(
+        onCredential: () {
+          if (attempt == _appleAttempt) _awaitingAppleCredential = false;
+        },
+      );
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code != AuthorizationErrorCode.canceled &&
+          mounted &&
+          attempt == _appleAttempt) {
+        showMessage(
+          context,
+          tr('Воридшавӣ бо Apple нашуд. {details}', {
+            'details': e.message,
+          }).trim(),
+          error: true,
+        );
+      }
+    } on SignInWithAppleException {
+      if (mounted && attempt == _appleAttempt) {
+        showMessage(
+          context,
+          tr('Воридшавӣ бо Apple нашуд. {details}', {'details': ''}).trim(),
+          error: true,
+        );
+      }
+    } catch (e) {
+      if (mounted && attempt == _appleAttempt) {
+        showMessage(context, e, error: true);
+      }
+    } finally {
+      if (mounted && attempt == _appleAttempt) {
+        _appleResumeTimer?.cancel();
+        setState(() {
+          appleBusy = false;
+          _awaitingAppleCredential = false;
+        });
+      }
     }
   }
 
@@ -147,7 +249,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   ),
                                 ],
                                 selected: {register},
-                                onSelectionChanged: busy
+                                onSelectionChanged: anyBusy
                                     ? null
                                     : (value) {
                                         form.currentState?.reset();
@@ -282,7 +384,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                onPressed: busy || googleBusy ? null : submit,
+                                onPressed: anyBusy ? null : submit,
                                 child: AnimatedSwitcher(
                                   duration: const Duration(milliseconds: 200),
                                   child: busy
@@ -332,7 +434,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
                       ),
-                      onPressed: busy || googleBusy ? null : google,
+                      onPressed: anyBusy ? null : google,
                       icon: googleBusy
                           ? const SizedBox(
                               width: 18,
@@ -343,6 +445,34 @@ class _AuthScreenState extends State<AuthScreen> {
                       label: Text(tr('Идома бо Google')),
                     ),
                   ),
+                  if (appleEnabled) ...[
+                    const SizedBox(height: 12),
+                    FadeIn(
+                      index: 2,
+                      child: FilledButton.icon(
+                        key: const Key('auth.apple'),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.black54,
+                          disabledForegroundColor: Colors.white70,
+                        ),
+                        onPressed: anyBusy ? null : apple,
+                        icon: appleBusy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.apple, size: 24),
+                        label: Text(tr('Идома бо Apple')),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 20),
                   Text(
                     tr(
