@@ -84,7 +84,7 @@
   <a class="skip-link" href="#main">{{ L.skip }}</a>
   <header class="site-header" id="top">
     <nav class="wrap nav" aria-label="{{ L.nav }}">
-      <a class="brand" href="{{ P or '/' }}">
+      <a class="brand" href="{{ P or '/' }}"{% if active == 'home' %} aria-current="page"{% endif %}>
         <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
         <span>NIGOH Family</span>
       </a>
