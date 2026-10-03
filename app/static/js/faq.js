@@ -66,6 +66,11 @@ function initFaqSearch() {
       event.preventDefault();
       input.focus();
     }
+    if (event.key === 'Escape' && input.value) {
+      input.value = '';
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    }
   });
   input.addEventListener('input', () => {
     const query = normalizeFaqText(input.value);
