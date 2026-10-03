@@ -1,4 +1,4 @@
-"""Integration checks for the real Google OAuth browser flow."""
+"""Файл: санҷишҳои автоматии `test_google_oauth` ва сенарияҳои ёрирасони он."""
 
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
@@ -27,16 +27,16 @@ BASE = f"http://127.0.0.1:{PORT}"
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
-    """Keep redirect responses visible so OAuth headers can be asserted."""
+    """Муҳити ёрирасони `NoRedirect`-ро барои санҷиш фароҳам мекунад."""
 
     def redirect_request(self, req, fp: HTTPResponse, code, msg, headers, newurl):
-        """Disable urllib's automatic redirect following for a request."""
+        """Рафтори `redirect_request`-ро дар муҳити санҷишӣ месанҷад."""
 
         return None
 
 
 def open_without_redirects(request):
-    """Open a request and return redirect HTTP errors as inspectable responses."""
+    """Рафтори `open_without_redirects`-ро дар муҳити санҷишӣ месанҷад."""
 
     opener = urllib.request.build_opener(NoRedirect)
     try:
@@ -46,13 +46,13 @@ def open_without_redirects(request):
 
 
 def start_server():
-    """Run the test FastAPI app on the fixed local integration port."""
+    """Рафтори `start_server`-ро дар муҳити санҷишӣ месанҷад."""
 
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
 
 def wait_for_server():
-    """Poll the health endpoint until the integration server accepts requests."""
+    """Рафтори `wait_for_server`-ро дар муҳити санҷишӣ месанҷад."""
 
     for _ in range(30):
         try:
@@ -64,7 +64,7 @@ def wait_for_server():
 
 
 def run_checks():
-    """Exercise OAuth redirect, state validation, callback, and token sign-in."""
+    """Ҳамаи сенарияҳои санҷиширо иҷро карда, додаҳои муваққатиро пок мекунад."""
 
     settings.GOOGLE_CLIENT_ID = "oauth-test-client.apps.googleusercontent.com"
     settings.GOOGLE_CLIENT_SECRET = "oauth-test-secret"

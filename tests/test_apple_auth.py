@@ -1,9 +1,4 @@
-"""End-to-end checks for Sign in with Apple (website flow, Android bridge, mobile API).
-
-Apple is simulated: we generate our own EC key (stands in for the developer's
-.p8 key) and RSA key (stands in for Apple's identity-token signing key), and
-patch the HTTP call to Apple's token endpoint. Test accounts are deleted at the end.
-"""
+"""Файл: санҷишҳои автоматии `test_apple_auth` ва сенарияҳои ёрирасони он."""
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
 _ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
@@ -30,7 +25,7 @@ FAILS = []
 
 
 def check(label, ok, detail=""):
-    """Print one check result and remember failures."""
+    """Натиҷаи санҷишро сабт карда, нокомиро барои ҷамъбаст нигоҳ медорад."""
     print(f"{'ok ' if ok else 'FAIL'} {label}{(' — ' + str(detail)) if detail and not ok else ''}")
     if not ok:
         FAILS.append(label)
@@ -43,19 +38,19 @@ EC_PEM = EC_KEY.private_bytes(serialization.Encoding.PEM, serialization.PrivateF
 
 
 class _Key:
-    """Stand-in for PyJWK: exposes the RSA public key as `.key`."""
+    """Муҳити ёрирасони `_Key`-ро барои санҷиш фароҳам мекунад."""
     key = RSA_KEY.public_key()
 
 
 class _FakeJwks:
-    """Stand-in for Apple's JWKS client."""
+    """Муҳити ёрирасони `_FakeJwks`-ро барои санҷиш фароҳам мекунад."""
     def get_signing_key_from_jwt(self, token):
-        """Return our test signing key for any token."""
+        """Рафтори `get_signing_key_from_jwt`-ро дар муҳити санҷишӣ месанҷад."""
         return _Key()
 
 
 def apple_token(sub, email, aud=None, nonce=None, exp_in=600, email_verified="true"):
-    """Sign an identity token the way Apple would (RS256, issuer appleid.apple.com)."""
+    """Рафтори `apple_token`-ро дар муҳити санҷишӣ месанҷад."""
     now = int(time.time())
     claims = {"iss": settings.APPLE_ISSUER, "aud": aud or settings.APPLE_CLIENT_ID, "sub": sub,
               "iat": now, "exp": now + exp_in, "email": email, "email_verified": email_verified}
@@ -65,12 +60,13 @@ def apple_token(sub, email, aud=None, nonce=None, exp_in=600, email_verified="tr
 
 
 class _Resp:
-    """Minimal httpx.Response stand-in for Apple's token endpoint."""
+    """Муҳити ёрирасони `_Resp`-ро барои санҷиш фароҳам мекунад."""
     def __init__(self, payload, status=200):
+        """Рафтори `__init__`-ро дар муҳити санҷишӣ месанҷад."""
         self._p, self.status_code = payload, status
 
     def json(self):
-        """Return the canned JSON body."""
+        """Рафтори `json`-ро дар муҳити санҷишӣ месанҷад."""
         return self._p
 
 
@@ -78,7 +74,7 @@ NEXT_TOKEN = {}
 
 
 def fake_post(url, data=None, **kw):
-    """Pretend to be Apple's token endpoint: verify our client secret, return NEXT_TOKEN."""
+    """Рафтори `fake_post`-ро дар муҳити санҷишӣ месанҷад."""
     secret = jwt.decode(data["client_secret"], EC_KEY.public_key(), algorithms=["ES256"],
                         audience=settings.APPLE_ISSUER)
     assert secret["iss"] == settings.APPLE_TEAM_ID and secret["sub"] == settings.APPLE_CLIENT_ID
@@ -86,14 +82,14 @@ def fake_post(url, data=None, **kw):
 
 
 def login_and_get_state(c, lang=""):
-    """Start the web flow and return (state, nonce, response)."""
+    """Рафтори `login_and_get_state`-ро дар муҳити санҷишӣ месанҷад."""
     r = c.get(f"/auth/apple/login?next=%2Fget{lang}", follow_redirects=False)
     q = parse_qs(urlparse(r.headers["location"]).query)
     return q.get("state", [""])[0], q.get("nonce", [""])[0], r
 
 
 def main():
-    """Run every Apple sign-in scenario and clean up the accounts it created."""
+    """Ҳамаи сенарияҳои санҷиширо иҷро карда, додаҳои муваққатиро пок мекунад."""
     tag = uuid.uuid4().hex[:8]
     emails = [f"qa_apple_{tag}@example.com", f"qa_apple_relay_{tag}@privaterelay.appleid.com",
               f"qa_apple_link_{tag}@example.com", f"qa_apple_m_{tag}@example.com"]

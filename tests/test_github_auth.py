@@ -1,8 +1,4 @@
-"""End-to-end checks for Sign in with GitHub (website flow, phone ticket flow, account linking).
-
-GitHub is simulated by patching the HTTP calls to its token endpoint and REST
-API. Test accounts are deleted at the end.
-"""
+"""Файл: санҷишҳои автоматии `test_github_auth` ва сенарияҳои ёрирасони он."""
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
 _ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
@@ -27,19 +23,20 @@ FAILS = []
 
 
 def check(label, ok, detail=""):
-    """Print one check result and remember failures."""
+    """Натиҷаи санҷишро сабт карда, нокомиро барои ҷамъбаст нигоҳ медорад."""
     print(f"{'ok ' if ok else 'FAIL'} {label}{(' — ' + str(detail)) if detail and not ok else ''}")
     if not ok:
         FAILS.append(label)
 
 
 class _Resp:
-    """Minimal httpx.Response stand-in."""
+    """Муҳити ёрирасони `_Resp`-ро барои санҷиш фароҳам мекунад."""
     def __init__(self, payload, status=200):
+        """Рафтори `__init__`-ро дар муҳити санҷишӣ месанҷад."""
         self._p, self.status_code = payload, status
 
     def json(self):
-        """Return the canned JSON body."""
+        """Рафтори `json`-ро дар муҳити санҷишӣ месанҷад."""
         return self._p
 
 
@@ -48,7 +45,7 @@ SEEN = {}
 
 
 def fake_post(url, data=None, **kw):
-    """Pretend to be GitHub's token endpoint; checks we send our secret and the code."""
+    """Рафтори `fake_post`-ро дар муҳити санҷишӣ месанҷад."""
     SEEN["token_request"] = dict(data or {})
     if not GH.get("token_ok", True):
         return _Resp({"error": "bad_verification_code"})
@@ -56,7 +53,7 @@ def fake_post(url, data=None, **kw):
 
 
 def fake_get(url, headers=None, **kw):
-    """Pretend to be GitHub's REST API for /user and /user/emails."""
+    """Рафтори `fake_get`-ро дар муҳити санҷишӣ месанҷад."""
     assert headers["Authorization"] == "Bearer gho_test_token"
     if url.endswith("/user/emails"):
         return _Resp(GH["emails"])
@@ -64,20 +61,20 @@ def fake_get(url, headers=None, **kw):
 
 
 def set_github(uid, login, email, verified=True, extra_emails=(), name="Test Dev"):
-    """Configure the simulated GitHub account for the next sign-in."""
+    """Рафтори `set_github`-ро дар муҳити санҷишӣ месанҷад."""
     GH["user"] = {"id": uid, "login": login, "name": name, "avatar_url": f"https://avatars.example/{uid}"}
     GH["emails"] = [{"email": email, "primary": True, "verified": verified}, *extra_emails]
     GH["token_ok"] = True
 
 
 def start_web(c, lang=""):
-    """Begin the website flow; return (state, response)."""
+    """Рафтори `start_web`-ро дар муҳити санҷишӣ месанҷад."""
     r = c.get(f"/auth/github/login?next=%2Fget{lang}", follow_redirects=False)
     return parse_qs(urlparse(r.headers["location"]).query).get("state", [""])[0], r
 
 
 def main():
-    """Run every GitHub sign-in scenario and clean up the accounts it created."""
+    """Ҳамаи сенарияҳои санҷиширо иҷро карда, додаҳои муваққатиро пок мекунад."""
     tag = uuid.uuid4().hex[:8]
     base_id = int(time.time() * 1000) % 10**9
     emails = [f"qa_gh_{tag}@example.com", f"qa_gh_new_{tag}@example.com", f"qa_gh_link_{tag}@example.com",

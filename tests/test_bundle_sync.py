@@ -1,4 +1,4 @@
-"""Verify deterministic bundle checksums and incremental sync responses."""
+"""Файл: санҷишҳои автоматии `test_bundle_sync` ва сенарияҳои ёрирасони он."""
 
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
@@ -15,10 +15,10 @@ from app.main import app
 
 
 class BundleSyncTests(unittest.TestCase):
-    """Exercise configuration-bundle hashing and HTTP synchronization behavior."""
+    """Муҳити ёрирасони `BundleSyncTests`-ро барои санҷиш фароҳам мекунад."""
 
     def test_checksum_is_stable_for_key_order(self):
-        """Ensure equivalent mappings serialize and hash identically."""
+        """Рафтори `test_checksum_is_stable_for_key_order`-ро дар муҳити санҷишӣ месанҷад."""
 
         left = {"b": 2, "a": {"текст": "Нигоҳ"}}
         right = {"a": {"текст": "Нигоҳ"}, "b": 2}
@@ -26,7 +26,7 @@ class BundleSyncTests(unittest.TestCase):
         self.assertEqual(payload_checksum(left), payload_checksum(right))
 
     def test_sync_returns_patch_then_304(self):
-        """Ensure stale clients receive patches and current clients receive 304."""
+        """Рафтори `test_sync_returns_patch_then_304`-ро дар муҳити санҷишӣ месанҷад."""
 
         with TestClient(app) as client:
             first = client.get(

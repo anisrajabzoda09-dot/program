@@ -1,4 +1,4 @@
-"""Regression checks for the mobile release and application-control API."""
+"""Файл: санҷишҳои автоматии `test_hardening` ва сенарияҳои ёрирасони он."""
 
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
@@ -23,13 +23,13 @@ BASE = f"http://127.0.0.1:{PORT}"
 
 
 def start_server():
-    """Run the test FastAPI app on the fixed hardening-check port."""
+    """Рафтори `start_server`-ро дар муҳити санҷишӣ месанҷад."""
 
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
 
 def get_json(path: str):
-    """Fetch a successful local endpoint and decode its JSON response."""
+    """Рафтори `get_json`-ро дар муҳити санҷишӣ месанҷад."""
 
     with urllib.request.urlopen(f"{BASE}{path}") as response:
         assert response.status == 200
@@ -37,7 +37,7 @@ def get_json(path: str):
 
 
 def run_checks():
-    """Verify health, update-version rules, and required control routes."""
+    """Ҳамаи сенарияҳои санҷиширо иҷро карда, додаҳои муваққатиро пок мекунад."""
 
     threading.Thread(target=start_server, daemon=True).start()
     for _ in range(30):

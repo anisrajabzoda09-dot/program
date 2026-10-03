@@ -1,9 +1,4 @@
-"""End-to-end check of the Firebase-free mobile flow.
-
-Runs against the local SQLite database through FastAPI's TestClient and
-leaves only throwaway @example.com rows, which are removed at the end.
-    venv/bin/python tests/test_mobile_v3.py
-"""
+"""Файл: санҷишҳои автоматии `test_mobile_v3` ва сенарияҳои ёрирасони он."""
 
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
@@ -22,7 +17,7 @@ FAILED = []
 
 
 def check(label, response, expected):
-    """Record whether an API response matches the expected status and decode it."""
+    """Натиҷаи санҷишро сабт карда, нокомиро барои ҷамъбаст нигоҳ медорад."""
 
     ok = response.status_code == expected
     print(f"{'ok ' if ok else 'FAIL'} {label:38} {response.status_code} {response.json().get('detail', '')}")
@@ -32,7 +27,7 @@ def check(label, response, expected):
 
 
 def main():
-    """Exercise the complete mobile family workflow and remove test records."""
+    """Ҳамаи сенарияҳои санҷиширо иҷро карда, додаҳои муваққатиро пок мекунад."""
 
     s = uuid.uuid4().hex[:8]
     emails = [f"qa_p{s}@example.com", f"qa_c{s}@example.com"]
