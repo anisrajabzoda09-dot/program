@@ -1,5 +1,4 @@
-// Full-screen call UI (outgoing/incoming/active) and the helpers that open it
-// for a new call or a notification-launched incoming call.
+// Файл: интерфейси занги овозӣ.
 
 import 'dart:async';
 
@@ -12,7 +11,7 @@ import 'call_controller.dart';
 import 'rtc_engine.dart';
 import '../../l10n/l10n.dart';
 
-/// Full-screen voice call (Telegram-like). Always dark, whatever the app theme.
+/// Экрани CallScreen-ро барои интерфейси занги овозӣ месозад.
 class CallScreen extends StatefulWidget {
   const CallScreen({
     super.key,
@@ -25,29 +24,30 @@ class CallScreen extends StatefulWidget {
   final CallController controller;
   final String peerName;
 
-  /// Absolute URL of the other side's photo (letter shown if null/failing).
+  /// Қимати peerAvatarUrl-ро барои интерфейси занги овозӣ нигоҳ медорад.
   final String? peerAvatarUrl;
 
-  /// How long the end reason stays visible before the screen closes.
+  /// Қимати closeDelay-ро барои интерфейси занги овозӣ нигоҳ медорад.
   final Duration closeDelay;
 
-  /// Overridable for tests (no real WebRTC / permission plugin there).
+  /// Function мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   static RtcEngine Function() engineFactory = FlutterRtcEngine.new;
+  /// Function мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   static Future<bool> Function() micPermission = requestMicrophonePermission;
 
   static bool _open = false;
 
-  /// True while a call screen is shown (prevents two calls at once).
+  /// Қимати isOpen-ро барои интерфейси занги овозӣ нигоҳ медорад.
   static bool get isOpen => _open;
 
-  /// Builds a controller with the test-overridable engine and mic permission.
+  /// controller мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   static CallController _controller(NigohApi api) => CallController(
     api: api,
     engine: engineFactory(),
     micPermission: micPermission,
   );
 
-  /// Calls [childId]'s other side (parent → child, child → parent).
+  /// openOutgoing экран, dialog ё танзимоти мувофиқро мекушояд.
   static Future<void> openOutgoing(
     BuildContext context, {
     required int childId,
@@ -66,8 +66,7 @@ class CallScreen extends StatefulWidget {
     );
   }
 
-  /// Shows an incoming call; with [acceptNow] it is answered immediately
-  /// (the user already tapped «Қабул» in the notification).
+  /// openIncoming экран, dialog ё танзимоти мувофиқро мекушояд.
   static Future<void> openIncoming(
     NavigatorState navigator, {
     required int callId,
@@ -82,7 +81,7 @@ class CallScreen extends StatefulWidget {
     await _push(navigator, controller, peerName);
   }
 
-  /// Pushes the call screen and keeps [isOpen] true until it is closed.
+  /// push мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   static Future<void> _push(
     NavigatorState navigator,
     CallController controller,
@@ -108,11 +107,12 @@ class CallScreen extends StatefulWidget {
     }
   }
 
+  /// Ҳолати CallScreen-ро барои занг байни волид ва фарзанд месозад.
   @override
   State<CallScreen> createState() => _CallScreenState();
 }
 
-/// Drives the pulse animation and closes the screen shortly after the call ends.
+/// Ҳолат ва рафтори CallScreenState-ро барои навсозии интерфейс идора мекунад.
 class _CallScreenState extends State<CallScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pulse = AnimationController(
@@ -121,8 +121,10 @@ class _CallScreenState extends State<CallScreen>
   );
   Timer? _closeTimer;
 
+  /// Қимати ҳисобшудаи c-ро аз ҳолати ҷорӣ бармегардонад.
   CallController get _c => widget.controller;
 
+  /// Тағйири controller-и зангро мешунавад ва ҳолати ибтидоии зангро ҳамоҳанг месозад.
   @override
   void initState() {
     super.initState();
@@ -130,13 +132,13 @@ class _CallScreenState extends State<CallScreen>
     _sync();
   }
 
-  /// Syncs animations/closing with the controller and rebuilds.
+  /// onChange рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onChange() {
     _sync();
     if (mounted) setState(() {});
   }
 
-  /// Starts/stops the ringing pulse and schedules closing after the call ends.
+  /// sync додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   void _sync() {
     final ringing =
         _c.state == CallState.outgoing ||
@@ -154,16 +156,17 @@ class _CallScreenState extends State<CallScreen>
     }
   }
 
+  /// Controller ва listener-ҳои CallScreen-ро озод мекунад.
   @override
   void dispose() {
     _c.removeListener(_onChange);
     _closeTimer?.cancel();
     _pulse.dispose();
-    _c.dispose(); // hangs up if still running — never leaves the mic open
+    _c.dispose(); // Занги фаъол қатъ ва микрофон ҳатман хомӯш карда мешавад.
     super.dispose();
   }
 
-  /// Status line under the name: ringing, connecting, duration or end reason.
+  /// Қимати _status-ро барои интерфейси занги овозӣ нигоҳ медорад.
   String get _status => switch (_c.state) {
     CallState.idle || CallState.outgoing => tr('Занг задан…'),
     CallState.incoming => tr('Занги даромада'),
@@ -172,15 +175,16 @@ class _CallScreenState extends State<CallScreen>
     CallState.ended => _c.endMessage ?? tr('Занг тамом шуд'),
   };
 
-  /// Whether the call ended abnormally (declined, no answer, failure).
+  /// Қимати _endIsProblem-ро барои интерфейси занги овозӣ нигоҳ медорад.
   bool get _endIsProblem =>
       _c.ended &&
       _c.endReason != CallEndReason.hangup &&
       _c.endReason != CallEndReason.remoteEnded;
 
-  /// Accessibility: no pulsing rings / cross-fades when motion is reduced.
+  /// Қимати _reduced-ро барои интерфейси занги овозӣ нигоҳ медорад.
   bool _reduced = false;
 
+  /// Экрани зангро бо ҳолати пайвастшавӣ, avatar ва идораҳои садо месозад.
   @override
   Widget build(BuildContext context) {
     _reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
@@ -232,7 +236,7 @@ class _CallScreenState extends State<CallScreen>
     );
   }
 
-  /// Avatar, name and status block in the middle of the call screen.
+  /// content мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   Widget _content(String name, String letter) => Column(
     children: [
       const SizedBox(height: 48),
@@ -283,22 +287,21 @@ class _CallScreenState extends State<CallScreen>
     ],
   );
 
-  /// Colour of the dot in front of the state line: green while talking,
-  /// blue while ringing, red when the call ended badly.
+  /// Қимати _dotColor-ро барои интерфейси занги овозӣ нигоҳ медорад.
   Color get _dotColor => switch (_c.state) {
     CallState.active => const Color(0xFF2EB872),
     CallState.ended => _endIsProblem ? const Color(0xFFFF8A80) : Colors.white54,
     _ => const Color(0xFF5B8CFF),
   };
 
-  /// One line telling the user what to do next (incoming / active only).
+  /// Қимати _hint-ро барои интерфейси занги овозӣ нигоҳ медорад.
   String? get _hint => switch (_c.state) {
     CallState.incoming => tr('«Қабул» — ҷавоб додан, «Рад» — рад кардан'),
     CallState.active => tr('Барои хотима «Хотима»-ро пахш кунед'),
     _ => null,
   };
 
-  /// Bottom buttons: accept/decline while ringing, else speaker/mute/hang-up.
+  /// controls мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   Widget _controls() {
     if (_c.state == CallState.incoming) {
       return Row(
@@ -350,7 +353,7 @@ class _CallScreenState extends State<CallScreen>
   }
 }
 
-/// mm:ss (or h:mm:ss for long calls).
+/// formatCallDuration додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
 String formatCallDuration(Duration d) {
   final h = d.inHours;
   final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -358,7 +361,7 @@ String formatCallDuration(Duration d) {
   return h > 0 ? '$h:$m:$s' : '$m:$s';
 }
 
-/// Round avatar (photo or initial) with pulsing rings while ringing.
+/// Додаҳо ва рафтори марбут ба интерфейси занги овозӣро ифода мекунад.
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.letter, required this.pulse, this.url});
   final String letter;
@@ -367,7 +370,7 @@ class _Avatar extends StatelessWidget {
 
   static const _size = 128.0;
 
-  /// Initial letter shown when there is no photo or it fails to load.
+  /// Қимати letterText-ро барои интерфейси занги овозӣ нигоҳ медорад.
   Widget get letterText => Text(
     letter,
     style: const TextStyle(
@@ -377,6 +380,7 @@ class _Avatar extends StatelessWidget {
     ),
   );
 
+  /// Widget-и Avatar-ро барои занг байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -413,7 +417,7 @@ class _Avatar extends StatelessWidget {
                   width: _size,
                   height: _size,
                   fit: BoxFit.cover,
-                  // Letter until the first frame arrives (and on errors).
+                  // Қадами дохилии интерфейси занги овозӣ.
                   frameBuilder: (_, child, frame, sync) =>
                       sync || frame != null ? child : letterText,
                   errorBuilder: (_, _, _) => letterText,
@@ -423,7 +427,7 @@ class _Avatar extends StatelessWidget {
     );
   }
 
-  /// One expanding, fading pulse ring at animation progress [t].
+  /// ring мантиқи зарурии интерфейси занги овозӣро иҷро мекунад.
   Widget _ring(double t) {
     final size = _size * (1 + 0.85 * t);
     return Container(
@@ -437,7 +441,7 @@ class _Avatar extends StatelessWidget {
   }
 }
 
-/// Round labeled call button (accept, decline, mute, speaker, hang-up).
+/// Widget-и RoundButton-ро барои интерфейси занги овозӣ месозад.
 class _RoundButton extends StatelessWidget {
   const _RoundButton({
     required this.icon,
@@ -455,6 +459,7 @@ class _RoundButton extends StatelessWidget {
   final bool active;
   final double size;
 
+  /// Widget-и RoundButton-ро барои занг байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
@@ -505,8 +510,7 @@ class _RoundButton extends StatelessWidget {
   }
 }
 
-/// The state of the call in one unmistakable line: a coloured dot (pulsing
-/// while it rings) plus the text.
+/// Додаҳо ва рафтори марбут ба интерфейси занги овозӣро ифода мекунад.
 class _StatusLine extends StatelessWidget {
   const _StatusLine({
     super.key,
@@ -521,6 +525,7 @@ class _StatusLine extends StatelessWidget {
   final Color dot;
   final bool pulse;
 
+  /// Widget-и StatusLine-ро барои занг байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) => Row(
     mainAxisAlignment: MainAxisAlignment.center,
@@ -543,23 +548,25 @@ class _StatusLine extends StatelessWidget {
   );
 }
 
-/// Small status dot that blinks while the call is ringing or connecting.
+/// Додаҳо ва рафтори марбут ба интерфейси занги овозӣро ифода мекунад.
 class _Dot extends StatefulWidget {
   const _Dot({required this.color, required this.pulse});
   final Color color;
   final bool pulse;
 
+  /// Ҳолати Dot-ро барои занг байни волид ва фарзанд месозад.
   @override
   State<_Dot> createState() => _DotState();
 }
 
-/// Runs the blink animation while [pulse] is on.
+/// Ҳолат ва рафтори DotState-ро барои навсозии интерфейс идора мекунад.
 class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 900),
   );
 
+  /// Animation-и набзи нуқтаи ҳолати зангро ҳангоми зарурат оғоз мекунад.
   @override
   void initState() {
     super.initState();
@@ -570,6 +577,7 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
     }
   }
 
+  /// Пас аз иваз шудани параметрҳои widget ҳолати дохилиро ҳамоҳанг месозад.
   @override
   void didUpdateWidget(covariant _Dot old) {
     super.didUpdateWidget(old);
@@ -581,12 +589,14 @@ class _DotState extends State<_Dot> with SingleTickerProviderStateMixin {
     }
   }
 
+  /// Controller ва listener-ҳои Dot-ро озод мекунад.
   @override
   void dispose() {
     _c.dispose();
     super.dispose();
   }
 
+  /// Widget-и Dot-ро барои занг байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;

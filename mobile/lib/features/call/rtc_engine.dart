@@ -1,63 +1,64 @@
-// WebRTC abstraction for audio calls: the [RtcEngine] interface used by the
-// call controller and its flutter_webrtc implementation.
+// Файл: пайвасти WebRTC, media stream ва ICE signaling.
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-/// Connection state of the media link, reduced to what the call UI needs.
+/// Ҳолатҳо ё навъҳои имконпазири пайвасти WebRTC, media stream ва ICE signaling-ро муайян мекунад.
 enum RtcLinkState { connecting, connected, disconnected, failed }
 
-/// Thin wrapper around one audio-only WebRTC peer connection. The call
-/// controller only talks to this interface, so tests can use a fake.
+/// Додаҳо ва рафтори марбут ба пайвасти WebRTC, media stream ва ICE signaling-ро ифода мекунад.
 abstract class RtcEngine {
-  /// Called for every local ICE candidate ({candidate, sdpMid, sdpMLineIndex}).
+  /// ICE candidate-и маҳаллиро барои фиристодан ба ҳамсуҳбат мерасонад.
   void Function(Map<String, dynamic> candidate)? onIceCandidate;
 
-  /// Called when the peer connection changes state.
+  /// Тағйири ҳолати пайвасти WebRTC-ро ба controller хабар медиҳад.
   void Function(RtcLinkState state)? onLinkState;
 
-  /// Opens the microphone and creates the peer connection.
+  /// open экран ё dialog-и лозими занг ва signaling-и WebRTC-ро мекушояд.
   Future<void> open(List<Map<String, dynamic>> iceServers);
 
-  /// Creates an offer, sets it as local description, returns {sdp, type}.
+  /// createOffer мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   Future<Map<String, dynamic>> createOffer();
 
-  /// Creates an answer, sets it as local description, returns {sdp, type}.
+  /// createAnswer мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   Future<Map<String, dynamic>> createAnswer();
 
-  /// Applies the other side's offer or answer ({sdp, type}).
+  /// setRemote ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setRemote(Map<String, dynamic> description);
 
-  /// Adds an ICE candidate received from the other side.
+  /// addCandidate мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   Future<void> addCandidate(Map<String, dynamic> candidate);
 
-  /// Mutes or unmutes the local microphone.
+  /// setMuted ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   void setMuted(bool muted);
 
-  /// Routes call audio to the loudspeaker (true) or the earpiece (false).
+  /// setSpeaker ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> setSpeaker(bool on);
 
-  /// Stops the microphone and closes the connection. Safe to call twice.
+  /// close мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   Future<void> close();
 }
 
-/// Real implementation backed by flutter_webrtc.
+/// Додаҳо ва рафтори марбут ба пайвасти WebRTC, media stream ва ICE signaling-ро ифода мекунад.
 class FlutterRtcEngine implements RtcEngine {
   RTCPeerConnection? _pc;
   MediaStream? _local;
 
+  /// Callback-и ICE candidate-и тавлидшударо нигоҳ медорад.
   @override
   void Function(Map<String, dynamic> candidate)? onIceCandidate;
 
+  /// Callback-и ҳолати нави пайвасти peer-ро нигоҳ медорад.
   @override
   void Function(RtcLinkState state)? onLinkState;
 
-  /// The open peer connection; throws if [open] was not called.
+  /// Қимати ҳисобшудаи peer-ро барои пайвасти WebRTC, media stream ва ICE signaling бармегардонад.
   RTCPeerConnection get _peer {
     final pc = _pc;
     if (pc == null) throw StateError('Peer connection is not open');
     return pc;
   }
 
+  /// open экран ё dialog-и лозими занг ва signaling-и WebRTC-ро мекушояд.
   @override
   Future<void> open(List<Map<String, dynamic>> iceServers) async {
     _local = await navigator.mediaDevices.getUserMedia({
@@ -101,16 +102,17 @@ class FlutterRtcEngine implements RtcEngine {
     for (final track in local.getAudioTracks()) {
       await pc.addTrack(track, local);
     }
-    // Earpiece by default, like a normal phone call.
+    // Қадами дохилии пайвасти WebRTC, media stream ва ICE signaling.
     await Helper.setSpeakerphoneOn(false);
   }
 
-  /// Session description as the {sdp, type} map sent through the server.
+  /// desc мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   Map<String, dynamic> _desc(RTCSessionDescription d) => {
     'sdp': d.sdp,
     'type': d.type,
   };
 
+  /// createOffer мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   @override
   Future<Map<String, dynamic>> createOffer() async {
     final offer = await _peer.createOffer({
@@ -121,6 +123,7 @@ class FlutterRtcEngine implements RtcEngine {
     return _desc(offer);
   }
 
+  /// createAnswer мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   @override
   Future<Map<String, dynamic>> createAnswer() async {
     final answer = await _peer.createAnswer({
@@ -131,6 +134,7 @@ class FlutterRtcEngine implements RtcEngine {
     return _desc(answer);
   }
 
+  /// setRemote ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   @override
   Future<void> setRemote(Map<String, dynamic> description) =>
       _peer.setRemoteDescription(
@@ -140,6 +144,7 @@ class FlutterRtcEngine implements RtcEngine {
         ),
       );
 
+  /// addCandidate мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   @override
   Future<void> addCandidate(Map<String, dynamic> candidate) =>
       _peer.addCandidate(
@@ -150,6 +155,7 @@ class FlutterRtcEngine implements RtcEngine {
         ),
       );
 
+  /// setMuted ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   @override
   void setMuted(bool muted) {
     for (final track in _local?.getAudioTracks() ?? const []) {
@@ -157,11 +163,13 @@ class FlutterRtcEngine implements RtcEngine {
     }
   }
 
+  /// setSpeaker ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   @override
   Future<void> setSpeaker(bool on) async {
     await Helper.setSpeakerphoneOn(on);
   }
 
+  /// close мантиқи зарурии пайвасти WebRTC, media stream ва ICE signaling-ро иҷро мекунад.
   @override
   Future<void> close() async {
     final local = _local;
@@ -176,7 +184,7 @@ class FlutterRtcEngine implements RtcEngine {
           try {
             await track.stop();
           } catch (_) {
-            // Keep stopping the other tracks; the mic must never stay open.
+            // Микрофон пас аз анҷоми занг ҳатман хомӯш карда мешавад.
           }
         }
         await local.dispose();

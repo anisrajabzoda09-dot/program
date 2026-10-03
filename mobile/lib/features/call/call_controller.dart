@@ -1,5 +1,4 @@
-// Call logic for parent ↔ child audio calls: the call state machine, server
-// signaling (offer/answer/ICE over long-poll), timeouts and clean hang-up.
+// Файл: ҳолат ва signaling-и занги WebRTC.
 
 import 'dart:async';
 import 'dart:convert';
@@ -12,10 +11,10 @@ import '../../core/api.dart';
 import 'rtc_engine.dart';
 import '../../l10n/l10n.dart';
 
-/// Phases of a call as shown on the call screen.
+/// Ҳолатҳо ё навъҳои имконпазири ҳолат ва signaling-и занги WebRTC-ро муайян мекунад.
 enum CallState { idle, outgoing, incoming, connecting, active, ended }
 
-/// Why a call ended — [label] is shown on the call screen.
+/// Ҳолатҳо ё навъҳои имконпазири ҳолат ва signaling-и занги WebRTC-ро муайян мекунад.
 enum CallEndReason {
   hangup('Занг тамом шуд'),
   remoteEnded('Занг тамом шуд'),
@@ -28,23 +27,21 @@ enum CallEndReason {
   const CallEndReason(this._label);
   final String _label;
 
+  /// Қимати ҳисобшудаи label-ро аз ҳолати ҷорӣ бармегардонад.
   String get label => tr(_label);
 }
 
-/// Asks Android for the microphone permission a call needs.
+/// requestMicrophonePermission иҷозат ё маълумоти лозимро дархост мекунад.
 Future<bool> requestMicrophonePermission() async {
   return (await Permission.microphone.request()).isGranted;
 }
 
-/// One audio call (outgoing or incoming) between a parent and a child phone.
-///
-/// Signaling goes through the NIGOH server: the caller creates the call,
-/// sends an SDP offer right away and both sides long-poll
-/// `/calls/{id}/signals`, which also returns the call status.
+/// Мантиқ ва ҳолати ҳолат ва signaling-и занги WebRTC-ро идора мекунад.
 class CallController extends ChangeNotifier {
   CallController({
     required this.api,
     RtcEngine? engine,
+    /// Function мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
     Future<bool> Function()? micPermission,
     this.ringTimeout = const Duration(seconds: 45),
     this.incomingTimeout = const Duration(seconds: 60),
@@ -64,36 +61,43 @@ class CallController extends ChangeNotifier {
   final Duration pollIdle;
 
   CallState _state = CallState.idle;
+  /// Қимати ҳисобшудаи state-ро аз ҳолати ҷорӣ бармегардонад.
   CallState get state => _state;
 
   CallEndReason? _endReason;
+  /// Қимати ҳисобшудаи endReason-ро аз ҳолати ҷорӣ бармегардонад.
   CallEndReason? get endReason => _endReason;
 
-  /// Text for the end status (server/network message for [CallEndReason.error]).
+  /// Қимати endMessage-ро барои ҳолат ва signaling-и занги WebRTC нигоҳ медорад.
   String? get endMessage => _endReason == CallEndReason.error
       ? (lastError ?? _endReason!.label)
       : _endReason?.label;
 
-  /// Last error from the server or WebRTC (kept for a visible status).
+  /// Қимати lastError-ро барои ҳолат ва signaling-и занги WebRTC нигоҳ медорад.
   String? lastError;
 
   int? _callId;
+  /// Қимати ҳисобшудаи callId-ро аз ҳолати ҷорӣ бармегардонад.
   int? get callId => _callId;
   bool _isCaller = false;
+  /// Қимати ҳисобшудаи isCaller-ро аз ҳолати ҷорӣ бармегардонад.
   bool get isCaller => _isCaller;
 
   bool _muted = false;
+  /// Қимати ҳисобшудаи muted-ро аз ҳолати ҷорӣ бармегардонад.
   bool get muted => _muted;
   bool _speaker = false;
+  /// Қимати ҳисобшудаи speaker-ро аз ҳолати ҷорӣ бармегардонад.
   bool get speaker => _speaker;
 
   DateTime? _activeSince;
 
-  /// How long the call has been active (zero before it connects).
+  /// Қимати duration-ро барои ҳолат ва signaling-и занги WebRTC нигоҳ медорад.
   Duration get duration => _activeSince == null
       ? Duration.zero
       : DateTime.now().difference(_activeSince!);
 
+  /// Қимати ҳисобшудаи ended-ро аз ҳолати ҷорӣ бармегардонад.
   bool get ended => _state == CallState.ended;
 
   bool _accepted = false;
@@ -112,9 +116,9 @@ class CallController extends ChangeNotifier {
   Completer<void>? _sleeper;
   Future<void> _sendChain = Future.value();
 
-  // ---------- Outgoing ----------
+  // Қадами дохилии startOutgoing барои идораи занг.
 
-  /// Calls the child (or parent, from the child phone) for [childId].
+  /// startOutgoing раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   Future<void> startOutgoing(int childId) async {
     if (_state != CallState.idle) return;
     _isCaller = true;
@@ -148,9 +152,9 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  // ---------- Incoming ----------
+  // Қадами дохилии startIncoming барои идораи занг.
 
-  /// Starts watching an incoming call (ringing on this phone).
+  /// startIncoming раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void startIncoming(int callId) {
     if (_state != CallState.idle) return;
     _callId = callId;
@@ -164,7 +168,7 @@ class CallController extends ChangeNotifier {
     _startPolling();
   }
 
-  /// Accepts the incoming call: mic → /accept → answer the offer.
+  /// accept мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   Future<void> accept() async {
     if (_state != CallState.incoming || _accepted) return;
     _accepted = true;
@@ -192,26 +196,26 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Declines the incoming call.
+  /// decline раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> decline() => _end(CallEndReason.declined);
 
-  /// Hangs up (or cancels/declines while ringing).
+  /// hangUp раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> hangUp() => _end(
     _state == CallState.incoming
         ? CallEndReason.declined
         : CallEndReason.hangup,
   );
 
-  // ---------- Controls ----------
+  // Қадами дохилии toggleMute барои идораи занг.
 
-  /// Mutes or unmutes the microphone.
+  /// toggleMute ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   void toggleMute() {
     _muted = !_muted;
     if (_engineOpen) engine.setMuted(_muted);
     _notify();
   }
 
-  /// Switches between loudspeaker and earpiece.
+  /// toggleSpeaker ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> toggleSpeaker() async {
     _speaker = !_speaker;
     _notify();
@@ -225,9 +229,9 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  // ---------- Internals ----------
+  // Қадами дохилии openEngine барои идораи занг.
 
-  /// Opens the WebRTC engine and forwards its ICE candidates to the server.
+  /// openEngine экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> _openEngine(List<Map<String, dynamic>> ice) async {
     engine.onIceCandidate = (c) {
       if (!ended) _send('ice', jsonEncode(c));
@@ -240,7 +244,7 @@ class CallController extends ChangeNotifier {
     if (_speaker) await engine.setSpeaker(true);
   }
 
-  /// Reacts to media-link changes: becomes active on connect, ends on failure.
+  /// onLink рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onLink(RtcLinkState link) {
     if (ended) return;
     switch (link) {
@@ -257,7 +261,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Enters the active state and starts the per-second duration tick.
+  /// becomeActive мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   void _becomeActive() {
     _ringTimer?.cancel();
     _connectTimer?.cancel();
@@ -267,7 +271,7 @@ class CallController extends ChangeNotifier {
     _setState(CallState.active);
   }
 
-  /// Ends the call if the media link does not connect in [connectTimeout].
+  /// startConnectTimer раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void _startConnectTimer() {
     _connectTimer?.cancel();
     _connectTimer = Timer(connectTimeout, () {
@@ -275,7 +279,7 @@ class CallController extends ChangeNotifier {
     });
   }
 
-  /// The callee accepted: stop ringing and wait for the media link.
+  /// enterConnecting мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   void _enterConnecting() {
     if (_state != CallState.outgoing) return;
     _ringTimer?.cancel();
@@ -283,7 +287,7 @@ class CallController extends ChangeNotifier {
     _startConnectTimer();
   }
 
-  /// Sends one signal to the server, in order, after the previous ones.
+  /// send дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _send(String kind, String payload) {
     final id = _callId;
     if (id == null) return Future.value();
@@ -300,7 +304,7 @@ class CallController extends ChangeNotifier {
     return next;
   }
 
-  /// Callee side: applies the caller's offer and sends back an answer.
+  /// answer мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   Future<void> _answer(Map<String, dynamic> offer) async {
     await engine.setRemote(offer);
     _remoteSet = true;
@@ -311,7 +315,7 @@ class CallController extends ChangeNotifier {
     await _send('answer', jsonEncode(answer));
   }
 
-  /// Applies ICE candidates that arrived before the remote description.
+  /// flushCandidates мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   Future<void> _flushCandidates() async {
     final queued = List.of(_pendingCandidates);
     _pendingCandidates.clear();
@@ -320,25 +324,24 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Adds one remote ICE candidate, tolerating a bad one.
+  /// addCandidate мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   Future<void> _addCandidate(Map<String, dynamic> c) async {
     try {
       await engine.addCandidate(c);
     } catch (e) {
-      // One bad candidate must not kill the call; others may still work.
+      // Қадами дохилии startPolling барои идораи занг.
       lastError = '$e';
     }
   }
 
-  /// Starts the signal long-poll loop once.
+  /// startPolling раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void _startPolling() {
     if (_polling) return;
     _polling = true;
     unawaited(_pollLoop());
   }
 
-  /// Long-polls the server for new signals and call status until the call
-  /// ends, backing off after network errors.
+  /// pollLoop мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   Future<void> _pollLoop() async {
     var failures = 0;
     while (!ended) {
@@ -374,7 +377,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Handles one server signal: offer, answer, ICE candidate or hang-up.
+  /// handleSignal рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   Future<void> _handleSignal(Map<String, dynamic> s) async {
     final kind = s['kind'];
     final payload = s['payload'];
@@ -414,7 +417,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Maps the server's call status (active/declined/missed/ended) to the state.
+  /// handleStatus рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _handleStatus(String status) {
     switch (status) {
       case 'active':
@@ -428,7 +431,7 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Waits [d], but wakes up early when the call ends.
+  /// sleep мантиқи зарурии ҳолат ва signaling-и занги WebRTC-ро иҷро мекунад.
   Future<void> _sleep(Duration d) {
     final c = Completer<void>();
     _sleeper = c;
@@ -438,8 +441,7 @@ class CallController extends ChangeNotifier {
     return c.future;
   }
 
-  /// Ends the call once: stops timers and media, and tells the server (decline
-  /// when it was still ringing on this side, end otherwise).
+  /// end раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> _end(
     CallEndReason reason, {
     bool notifyServer = true,
@@ -467,7 +469,7 @@ class CallController extends ChangeNotifier {
     if (notifyServer) await _notifyServerEnd(wasRinging: wasIncomingRinging);
   }
 
-  /// Tells the server the call was declined or ended; errors are ignored.
+  /// notifyServerEnd listener ё корбарро аз тағйирот огоҳ мекунад.
   Future<void> _notifyServerEnd({required bool wasRinging}) async {
     final id = _callId;
     if (id == null) return;
@@ -483,16 +485,18 @@ class CallController extends ChangeNotifier {
     }
   }
 
-  /// Changes the call state and notifies the UI.
+  /// setState ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   void _setState(CallState s) {
     _state = s;
     _notify();
   }
 
+  /// notify listener ё корбарро аз тағйирот огоҳ мекунад.
   void _notify() {
     if (!_disposed) notifyListeners();
   }
 
+  /// Controller ва listener-ҳои CallController-ро озод мекунад.
   @override
   void dispose() {
     if (!ended) unawaited(hangUp());
