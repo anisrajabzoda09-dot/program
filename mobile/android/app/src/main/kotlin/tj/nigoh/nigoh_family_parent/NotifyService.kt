@@ -1,6 +1,5 @@
-// Notification service without Firebase: long-polls the NIGOH events API and
-// posts message, SOS-alarm, incoming-call and family-alert notifications in
-// the in-app language.
+// Файл: хидмати огоҳинома бе Firebase — events API-ро бо long-poll мехонад
+// ва паём, SOS, занг ва огоҳии оилавиро бо забони барнома нишон медиҳад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -35,15 +34,12 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Firebase-free push: a foreground service that long-polls
- * GET /api/mobile/v3/events and turns server events into Android
- * notifications (messages, SOS alarm, incoming calls, family alerts).
- *
- * Token/role are read from Flutter's SharedPreferences on every request, so
- * sign-out in Dart (which clears them) stops the loop on its own.
+ * Foreground service-и огоҳиномаҳост: GET /api/mobile/v3/events-ро long-poll карда,
+ * event-ҳоро ба паём, SOS, занг ва огоҳии оилавии Android табдил медиҳад.
  */
 class NotifyService : Service() {
 
+    /** Калидҳо, action-ҳо, channel-ҳо ва амалиёти идораи хидматро ҷамъ мекунад. */
     companion object {
         private const val TAG = "NotifyService"
         const val PREFS = "nigoh_notify"
@@ -62,7 +58,7 @@ class NotifyService : Service() {
         const val ACTION_CALL_TIMEOUT = "tj.nigoh.notify.CALL_TIMEOUT"
         const val EXTRA_BASE_URL = "baseUrl"
 
-        // Launch extras read by MainActivity → Dart LaunchAction.
+        // Extra-ҳое, ки MainActivity барои LaunchAction-и Dart мехонад.
         const val EXTRA_KIND = "nigoh_kind"
         const val EXTRA_CHILD_ID = "nigoh_child_id"
         const val EXTRA_CALL_ID = "nigoh_call_id"
@@ -83,12 +79,12 @@ class NotifyService : Service() {
         var instance: NotifyService? = null
             private set
 
-        /** Whether someone is signed in (a session token is saved by Flutter). */
+        /** Аз рӯйи token-и Flutter ворид будани корбарро месанҷад. */
         fun hasToken(context: Context): Boolean =
             !context.getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
                 .getString(FLUTTER_TOKEN, null).isNullOrBlank()
 
-        /** Starts (or refreshes) the service. [baseUrl] null keeps the stored one. */
+        /** Хидматро оғоз ё нав мекунад; [baseUrl]-и null қимати пешинаро нигоҳ медорад. */
         fun start(context: Context, baseUrl: String? = null) {
             if (!baseUrl.isNullOrBlank()) {
                 context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -102,13 +98,13 @@ class NotifyService : Service() {
             }
         }
 
-        /** Boot / update / app launch: start only when someone is signed in. */
+        /** Ҳангоми boot ё кушодани барнома танҳо барои корбари воридшуда хидматро оғоз мекунад. */
         fun startIfSignedIn(context: Context) {
             if (hasToken(context)) runCatching { start(context) }
                 .onFailure { Log.w(TAG, "start failed", it) }
         }
 
-        /** Stops the service and silences any ringing; forgets the event cursor. */
+        /** Хидмат ва садоро қатъ карда, cursor-и event-ҳоро пок мекунад. */
         fun stop(context: Context) {
             instance?.stopRinging()
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -116,12 +112,11 @@ class NotifyService : Service() {
             context.stopService(Intent(context, NotifyService::class.java))
         }
 
-        /** Creates (or renames to the current language) the notification channels. */
+        /** Channel-ҳои огоҳиномаро месозад ё номи онҳоро ба забони ҷорӣ мегардонад. */
         fun createChannels(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             val nm = context.getSystemService(NotificationManager::class.java)
-            // Same ids every time: re-creating only renames the visible
-            // name/description to the current in-app language.
+            // ID-ҳо доимӣ буда, сохтани такрорӣ танҳо ном ва тавсифро нав мекунад.
             val s = NotifyStrings(AppLang.of(context))
             val service = NotificationChannel(
                 CH_SERVICE, s.chService, NotificationManager.IMPORTANCE_MIN
@@ -132,9 +127,7 @@ class NotifyService : Service() {
             val family = NotificationChannel(
                 CH_FAMILY, s.chFamily, NotificationManager.IMPORTANCE_DEFAULT
             ).apply { description = s.chFamilyDesc }
-            // SOS and calls: the service plays the looping sound itself
-            // (USAGE_ALARM / ringtone), so the channel stays silent to avoid
-            // two overlapping copies of the same sound.
+            // Садои SOS ва зангро худи service такрор мекунад; channel хомӯш мемонад.
             val sos = NotificationChannel(
                 CH_SOS, "SOS", NotificationManager.IMPORTANCE_HIGH
             ).apply {
@@ -162,7 +155,7 @@ class NotifyService : Service() {
     @Volatile private var running = false
     private var worker: Thread? = null
 
-    // Ringing state (main thread only).
+    // Ҳолати садодиҳӣ, танҳо барои main thread.
     private var player: MediaPlayer? = null
     private var vibrator: Vibrator? = null
     private var wakeLock: PowerManager.WakeLock? = null
@@ -171,7 +164,7 @@ class NotifyService : Service() {
     private var ringingSosChild: Int? = null
     private var callWatcher: Thread? = null
 
-    // In-app language; channels + the ongoing card follow it when it changes.
+    // Забони барнома; channel ва корти ongoing бо он нав мешаванд.
     @Volatile private var lang: String = "tg"
     private val strings get() = NotifyStrings(lang)
     private val langListener =
@@ -179,12 +172,13 @@ class NotifyService : Service() {
             if (key == null || key == AppLang.KEY) main.post { refreshLanguage() }
         }
 
-    // Last call/SOS brought to the front directly (dedupe by call id / child).
+    // Занг ё SOS-и охирини мустақим кушодашуда барои пешгирии такрор.
     private var lastDirectLaunch: String? = null
 
+    /** Нишон медиҳад, ки хидмат binding-ро дастгирӣ намекунад. */
     override fun onBind(intent: Intent?): IBinder? = null
 
-    /** Registers the running instance, creates channels and follows language changes. */
+    /** Instance-ро сабт карда, channel-ҳо ва listener-и забонро омода мекунад. */
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -193,7 +187,7 @@ class NotifyService : Service() {
         flutterPrefs().registerOnSharedPreferenceChangeListener(langListener)
     }
 
-    /** Language switched in the app: rename channels and refresh the ongoing card. */
+    /** Баъди иваз шудани забон channel ва корти ongoing-ро нав мекунад. */
     private fun refreshLanguage() {
         val now = AppLang.of(this)
         if (now == lang) return
@@ -203,8 +197,7 @@ class NotifyService : Service() {
     }
 
     /**
-     * Handles start and notification actions (stop alarm, decline call, call
-     * timeout) and starts the polling thread while signed in.
+     * Action-ҳои оғоз, хомӯш кардани alarm ва зангро коркард карда, polling thread-ро оғоз мекунад.
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         AppLang.of(this).let { if (it != lang) { lang = it; createChannels(this) } }
@@ -238,7 +231,7 @@ class NotifyService : Service() {
         return START_STICKY
     }
 
-    /** Stops polling and ringing when the service is destroyed. */
+    /** Ҳангоми нест шудани хидмат polling, listener ва садоро қатъ мекунад. */
     override fun onDestroy() {
         running = false
         worker?.interrupt()
@@ -248,12 +241,12 @@ class NotifyService : Service() {
         super.onDestroy()
     }
 
-    /** Service-private preferences (base URL, event cursor). */
+    /** Танзимоти хусусии service-ро барои base URL ва cursor медиҳад. */
     private fun prefs() = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-    /** Flutter's shared preferences (token, role, language). */
+    /** shared preferences-и Flutter-ро барои token, role ва забон медиҳад. */
     private fun flutterPrefs() = getSharedPreferences(FLUTTER_PREFS, Context.MODE_PRIVATE)
 
-    /** Shows the silent ongoing "NIGOH Family is active" notification. */
+    /** Огоҳиномаи хомӯши ongoing-и фаъол будани NIGOH Family-ро нишон медиҳад. */
     private fun goForeground() {
         val open = PendingIntent.getActivity(
             this, 7300,
@@ -277,12 +270,12 @@ class NotifyService : Service() {
         }
     }
 
-    // ---------------------------------------------------------------- polling
+    // Polling-и event-ҳои сервер.
 
-    /** Non-2xx HTTP answer from the server. */
+    /** HTTP status-и ғайри 2xx-ро ҳамчун хато нигоҳ медорад. */
     private class HttpStatus(val code: Int) : Exception("HTTP $code")
 
-    /** Makes an authenticated request to the NIGOH server and parses the JSON reply. */
+    /** Дархости authenticated ба сервер фиристода, ҷавоби JSON-ро мехонад. */
     private fun request(method: String, path: String, timeoutMs: Int): JSONObject {
         val token = flutterPrefs().getString(FLUTTER_TOKEN, null)
             ?: throw HttpStatus(401)
@@ -312,8 +305,8 @@ class NotifyService : Service() {
     }
 
     /**
-     * Long-poll loop: fetches new events after the saved cursor and posts them,
-     * backing off on errors and stopping on sign-out (401 or no token).
+     * Event-ҳои баъди cursor-ро бо long-poll мегирад; ҳангоми хато backoff мекунад
+     * ва баъди sign-out ё 401 қатъ мешавад.
      */
     private fun loop() {
         var backoff = 5_000L
@@ -324,7 +317,7 @@ class NotifyService : Service() {
             try {
                 var cursor = prefs().getLong(KEY_CURSOR, -1)
                 if (cursor < 0 || prefs().getString(KEY_CURSOR_OWNER, null) != owner) {
-                    // First run for this account: start at "now", no backlog.
+                    // Барои ҳисоби нав аз event-и ҷорӣ оғоз мекунад ва backlog намегирад.
                     val first = request("GET", "/api/mobile/v3/events?after_id=0", 40_000)
                     cursor = first.optLong("latest_id", 0)
                     prefs().edit().putLong(KEY_CURSOR, cursor).putString(KEY_CURSOR_OWNER, owner).apply()
@@ -367,14 +360,14 @@ class NotifyService : Service() {
         }
     }
 
-    /** Sleeps [ms]; false when interrupted or the service stopped. */
+    /** [ms] интизор мешавад; ҳангоми interrupt ё қатъи хидмат false медиҳад. */
     private fun sleep(ms: Long): Boolean = try {
         Thread.sleep(ms); running
     } catch (_: InterruptedException) {
         false
     }
 
-    /** Removes the foreground notification on any Android version. */
+    /** Огоҳиномаи foreground-ро дар ҳамаи версияҳои Android хориҷ мекунад. */
     @Suppress("DEPRECATION")
     private fun stopForegroundCompat() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -384,16 +377,16 @@ class NotifyService : Service() {
         }
     }
 
-    // ---------------------------------------------------------- notifications
+    // Сохтан ва нишон додани огоҳиномаҳо.
 
-    /** Notification id of a child's SOS alarm. */
+    /** ID-и огоҳиномаи SOS-и фарзандро месозад. */
     private fun sosId(childId: Int) = 20_000 + childId
-    /** Notification id of an incoming call. */
+    /** ID-и огоҳиномаи занги воридшавандаро месозад. */
     private fun callNotifId(callId: Int) = 30_000 + (callId % 100_000)
-    /** Notification id of a child's chat messages. */
+    /** ID-и огоҳиномаи паёмҳои фарзандро месозад. */
     private fun messageId(childId: Int) = 10_000 + childId
 
-    /** PendingIntent that opens the app with launch extras for Dart. */
+    /** PendingIntent месозад, ки барномаро бо extra-ҳои Dart мекушояд. */
     private fun launchIntent(
         requestCode: Int,
         kind: String,
@@ -419,7 +412,7 @@ class NotifyService : Service() {
         )
     }
 
-    /** PendingIntent that sends an action (stop alarm, decline…) to this service. */
+    /** PendingIntent месозад, ки action-и хомӯш ё радро ба service мефиристад. */
     private fun serviceIntent(requestCode: Int, action: String, childId: Int? = null, callId: Int? = null): PendingIntent {
         val intent = Intent(this, NotifyService::class.java).apply {
             this.action = action
@@ -434,7 +427,7 @@ class NotifyService : Service() {
         }
     }
 
-    /** Posts a notification, ignoring a missing POST_NOTIFICATIONS permission. */
+    /** Огоҳиномаро мефиристад; набудани POST_NOTIFICATIONS-ро бехатар коркард мекунад. */
     private fun post(id: Int, notification: Notification) {
         try {
             NotificationManagerCompat.from(this).notify(id, notification)
@@ -443,7 +436,7 @@ class NotifyService : Service() {
         }
     }
 
-    /** Turns one server event into the matching notification. */
+    /** Як event-и серверро ба огоҳиномаи мувофиқ табдил медиҳад. */
     private fun handleEvent(event: JSONObject) {
         val kind = event.optString("kind")
         val eventId = event.optLong("id").toInt()
@@ -457,7 +450,7 @@ class NotifyService : Service() {
         val s = NotifyStrings(current)
         when (kind) {
             "message" -> {
-                // Title = sender, text = the message itself (user content).
+                // Сарлавҳа фиристанда ва матн худи паёми корбар аст.
                 val sender = data.str("sender") ?: title
                 showMessage(eventId, childId, childName, sender, body)
             }
@@ -470,7 +463,7 @@ class NotifyService : Service() {
             "call" -> {
                 val callId = data.optInt("call_id", -1)
                 if (callId < 0) return
-                // Skip calls that already stopped ringing (e.g. after an outage).
+                // Занге, ки аллакай қатъ шудааст, баъди кандашавии шабака нишон дода намешавад.
                 val status = runCatching {
                     request("GET", "/api/mobile/v3/calls/$callId", 10_000)
                         .let { it.optJSONObject("call") ?: it }.optString("status", "ringing")
@@ -497,13 +490,13 @@ class NotifyService : Service() {
         }
     }
 
-    /** Non-blank string value of [key], or null. */
+    /** Қимати String-и холинабудаи [key]-ро ё null медиҳад. */
     private fun JSONObject.str(key: String): String? =
         if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() && it != "null" }
 
     /**
-     * Title/text for family events in the in-app language, from the structured
-     * data. null = data missing (older server) → keep the server's Tajik texts.
+     * Сарлавҳа ва матни event-и оилавиро аз маълумоти сохторӣ маҳаллӣ мекунад;
+     * барои маълумоти нопурраи сервери кӯҳна null медиҳад.
      */
     private fun localize(s: NotifyStrings, kind: String, child: String?, data: JSONObject): Pair<String, String>? =
         when (kind) {
@@ -542,7 +535,7 @@ class NotifyService : Service() {
             else -> null
         }
 
-    /** Chat message notification (grouped per child). */
+    /** Огоҳиномаи паёмро сохта, аз рӯйи фарзанд гурӯҳбандӣ мекунад. */
     private fun showMessage(eventId: Int, childId: Int?, childName: String?, sender: String, text: String) {
         val key = childId ?: 0
         val notification = NotificationCompat.Builder(this, CH_MESSAGES)
@@ -559,7 +552,7 @@ class NotifyService : Service() {
         post(messageId(key), notification)
     }
 
-    /** Family alert notification (time request, battery, offline, new app…). */
+    /** Огоҳии оилавиро барои вақт, батарея, offline ё барномаи нав нишон медиҳад. */
     private fun showFamily(eventId: Int, kind: String, childId: Int?, title: String, body: String, childName: String?) {
         val notification = NotificationCompat.Builder(this, CH_FAMILY)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
@@ -576,7 +569,7 @@ class NotifyService : Service() {
         post(40_000 + (eventId % 100_000), notification)
     }
 
-    /** SOS notification with a full-screen alarm that rings until silenced. */
+    /** SOS-и full-screen-ро нишон дода, то хомӯш кардан alarm менавозад. */
     private fun showSos(childId: Int, title: String, text: String, childName: String?, s: NotifyStrings) {
         val notification = NotificationCompat.Builder(this, CH_SOS)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
@@ -602,7 +595,7 @@ class NotifyService : Service() {
         bringToFront("sos:$childId:${System.currentTimeMillis()}", "sos", childId, peerName = childName)
     }
 
-    /** Incoming-call notification with accept/decline, ringtone and timeout. */
+    /** Занги воридшавандаро бо қабул, рад, ringtone ва timeout нишон медиҳад. */
     private fun showCall(callId: Int, childId: Int, peer: String, text: String, s: NotifyStrings) {
         val notification = NotificationCompat.Builder(this, CH_CALLS)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
@@ -631,15 +624,12 @@ class NotifyService : Service() {
     }
 
     /**
-     * Android shows a full-screen intent only on a locked/off screen; while the
-     * phone is in use it is just a heads-up. With «display over other apps»
-     * (SYSTEM_ALERT_WINDOW) background activity starts are allowed, so the
-     * call/SOS screen is opened directly. The notification stays as well.
-     * Same extras as the full-screen intent; MainActivity dedupes by [key].
+     * Ҳангоми истифодаи телефон ва иҷозати overlay экрани занг ё SOS-ро мустақим мекушояд;
+     * дар экрани қулф full-screen intent ин корро мекунад. [key] такрорро пешгирӣ менамояд.
      */
     private fun bringToFront(key: String, kind: String, childId: Int, callId: Int? = null, peerName: String? = null) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) return
-        // Locked / screen off: the full-screen intent already does it.
+        // Дар экрани қулф ё хомӯш full-screen intent аллакай ин корро мекунад.
         val power = getSystemService(Context.POWER_SERVICE) as PowerManager
         val keyguard = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         if (!power.isInteractive || keyguard.isKeyguardLocked) return
@@ -662,7 +652,7 @@ class NotifyService : Service() {
             .onFailure { Log.w(TAG, "direct launch failed: ${it.message}") }
     }
 
-    /** Stops ringing once the call is answered/declined anywhere (e.g. in the app). */
+    /** Вазъи зангро назорат карда, баъди қабул ё рад садоро қатъ мекунад. */
     private fun watchCall(callId: Int) {
         callWatcher?.interrupt()
         callWatcher = Thread({
@@ -677,7 +667,7 @@ class NotifyService : Service() {
                         .let { it.optJSONObject("call") ?: it }.optString("status", "ringing")
                 }.getOrNull() ?: continue
                 if (status != "ringing") {
-                    // Accepted on this phone: just stop ringing. Otherwise drop the card too.
+                    // Ҳангоми қабул дар ҳамин телефон садо, дар дигар ҳолат корт ҳам қатъ мешавад.
                     main.post {
                         if (status == "active" || status == "accepted") {
                             if (ringingCallId == callId) stopRinging()
@@ -692,13 +682,13 @@ class NotifyService : Service() {
         }, "nigoh-call-watch").also { it.start() }
     }
 
-    /** Stops ringing and removes the call notification. */
+    /** Садоро қатъ ва огоҳиномаи зангро хориҷ мекунад. */
     fun endCallUi(callId: Int) {
         if (ringingCallId == callId) stopRinging()
         NotificationManagerCompat.from(this).cancel(callNotifId(callId))
     }
 
-    /** Declines a call on the server and removes its notification. */
+    /** Зангро дар сервер рад карда, огоҳиномаи онро хориҷ мекунад. */
     private fun declineCall(callId: Int) {
         endCallUi(callId)
         Thread {
@@ -707,11 +697,10 @@ class NotifyService : Service() {
         }.start()
     }
 
-    // ---------------------------------------------------------------- ringing
+    // Навохтани alarm, ringtone ва vibration.
 
     /**
-     * Plays the alarm (SOS, at full alarm volume) or ringtone (call) with
-     * vibration, keeping the CPU awake.
+     * Alarm-и SOS ё ringtone-и зангро бо vibration менавозад ва CPU-ро бедор нигоҳ медорад.
      */
     private fun startRinging(alarm: Boolean) {
         val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -771,7 +760,7 @@ class NotifyService : Service() {
         }
     }
 
-    /** Stops any alarm/ringtone + vibration. Safe to call from any thread. */
+    /** Alarm, ringtone ва vibration-ро аз ҳар thread бехатар қатъ мекунад. */
     fun stopRinging() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             main.post { stopRinging() }
@@ -796,14 +785,14 @@ class NotifyService : Service() {
         callWatcher = null
     }
 
-    /** Opened from the SOS notification: silence the alarm, keep the card. */
+    /** Садои SOS-ро хомӯш карда, корти огоҳиномаро нигоҳ медорад. */
     fun stopAlarm() {
         main.post {
             if (ringingSosChild != null) stopRinging()
         }
     }
 
-    /** Ringing stops when the call UI is opened (tap or «Қабул»). */
+    /** Ҳангоми кушодани UI-и занг садо ва корти зангро қатъ мекунад. */
     fun stopCallRinging(callId: Int?) {
         main.post {
             if (ringingCallId != null && (callId == null || ringingCallId == callId)) stopRinging()

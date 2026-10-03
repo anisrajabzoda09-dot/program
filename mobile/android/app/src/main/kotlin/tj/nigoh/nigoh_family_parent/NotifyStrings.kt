@@ -1,24 +1,23 @@
-// Localized notification texts built natively by NotifyService.
+// Файл: матнҳои маҳаллигардонидашудаи огоҳиномаҳое, ки NotifyService месозад.
 
 package tj.nigoh.nigoh_family_parent
 
 /**
- * Notification texts in the in-app language ([AppLang]). Built from the
- * structured event data, so the phone's language decides, not the server's
- * Tajik title/body. User content (chat text, SOS text, reasons) is never translated.
+ * Матни огоҳиномаҳоро аз маълумоти event бо забони интихобшудаи [AppLang] месозад.
+ * Матни худи корбар, SOS ва сабабҳо тарҷума намешаванд.
  */
 class NotifyStrings(val lang: String) {
-    /** Picks the text for this object's language. */
+    /** Матни мувофиқро барои забони интихобшуда бармегардонад. */
     private fun t(tg: String, ru: String, en: String) = AppLang.pick(lang, tg, ru, en)
 
-    // Foreground service.
+    // Матнҳои foreground service.
     val serviceTitle get() = t("NIGOH Family фаъол аст", "NIGOH Family работает", "NIGOH Family is active")
     val serviceText get() = t(
         "Паёмҳо, SOS ва зангҳо фавран мерасанд",
         "Сообщения, SOS и звонки приходят сразу",
         "Messages, SOS and calls arrive instantly")
 
-    // Channels.
+    // Ном ва тавсифи channel-ҳо.
     val chService get() = t("Хизмати огоҳиномаҳо", "Служба уведомлений", "Notification service")
     val chMessages get() = t("Паёмҳо", "Сообщения", "Messages")
     val chFamily get() = t("Оила", "Семья", "Family")
@@ -30,17 +29,19 @@ class NotifyStrings(val lang: String) {
     val chCalls get() = t("Зангҳо", "Звонки", "Calls")
     val chCallsDesc get() = t("Зангҳои воридшаванда", "Входящие звонки", "Incoming calls")
 
-    // Actions.
+    // Матни action-ҳои огоҳинома.
     val accept get() = t("Қабул", "Принять", "Accept")
     val decline get() = t("Рад", "Отклонить", "Decline")
     val silence get() = t("Хомӯш кардан", "Выключить", "Turn off")
 
-    // Events.
+    // Матни event-ҳои оилавӣ.
     val voiceCall get() = t("Занги овозӣ", "Голосовой звонок", "Voice call")
     val parent get() = t("Волидайн", "Родитель", "Parent")
     val missedCall get() = t("Занги ҷавобнадода", "Пропущенный звонок", "Missed call")
 
+    /** Сарлавҳаи SOS-ро бо номи фарзанд месозад. */
     fun sosTitle(child: String) = "SOS — $child"
+    /** Матни пешфарзи SOS-ро барои фарзанди маълум ё номаълум месозад. */
     fun sosDefault(child: String?) = if (child == null) t(
         "Фарзанд ёрӣ мехоҳад. Ҷойгиршавиро бинед.",
         "Ребёнку нужна помощь. Посмотрите, где он.",
@@ -50,6 +51,7 @@ class NotifyStrings(val lang: String) {
         "$child нужна помощь. Посмотрите местоположение.",
         "$child needs help. Check their location.")
 
+    /** Сарлавҳаи дархости вақти иловагиро бо барнома ва дақиқаҳо месозад. */
     fun timeRequestTitle(child: String, minutes: Int, app: String) = t(
         "$child: +$minutes дақ барои $app",
         "$child: +$minutes мин для $app",
@@ -61,8 +63,10 @@ class NotifyStrings(val lang: String) {
 
     val approved get() = t("Иҷозат дода шуд", "Разрешено", "Request approved")
     val denied get() = t("Дархост рад шуд", "Запрос отклонён", "Request declined")
+    /** Матни иҷозати вақти иловагиро месозад. */
     fun approvedBody(app: String, minutes: Int) = t("$app: +$minutes дақ", "$app: +$minutes мин", "$app: +$minutes min")
 
+    /** Сарлавҳаи огоҳии батареяи пастро бо фоиз месозад. */
     fun lowBatteryTitle(child: String, battery: Int) = t(
         "$child: батарея $battery%", "$child: батарея $battery%", "$child: battery $battery%")
     val lowBatteryBody get() = t(
@@ -70,12 +74,14 @@ class NotifyStrings(val lang: String) {
         "Телефон ребёнка скоро выключится.",
         "Your child's phone will turn off soon.")
 
+    /** Сарлавҳаи қатъ шудани пайвасти фарзандро месозад. */
     fun offlineTitle(child: String) = t("$child офлайн аст", "$child не в сети", "$child is offline")
     val offlineBody get() = t(
         "Телефони фарзанд 20 дақиқа боз ба интернет пайваст нашудааст.",
         "Телефон ребёнка уже 20 минут не подключён к интернету.",
         "Your child's phone has been offline for 20 minutes.")
 
+    /** Сарлавҳаи насби барномаи навро месозад. */
     fun newAppTitle(child: String) = t(
         "$child барномаи нав насб кард",
         "$child: установлено новое приложение",
