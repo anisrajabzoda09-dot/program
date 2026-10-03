@@ -71,8 +71,10 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final position = _position;
+    // Scrolls: the name field is autofocused, so the keyboard is up from the
+    // start and a small phone has no room for the whole form.
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           20,
           0,
@@ -141,17 +143,30 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
                   style: TextStyle(color: scheme.error, fontSize: 12),
                 ),
               ),
-            const SizedBox(height: 14),
+            SectionTitle(tr('Андозаи ҷой')),
             Row(
               children: [
-                Text(
-                  tr('Радиус'),
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                Expanded(
+                  child: Text(
+                    tr('Радиуси давра дар харита'),
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: 12.5,
+                    ),
+                  ),
                 ),
-                const Spacer(),
-                Pill(
-                  tr('{meters} м', {'meters': _radius.round()}),
-                  color: NigohDesign.mint,
+                const SizedBox(width: 8),
+                AnimatedSwitcher(
+                  duration: Duration(
+                    milliseconds: reducedMotion(context) ? 0 : 180,
+                  ),
+                  child: Pill(
+                    key: ValueKey(_radius.round()),
+                    tr('{meters} метр', {'meters': _radius.round()}),
+                    color: NigohDesign.mint,
+                    icon: Icons.adjust_rounded,
+                    big: true,
+                  ),
                 ),
               ],
             ),
@@ -161,25 +176,29 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
               min: 50,
               max: 1000,
               divisions: 19,
-              label: tr('{meters} м', {'meters': _radius.round()}),
+              label: tr('{meters} метр', {'meters': _radius.round()}),
               onChanged: (v) => setState(() => _radius = v),
             ),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: FilledButton.icon(
                 key: const ValueKey('place-save'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(54),
+                ),
                 onPressed:
                     _saving || position == null || _name.text.trim().isEmpty
                     ? null
                     : _save,
-                child: _saving
+                icon: _saving
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(tr('Нигоҳ доштан')),
+                    : const Icon(Icons.shield_rounded),
+                label: Text(tr('Ҷойро нигоҳ доштан')),
               ),
             ),
           ],
@@ -274,33 +293,56 @@ class _PlacesSheetState extends State<PlacesSheet> {
                   child: Text(tr('Аз нав кӯшиш')),
                 ),
               ],
-              const SizedBox(height: 12),
               if (places.isEmpty)
-                Text(
-                  tr('Ҳоло ҷой нест.'),
-                  style: TextStyle(color: scheme.onSurfaceVariant),
+                StateMessage(
+                  icon: Icons.shield_outlined,
+                  color: NigohDesign.mint,
+                  title: tr('Ҳоло ҷойи бехатар нест'),
+                  text: tr(
+                    'Ҷойи аввалро илова кунед — дар корти фарзанд «Дар хона» ё «Дар мактаб» пайдо мешавад.',
+                  ),
+                  actionLabel: tr('Ҷойи нав илова кардан'),
+                  actionIcon: Icons.add_location_alt_rounded,
+                  primaryAction: true,
+                  onAction: widget.onAdd,
+                )
+              else ...[
+                SectionTitle(
+                  tr('Ҷойҳои шумо'),
+                  trailing: Text(
+                    tr('{count} ҷой', {'count': places.length}),
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              for (final place in places)
-                _PlaceTile(
-                  place: place,
-                  distance: location == null
-                      ? null
-                      : distanceMeters(
-                          location.latitude,
-                          location.longitude,
-                          place.latitude,
-                          place.longitude,
-                        ),
-                  onTap: () => widget.onShow(place),
-                  onDelete: () => _delete(place),
+                for (final (index, place) in places.indexed)
+                  FadeIn(
+                    key: ValueKey('place-${place.id}'),
+                    index: index,
+                    child: _PlaceTile(
+                      place: place,
+                      distance: location == null
+                          ? null
+                          : distanceMeters(
+                              location.latitude,
+                              location.longitude,
+                              place.latitude,
+                              place.longitude,
+                            ),
+                      onTap: () => widget.onShow(place),
+                      onDelete: () => _delete(place),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  key: const ValueKey('place-add'),
+                  onPressed: widget.onAdd,
+                  icon: const Icon(Icons.add_location_alt_rounded),
+                  label: Text(tr('Ҷойи нав илова кардан')),
                 ),
-              const SizedBox(height: 12),
-              FilledButton.icon(
-                key: const ValueKey('place-add'),
-                onPressed: widget.onAdd,
-                icon: const Icon(Icons.add_location_alt_rounded),
-                label: Text(tr('Илова кардан')),
-              ),
+              ],
             ],
           ),
         ),
@@ -399,12 +441,27 @@ class HistoryTimelineSheet extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text(
-                tr('Таърихи 24 соат · {count} нуқта', {'count': points.length}),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tr('Таърихи 24 соат · {count} нуқта', {
+                      'count': points.length,
+                    }),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    tr('Нуқтаро пахш кунед, то онро дар харита бинед.'),
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
             ),
             Flexible(
