@@ -60,6 +60,25 @@
 }
 @keyframes pages-cta-drift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
 
+/* Draw the setup timeline connector in proportion to reading progress. */
+.how-timeline { position: relative; --timeline-progress: 0; }
+.how-timeline::before,
+.how-timeline::after {
+  content: "";
+  position: absolute;
+  top: 48px;
+  bottom: 48px;
+  left: 19px;
+  width: 2px;
+  background: var(--line);
+}
+.how-timeline::after {
+  background: var(--teal);
+  transform: scaleY(var(--timeline-progress));
+  transform-origin: top;
+}
+.how-timeline .step { position: relative; z-index: 1; }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
@@ -90,4 +109,5 @@
   .hero + .section .card-link .icon { animation: none !important; transform: none !important; }
   .js-motion .home-rules-card .meta-table.is-staged tr { opacity: 1; transform: none; transition: none; }
   .home-cta { animation: none; background-position: 50% 50%; }
+  .how-timeline { --timeline-progress: 1 !important; }
 }

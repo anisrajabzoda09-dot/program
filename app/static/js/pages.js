@@ -26,5 +26,21 @@ function initRulesTable() {
   observer.observe(table);
 }
 
+// Map scroll progress through the setup steps to the timeline connector.
+function initHowTimeline() {
+  const timeline = document.querySelector('.how-timeline');
+  if (!timeline) return;
+  const update = () => {
+    const bounds = timeline.getBoundingClientRect();
+    const viewportPoint = window.innerHeight * .7;
+    const progress = Math.max(0, Math.min(1, (viewportPoint - bounds.top) / bounds.height));
+    timeline.style.setProperty('--timeline-progress', progress);
+  };
+  update();
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', update);
+}
+
 initCardSpotlights();
 initRulesTable();
+initHowTimeline();

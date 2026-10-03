@@ -3,6 +3,8 @@
 {% block title %}How it works — NIGOH Family{% endblock %}
 {% block description %}Three steps to get started: install NIGOH Family on two phones, grant permissions on your child's phone and link them with a QR code. Every Android permission explained.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <div class="wrap">
@@ -18,7 +20,7 @@
       <span class="eyebrow">Three steps</span>
       <h2>Install and link</h2>
     </div>
-    <div class="steps">
+    <div class="steps how-timeline">
       <div class="step">
         <div>
           <h3>Install the app on both phones</h3>
@@ -183,3 +185,4 @@
   </div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}

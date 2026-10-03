@@ -3,6 +3,8 @@
 {% block title %}Как это работает — NIGOH Family{% endblock %}
 {% block description %}Три шага до контроля: установите NIGOH Family на два телефона, выдайте разрешения на телефоне ребёнка и свяжите устройства по QR-коду. Каждое разрешение Android — с пояснением.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <div class="wrap">
@@ -18,7 +20,7 @@
       <span class="eyebrow">Три шага</span>
       <h2>Установка и привязка</h2>
     </div>
-    <div class="steps">
+    <div class="steps how-timeline">
       <div class="step">
         <div>
           <h3>Установите приложение на оба телефона</h3>
@@ -183,3 +185,4 @@
   </div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}
