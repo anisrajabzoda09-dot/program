@@ -100,6 +100,19 @@
 .feature-chips ~ * { scroll-margin-top: 120px; }
 #apps, #location, #chat, #protection, #setup { scroll-margin-top: 120px !important; }
 
+/* Hold feature navigation below the site header and expose scroll-spy state. */
+.feature-chip-bar {
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+  border-bottom: 1px solid var(--line);
+  background: var(--header-bg);
+  backdrop-filter: blur(14px);
+}
+.feature-chips { flex-wrap: nowrap; gap: 8px; padding: 10px 0; overflow-x: auto; scrollbar-width: none; }
+.feature-chips::-webkit-scrollbar { display: none; }
+.feature-chips .tag[aria-current="true"] { color: var(--blue); border-color: var(--blue); background: var(--blue-soft); }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }

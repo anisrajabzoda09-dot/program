@@ -58,7 +58,25 @@ function initStepBadges() {
   });
 }
 
+// Highlight the sticky feature chip for the section nearest the viewport top.
+function initFeatureScrollSpy() {
+  const links = [...document.querySelectorAll('.feature-chips a[href^="#"]')];
+  if (!links.length || !('IntersectionObserver' in window)) return;
+  const byId = new Map(links.map((link) => [link.hash.slice(1), link]));
+  const observer = new IntersectionObserver((entries) => {
+    entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
+      links.forEach((link) => link.removeAttribute('aria-current'));
+      byId.get(entry.target.id)?.setAttribute('aria-current', 'true');
+    });
+  }, { rootMargin: '-25% 0px -60% 0px' });
+  byId.forEach((link, id) => {
+    const section = document.getElementById(id);
+    if (section) observer.observe(section);
+  });
+}
+
 initCardSpotlights();
 initRulesTable();
 initHowTimeline();
 initStepBadges();
+initFeatureScrollSpy();
