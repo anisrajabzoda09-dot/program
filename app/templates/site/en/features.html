@@ -3,7 +3,10 @@
 {% block title %}Features — NIGOH Family{% endblock %}
 {% block description %}All NIGOH Family features: app and screen time control, your child's location on a map, family chat, PIN protection and easy setup with a QR code.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"Features","item":"https://nigohfamily.qobus.tj/en/features"}]}</script>
+{% endblock %}
 
 {% block content %}
 <section class="page-hero">

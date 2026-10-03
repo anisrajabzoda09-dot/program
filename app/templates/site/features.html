@@ -3,7 +3,10 @@
 {% block title %}Имкониятҳо — NIGOH Family{% endblock %}
 {% block description %}Ҳамаи имкониятҳои NIGOH Family: назорати барномаҳо ва вақти экран, ҷойгиршавии фарзанд дар харита, чати оилавӣ, ҳимоя бо PIN ва насби осон бо рамзи QR.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Саҳифаи асосӣ","item":"https://nigohfamily.qobus.tj/"},{"@type":"ListItem","position":2,"name":"Имкониятҳо","item":"https://nigohfamily.qobus.tj/features"}]}</script>
+{% endblock %}
 
 {% block content %}
 <section class="page-hero">

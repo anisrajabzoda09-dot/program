@@ -3,7 +3,10 @@
 {% block title %}Возможности — NIGOH Family{% endblock %}
 {% block description %}Все возможности NIGOH Family: контроль приложений и экранного времени, местоположение ребёнка на карте, семейный чат, защита PIN-кодом и простая установка по QR-коду.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://nigohfamily.qobus.tj/ru/"},{"@type":"ListItem","position":2,"name":"Возможности","item":"https://nigohfamily.qobus.tj/ru/features"}]}</script>
+{% endblock %}
 
 {% block content %}
 <section class="page-hero">

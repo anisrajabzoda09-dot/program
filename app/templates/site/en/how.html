@@ -3,7 +3,10 @@
 {% block title %}How it works — NIGOH Family{% endblock %}
 {% block description %}Three steps to get started: install NIGOH Family on two phones, grant permissions on your child's phone and link them with a QR code. Every Android permission explained.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"How it works","item":"https://nigohfamily.qobus.tj/en/how-it-works"}]}</script>
+{% endblock %}
 
 {% block content %}
 <section class="page-hero">

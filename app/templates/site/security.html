@@ -3,7 +3,10 @@
 {% block title %}Амният ва махфият — NIGOH Family{% endblock %}
 {% block description %}Чӣ гуна NIGOH Family маълумоти оилаи шуморо ҳифз мекунад: HTTPS, воридшавии тасдиқшуда, сервери худӣ, рамзи якдафъаинаи пайвастшавӣ ва PIN-и волидайн.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Саҳифаи асосӣ","item":"https://nigohfamily.qobus.tj/"},{"@type":"ListItem","position":2,"name":"Амният ва махфият","item":"https://nigohfamily.qobus.tj/security"}]}</script>
+{% endblock %}
 
 {% block content %}
 <section class="page-hero">
