@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../l10n/l10n.dart';
 
 /// Pure, deterministic rules shared by the UI and the 100-point regression

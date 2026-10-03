@@ -104,7 +104,9 @@ class ChildApp {
     }
     final essential = isEssentialApp(packageName);
     final studyBlocks =
-        studyActive && !essential && studyBlockedCategories.contains(categoryOf(this));
+        studyActive &&
+        !essential &&
+        studyBlockedCategories.contains(categoryOf(this));
     return {
       'packageName': packageName,
       'blocked': blocked || (bedtimeActive && !essential) || studyBlocks,
@@ -207,12 +209,15 @@ class FamilyChild {
     age: (j['age'] as num?)?.toInt() ?? 0,
     paired: j['is_paired'] == true || j['is_paired'] == 1,
     pairingCode: j['pairing_code']?.toString() ?? '',
-    apps: (j['apps'] as List? ?? const [])
-        .whereType<Map>()
-        .map((a) => ChildApp.fromJson(Map<String, dynamic>.from(a)))
-        .where((a) => a.packageName.isNotEmpty)
-        .toList()
-      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase())),
+    apps:
+        (j['apps'] as List? ?? const [])
+            .whereType<Map>()
+            .map((a) => ChildApp.fromJson(Map<String, dynamic>.from(a)))
+            .where((a) => a.packageName.isNotEmpty)
+            .toList()
+          ..sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+          ),
     location: ChildLocation.fromJson(j['location']),
     parentName: j['parent_name']?.toString(),
     bedtime: Bedtime.fromJson(j['bedtime']),
@@ -224,7 +229,9 @@ class FamilyChild {
     unreadFromParent: (j['unread_from_parent'] as num?)?.toInt() ?? 0,
     pendingRequests: (j['pending_requests'] as num?)?.toInt() ?? 0,
     lastUrgent: j['last_urgent'] is Map
-        ? ChatMessage.fromJson(Map<String, dynamic>.from(j['last_urgent'] as Map))
+        ? ChatMessage.fromJson(
+            Map<String, dynamic>.from(j['last_urgent'] as Map),
+          )
         : null,
   );
 }
@@ -262,7 +269,11 @@ class ChatMessage {
 
 /// Phone-wide quiet hours: every app except «always allowed» ones is blocked.
 class Bedtime {
-  const Bedtime({this.enabled = false, this.start = '21:30', this.end = '07:00'});
+  const Bedtime({
+    this.enabled = false,
+    this.start = '21:30',
+    this.end = '07:00',
+  });
 
   final bool enabled;
   final String start;
@@ -277,7 +288,11 @@ class Bedtime {
     );
   }
 
-  Map<String, dynamic> toJson() => {'enabled': enabled, 'start': start, 'end': end};
+  Map<String, dynamic> toJson() => {
+    'enabled': enabled,
+    'start': start,
+    'end': end,
+  };
 
   /// True when [now] is inside the window (handles windows over midnight).
   bool activeAt(DateTime now) {

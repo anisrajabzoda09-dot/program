@@ -53,7 +53,9 @@ String tr(String tajik, [Map<String, Object?> args = const {}]) {
   var text = tajik;
   if (lang != 'tg') {
     final pair = _dictionary[tajik];
-    if (pair != null && pair.length == 2) text = lang == 'ru' ? pair[0] : pair[1];
+    if (pair != null && pair.length == 2) {
+      text = lang == 'ru' ? pair[0] : pair[1];
+    }
   }
   if (args.isEmpty) return text;
   return text.replaceAllMapped(

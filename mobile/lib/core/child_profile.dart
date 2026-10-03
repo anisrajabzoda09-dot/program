@@ -3,7 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Name, gender and age the child entered on this phone. Sent to the server
 /// when the pairing code is created.
 class ChildProfile {
-  const ChildProfile({required this.name, required this.gender, required this.age});
+  const ChildProfile({
+    required this.name,
+    required this.gender,
+    required this.age,
+  });
 
   final String name;
   final String gender; // 'boy' | 'girl'
@@ -14,7 +18,11 @@ class ChildProfile {
   static Future<ChildProfile?> load() async {
     final raw = (await SharedPreferences.getInstance()).getStringList(_key);
     if (raw == null || raw.length != 3) return null;
-    return ChildProfile(name: raw[0], gender: raw[1], age: int.tryParse(raw[2]) ?? 11);
+    return ChildProfile(
+      name: raw[0],
+      gender: raw[1],
+      age: int.tryParse(raw[2]) ?? 11,
+    );
   }
 
   Future<void> save() async => (await SharedPreferences.getInstance())

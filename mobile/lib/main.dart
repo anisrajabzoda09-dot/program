@@ -18,6 +18,7 @@ import 'features/parent/parent_home.dart';
 import 'features/settings/app_update.dart';
 import 'features/settings/theme_mode.dart';
 import 'ui/theme.dart';
+import 'ui/widgets.dart';
 import 'l10n/l10n.dart';
 
 /// App-wide navigator, used to open screens from notifications.
@@ -344,8 +345,11 @@ class _RootGateState extends State<RootGate> {
     if (state == 'parent' || state == 'child') scheduleUpdateCheck(session);
     syncNotifications(session, home: state == 'parent' || state == 'child');
 
+    // Short fade-through between the gate's screens (splash → auth → home).
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 280),
+      duration: reducedMotion(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 280),
       switchInCurve: Curves.easeOutCubic,
       switchOutCurve: Curves.easeInCubic,
       child: KeyedSubtree(key: ValueKey(state), child: screen),

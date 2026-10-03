@@ -87,10 +87,9 @@ class NigohApi {
     if (response.statusCode == 401 && auth) onUnauthorized?.call();
     throw ApiException(
       _detail(decoded['detail']) ??
-          tr(
-            'Хатогӣ дар сервер ({code}). Баъдтар кӯшиш кунед.',
-            {'code': response.statusCode},
-          ),
+          tr('Хатогӣ дар сервер ({code}). Баъдтар кӯшиш кунед.', {
+            'code': response.statusCode,
+          }),
       statusCode: response.statusCode,
     );
   }
@@ -146,12 +145,11 @@ class NigohApi {
       );
 
   /// Profile photo (JPEG/PNG bytes, resized on the phone to ~512 px).
-  Future<String?> uploadAvatar(List<int> imageBytes) async =>
-      (await _send(
-        'POST',
-        '/api/mobile/v3/me/avatar',
-        body: {'image_base64': base64Encode(imageBytes)},
-      ))['avatar']?.toString();
+  Future<String?> uploadAvatar(List<int> imageBytes) async => (await _send(
+    'POST',
+    '/api/mobile/v3/me/avatar',
+    body: {'image_base64': base64Encode(imageBytes)},
+  ))['avatar']?.toString();
 
   Future<void> deleteAvatar() => _send('DELETE', '/api/mobile/v3/me/avatar');
 
@@ -178,11 +176,8 @@ class NigohApi {
     body: {'child_name': childName, 'gender': gender, 'age': age},
   );
 
-  Future<Map<String, dynamic>> pair(String code) => _send(
-    'POST',
-    '/api/mobile/v2/pair',
-    body: {'pairing_code': code},
-  );
+  Future<Map<String, dynamic>> pair(String code) =>
+      _send('POST', '/api/mobile/v2/pair', body: {'pairing_code': code});
 
   Future<void> unlinkChild(int childId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId');
@@ -213,11 +208,18 @@ class NigohApi {
   // ---------- Location ----------
 
   Future<void> syncLocation(int childId, Map<String, dynamic> location) =>
-      _send('POST', '/api/mobile/v2/children/$childId/location', body: location);
+      _send(
+        'POST',
+        '/api/mobile/v2/children/$childId/location',
+        body: location,
+      );
 
   // ---------- Chat ----------
 
-  Future<List<Map<String, dynamic>>> chat(int childId, {int afterId = 0}) async {
+  Future<List<Map<String, dynamic>>> chat(
+    int childId, {
+    int afterId = 0,
+  }) async {
     final data = await _send(
       'GET',
       '/api/mobile/v2/children/$childId/chat',
@@ -245,7 +247,10 @@ class NigohApi {
 
   // ---------- History ----------
 
-  Future<List<Map<String, dynamic>>> locationHistory(int childId, {int hours = 24}) async {
+  Future<List<Map<String, dynamic>>> locationHistory(
+    int childId, {
+    int hours = 24,
+  }) async {
     final data = await _send(
       'GET',
       '/api/mobile/v2/children/$childId/locations',
@@ -255,7 +260,10 @@ class NigohApi {
   }
 
   /// [{date, minutes, top: [{package_name, app_name, minutes}]}], oldest first.
-  Future<List<Map<String, dynamic>>> usageHistory(int childId, {int days = 7}) async {
+  Future<List<Map<String, dynamic>>> usageHistory(
+    int childId, {
+    int days = 7,
+  }) async {
     final data = await _send(
       'GET',
       '/api/mobile/v2/children/$childId/usage',
@@ -279,7 +287,10 @@ class NigohApi {
 
   /// Requests with app_name, requested_minutes, reason, status
   /// ('pending' | 'approved' | 'denied'), created_at.
-  Future<List<Map<String, dynamic>>> timeRequests(int childId, {bool pendingOnly = false}) async {
+  Future<List<Map<String, dynamic>>> timeRequests(
+    int childId, {
+    bool pendingOnly = false,
+  }) async {
     final data = await _send(
       'GET',
       '/api/mobile/v2/children/$childId/requests',
@@ -288,12 +299,16 @@ class NigohApi {
     return _list(data['requests']);
   }
 
-  Future<void> decideTimeRequest(int childId, int requestId, {required bool approve, int? minutes}) =>
-      _send(
-        'POST',
-        '/api/mobile/v2/children/$childId/requests/$requestId/decision',
-        body: {'approve': approve, 'minutes': ?minutes},
-      );
+  Future<void> decideTimeRequest(
+    int childId,
+    int requestId, {
+    required bool approve,
+    int? minutes,
+  }) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/requests/$requestId/decision',
+    body: {'approve': approve, 'minutes': ?minutes},
+  );
 
   Future<void> giveBonus(int childId, String packageName, int minutes) => _send(
     'POST',
@@ -310,8 +325,9 @@ class NigohApi {
     body: {'bedtime': bedtime},
   );
 
-  Future<List<Map<String, dynamic>>> safePlaces(int childId) async =>
-      _list((await _send('GET', '/api/mobile/v2/children/$childId/places'))['places']);
+  Future<List<Map<String, dynamic>>> safePlaces(int childId) async => _list(
+    (await _send('GET', '/api/mobile/v2/children/$childId/places'))['places'],
+  );
 
   Future<Map<String, dynamic>> addSafePlace(
     int childId, {
@@ -333,10 +349,11 @@ class NigohApi {
   Future<void> deleteSafePlace(int childId, int placeId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId/places/$placeId');
 
-  static List<Map<String, dynamic>> _list(Object? raw) => (raw as List? ?? const [])
-      .whereType<Map>()
-      .map((m) => Map<String, dynamic>.from(m))
-      .toList();
+  static List<Map<String, dynamic>> _list(Object? raw) =>
+      (raw as List? ?? const [])
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
 
   /// study: {enabled, start 'HH:mm', end 'HH:mm', weekdays [1..7]}
   Future<void> setStudyMode(int childId, Map<String, dynamic> study) => _send(
@@ -365,15 +382,25 @@ class NigohApi {
 
   Future<Map<String, dynamic>> startCall(int childId) async =>
       Map<String, dynamic>.from(
-        (await _send('POST', '/api/mobile/v3/calls', body: {'child_id': childId}))['call'] as Map,
+        (await _send(
+              'POST',
+              '/api/mobile/v3/calls',
+              body: {'child_id': childId},
+            ))['call']
+            as Map,
       );
 
   Future<Map<String, dynamic>> callStatus(int callId) async =>
-      Map<String, dynamic>.from((await _send('GET', '/api/mobile/v3/calls/$callId'))['call'] as Map);
+      Map<String, dynamic>.from(
+        (await _send('GET', '/api/mobile/v3/calls/$callId'))['call'] as Map,
+      );
 
-  Future<void> acceptCall(int callId) => _send('POST', '/api/mobile/v3/calls/$callId/accept');
-  Future<void> declineCall(int callId) => _send('POST', '/api/mobile/v3/calls/$callId/decline');
-  Future<void> endCall(int callId) => _send('POST', '/api/mobile/v3/calls/$callId/end');
+  Future<void> acceptCall(int callId) =>
+      _send('POST', '/api/mobile/v3/calls/$callId/accept');
+  Future<void> declineCall(int callId) =>
+      _send('POST', '/api/mobile/v3/calls/$callId/decline');
+  Future<void> endCall(int callId) =>
+      _send('POST', '/api/mobile/v3/calls/$callId/end');
 
   /// kind: 'offer' | 'answer' | 'ice'; payload: JSON string.
   Future<void> sendSignal(int callId, String kind, String payload) => _send(
@@ -383,7 +410,11 @@ class NigohApi {
   );
 
   /// {call: {...status}, signals: [{id, from_role, kind, payload}]}
-  Future<Map<String, dynamic>> callSignals(int callId, {int afterId = 0, int wait = 0}) => _send(
+  Future<Map<String, dynamic>> callSignals(
+    int callId, {
+    int afterId = 0,
+    int wait = 0,
+  }) => _send(
     'GET',
     '/api/mobile/v3/calls/$callId/signals',
     query: {'after_id': '$afterId', 'wait': '$wait'},

@@ -165,7 +165,11 @@ AppCategory classifyApp(String packageName, [String name = '']) {
 AppCategory categoryOf(ChildApp app) => classifyApp(app.packageName, app.name);
 
 /// Categories closed during «Тамаркузи дарс».
-const studyBlockedCategories = {AppCategory.games, AppCategory.social, AppCategory.video};
+const studyBlockedCategories = {
+  AppCategory.games,
+  AppCategory.social,
+  AppCategory.video,
+};
 
 /// Phone, contacts, SMS, clock, settings and similar system essentials.
 /// Study mode and bedtime never block these, so the child can always call.
