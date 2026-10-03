@@ -29,3 +29,11 @@
 .faq-section-hidden {
   display: none;
 }
+
+.faq-empty {
+  margin: 0 0 40px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--blue-soft);
+  color: var(--ink-2);
+}

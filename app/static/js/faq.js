@@ -12,6 +12,7 @@ function initFaqSearch() {
 
   const input = form.querySelector('input[type="search"]');
   const groups = Array.from(document.querySelectorAll('.faq'));
+  const empty = document.querySelector('[data-faq-empty]');
 
   form.addEventListener('submit', (event) => event.preventDefault());
   input.addEventListener('input', () => {
@@ -28,6 +29,9 @@ function initFaqSearch() {
       group.classList.toggle('faq-section-hidden', !hasMatch);
       if (heading?.matches('h2')) heading.classList.toggle('faq-section-hidden', !hasMatch);
     });
+
+    const hasAnyMatch = groups.some((group) => !group.classList.contains('faq-section-hidden'));
+    if (empty) empty.hidden = hasAnyMatch;
   });
 }
 
