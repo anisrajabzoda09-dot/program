@@ -75,8 +75,26 @@ function initFeatureScrollSpy() {
   });
 }
 
+// Reveal feature checklist ticks in order when each list appears.
+function initChecklistTicks() {
+  const lists = document.querySelectorAll('.feature-chip-bar ~ .section .feature-list');
+  if (!lists.length || !('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: .15 });
+  lists.forEach((list) => {
+    list.classList.add('is-staged');
+    observer.observe(list);
+  });
+}
+
 initCardSpotlights();
 initRulesTable();
 initHowTimeline();
 initStepBadges();
 initFeatureScrollSpy();
+initChecklistTicks();

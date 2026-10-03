@@ -113,6 +113,16 @@
 .feature-chips::-webkit-scrollbar { display: none; }
 .feature-chips .tag[aria-current="true"] { color: var(--blue); border-color: var(--blue); background: var(--blue-soft); }
 
+/* Reveal feature checklist ticks with a short readable cascade. */
+.js-motion .feature-list.is-staged li::before { opacity: 0; transform: scale(.55); }
+.js-motion .feature-list.is-visible li::before {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity .28s ease, transform .35s cubic-bezier(.2, .8, .2, 1.2);
+}
+.js-motion .feature-list.is-visible li:nth-child(2n)::before { transition-delay: .06s; }
+.js-motion .feature-list.is-visible li:nth-child(3n)::before { transition-delay: .12s; }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
@@ -145,4 +155,5 @@
   .home-cta { animation: none; background-position: 50% 50%; }
   .how-timeline { --timeline-progress: 1 !important; }
   .js-motion .how-timeline .step.is-staged::before { opacity: 1; transform: none; transition: none; }
+  .js-motion .feature-list.is-staged li::before { opacity: 1; transform: none; transition: none; }
 }
