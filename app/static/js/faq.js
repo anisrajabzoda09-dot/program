@@ -163,7 +163,7 @@ function initFaqSearch() {
   collapse?.addEventListener('click', () => questions.forEach((question) => { question.open = false; }));
   // Implements the slash-to-focus and Escape-to-clear keyboard shortcuts.
   document.addEventListener('keydown', (event) => {
-    const isTyping = event.target.matches('input, textarea, select, [contenteditable="true"]');
+    const isTyping = event.target instanceof Element && event.target.matches('input, textarea, select, [contenteditable="true"]');
     if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
       event.preventDefault();
       input.focus();
