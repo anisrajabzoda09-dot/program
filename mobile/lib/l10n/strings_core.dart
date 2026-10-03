@@ -747,4 +747,130 @@ const Map<String, List<String>> coreStrings = {
   'Хомӯш аст': ['Выключены', 'Off'],
   'Дидан': ['Открыть', 'Open'],
   'Режими торик': ['Тёмная тема', 'Dark mode'],
+
+  // v2.17.0 — clearer shared surfaces, visible uninstall action.
+  'Нест кардани барнома': ['Удалить приложение', 'Uninstall the app'],
+  'NIGOH пинҳон нест. Барномаро нест кардан мумкин аст, вале PIN-и волидайн лозим аст.':
+      [
+        'NIGOH не скрыт. Приложение можно удалить, но нужен PIN родителя.',
+        'NIGOH is not hidden. The app can be removed, but the parent PIN is required.',
+      ],
+  'PIN-и волидайнро мепурсад, баъд Android экрани несткуниро мекушояд.': [
+    'Спросит PIN родителя, затем откроется экран удаления Android.',
+    'Asks for the parent PIN, then Android opens its uninstall screen.',
+  ],
+  'Аввал волидайн PIN гузорад.': [
+    'Сначала родитель должен задать PIN.',
+    'A parent has to set the PIN first.',
+  ],
+  'PIN-и волидайн гузошта нашудааст': [
+    'PIN родителя не задан',
+    'No parent PIN yet',
+  ],
+  'Нест кардани NIGOH танҳо бо PIN-и волидайн мумкин аст. Аввал волидайн PIN гузорад.':
+      [
+        'Удалить NIGOH можно только с PIN родителя. Сначала родитель должен задать PIN.',
+        'NIGOH can only be removed with the parent PIN. A parent has to set it first.',
+      ],
+  'Нест кардани NIGOH танҳо бо PIN-и волидайн мумкин аст. PIN-ро ворид кунед — баъд Android экрани несткуниро мекушояд.':
+      [
+        'Удалить NIGOH можно только с PIN родителя. Введите PIN — затем откроется экран удаления Android.',
+        'NIGOH can only be removed with the parent PIN. Enter it and Android will open its uninstall screen.',
+      ],
+  'PIN нодуруст аст. Барнома нест карда нашуд.': [
+    'Неверный PIN. Приложение не удалено.',
+    'Wrong PIN. The app was not removed.',
+  ],
+  'PIN-и волидайн ва иҷозатҳои Android.': [
+    'PIN родителя и разрешения Android.',
+    'Parent PIN and Android permissions.',
+  ],
+  'Фаъол аст — амалҳои муҳим PIN мепурсанд': [
+    'Включён — важные действия спрашивают PIN',
+    'On — important actions ask for the PIN',
+  ],
+  'Гузошта нашудааст — ҳоло ҳимоя нест': [
+    'Не задан — защиты пока нет',
+    'Not set — no protection yet',
+  ],
+  'Иҷозатҳои Android': ['Разрешения Android', 'Android permissions'],
+  'Санҷидан': ['Проверить', 'Check'],
+  'Ранг ва забони барнома.': [
+    'Цвет и язык приложения.',
+    'App colour and language.',
+  ],
+  'Шабона ба чашм осонтар.': [
+    'Ночью глазам легче.',
+    'Easier on the eyes at night.',
+  ],
+  'Забони барнома': ['Язык приложения', 'App language'],
+  'Ҳоло: {language}': ['Сейчас: {language}', 'Now: {language}'],
+  'Версия, навсозӣ ва огоҳиномаҳо.': [
+    'Версия, обновления и уведомления.',
+    'Version, updates and notifications.',
+  ],
+  'Дар ин ҷо PIN-и волидайн, иҷозатҳо, забон ва намуди барномаро танзим кунед.':
+      [
+        'Здесь настраиваются PIN родителя, разрешения, язык и внешний вид приложения.',
+        'Here you set the parent PIN, permissions, language and the look of the app.',
+      ],
+  'Ин телефон бо волидайн пайваст аст. Дар ин ҷо PIN, забон ва намуди барномаро тағйир диҳед.':
+      [
+        'Этот телефон связан с родителем. Здесь можно изменить PIN, язык и внешний вид.',
+        'This phone is linked to a parent. Here you can change the PIN, language and look.',
+      ],
+
+  // Auth / role / child setup.
+  'Бо почта ва рамзи аккаунти худ ворид шавед.': [
+    'Войдите по своей почте и паролю.',
+    'Sign in with your email and password.',
+  ],
+  'Аккаунти нави оила месозед. Баъд интихоб мекунед: волидайн ё фарзанд.': [
+    'Создаёте новый семейный аккаунт. Потом выберете: родитель или ребёнок.',
+    'You are creating a new family account. Next you choose: parent or child.',
+  ],
+  'Як бор интихоб мекунед. Баъд NIGOH иҷозатҳои лозимиро қадам ба қадам мепурсад.':
+      [
+        'Выбор делается один раз. Затем NIGOH пошагово запросит нужные разрешения.',
+        'You choose once. NIGOH then asks for the permissions it needs, step by step.',
+      ],
+  'Баъди интихоб телефони фарзандро пайваст мекунед.': [
+    'После выбора вы подключите телефон ребёнка.',
+    'After choosing you link the child phone.',
+  ],
+  'Телефони ман': ['Мой телефон', 'My phone'],
+  'Телефони фарзанд': ['Телефон ребёнка', "The child's phone"],
+  'Маълумоти шумо': ['Ваши данные', 'About you'],
+  'Танҳо ном, ҷинс ва синну сол — дигар чизе пурсида намешавад.': [
+    'Только имя, пол и возраст — больше ничего не спрашиваем.',
+    'Just a name, gender and age — nothing else is asked.',
+  ],
+  'Нигоҳ доштан ва идома': ['Сохранить и продолжить', 'Save and continue'],
+  'Қадами навбатӣ: иҷозатҳои Android.': [
+    'Следующий шаг: разрешения Android.',
+    'Next step: Android permissions.',
+  ],
+
+  // Permissions wizard.
+  'Иҷозатҳоро як бор медиҳед — баъд NIGOH дар пасзамина кор мекунад. Ҳар қадамро гузаронидан мумкин аст.':
+      [
+        'Разрешения даются один раз — дальше NIGOH работает в фоне. Любой шаг можно пропустить.',
+        'You grant the permissions once — NIGOH then works in the background. Any step can be skipped.',
+      ],
+  'Иҷозат дода нашуд? Танзимоти Android-ро кушоед': [
+    'Разрешение не получено? Откройте настройки Android',
+    'Not granted? Open the Android settings',
+  ],
+  'Дастури қадам ба қадам': ['Пошаговая инструкция', 'Step-by-step guide'],
+  'Якчанд иҷозат мондааст': [
+    'Осталось несколько разрешений',
+    'A few permissions are left',
+  ],
+
+  // Shared stat widgets (lib/ui/stat_meter.dart).
+  '{value} {unit} аз {max}': [
+    '{value} {unit} из {max}',
+    '{value} {unit} of {max}',
+  ],
+  '{value} аз {max}': ['{value} из {max}', '{value} of {max}'],
 };

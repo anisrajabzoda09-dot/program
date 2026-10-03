@@ -15,16 +15,23 @@ void main() {
 
   String join(String group) => part
       .allMatches(group)
-      .map((m) => m[0]!.substring(1, m[0]!.length - 1)
-          .replaceAll(r'\n', '\n')
-          .replaceAll(r"\'", "'")
-          .replaceAll(r'\"', '"'))
+      .map(
+        (m) => m[0]!
+            .substring(1, m[0]!.length - 1)
+            .replaceAll(r'\n', '\n')
+            .replaceAll(r"\'", "'")
+            .replaceAll(r'\"', '"'),
+      )
       .join();
 
   Set<String> usedKeys() {
     final keys = <String>{};
     for (final f in Directory('lib').listSync(recursive: true)) {
-      if (f is! File || !f.path.endsWith('.dart') || f.uri.pathSegments.contains('l10n')) continue;
+      if (f is! File ||
+          !f.path.endsWith('.dart') ||
+          f.uri.pathSegments.contains('l10n')) {
+        continue;
+      }
       for (final m in call.allMatches(f.readAsStringSync())) {
         keys.add(join(m[1]!));
       }
@@ -36,7 +43,11 @@ void main() {
     final keys = usedKeys();
     expect(keys.length, greaterThan(300));
     final missing = untranslatedKeys(keys).toList()..sort();
-    expect(missing, isEmpty, reason: 'Missing translations:\n${missing.join('\n')}');
+    expect(
+      missing,
+      isEmpty,
+      reason: 'Missing translations:\n${missing.join('\n')}',
+    );
   });
 
   test('all entries have ru/en with identical placeholders', () {

@@ -16,12 +16,13 @@ class TrKey {
 /// flag them.
 List<TrKey> extractTrKeys(String root) {
   final result = <TrKey>[];
-  final files = Directory(root)
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.dart'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final files =
+      Directory(root)
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
   for (final file in files) {
     final src = file.readAsStringSync();
     for (final (key, offset) in extractTrKeysFromSource(src)) {
