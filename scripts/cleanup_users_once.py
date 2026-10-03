@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-time, scoped cleanup for NIGOH user accounts and dependent data."""
+"""Файл: поксозии яккаратаи ҳисобҳо ва додаҳои вобаста."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ DELETE_ORDER = ("app_rules", "chat_messages", "children", "users")
 
 
 def counts(connection: sqlite3.Connection) -> dict[str, int]:
-    """Count rows in each known account table that exists in the database."""
+    """Маълумоти ёрирасони counts-ро омода карда, ба caller бармегардонад."""
 
     result: dict[str, int] = {}
     available = {
@@ -33,7 +33,7 @@ def counts(connection: sqlite3.Connection) -> dict[str, int]:
 
 
 def main() -> int:
-    """Preview or transactionally erase account data after creating a backup."""
+    """Ҷараёни асосии main-ро иҷро карда, хатоҳоро назорат мекунад."""
 
     parser = argparse.ArgumentParser()
     parser.add_argument("database", type=Path)

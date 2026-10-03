@@ -1,23 +1,5 @@
 #!/usr/bin/env python3
-"""Deploy NIGOH Family to production (the website, API and the Android APK).
-
-What it does, in order:
-  1. Gets a verified, release-signed APK: builds it (default) or, with
-     NIGOH_SKIP_BUILD=1, only verifies the one already in app/static/downloads.
-  2. Uploads app/ (code, templates, static files, APKs) — never the live
-     database — plus requirements.txt and deploy/ configs.
-  3. Installs Python dependencies on the server and restarts the API.
-
-Server access comes from the environment or from the git-ignored file
-`.env.deploy` in the project root:
-  NIGOH_DEPLOY_HOST, NIGOH_DEPLOY_USER, NIGOH_DEPLOY_PASSWORD
-The password is handed to ssh/rsync through SSH_ASKPASS, so it never appears
-on a command line, in logs, or in this repository.
-
-Usage:
-  venv/bin/python scripts/deploy_production.py
-  NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
-"""
+"""Файл: deploy кардани website, API ва APK-и release ба production."""
 import os
 import shutil
 import stat
@@ -30,11 +12,7 @@ REMOTE_PATH = "/home/dev/munis"
 
 
 def load_env_file(path: Path) -> None:
-    """Read KEY=VALUE lines from a local secrets file into os.environ.
-
-    Values already set in the environment win, so a one-off override on the
-    command line still works.
-    """
+    """Барои гирифтан ё санҷидани load env file истифода мешавад."""
     if not path.is_file():
         return
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -57,7 +35,7 @@ SSH_OPTS = "ssh -F /dev/null -o StrictHostKeyChecking=accept-new"
 
 
 def find_apksigner() -> str:
-    """Locate Android's apksigner (PATH, $APKSIGNER, or the newest SDK build-tools)."""
+    """Барои гирифтан ё санҷидани find apksigner истифода мешавад."""
     apksigner = os.environ.get("APKSIGNER") or shutil.which("apksigner")
     if apksigner:
         return apksigner
@@ -73,11 +51,7 @@ def find_apksigner() -> str:
 
 
 def verify_apk_signature(apk_path: Path) -> None:
-    """Refuse to deploy an APK that is unsigned, debug-signed, or lacks v2/v3 signatures.
-
-    Phones only accept an update signed with the same release key, so a wrong
-    signature would break in-app updates for every family.
-    """
+    """Барои гирифтан ё санҷидани verify apk signature истифода мешавад."""
     result = subprocess.run(
         [find_apksigner(), "verify", "--verbose", "--print-certs", str(apk_path)],
         text=True, capture_output=True, check=False,
@@ -95,7 +69,7 @@ def verify_apk_signature(apk_path: Path) -> None:
 
 
 def find_jdk(env: dict) -> None:
-    """Make sure JAVA_HOME points at a full JDK (Gradle needs javac); fills it in if possible."""
+    """Барои гирифтан ё санҷидани find jdk истифода мешавад."""
     if (Path(env.get("JAVA_HOME", "")) / "bin" / "javac").is_file():
         return
     for candidate in ("/snap/android-studio/current/jbr", "/opt/android-studio/jbr"):
@@ -106,11 +80,7 @@ def find_jdk(env: dict) -> None:
 
 
 def build_release_apk() -> Path:
-    """Build the release APK from the Flutter project and copy it into downloads.
-
-    NIGOH_ANDROID_PROJECT must point at the project that holds the signing
-    key (android/key.properties); the copy in mobile/ deliberately has none.
-    """
+    """Маълумоти ёрирасони build release apk-ро омода карда, ба caller бармегардонад."""
     if not ANDROID_PROJECT.is_dir():
         raise RuntimeError(f"Android project directory not found: {ANDROID_PROJECT}")
     flutter = os.environ.get("FLUTTER_BIN", shutil.which("flutter") or "flutter")
@@ -129,7 +99,7 @@ def build_release_apk() -> Path:
 
 
 def prepare_apk() -> Path:
-    """Return the APK to publish: build it, or (NIGOH_SKIP_BUILD=1) verify the existing one."""
+    """Маълумоти ёрирасони prepare apk-ро омода карда, ба caller бармегардонад."""
     if os.environ.get("NIGOH_SKIP_BUILD") == "1":
         apk = DOWNLOADS / APK_FILENAME
         if not apk.is_file():
@@ -140,11 +110,7 @@ def prepare_apk() -> Path:
 
 
 def askpass_env() -> dict:
-    """Environment that lets ssh/rsync read the password from a throwaway helper script.
-
-    The helper prints $NIGOH_DEPLOY_PASSWORD; it lives in a private temp file
-    (mode 700) that is deleted when the deploy finishes.
-    """
+    """askpass env-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     if not REMOTE_PASS:
         raise RuntimeError("NIGOH_DEPLOY_PASSWORD is missing (set it or create .env.deploy)")
     fd, path = tempfile.mkstemp(prefix="nigoh-askpass-", suffix=".sh")
@@ -157,13 +123,13 @@ def askpass_env() -> dict:
 
 
 def run(cmd: str, env: dict) -> None:
-    """Run one ssh/rsync command; stop the whole deploy if it fails."""
+    """Маълумоти ёрирасони run-ро омода карда, ба caller бармегардонад."""
     print(f"-> {cmd}")
     subprocess.run(cmd, shell=True, check=True, env=env, cwd=PROJECT_ROOT, stdin=subprocess.DEVNULL)
 
 
 def deploy() -> None:
-    """Publish the current project to the production server (see module docstring)."""
+    """Ҷараёни асосии deploy-ро иҷро карда, хатоҳоро назорат мекунад."""
     print("NIGOH Family — production deploy")
     prepare_apk()
     env = askpass_env()

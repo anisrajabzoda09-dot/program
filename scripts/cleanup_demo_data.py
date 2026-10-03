@@ -1,17 +1,5 @@
 #!/usr/bin/env python3
-"""Remove the sample data that older builds seeded into the database.
-
-Only rows created by the old seed code are touched:
-  * the four invented reviews (matched by exact author name)
-  * the five sample children (matched by their seeded pairing codes and
-    not linked to any real user)
-
-Dry run by default — it only prints what it would delete.
-Run with --apply to delete. A copy of the database is written first.
-
-    python3 scripts/cleanup_demo_data.py            # show
-    python3 scripts/cleanup_demo_data.py --apply    # delete
-"""
+"""Файл: пешнамоиш ва поксозии бехатари demo data-и кӯҳна."""
 import shutil
 import sqlite3
 import sys
@@ -36,13 +24,13 @@ SAMPLE_CHILD_CODES = (
 
 
 def _marks(values) -> str:
-    """Build the SQLite placeholders needed for a sequence of parameters."""
+    """Маълумоти ёрирасони marks-ро омода карда, ба caller бармегардонад."""
 
     return ",".join("?" * len(values))
 
 
 def main() -> None:
-    """Preview or safely delete recognized seed rows after backing up the database."""
+    """main-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     apply = "--apply" in sys.argv
     conn = sqlite3.connect(DB_PATH)
