@@ -1,5 +1,4 @@
-// Access center: a checklist page of every Android permission/protection
-// NIGOH needs, with buttons that open the matching dialog or settings screen.
+// Файл: маркази санҷиш ва кушодани иҷозатҳои Android.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,18 +7,17 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 
 import '../l10n/l10n.dart';
 
-/// A friendly, step-by-step permission setup. Android still owns the final
-/// consent screen for special permissions; this page keeps the flow simple.
+/// Экрани AccessCenterPage-ро барои маркази санҷиш ва кушодани иҷозатҳои Android месозад.
 class AccessCenterPage extends StatefulWidget {
   const AccessCenterPage({super.key, required this.childMode});
   final bool childMode;
 
+  /// Ҳолати AccessCenterPage-ро барои иҷозатҳои муҳофизати Android месозад.
   @override
   State<AccessCenterPage> createState() => _AccessCenterPageState();
 }
 
-/// Reads the protection status from native code and runs the step actions,
-/// re-checking when the app resumes.
+/// Ҳолат ва рафтори AccessCenterPageState-ро барои навсозии интерфейс идора мекунад.
 class _AccessCenterPageState extends State<AccessCenterPage>
     with WidgetsBindingObserver {
   static const channel = MethodChannel('tj.nigoh/device_control');
@@ -28,8 +26,10 @@ class _AccessCenterPageState extends State<AccessCenterPage>
   bool busy = false;
   String? error;
 
+  /// allowed иҷро шудани шарти вобастаро муайян мекунад.
   bool allowed(String key) => status[key] == true;
 
+  /// Тағйири lifecycle-ро назорат карда, вазъи иҷозатҳои Android-ро мехонад.
   @override
   void initState() {
     super.initState();
@@ -37,18 +37,20 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     refresh();
   }
 
+  /// Controller ва listener-ҳои AccessCenterPage-ро озод мекунад.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// Ба тағйири lifecycle-и AccessCenterPage ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) refresh();
   }
 
-  /// Re-reads which permissions and protections are active.
+  /// refresh додаҳои маркази иҷозатҳо-ро боз мехонад ва AccessCenterPage-ро нав мекунад.
   Future<void> refresh() async {
     try {
       final result = await channel.invokeMapMethod<String, dynamic>(
@@ -69,7 +71,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
-  /// Runs a step action once at a time, then refreshes the status.
+  /// act мантиқи зарурии маркази санҷиш ва кушодани иҷозатҳои Android-ро иҷро мекунад.
   Future<void> act(Future<void> Function() action) async {
     if (busy) return;
     setState(() => busy = true);
@@ -89,12 +91,12 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
-  /// Calls a native method that opens a system settings screen.
+  /// open экран ё dialog-и лозими маркази иҷозатҳо-ро мекушояд.
   Future<void> open(String method) async {
     await channel.invokeMethod<Object?>(method);
   }
 
-  /// Requests a runtime permission, or opens app settings if it is blocked.
+  /// request иҷозат ё маълумоти лозимро дархост мекунад.
   Future<void> request(ph.Permission permission) async {
     final current = await permission.status;
     if (current.isPermanentlyDenied || current.isRestricted) {
@@ -104,7 +106,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     await permission.request();
   }
 
-  /// Opens the dialog or settings screen for the step [key].
+  /// runStep мантиқи зарурии маркази санҷиш ва кушодани иҷозатҳои Android-ро иҷро мекунад.
   Future<void> runStep(String key) async {
     switch (key) {
       case 'location':
@@ -132,12 +134,12 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
-  /// Child phone: whether the protections needed for app blocking are on.
+  /// Қимати protectionReady-ро барои маркази санҷиш ва кушодани иҷозатҳои Android нигоҳ медорад.
   bool get protectionReady =>
       !widget.childMode ||
       (allowed('usage') && allowed('overlay') && allowed('accessibility'));
 
-  /// First required step that is still missing (drives the hero image).
+  /// Қимати ҳисобшудаи activeKey-ро барои маркази санҷиш ва кушодани иҷозатҳои Android бармегардонад.
   String get activeKey {
     const required = [
       'location',
@@ -152,7 +154,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     return 'permissions_hero';
   }
 
-  /// Illustration for the step currently being set up.
+  /// Қимати ҳисобшудаи activeImage-ро барои маркази санҷиш ва кушодани иҷозатҳои Android бармегардонад.
   String get activeImage {
     switch (activeKey) {
       case 'location':
@@ -166,7 +168,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     }
   }
 
-  /// The checklist steps with their titles, descriptions and icons.
+  /// Қимати steps-ро барои маркази санҷиш ва кушодани иҷозатҳои Android нигоҳ медорад.
   List<_PermissionStepData> get steps => [
     _PermissionStepData(
       key: 'location',
@@ -226,6 +228,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
       ),
   ];
 
+  /// Қимати ҳисобшудаи nextRequiredStep-ро барои маркази санҷиш ва кушодани иҷозатҳои Android бармегардонад.
   _PermissionStepData? get nextRequiredStep {
     for (final step in steps) {
       if (!step.optional && !allowed(step.key)) return step;
@@ -233,6 +236,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     return null;
   }
 
+  /// Маркази иҷозатҳоро бо пешрафт ва қадамҳои танзимоти Android нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -501,7 +505,7 @@ class _AccessCenterPageState extends State<AccessCenterPage>
   }
 }
 
-/// Static copy of one checklist step.
+/// Додаҳо ва рафтори марбут ба маркази санҷиш ва кушодани иҷозатҳои Android-ро ифода мекунад.
 class _PermissionStepData {
   const _PermissionStepData({
     required this.key,
@@ -518,7 +522,7 @@ class _PermissionStepData {
   final bool optional;
 }
 
-/// Numbered checklist card with done state and an action button.
+/// Widget-и PermissionStepCard-ро барои маркази санҷиш ва кушодани иҷозатҳои Android месозад.
 class _PermissionStepCard extends StatelessWidget {
   const _PermissionStepCard({
     required this.number,
@@ -532,6 +536,7 @@ class _PermissionStepCard extends StatelessWidget {
   final bool done;
   final VoidCallback? onPressed;
 
+  /// Widget-и PermissionStepCard-ро барои иҷозатҳои муҳофизати Android месозад.
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;

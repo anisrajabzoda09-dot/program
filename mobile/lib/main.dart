@@ -1,6 +1,4 @@
-// App entry point: loads the session, theme and language, then builds the
-// MaterialApp whose home is [RootGate], which picks the screen for the current
-// sign-in / role / setup state and wires notification taps to screens.
+// Файл: оғози барнома, session, notification ва экрани аввал.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,11 +21,10 @@ import 'ui/theme.dart';
 import 'ui/widgets.dart';
 import 'l10n/l10n.dart';
 
-/// App-wide navigator, used to open screens from notifications.
+/// Қимати navigatorKey-ро барои оғози барнома, session, notification ва экрани аввал нигоҳ медорад.
 final navigatorKey = GlobalKey<NavigatorState>();
 
-/// Starts the app after restoring the saved session, theme and language so the
-/// first frame already shows the right screen.
+/// main мантиқи зарурии оғози барнома, session, notification ва экрани аввалро иҷро мекунад.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final session = Session();
@@ -39,33 +36,35 @@ Future<void> main() async {
   runApp(NigohApp(session: session));
 }
 
-/// Root widget: the MaterialApp with themes, localization and [RootGate].
+/// Додаҳо ва рафтори марбут ба оғози барнома, session, notification ва экрани аввалро ифода мекунад.
 class NigohApp extends StatefulWidget {
   const NigohApp({super.key, required this.session});
   final Session session;
 
+  /// Ҳолати NigohApp-ро барои оғоз, session ва масири аввали барнома месозад.
   @override
   State<NigohApp> createState() => _NigohAppState();
 }
 
-/// Rebuilds the whole tree on a language switch and hosts the MaterialApp.
+/// Ҳолат ва рафтори NigohAppState-ро барои навсозии интерфейс идора мекунад.
 class _NigohAppState extends State<NigohApp> {
+  /// Тағйири забони барномаро мешунавад, то тамоми интерфейс аз нав сохта шавад.
   @override
   void initState() {
     super.initState();
     appLanguage.addListener(rebuildAll);
   }
 
+  /// Controller ва listener-ҳои NigohApp-ро озод мекунад.
   @override
   void dispose() {
     appLanguage.removeListener(rebuildAll);
     super.dispose();
   }
 
-  /// Texts come from tr() inside build methods, so a language switch must
-  /// rebuild every element — including routes pushed above the home (e.g. the
-  /// open Settings screen) — while keeping their state.
+  /// rebuildAll мантиқи зарурии оғози барнома, session, notification ва экрани аввалро иҷро мекунад.
   void rebuildAll() {
+    /// mark дархостро ба API мефиристад ва натиҷаро коркард мекунад.
     void mark(Element element) {
       element.markNeedsBuild();
       element.visitChildren(mark);
@@ -74,8 +73,10 @@ class _NigohAppState extends State<NigohApp> {
     if (mounted) (context as Element).visitChildren(mark);
   }
 
+  /// Қимати ҳисобшудаи session-ро аз ҳолати ҷорӣ бармегардонад.
   Session get session => widget.session;
 
+  /// Барномаро бо session, забон ва мавзӯи интихобшуда месозад.
   @override
   Widget build(BuildContext context) => SessionScope(
     session: session,
@@ -104,34 +105,32 @@ class _NigohAppState extends State<NigohApp> {
   );
 }
 
-/// Picks the screen for the current state:
-/// loading → splash, signed out → [AuthScreen], no role → [RoleScreen],
-/// child without a local profile → [ChildSetupScreen], permissions not set
-/// up yet for this role → [PermissionsWizard] (once), else the home.
+/// Додаҳо ва рафтори марбут ба оғози барнома, session, notification ва экрани аввалро ифода мекунад.
 class RootGate extends StatefulWidget {
   const RootGate({super.key});
 
+  /// Ҳолати RootGate-ро барои оғоз, session ва масири аввали барнома месозад.
   @override
   State<RootGate> createState() => _RootGateState();
 }
 
-/// State of [RootGate]: loads the child profile and wizard flag for the
-/// signed-in role, keeps notifications in sync and routes notification taps.
+/// Ҳолат ва рафтори RootGateState-ро барои навсозии интерфейс идора мекунад.
 class _RootGateState extends State<RootGate> {
   ChildProfile? childProfile;
   bool profileLoaded = false;
   bool profileLoading = false;
   bool updateChecked = false;
 
-  /// Role whose `nigoh.wizard_done.<role>` flag is loaded / loading.
+  /// Қимати wizardRole-ро барои оғози барнома, session, notification ва экрани аввал нигоҳ медорад.
   String? wizardRole;
   bool wizardDone = false;
   bool wizardLoading = false;
 
-  /// Token and role (as `token|role`) the notification service was started for.
+  /// Қимати notifyKey-ро барои оғози барнома, session, notification ва экрани аввал нигоҳ медорад.
   String? notifyKey;
   bool notifyPermissionsAsked = false;
 
+  /// Амали огоҳиномаи оғози Android-ро мешунавад ва дархости интизорро коркард мекунад.
   @override
   void initState() {
     super.initState();
@@ -141,14 +140,14 @@ class _RootGateState extends State<RootGate> {
     }
   }
 
+  /// Controller ва listener-ҳои RootGate-ро озод мекунад.
   @override
   void dispose() {
     NotifyBridge.launch.removeListener(onLaunch);
     super.dispose();
   }
 
-  /// Starts the notification service when signed in with a role, stops it on
-  /// sign-out, and asks for notification permissions once.
+  /// syncNotifications додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   void syncNotifications(Session session, {required bool home}) {
     final token = session.api.token;
     final key = session.signedIn && session.role != null
@@ -172,8 +171,7 @@ class _RootGateState extends State<RootGate> {
     }
   }
 
-  /// Routes a tap on a notification: calls open [CallScreen], everything else
-  /// sets [homeTarget] for the parent/child home to pick up.
+  /// onLaunch рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void onLaunch() {
     final action = NotifyBridge.launch.value;
     if (action == null) return;
@@ -184,8 +182,7 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
-  /// Opens what a tapped notification points to: the call screen for calls,
-  /// the matching home tab otherwise, plus a full-screen SOS alarm dialog.
+  /// handleLaunch рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   Future<void> handleLaunch(LaunchAction action) async {
     final navigator = navigatorKey.currentState;
     if (action.kind == 'call') {
@@ -202,7 +199,7 @@ class _RootGateState extends State<RootGate> {
     }
     homeTarget.value = HomeTarget.forEvent(action.kind, action.childId);
     if (action.kind == 'sos' && action.fullScreen && navigator != null) {
-      // Opened over the lock screen while the alarm is still ringing.
+      // Қадами дохилии оғози барнома, session, notification ва экрани аввал.
       await showDialog<void>(
         context: navigator.context,
         barrierDismissible: false,
@@ -229,14 +226,14 @@ class _RootGateState extends State<RootGate> {
     }
   }
 
-  /// Reads the child's locally saved profile (name/age) once after sign-in.
+  /// loadProfile додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> loadProfile() async {
     profileLoading = true;
     ChildProfile? profile;
     try {
       profile = await ChildProfile.load();
     } catch (_) {
-      profile = null; // Unreadable: ask again.
+      profile = null; // Агар хонда нашавад, маълумот аз нав пурсида мешавад.
     }
     if (!mounted) return;
     setState(() {
@@ -246,7 +243,7 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
-  /// Loads whether the permissions wizard was already finished for [role].
+  /// loadWizardFlag додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> loadWizardFlag(String role) async {
     wizardRole = role;
     wizardLoading = true;
@@ -254,7 +251,7 @@ class _RootGateState extends State<RootGate> {
     try {
       done = await PermissionsWizard.isDone(role);
     } catch (_) {
-      done = false; // Unreadable flag: show the wizard again.
+      done = false; // Агар flag хонда нашавад, роҳнамо аз нав нишон дода мешавад.
     }
     if (!mounted || wizardRole != role) return;
     setState(() {
@@ -263,14 +260,14 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
-  /// Marks the wizard finished and goes on to the home screen.
+  /// onWizardDone рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void onWizardDone() {
-    // The wizard covered notifications; do not ask again right away.
+    // Огоҳиномаи воридшударо дар RootGate ба амали мувофиқ равона мекунад.
     notifyPermissionsAsked = true;
     setState(() => wizardDone = true);
   }
 
-  /// Runs the silent start-up update check once per app launch.
+  /// scheduleUpdateCheck раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void scheduleUpdateCheck(Session session) {
     if (updateChecked) return;
     updateChecked = true;
@@ -279,11 +276,12 @@ class _RootGateState extends State<RootGate> {
     });
   }
 
+  /// Аз рӯи session экрани воридшавӣ, интихоби нақш ё саҳифаи асосиро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
     if (!session.isChild && profileLoaded) {
-      // Signed out or switched role: re-read next time.
+      // Қадами дохилии оғози барнома, session, notification ва экрани аввал.
       profileLoaded = false;
       childProfile = null;
     }
@@ -334,7 +332,7 @@ class _RootGateState extends State<RootGate> {
     if (state == 'parent' || state == 'child') scheduleUpdateCheck(session);
     syncNotifications(session, home: state == 'parent' || state == 'child');
 
-    // Short fade-through between the gate's screens (splash → auth → home).
+    // Animation бо назардошти танзими кам кардани ҳаракат иҷро мешавад.
     return AnimatedSwitcher(
       duration: reducedMotion(context)
           ? Duration.zero
@@ -346,10 +344,11 @@ class _RootGateState extends State<RootGate> {
   }
 }
 
-/// Logo and spinner shown while the session and flags are loading.
+/// Додаҳо ва рафтори марбут ба оғози барнома, session, notification ва экрани аввалро ифода мекунад.
 class _Splash extends StatelessWidget {
   const _Splash();
 
+  /// Ҳангоми омодасозии session экрани интизории NIGOH-ро нишон медиҳад.
   @override
   Widget build(BuildContext context) => const Scaffold(
     body: Center(
