@@ -3,6 +3,8 @@
 {% block title %}Security &amp; privacy — NIGOH Family{% endblock %}
 {% block description %}How NIGOH Family protects your family's data: HTTPS, verified sign-in, our own server, a one-time linking code and a parent PIN.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <div class="wrap">
@@ -18,7 +20,7 @@
       <h2>Protection at every step</h2>
       <p class="lead">From the moment you sign in to every map update.</p>
     </div>
-    <div class="grid-3">
+    <div class="grid-3 security-grid">
       <div class="card">
         <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
         <h3>Encrypted connection</h3>
@@ -143,3 +145,4 @@
   </div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}

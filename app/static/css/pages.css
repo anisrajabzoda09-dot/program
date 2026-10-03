@@ -136,6 +136,15 @@
 .js-motion .feature-list.is-visible li:nth-child(2n)::before { transition-delay: .06s; }
 .js-motion .feature-list.is-visible li:nth-child(3n)::before { transition-delay: .12s; }
 
+/* Give the security lock and shield a calm, alternating reassurance cue. */
+.security-grid .card:nth-child(-n+2) .icon { animation: pages-security-icon 3.8s ease-in-out infinite; }
+.security-grid .card:nth-child(2) .icon { animation-delay: -1.9s; }
+@keyframes pages-security-icon {
+  0%, 75%, 100% { transform: translateY(0) scale(1); }
+  82% { transform: translateY(-3px) scale(1.04); }
+  90% { transform: translateY(0) scale(1); }
+}
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
@@ -169,4 +178,5 @@
   .how-timeline { --timeline-progress: 1 !important; }
   .js-motion .how-timeline .step.is-staged::before { opacity: 1; transform: none; transition: none; }
   .js-motion .feature-list.is-staged li::before { opacity: 1; transform: none; transition: none; }
+  .security-grid .card:nth-child(-n+2) .icon { animation: none; transform: none; }
 }
