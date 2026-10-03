@@ -51,3 +51,10 @@
   background: var(--blue-soft);
   color: var(--ink-2);
 }
+
+.faq mark {
+  padding: 0 .08em;
+  border-radius: 3px;
+  background: var(--amber-soft);
+  color: var(--ink);
+}
