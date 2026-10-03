@@ -1,4 +1,11 @@
-/* NIGOH Family motion controller: dependency-free progressive enhancement. */
+/* NIGOH Family motion controller: dependency-free progressive enhancement.
+   Effects: page/theme cross-fades; hero stagger, phone float/glow and pointer tilt;
+   section/footer reveals; compact header, progress bar and back-to-top visibility;
+   mobile-menu entrance; nav/footer underlines; logo/card/icon/button responses;
+   primary-CTA shine/gradient glow; and FAQ open/close easing.
+   Reduced motion: JS does not opt into reveals or tilt, uses instant theme and FAQ
+   changes, while CSS media rules stop every transition, transform and animation;
+   content remains visible and anchor scrolling becomes instant. */
 (function () {
   'use strict';
 
