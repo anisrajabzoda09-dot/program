@@ -98,6 +98,31 @@
 
 .faq details {
   position: relative;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.faq {
+  display: grid;
+  gap: 12px;
+  border-top: 0;
+}
+
+.faq details:hover {
+  border-color: var(--line-2);
+  box-shadow: var(--shadow);
+}
+
+.faq details[open] {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.faq summary::after {
+  transition: transform .2s ease, margin-top .2s ease;
 }
 
 .faq details > summary {
@@ -140,5 +165,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .faq details.faq-link-target { animation: none; }
+  .faq details,
+  .faq details.faq-link-target,
+  .faq summary::after {
+    animation: none;
+    transition: none;
+  }
+
+  .faq summary::after,
+  .faq details[open] summary::after {
+    transform: none;
+  }
 }
