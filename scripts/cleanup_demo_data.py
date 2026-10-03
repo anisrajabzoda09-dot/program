@@ -36,10 +36,14 @@ SAMPLE_CHILD_CODES = (
 
 
 def _marks(values) -> str:
+    """Build the SQLite placeholders needed for a sequence of parameters."""
+
     return ",".join("?" * len(values))
 
 
 def main() -> None:
+    """Preview or safely delete recognized seed rows after backing up the database."""
+
     apply = "--apply" in sys.argv
     conn = sqlite3.connect(DB_PATH)
     reviews = conn.execute(

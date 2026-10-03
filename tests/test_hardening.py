@@ -23,16 +23,22 @@ BASE = f"http://127.0.0.1:{PORT}"
 
 
 def start_server():
+    """Run the test FastAPI app on the fixed hardening-check port."""
+
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
 
 def get_json(path: str):
+    """Fetch a successful local endpoint and decode its JSON response."""
+
     with urllib.request.urlopen(f"{BASE}{path}") as response:
         assert response.status == 200
         return json.loads(response.read().decode("utf-8"))
 
 
 def run_checks():
+    """Verify health, update-version rules, and required control routes."""
+
     threading.Thread(target=start_server, daemon=True).start()
     for _ in range(30):
         try:

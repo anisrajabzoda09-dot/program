@@ -22,6 +22,8 @@ FAILED = []
 
 
 def check(label, response, expected):
+    """Record whether an API response matches the expected status and decode it."""
+
     ok = response.status_code == expected
     print(f"{'ok ' if ok else 'FAIL'} {label:38} {response.status_code} {response.json().get('detail', '')}")
     if not ok:
@@ -30,6 +32,8 @@ def check(label, response, expected):
 
 
 def main():
+    """Exercise the complete mobile family workflow and remove test records."""
+
     s = uuid.uuid4().hex[:8]
     emails = [f"qa_p{s}@example.com", f"qa_c{s}@example.com"]
     with TestClient(app) as c:

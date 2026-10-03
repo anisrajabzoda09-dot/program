@@ -1,8 +1,12 @@
+"""Start the local FastAPI server on an available development port."""
+
 import uvicorn
 import os
 import socket
 
 def find_available_port(default_port=8080):
+    """Return the first bindable port from the preferred development choices."""
+
     for port in [default_port, 8000, 8081, 8888, 5000]:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:

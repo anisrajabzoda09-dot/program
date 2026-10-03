@@ -14,6 +14,8 @@ DELETE_ORDER = ("app_rules", "chat_messages", "children", "users")
 
 
 def counts(connection: sqlite3.Connection) -> dict[str, int]:
+    """Count rows in each known account table that exists in the database."""
+
     result: dict[str, int] = {}
     available = {
         row[0]
@@ -31,6 +33,8 @@ def counts(connection: sqlite3.Connection) -> dict[str, int]:
 
 
 def main() -> int:
+    """Preview or transactionally erase account data after creating a backup."""
+
     parser = argparse.ArgumentParser()
     parser.add_argument("database", type=Path)
     parser.add_argument("--delete", action="store_true")

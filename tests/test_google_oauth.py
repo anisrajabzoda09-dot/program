@@ -27,11 +27,17 @@ BASE = f"http://127.0.0.1:{PORT}"
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Keep redirect responses visible so OAuth headers can be asserted."""
+
     def redirect_request(self, req, fp: HTTPResponse, code, msg, headers, newurl):
+        """Disable urllib's automatic redirect following for a request."""
+
         return None
 
 
 def open_without_redirects(request):
+    """Open a request and return redirect HTTP errors as inspectable responses."""
+
     opener = urllib.request.build_opener(NoRedirect)
     try:
         return opener.open(request)
@@ -40,10 +46,14 @@ def open_without_redirects(request):
 
 
 def start_server():
+    """Run the test FastAPI app on the fixed local integration port."""
+
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
 
 def wait_for_server():
+    """Poll the health endpoint until the integration server accepts requests."""
+
     for _ in range(30):
         try:
             urllib.request.urlopen(f"{BASE}/health")
@@ -54,6 +64,8 @@ def wait_for_server():
 
 
 def run_checks():
+    """Exercise OAuth redirect, state validation, callback, and token sign-in."""
+
     settings.GOOGLE_CLIENT_ID = "oauth-test-client.apps.googleusercontent.com"
     settings.GOOGLE_CLIENT_SECRET = "oauth-test-secret"
     settings.GOOGLE_REDIRECT_URI = f"{BASE}/auth/google/callback"

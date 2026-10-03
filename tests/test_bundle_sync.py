@@ -1,3 +1,5 @@
+"""Verify deterministic bundle checksums and incremental sync responses."""
+
 # Run from anywhere: make the project root importable and the working directory.
 import os as _os, sys as _sys
 _ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
@@ -13,13 +15,19 @@ from app.main import app
 
 
 class BundleSyncTests(unittest.TestCase):
+    """Exercise configuration-bundle hashing and HTTP synchronization behavior."""
+
     def test_checksum_is_stable_for_key_order(self):
+        """Ensure equivalent mappings serialize and hash identically."""
+
         left = {"b": 2, "a": {"текст": "Нигоҳ"}}
         right = {"a": {"текст": "Нигоҳ"}, "b": 2}
         self.assertEqual(canonical_json(left), canonical_json(right))
         self.assertEqual(payload_checksum(left), payload_checksum(right))
 
     def test_sync_returns_patch_then_304(self):
+        """Ensure stale clients receive patches and current clients receive 304."""
+
         with TestClient(app) as client:
             first = client.get(
                 "/api/mobile/sync-bundle",
