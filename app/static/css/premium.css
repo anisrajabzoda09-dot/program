@@ -1,8 +1,10 @@
-/* NIGOH public site: calm dashboard surfaces and a single navy focal panel. */
+/* Файл: сатҳҳои ороми dashboard ва панели марказии кабуди торики сайти оммавӣ. */
+/* Scroll ва намуди умумии landing page-ро танзим мекунад. */
 html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 .landing-page { background: #f6f8fc; color: #16233d; -webkit-font-smoothing: antialiased; }
 .landing-page header { background: rgba(255,255,255,.96); border-bottom: 1px solid #e2e8f1; box-shadow: 0 4px 22px rgba(21,38,68,.035); }
 .landing-page header nav { background: #f5f7fb; border-color: #e7ebf3; }
+/* Hero-и торик, сарлавҳа, badge ва намунаи телефонро месозад. */
 .landing-page .hero-mesh { background: #f6f8fc; border: 0; padding-top: 42px; padding-bottom: 62px; }
 .landing-page .hero-mesh > .max-w-7xl {
   max-width: 1240px; padding: 52px 56px; border: 1px solid #243860; border-radius: 30px;
@@ -31,6 +33,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 .landing-page .hero-mesh .lg\:col-span-5 { max-height: 610px; overflow: hidden; }
 .landing-page .hero-mesh .lg\:col-span-5 > .relative { transform: scale(.78); transform-origin: center top; }
 .landing-page .hero-mesh .lg\:col-span-5 .animate-float { animation: none; }
+/* Тугмаҳо ва кортҳои асосиро бо рангҳои ором оро медиҳад. */
 .landing-page .btn-gradient { background: #246bd5; border: 1px solid #246bd5; color: #fff; border-radius: 13px; box-shadow: 0 7px 18px rgba(20,92,197,.19); }
 .landing-page .btn-gradient:hover { background: #1858bc; box-shadow: 0 9px 22px rgba(20,92,197,.25); }
 .landing-page .btn-white { border-color: #dce4ef; border-radius: 13px; box-shadow: none; }
@@ -40,6 +43,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 .landing-page #how-it-works,.landing-page #faq { background: #f6f8fc; border-color: #edf0f6; }
 .landing-page #faq details { background: #fff; border: 1px solid #e1e8f2; box-shadow: 0 4px 15px rgba(23,42,73,.035); }
 .landing-page #faq details[open] { border-color: #8cb5ed; }
+/* Бахши боргирӣ, QR ва сатри пайвандро ҷойгир мекунад. */
 .landing-page #download { background: #f6f8fc; }
 .landing-page #download > .absolute { display: none; }
 .landing-page #download .bento-card { background: #fff; border-color: #e0e7f1; box-shadow: 0 16px 48px rgba(23,42,73,.065); }
@@ -50,12 +54,15 @@ html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 .landing-page .qr-link-row { width: 100%; flex-wrap: wrap; row-gap: 10px; }
 .landing-page .qr-link-row code { min-width: 0; flex: 1 1 190px; overflow-wrap: anywhere; }
 .landing-page .qr-link-row button { flex: 0 0 auto; min-height: 36px; }
+/* Footer ва focus-и идораҳои интерактивиро оро медиҳад. */
 .landing-page footer { background: #fff; border-top: 1px solid #e5eaf2; }
 .landing-page a:focus-visible,.landing-page button:focus-visible,.landing-page summary:focus-visible { outline: 3px solid #4b93eb; outline-offset: 4px; }
+/* Hero-ро ба планшет мутобиқ мекунад. */
 @media(max-width:1023px) {
   .landing-page .hero-mesh > .max-w-7xl { margin: 0 20px; padding: 42px 34px; }
   .landing-page .hero-mesh .lg\:col-span-5 { max-height: 620px; }
 }
+/* Header, hero ва QR-ро ба телефон мутобиқ мекунад. */
 @media(max-width:640px) {
   .landing-page header > div { gap: 8px; }
   .landing-page header > div > a:first-child { gap: 8px; min-width: 0; }
@@ -78,6 +85,7 @@ html { scroll-behavior: smooth; scroll-padding-top: 100px; }
   .landing-page .qr-link-row button { width: 100%; }
   .landing-page section { overflow-wrap: break-word; }
 }
+/* Барои reduced motion ҳаракат ва scroll-и нармро хомӯш мекунад. */
 @media(prefers-reduced-motion:reduce) {
   html { scroll-behavior: auto; }
   .landing-page *, .landing-page *::before,.landing-page *::after { animation: none!important; transition: none!important; }

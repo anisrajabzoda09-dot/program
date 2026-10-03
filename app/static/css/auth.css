@@ -1,5 +1,4 @@
-/* NIGOH Family — sign-in / registration page.
-   Builds on site.css tokens; only page-specific components live here. */
+/* Файл: намуди саҳифаи бақайдгирӣ ва воридшавии корбарон. */
 
 .auth-body { background: var(--bg); min-height: 100vh; min-height: 100dvh; }
 
@@ -10,7 +9,7 @@
   min-height: 100dvh;
 }
 
-/* ---------- Left panel ---------- */
+/* Панели чапи муаррифӣ ва ороиши брендро месозад. */
 .auth-aside {
   position: relative;
   background: var(--soft);
@@ -53,7 +52,7 @@
 .auth-aside-foot { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: .875rem; }
 .auth-aside-foot .muted { color: var(--faint); }
 
-/* ---------- Right / form side ---------- */
+/* Қисми рости form-ҳои воридшавӣ ва бақайдгириро ҷойгир мекунад. */
 .auth-main {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 40px var(--gutter);
@@ -68,7 +67,7 @@
 .auth-back a:hover { color: var(--ink); }
 .auth-back svg { width: 16px; height: 16px; }
 
-/* ---------- Notice (admin required) ---------- */
+/* Огоҳии вобаста ба ҳуқуқи маъмурро оро медиҳад. */
 .notice {
   display: flex; gap: 10px; align-items: flex-start;
   margin-top: 20px; padding: 12px 14px; border-radius: 12px;
@@ -77,7 +76,7 @@
 }
 .notice svg { flex: none; width: 18px; height: 18px; color: var(--blue); margin-top: 1px; }
 
-/* ---------- Segmented control ---------- */
+/* Табдилдиҳандаи байни воридшавӣ ва бақайдгириро оро медиҳад. */
 .segmented {
   position: relative; display: grid; grid-template-columns: 1fr 1fr;
   margin-top: 24px; padding: 4px; border-radius: 12px;
@@ -98,14 +97,14 @@
 .segmented button[aria-selected="true"] { color: var(--ink); }
 .segmented button:hover { color: var(--ink); }
 
-/* ---------- Google ---------- */
+/* Тугмаи OAuth-и Google-ро оро медиҳад. */
 .btn-google {
   width: 100%; margin-top: 20px; background: #fff; color: var(--ink);
   border-color: var(--line-2); border-radius: 12px; font-weight: 600;
 }
 .btn-google:hover { border-color: var(--ink); color: var(--ink); background: #fff; }
 .btn-google[disabled] { opacity: .7; cursor: progress; }
-/* Sign in with Apple — black button with white logo/text (Apple HIG style). */
+/* Тугмаи сиёҳи Apple-ро мувофиқи услуби Apple оро медиҳад. */
 .btn-apple {
   width: 100%; margin-top: 12px; background: #000; color: #fff;
   border-color: #000; border-radius: 12px; font-weight: 600;
@@ -113,7 +112,7 @@
 .btn-apple:hover { background: #1d1d1f; border-color: #1d1d1f; color: #fff; }
 .btn-apple[disabled] { opacity: .7; cursor: progress; }
 .btn-apple .apple-logo { width: 18px; height: 18px; margin-top: -2px; }
-/* Sign in with GitHub — GitHub's dark button style. */
+/* Тугмаи OAuth-и GitHub-ро бо услуби торики он оро медиҳад. */
 .btn-github {
   width: 100%; margin-top: 12px; background: #24292f; color: #fff;
   border-color: #24292f; border-radius: 12px; font-weight: 600;
@@ -127,7 +126,7 @@
 }
 .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 
-/* ---------- Alert ---------- */
+/* Паёмҳои муваффақият ва хаторо оро медиҳад. */
 .alert-slot { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .28s ease; }
 .alert-slot.show { grid-template-rows: 1fr; }
 .alert-slot > div { overflow: hidden; }
@@ -143,7 +142,7 @@
 .alert.error { background: var(--red-soft); color: #9f2222; border-color: #f6d3d3; }
 .alert.success { background: var(--teal-soft); color: #0b6e65; border-color: #c4ece7; }
 
-/* ---------- Forms ---------- */
+/* Form, майдонҳо ва тугмаҳои тасдиқро оро медиҳад. */
 .auth-form { margin-top: 20px; }
 .auth-form[hidden] { display: none; }
 .auth-form.enter { animation: formIn .32s cubic-bezier(.2, .8, .2, 1); }
@@ -212,14 +211,14 @@
 }
 .secure-note svg { width: 16px; height: 16px; color: var(--teal); flex: none; }
 
-/* ---------- Page entrance ---------- */
+/* Пайдоиши нарми саҳифаро идора мекунад. */
 .rise { animation: rise .5s cubic-bezier(.2, .8, .2, 1) both; }
 .rise.d1 { animation-delay: .06s; }
 .rise.d2 { animation-delay: .12s; }
 .rise.d3 { animation-delay: .18s; }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-/* ---------- Responsive ---------- */
+/* Тарҳро ба телефон ва планшет мутобиқ мекунад. */
 @media (max-width: 960px) {
   .auth { grid-template-columns: minmax(0, 1fr); }
   .auth-aside { display: none; }

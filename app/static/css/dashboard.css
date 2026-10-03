@@ -1,12 +1,15 @@
-/* Companion surfaces for the NIGOH account and administration pages. */
+/* Файл: қабати намоишии иловагӣ барои саҳифаҳои ҳисоб ва панели маъмурии NIGOH. */
+/* Замина ва матни умумии саҳифаҳои ҳисобро яксон мекунад. */
 .admin-page,.auth-page { background: #f6f8fc; color: #16233d; -webkit-font-smoothing: antialiased; }
 .admin-page header { background: rgba(255,255,255,.97); border-color: #e3e9f2; box-shadow: 0 4px 22px rgba(21,38,68,.035); }
 .admin-page main { max-width: 1280px; }
+/* Кортҳо ва сатҳҳои асосии панели маъмуриро оро медиҳад. */
 .admin-page .card-admin,.auth-page .white-card {
   background: #fff; border: 1px solid #e2e8f1; border-radius: 22px;
   box-shadow: 0 6px 24px rgba(23,42,73,.045);
 }
 .admin-page .card-admin:hover { box-shadow: 0 12px 30px rgba(23,42,73,.075); }
+/* Блоки муаррифии болои панели маъмуриро барҷаста мекунад. */
 .admin-page main > div:first-child {
   background: linear-gradient(125deg,#15182f,#1b3150); border: 1px solid #273b5e;
   border-radius: 26px; box-shadow: 0 18px 42px rgba(21,37,68,.13);
@@ -16,13 +19,16 @@
 .admin-page main > div:first-child h1 .bg-emerald-50 { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.25); color: #a6f3cf; }
 .admin-page main > div:first-child a { background: #246bd5; box-shadow: none; }
 .admin-page main > div:first-child a:hover { background: #1858bc; }
+/* Form ва майдонҳои саҳифаи воридшавиро оро медиҳад. */
 .auth-page { background-image: radial-gradient(ellipse at 50% 0%,#e8f0fc,#f6f8fc 65%); }
 .auth-page .white-card { border-radius: 24px; box-shadow: 0 18px 45px rgba(23,42,73,.09); }
 .auth-page .white-input { border-color: #dde5f0; }
 .auth-page .white-input:focus-within { border-color: #478ce1; box-shadow: 0 0 0 3px rgba(36,107,213,.12); }
 .auth-page .btn-primary { background: #246bd5; box-shadow: 0 7px 18px rgba(20,92,197,.19); }
 .auth-page .btn-primary:hover { background: #1858bc; box-shadow: 0 9px 22px rgba(20,92,197,.25); }
+/* Focus-и равшанро барои идораҳои интерактивӣ таъмин мекунад. */
 .admin-page a:focus-visible,.admin-page button:focus-visible,.auth-page a:focus-visible,.auth-page button:focus-visible,.auth-page input:focus-visible { outline: 3px solid #4b93eb; outline-offset: 3px; }
+/* Панели маъмуриро ба экранҳои телефон мутобиқ мекунад. */
 @media(max-width:767px) {
   .admin-page header > div { flex-wrap: wrap; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
   .admin-page header > div > div:first-child { min-width: 0; }
@@ -32,6 +38,7 @@
   .admin-page header > div > div:last-child a { flex: 1; justify-content: center; }
   .admin-page main > div:first-child h1 { flex-wrap: wrap; }
 }
+/* Барои reduced motion ҳаракатҳоро қариб фаврӣ мекунад. */
 @media(prefers-reduced-motion:reduce) {
   .admin-page *, .auth-page * { animation-duration: .01ms!important; transition-duration: .01ms!important; }
 }

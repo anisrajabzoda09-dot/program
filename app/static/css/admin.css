@@ -1,9 +1,8 @@
-/* NIGOH Family — admin panel
-   Builds on site.css tokens. Light theme only, calm surfaces, CSS-first motion. */
+/* Файл: намуди панели маъмурӣ барои омор, ҷадвалҳо ва идоракунии фарзандон. */
 
 .admin { background: var(--soft); min-height: 100vh; }
 
-/* ---------- Top bar ---------- */
+/* Панели болоӣ ва паймоиши асосиро оро медиҳад. */
 .a-top {
   position: sticky; top: 0; z-index: 50;
   background: rgba(255, 255, 255, .86);
@@ -38,7 +37,7 @@
   font-size: .8rem; font-weight: 700;
 }
 
-/* ---------- Shell ---------- */
+/* Чаҳорчӯба ва паҳнои муҳтавои панелро танзим мекунад. */
 .a-shell {
   max-width: 1360px; margin: 0 auto; padding: 0 var(--gutter);
   display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px;
@@ -67,7 +66,7 @@
 .a-sec-head h2 { font-size: 1.2rem; letter-spacing: -.015em; }
 .a-sec-head p { color: var(--muted); font-size: .875rem; }
 
-/* ---------- Panels ---------- */
+/* Кортҳои асосии маълумотро оро медиҳад. */
 .panel {
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg);
   padding: 22px; min-width: 0;
@@ -79,7 +78,7 @@
 .panel-title .small { color: var(--muted); }
 .grid-traffic { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 16px; }
 
-/* ---------- KPI ---------- */
+/* Нишондиҳандаҳои калидии оморро ҷойгир мекунад. */
 .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .kpi {
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px;
@@ -99,7 +98,7 @@
 .meter i.teal { background: var(--teal); }
 .ready .meter i { width: var(--w); }
 
-/* ---------- Bar chart ---------- */
+/* Диаграммаи сутуниро барои муқоисаи маълумот месозад. */
 .chart-legend { display: flex; gap: 14px; font-size: .8rem; color: var(--muted); }
 .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .chart-legend span::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--blue); }
@@ -143,7 +142,7 @@
 .chart-foot { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: .85rem; color: var(--muted); }
 .chart-foot b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-/* ---------- Top pages ---------- */
+/* Рӯйхати саҳифаҳои сербоздидро оро медиҳад. */
 .rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .rank-row { display: flex; justify-content: space-between; gap: 12px; font-size: .88rem; }
 .rank-row code { font: 500 .85rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
@@ -152,7 +151,7 @@
 .rank-track i { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--blue); opacity: .85; transition: width .9s cubic-bezier(.2, .8, .2, 1); transition-delay: calc(var(--i, 0) * 60ms); }
 .ready .rank-track i { width: var(--w); }
 
-/* ---------- Tables ---------- */
+/* Ҷадвалҳои маълумот ва амалҳои онҳоро хонданбоб мекунад. */
 .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
 .search { position: relative; flex: 1 1 240px; max-width: 360px; }
 .search svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
@@ -214,14 +213,14 @@ tr.removing { opacity: 0; transform: translateX(8px); transition: opacity .3s, t
 tr.flash td { animation: flash 1.2s ease; }
 @keyframes flash { 0% { background: var(--teal-soft); } 100% { background: transparent; } }
 
-/* ---------- Empty ---------- */
+/* Ҳолати набудани маълумотро нишон медиҳад. */
 .empty { padding: 36px 16px; text-align: center; color: var(--muted); font-size: .9rem; }
 .empty svg { width: 28px; height: 28px; color: var(--faint); margin: 0 auto 10px; display: block; }
 .empty p + p { margin-top: 4px; font-size: .82rem; color: var(--faint); }
 .no-match { display: none; }
 .no-match.show { display: block; }
 
-/* ---------- Downloads feed ---------- */
+/* Навори боргириҳои охиринро оро медиҳад. */
 .feed { list-style: none; margin: 0; padding: 0; }
 .feed li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .feed li:last-child { border-bottom: 0; }
@@ -233,7 +232,7 @@ tr.flash td { animation: flash 1.2s ease; }
 .feed-time { text-align: right; font-size: .8rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .feed-time b { display: block; color: var(--ink-2); font-weight: 600; }
 
-/* ---------- Dialog ---------- */
+/* Dialog-и таҳрири маълумоти фарзандро оро медиҳад. */
 dialog.modal {
   width: min(440px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: var(--radius-lg);
   background: #fff; color: var(--ink); box-shadow: 0 24px 64px rgba(11, 18, 32, .18);
@@ -257,7 +256,7 @@ dialog.modal.shown::backdrop { background: rgba(11, 18, 32, .32); }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
 
-/* ---------- Toast ---------- */
+/* Паёми муваққатии натиҷаи амалро ҷойгир мекунад. */
 .toasts { position: fixed; right: 16px; bottom: 16px; left: 16px; z-index: 100; display: grid; justify-items: end; gap: 8px; pointer-events: none; }
 .toast {
   display: flex; align-items: center; gap: 10px; max-width: 380px; padding: 12px 16px;
@@ -268,12 +267,12 @@ dialog.modal.shown::backdrop { background: rgba(11, 18, 32, .32); }
 .toast svg { width: 18px; height: 18px; flex: none; color: var(--teal); }
 .toast.err svg { color: #ff8a8a; }
 
-/* ---------- Entrance motion ---------- */
+/* Пайдоиши нарми панелҳоро ҳангоми воридшавӣ идора мекунад. */
 .js .rise { opacity: 0; transform: translateY(12px); }
 .js.ready .rise { animation: rise .55s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(min(var(--d, 0), 9) * 60ms); }
 @keyframes rise { to { opacity: 1; transform: none; } }
 
-/* ---------- Responsive ---------- */
+/* Тарҳро ба экранҳои танг мутобиқ мекунад. */
 @media (max-width: 1199px) {
   .grid-traffic { grid-template-columns: 1fr; }
 }

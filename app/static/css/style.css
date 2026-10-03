@@ -1,16 +1,13 @@
-/* ========================================================
-   НИГОҲ FAMILY — Neumorphism (Soft UI) Design System
-   НИГОҲ FAMILY — Modern Premium Tech Landing Page Design
-   ======================================================== */
+/* Файл: низоми асосии намоишии NIGOH Family бо услуби Neumorphism ва landing page. */
 
 :root {
-  /* Neumorphic Base Palette */
+/* Рангҳои асосии Neumorphism-ро муайян мекунад. */
   --bg-neu: #e6ecf5;
   --neu-light: #ffffff;
   --neu-dark: #c1ccdb;
   --neu-darker: #b4c0d0;
 
-  /* Neumorphic Shadows */
+/* Сояҳои барҷаста ва фурӯрафтаи Neumorphism-ро муайян мекунад. */
   --neu-raised: 8px 8px 18px var(--neu-dark), -8px -8px 18px var(--neu-light);
   --neu-raised-sm: 4px 4px 10px var(--neu-dark), -4px -4px 10px var(--neu-light);
   --neu-raised-lg: 14px 14px 28px var(--neu-darker), -14px -14px 28px var(--neu-light);
@@ -18,8 +15,8 @@
   --neu-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
   --neu-inset-deep: inset 6px 6px 12px var(--neu-darker), inset -6px -6px 12px var(--neu-light);
 
-  /* Accents */
-  /* Brand Accents */
+/* Рангҳои таъкидиро муайян мекунад. */
+/* Рангҳои бренди NIGOH-ро муайян мекунад. */
   --primary: #4f46e5;
   --primary-glow: rgba(79, 70, 229, 0.35);
   --primary-hover: #4338ca;
@@ -35,7 +32,7 @@
   --dark: #0f172a;
   --dark-light: #1e293b;
 
-  /* Typography & Neutral Colors */
+/* Рангҳо ва андозаҳои матнро муайян мекунад. */
   --dark: #1e293b;
   --slate-700: #334155;
   --slate-600: #475569;
@@ -49,7 +46,7 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --slate-400: #94a3b8;
-  /* Surfaces & Backgrounds */
+/* Сатҳҳо ва заминаҳои интерфейсро муайян мекунад. */
   --bg-main: #f8fafc;
   --bg-card: #ffffff;
   --bg-card-hover: #fcfdfe;
@@ -60,13 +57,13 @@
   --radius: 20px;
   --radius-sm: 12px;
   --radius-lg: 28px;
-  /* Text Colors */
+/* Рангҳои сатҳҳои гуногуни матнро муайян мекунад. */
   --text-main: #0f172a;
   --text-muted: #475569;
   --text-subtle: #64748b;
   --text-light: #94a3b8;
 
-  /* Borders & Shadows */
+/* Ҳошияҳо, сояҳо ва радиусҳоро муайян мекунад. */
   --border-subtle: #e2e8f0;
   --border-light: rgba(226, 232, 240, 0.8);
   --border-focus: #818cf8;
@@ -84,7 +81,7 @@
   --radius-full: 9999px;
 }
 
-/* Global Reset */
+/* Фосилаҳои аслии браузерро баробар мекунад. */
 * {
   margin: 0;
   padding: 0;
@@ -111,8 +108,8 @@ body {
   position: relative;
 }
 
-/* Container */
-/* Subtle background ambient light */
+/* Паҳно ва фосилаи container-ро танзим мекунад. */
+/* Нури нарми ороиширо дар замина ҷойгир мекунад. */
 body::before {
   content: '';
   position: fixed;
@@ -135,11 +132,8 @@ body::before {
   z-index: 1;
 }
 
-/* Header & Nav — Modern Glassmorphism with Floating Glow */
-/* ========================================================
-   Neumorphic Navbar
-   Navbar — Sleek Floating Glassmorphism
-   ======================================================== */
+/* Header ва паймоишро бо шишаи шаффоф оро медиҳад. */
+/* Navbar-и шинокунандаро бо услуби Neumorphism месозад. */
 .navbar {
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(20px) saturate(180%);
@@ -264,7 +258,7 @@ body::before {
   transition: all 0.2s ease;
 }
 
-/* Animated sliding underline */
+/* Хати зери пайвандро бо ҳаракати лағжанда нишон медиҳад. */
 .nav-link::after {
   content: '';
   position: absolute;
@@ -295,7 +289,7 @@ body::before {
   gap: 14px;
 }
 
-/* Live Pulse Radar Dot */
+/* Нуқтаи зиндаи radar-ро бо набзи даврӣ нишон медиҳад. */
 .live-dot {
   display: inline-block;
   width: 9px;
@@ -321,7 +315,7 @@ body::before {
   }
 }
 
-/* Gradient Shifting Button */
+/* Gradient-и тугмаро пайваста ҳаракат медиҳад. */
 .btn-animated-gradient {
   background: linear-gradient(135deg, #4f46e5, #0ea5e9, #6366f1, #0284c7);
   background-size: 300% 300%;
@@ -345,7 +339,7 @@ body::before {
   100% { background-position: 0% 50%; }
 }
 
-/* Subtle Floating Animation for Badges */
+/* Ба badge-ҳо ҳаракати сабуки шинокунӣ медиҳад. */
 @keyframes floatBadge {
   0%, 100% {
     transform: translateY(0);
@@ -355,11 +349,8 @@ body::before {
   }
 }
 
-/* Buttons Base */
-/* ========================================================
-   Neumorphic Buttons
-   Buttons
-   ======================================================== */
+/* Қоидаҳои умумии ҳамаи тугмаҳоро муайян мекунад. */
+/* Навъҳои тугмаҳои Neumorphism-ро оро медиҳад. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -389,7 +380,7 @@ body::before {
   background: var(--primary);
   color: white;
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
-/* Soft Neumorphic Raised Button */
+/* Тугмаи барҷастаи нарми Neumorphism-ро месозад. */
 .btn-neu {
   background: var(--bg-neu);
   color: var(--slate-700);
@@ -423,7 +414,7 @@ body::before {
 
 .btn-outline {
   background: transparent;
-/* Neumorphic Glass / Soft Pill */
+/* Тугмаи шишагӣ ва pill-и нармро оро медиҳад. */
 .btn-glass {
   background: var(--bg-neu);
   color: var(--primary);
@@ -443,7 +434,7 @@ body::before {
 }
 
 .btn-shimmer {
-/* Neumorphic Primary (Vibrant with Soft 3D Elevation) */
+/* Тугмаи асосиро бо баландии намоишӣ ва ранги бренд месозад. */
 .btn-primary, .btn-animated-gradient {
   background: linear-gradient(145deg, #5b53fb, #4338ca);
 .btn-success {
@@ -486,7 +477,7 @@ body::before {
   box-shadow: var(--shadow-xs);
 }
 
-/* Neumorphic Success Button (Green for APK download) */
+/* Тугмаи сабзи боргирии APK-ро оро медиҳад. */
 .btn-success {
   background: var(--success);
   color: white;
@@ -514,7 +505,7 @@ body::before {
   transform: translateY(1px);
 }
 
-/* Neumorphic Outline */
+/* Тугмаи outline-и Neumorphism-ро оро медиҳад. */
 .btn-outline {
   background: var(--bg-neu);
 .btn-subtle {
@@ -532,7 +523,7 @@ body::before {
   background: rgba(79, 70, 229, 0.14);
 }
 
-/* Neumorphic Google Button */
+/* Тугмаи воридшавӣ бо Google-ро оро медиҳад. */
 .btn-google {
   background: white;
   color: #374151;
@@ -564,13 +555,13 @@ body::before {
   box-shadow: var(--shadow-sm);
 }
 
-/* Hero Section */
+/* Бахши hero ва фосилаҳои онро танзим мекунад. */
 .btn-google:active {
   box-shadow: var(--neu-inset);
   transform: translateY(1px);
 }
 
-/* Live Pulse Radar Dot */
+/* Нуқтаи ҳолати зиндаро дар hero нишон медиҳад. */
 .live-dot {
   display: inline-block;
   width: 10px;
@@ -596,9 +587,7 @@ body::before {
   }
 }
 
-/* ========================================================
-   Hero Section
-   ======================================================== */
+/* Тарҳ ва муҳтавои бахши hero-ро ҷойгир мекунад. */
 .hero {
   padding: 70px 0 50px;
   padding: 80px 0 60px;
@@ -720,10 +709,8 @@ body::before {
   margin-bottom: 36px;
 }
 
-/* Feature Grid */
-/* ========================================================
-   Neumorphic Sections & Cards
-   ======================================================== */
+/* Grid-и имкониятҳоро ба сутунҳо тақсим мекунад. */
+/* Бахшҳо ва кортҳои Neumorphism-ро оро медиҳад. */
 .features-section {
   padding: 70px 0;
   padding: 75px 0;
@@ -773,7 +760,7 @@ body::before {
   gap: 28px;
 }
 
-/* Neumorphic Card Base */
+/* Намуди асосии кортҳои Neumorphism-ро муайян мекунад. */
 .neu-card, .card {
   background: var(--bg-neu);
   border-radius: var(--radius);
@@ -794,7 +781,7 @@ body::before {
   box-shadow: var(--neu-raised);
   border: 1px solid rgba(255, 255, 255, 0.7);
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-/* Hero Phone / Showcase Card */
+/* Корти телефони hero ва намоиши барномаро месозад. */
 .showcase-wrapper {
   position: relative;
   overflow: hidden;
@@ -859,7 +846,7 @@ body::before {
   margin-bottom: 16px;
 }
 
-/* Neumorphic Inset / Raised Icon Wells */
+/* Ҷойҳои фурӯрафта ва барҷастаи нишонаҳоро оро медиҳад. */
 .feature-icon {
   width: 58px;
   height: 58px;
@@ -889,8 +876,8 @@ body::before {
 .icon-green { color: #10b981; }
 .icon-orange { color: #ea580c; }
 
-/* Reviews */
-/* Step Cards */
+/* Кортҳои баррасиҳоро оро медиҳад. */
+/* Кортҳои марҳилаҳои корро ҷойгир мекунад. */
 .neu-step-card {
   background: var(--bg-neu);
   border-radius: var(--radius);
@@ -926,7 +913,7 @@ body::before {
   border: 1px solid rgba(255, 255, 255, 0.85);
 }
 
-/* Reviews Section */
+/* Бахши баррасиҳои корбаронро месозад. */
 .reviews-section {
   padding: 70px 0;
   background: white;
@@ -1050,11 +1037,8 @@ body::before {
   50% { transform: translateY(-8px); }
 }
 
-/* Download & Android Section */
-/* ========================================================
-   Neumorphic Form & Input Elements
-   Section Standards
-   ======================================================== */
+/* Бахши боргирии Android-ро оро медиҳад. */
+/* Form, input ва фосилаҳои стандартии бахшҳоро оро медиҳад. */
 .neu-inset-panel {
   background: var(--bg-neu);
   box-shadow: var(--neu-inset);
@@ -1110,10 +1094,7 @@ body::before {
   color: var(--text-muted);
 }
 
-/* ========================================================
-   Neumorphic Download Banner (Dark Embossed Plate)
-   Bento / Features Grid
-   ======================================================== */
+/* Banner-и боргирӣ ва grid-и имкониятҳоро бо Neumorphism месозад. */
 .download-section {
   padding: 70px 0;
   padding: 75px 0;
@@ -1197,7 +1178,7 @@ body::before {
   opacity: 1;
 }
 
-/* Role Selector Cards */
+/* Кортҳои интихоби нақши корбарро оро медиҳад. */
 .role-selection-wrapper {
   min-height: calc(100vh - 72px);
 .feature-icon-box {
@@ -1208,9 +1189,7 @@ body::before {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-/* ========================================================
-   Neumorphic Footer
-   ======================================================== */
+/* Footer-и Neumorphism-ро ҷойгир мекунад. */
 .neu-footer {
   background: var(--bg-neu);
   color: var(--slate-600);
@@ -1232,7 +1211,7 @@ body::before {
   transform: scale(1.1) rotate(4deg);
 }
 
-/* Responsive adjustments */
+/* Услубҳоро ба андозаҳои гуногуни экран мутобиқ мекунад. */
 @media (max-width: 768px) {
   .role-card-grid {
     grid-template-columns: 1fr;
@@ -1267,9 +1246,7 @@ body::before {
   line-height: 1.6;
 }
 
-/* ========================================================
-   About Bento Box
-   ======================================================== */
+/* Bento box-и бахши маълумотиро месозад. */
 .about-bento {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -1324,9 +1301,7 @@ body::before {
 .role-avatar {
   font-size: 4rem;
   margin-bottom: 20px;
-/* ========================================================
-   Steps Timeline
-   ======================================================== */
+/* Timeline-и марҳилаҳоро пайваст ва ҷойгир мекунад. */
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1380,7 +1355,7 @@ body::before {
   margin-bottom: 8px;
 }
 
-/* Dashboard & App Cards */
+/* Кортҳои dashboard ва барномаҳоро оро медиҳад. */
 .dashboard-layout {
   padding: 30px 0 60px;
 .step-card p {
@@ -1390,9 +1365,7 @@ body::before {
 }
 
 .bento-grid {
-/* ========================================================
-   Reviews Grid
-   ======================================================== */
+/* Grid-и кортҳои баррасиҳоро месозад. */
 .reviews-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -1435,7 +1408,7 @@ body::before {
   border-color: rgba(79, 70, 229, 0.3);
 }
 
-/* App Item Row */
+/* Сатри ҳар барнома ва омори онро ҷойгир мекунад. */
 .app-item-row {
 .review-stars {
   color: #f59e0b;
@@ -1508,15 +1481,13 @@ body::before {
   color: var(--text-subtle);
 }
 
-/* Custom Switch */
+/* Switch-и фармоиширо барои танзимот оро медиҳад. */
 .switch {
   position: relative;
   display: inline-block;
   width: 50px;
   height: 28px;
-/* ========================================================
-   Registration Panel
-   ======================================================== */
+/* Панели бақайдгирӣ ва майдонҳои онро месозад. */
 .reg-panel {
   background: #ffffff;
   border: 1px solid var(--border-subtle);
@@ -1583,16 +1554,14 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Modal */
+/* Modal ва заминаи онро оро медиҳад. */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(8px);
   display: none;
-/* ========================================================
-   Download Banner (Android APK)
-   ======================================================== */
+/* Banner-и боргирии Android APK-ро месозад. */
 .download-banner {
   background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
   border-radius: 28px;
@@ -1650,7 +1619,7 @@ input:checked + .slider:before {
   margin-top: 24px;
 }
 
-/* Blocked App Screen (Child Mode) */
+/* Экрани барномаи басташударо дар ҳолати фарзанд нишон медиҳад. */
 .blocked-screen-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -1680,9 +1649,7 @@ input:checked + .slider:before {
   font-size: 5rem;
   margin-bottom: 24px;
   animation: pulse 1.8s infinite;
-/* ========================================================
-   Footer
-   ======================================================== */
+/* Footer ва сутунҳои пайвандҳои онро ҷойгир мекунад. */
 .footer {
   background: #ffffff;
   border-top: 1px solid var(--border-subtle);
@@ -1695,7 +1662,7 @@ input:checked + .slider:before {
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }
   100% { transform: scale(1); }
-/* Responsive */
+/* Тарҳро ба телефон ва планшет мутобиқ мекунад. */
 @media (max-width: 960px) {
   .hero-grid {
     grid-template-columns: 1fr;
@@ -1750,4 +1717,3 @@ input:checked + .slider:before {
   max-width: 500px;
   margin-bottom: 30px;
 }
-
