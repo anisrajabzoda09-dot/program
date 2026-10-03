@@ -1,5 +1,4 @@
-// Role choice screen: decides whether this phone is the parent's or the
-// child's.
+// Файл: интихоби нақши волид ё фарзанд.
 
 import 'package:flutter/material.dart';
 
@@ -9,19 +8,20 @@ import '../../ui/widgets.dart';
 import '../../l10n/l10n.dart';
 import '../../ui/language_picker.dart';
 
-/// "Who uses this phone?" — parent or child.
+/// Экрани RoleScreen-ро барои интихоби нақши волид ё фарзанд месозад.
 class RoleScreen extends StatefulWidget {
   const RoleScreen({super.key});
 
+  /// Ҳолати RoleScreen-ро барои интихоби нақши волид ё фарзанд месозад.
   @override
   State<RoleScreen> createState() => _RoleScreenState();
 }
 
-/// Saves the chosen role and shows progress on the tapped card.
+/// Ҳолат ва рафтори RoleScreenState-ро барои навсозии интерфейс идора мекунад.
 class _RoleScreenState extends State<RoleScreen> {
   String? saving;
 
-  /// Saves [role] for this phone; errors are shown as a snackbar.
+  /// choose ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> choose(String role) async {
     if (saving != null) return;
     setState(() => saving = role);
@@ -34,6 +34,7 @@ class _RoleScreenState extends State<RoleScreen> {
     }
   }
 
+  /// Интихоби нақши волид ё фарзандро ҳамчун ду корти амал нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final session = SessionScope.of(context);
@@ -125,7 +126,7 @@ class _RoleScreenState extends State<RoleScreen> {
   }
 }
 
-/// Tappable card describing one role (parent or child).
+/// Widget-и RoleCard-ро барои интихоби нақши волид ё фарзанд месозад.
 class _RoleCard extends StatelessWidget {
   const _RoleCard({
     super.key,
@@ -143,11 +144,12 @@ class _RoleCard extends StatelessWidget {
   final String title;
   final String text;
 
-  /// Plain label of what tapping the card means.
+  /// Қимати action-ро барои интихоби нақши волид ё фарзанд нигоҳ медорад.
   final String action;
   final bool busy;
   final VoidCallback onTap;
 
+  /// Widget-и RoleCard-ро барои интихоби нақши волид ё фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

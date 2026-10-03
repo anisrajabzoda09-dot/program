@@ -1,5 +1,4 @@
-// Permissions wizard UI: one page per Android permission with grant and
-// fallback buttons, help tips, a summary page and the per-role "done" flag.
+// Файл: роҳнамои пайдарпайи иҷозатҳои барнома.
 
 import 'dart:async';
 
@@ -13,13 +12,7 @@ import '../../l10n/l10n.dart';
 
 export 'permission_steps.dart' show WizardStepId, wizardStepsFor;
 
-/// Step-by-step permission setup shown right after registration (once per
-/// role) and from Settings / the child home.
-///
-/// One page per permission: icon, short reason, «Иҷозат додан», a fallback
-/// button that opens the exact settings screen when Android did not grant it,
-/// and a collapsible «Чӣ бояд кард?» card. Re-checks on app resume and moves
-/// on by itself shortly after a permission becomes granted.
+/// Додаҳо ва рафтори марбут ба роҳнамои пайдарпайи иҷозатҳои барномаро ифода мекунад.
 class PermissionsWizard extends StatefulWidget {
   const PermissionsWizard({
     super.key,
@@ -31,33 +24,32 @@ class PermissionsWizard extends StatefulWidget {
 
   final bool childMode;
 
-  /// Called after the wizard was finished or closed (the done flag is saved
-  /// first). Defaults to popping the route.
+  /// Қимати onDone-ро барои роҳнамои пайдарпайи иҷозатҳои барнома нигоҳ медорад.
   final VoidCallback? onDone;
   final WizardActions actions;
 
-  /// Pause between «granted» and moving to the next step.
+  /// Қимати advanceDelay-ро барои роҳнамои пайдарпайи иҷозатҳои барнома нигоҳ медорад.
   final Duration advanceDelay;
 
-  /// Set once the wizard has been shown in this app run (the child home uses
-  /// it to avoid opening it twice in a row).
+  /// Қимати shownThisSession-ро барои роҳнамои пайдарпайи иҷозатҳои барнома нигоҳ медорад.
   static bool shownThisSession = false;
 
+  /// doneKey мантиқи зарурии роҳнамои пайдарпайи иҷозатҳои барномаро иҷро мекунад.
   static String doneKey(String role) => 'nigoh.wizard_done.$role';
 
-  /// Whether the wizard was already finished for [role] on this phone.
+  /// isDone иҷро шудани шарти вобастаро муайян мекунад.
   static Future<bool> isDone(String role) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(doneKey(role)) ?? false;
   }
 
-  /// Remembers that the wizard was finished for [role].
+  /// markDone дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   static Future<void> markDone(String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(doneKey(role), true);
   }
 
-  /// Opens the wizard as a full-screen route (Settings, child home).
+  /// open экран ё dialog-и лозими иҷозатҳои Android-ро мекушояд.
   static Future<void> open(BuildContext context, {required bool childMode}) =>
       Navigator.of(context).push(
         MaterialPageRoute<void>(
@@ -65,12 +57,12 @@ class PermissionsWizard extends StatefulWidget {
         ),
       );
 
+  /// Ҳолати PermissionsWizard-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   State<PermissionsWizard> createState() => _PermissionsWizardState();
 }
 
-/// Tracks the current step and each step's status, re-checks on resume and
-/// advances automatically once a permission is granted.
+/// Ҳолат ва рафтори PermissionsWizardState-ро барои навсозии интерфейс идора мекунад.
 class _PermissionsWizardState extends State<PermissionsWizard>
     with WidgetsBindingObserver {
   late final List<WizardStepId> steps = wizardStepsFor(
@@ -78,8 +70,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
   );
   final statuses = <WizardStepId, StepStatus>{};
 
-  /// `id.stage` keys the user already tried; the fallback button shows for
-  /// those that are still not granted.
+  /// Қимати attempted-ро барои роҳнамои пайдарпайи иҷозатҳои барнома нигоҳ медорад.
   final attempted = <String>{};
 
   bool loaded = false;
@@ -92,10 +83,14 @@ class _PermissionsWizardState extends State<PermissionsWizard>
   int direction = 1;
   Timer? advanceTimer;
 
+  /// Қимати ҳисобшудаи onSummary-ро аз ҳолати ҷорӣ бармегардонад.
   bool get onSummary => index >= steps.length;
+  /// Қимати ҳисобшудаи currentId-ро аз ҳолати ҷорӣ бармегардонад.
   WizardStepId? get currentId => onSummary ? null : steps[index];
+  /// Қимати ҳисобшудаи role-ро аз ҳолати ҷорӣ бармегардонад.
   String get role => widget.childMode ? 'child' : 'parent';
 
+  /// Wizard-ро барои session қайд карда, вазъи иҷозатҳои Android-ро мехонад.
   @override
   void initState() {
     super.initState();
@@ -104,6 +99,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     refresh(initial: true);
   }
 
+  /// Controller ва listener-ҳои PermissionsWizard-ро озод мекунад.
   @override
   void dispose() {
     advanceTimer?.cancel();
@@ -111,13 +107,13 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     super.dispose();
   }
 
+  /// Ба тағйири lifecycle-и PermissionsWizard ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) refresh();
   }
 
-  /// Re-reads every step's status; schedules moving on when the current one
-  /// just became granted.
+  /// refresh додаҳои иҷозатҳои Android-ро боз мехонад ва PermissionsWizard-ро нав мекунад.
   Future<void> refresh({bool initial = false}) async {
     final watched = currentId;
     final wasGranted = watched == null ? null : statuses[watched]?.granted;
@@ -153,7 +149,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     }
   }
 
-  /// Moves to the next page after a short pause if still on step [id].
+  /// scheduleAdvance раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void scheduleAdvance(WizardStepId id) {
     advanceTimer?.cancel();
     advanceTimer = Timer(widget.advanceDelay, () {
@@ -161,7 +157,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     });
   }
 
-  /// Shows page [target] (the summary page after the last step).
+  /// go экран, dialog ё танзимоти мувофиқро мекушояд.
   void go(int target) {
     advanceTimer?.cancel();
     final next = target.clamp(0, steps.length);
@@ -174,7 +170,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     if (onSummary) refresh();
   }
 
-  /// Runs a grant/settings action with a busy state and a readable error.
+  /// run мантиқи зарурии роҳнамои пайдарпайи иҷозатҳои барномаро иҷро мекунад.
   Future<void> run(Future<void> Function() action, {String? attemptKey}) async {
     if (busy) return;
     setState(() {
@@ -193,7 +189,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     await refresh();
   }
 
-  /// Saves the "wizard done" flag for this role and closes the wizard.
+  /// finish мантиқи зарурии роҳнамои пайдарпайи иҷозатҳои барномаро иҷро мекунад.
   Future<void> finish() async {
     if (finishing) return;
     setState(() => finishing = true);
@@ -220,9 +216,11 @@ class _PermissionsWizardState extends State<PermissionsWizard>
     }
   }
 
+  /// attemptKeyOf мантиқи зарурии роҳнамои пайдарпайи иҷозатҳои барномаро иҷро мекунад.
   String attemptKeyOf(WizardStepId id, StepStatus status) =>
       '${id.name}.${status.stage.name}';
 
+  /// Қадами ҷории иҷозатҳои Android-ро бо шарҳ ва тугмаи амал нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -278,8 +276,6 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                 done: [for (final s in steps) statuses[s]?.granted == true],
               ),
             ),
-            // What the whole wizard is for — only on the way in, so the later
-            // steps stay clean.
             AnimatedSize(
               duration: reducedMotion(context)
                   ? Duration.zero
@@ -415,7 +411,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
   }
 }
 
-/// Row of dots showing which permission page is open.
+/// Додаҳо ва рафтори марбут ба роҳнамои пайдарпайи иҷозатҳои барномаро ифода мекунад.
 class _ProgressDots extends StatelessWidget {
   const _ProgressDots({
     required this.count,
@@ -429,6 +425,7 @@ class _ProgressDots extends StatelessWidget {
   final Color color;
   final List<bool> done;
 
+  /// Widget-и ProgressDots-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -458,7 +455,7 @@ class _ProgressDots extends StatelessWidget {
   }
 }
 
-/// Large coloured icon of a permission page with an optional status badge.
+/// Widget-и IconTile-ро барои роҳнамои пайдарпайи иҷозатҳои барнома месозад.
 class _IconTile extends StatelessWidget {
   const _IconTile({
     required this.icon,
@@ -471,6 +468,7 @@ class _IconTile extends StatelessWidget {
   final double size;
   final Widget? badge;
 
+  /// Widget-и IconTile-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) => Stack(
     clipBehavior: Clip.none,
@@ -489,7 +487,7 @@ class _IconTile extends StatelessWidget {
   );
 }
 
-/// One permission page: icon, reason, status, grant/fallback buttons and help.
+/// Экрани StepPage-ро барои роҳнамои пайдарпайи иҷозатҳои барнома месозад.
 class _StepPage extends StatelessWidget {
   const _StepPage({
     required this.step,
@@ -515,6 +513,7 @@ class _StepPage extends StatelessWidget {
   final VoidCallback onOpenGps;
   final VoidCallback onToggleHelp;
 
+  /// Widget-и StepPage-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -713,7 +712,7 @@ class _StepPage extends StatelessWidget {
   }
 }
 
-/// Coloured hint line inside a step page with an optional action.
+/// Додаҳо ва рафтори марбут ба роҳнамои пайдарпайи иҷозатҳои барномаро ифода мекунад.
 class _Notice extends StatelessWidget {
   const _Notice({
     required this.icon,
@@ -726,6 +725,7 @@ class _Notice extends StatelessWidget {
   final String text;
   final Widget? action;
 
+  /// Widget-и Notice-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
@@ -744,7 +744,7 @@ class _Notice extends StatelessWidget {
   );
 }
 
-/// Collapsible "What to do?" card with step-by-step tips.
+/// Widget-и HelpCard-ро барои роҳнамои пайдарпайи иҷозатҳои барнома месозад.
 class _HelpCard extends StatelessWidget {
   const _HelpCard({
     required this.open,
@@ -755,6 +755,7 @@ class _HelpCard extends StatelessWidget {
   final List<String> items;
   final VoidCallback onToggle;
 
+  /// Widget-и HelpCard-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -870,7 +871,7 @@ class _HelpCard extends StatelessWidget {
   }
 }
 
-/// Final page listing every permission with its granted/missing state.
+/// Экрани SummaryPage-ро барои роҳнамои пайдарпайи иҷозатҳои барнома месозад.
 class _SummaryPage extends StatelessWidget {
   const _SummaryPage({
     required this.steps,
@@ -881,6 +882,7 @@ class _SummaryPage extends StatelessWidget {
   final Map<WizardStepId, StepStatus> statuses;
   final ValueChanged<int> onOpen;
 
+  /// Widget-и SummaryPage-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -952,7 +954,7 @@ class _SummaryPage extends StatelessWidget {
   }
 }
 
-/// One permission row on the summary page; tap reopens that step.
+/// Widget-и SummaryRow-ро барои роҳнамои пайдарпайи иҷозатҳои барнома месозад.
 class _SummaryRow extends StatelessWidget {
   const _SummaryRow({
     required this.step,
@@ -963,6 +965,7 @@ class _SummaryRow extends StatelessWidget {
   final bool granted;
   final VoidCallback onTap;
 
+  /// Widget-и SummaryRow-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) => ListTile(
     key: Key('wizard-summary-${step.id.name}'),
@@ -991,12 +994,13 @@ class _SummaryRow extends StatelessWidget {
   );
 }
 
-/// Banner shown when Android could not be asked for the status.
+/// Widget-и ErrorBanner-ро барои роҳнамои пайдарпайи иҷозатҳои барнома месозад.
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner({required this.text, required this.onRetry});
   final String text;
   final VoidCallback onRetry;
 
+  /// Widget-и ErrorBanner-ро барои қадамҳои додани иҷозатҳои Android месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

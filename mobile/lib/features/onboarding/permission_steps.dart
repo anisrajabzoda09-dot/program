@@ -1,6 +1,4 @@
-// Permission-wizard model and Android actions: the list of steps per role,
-// the copy for each step, reading their status and opening the right system
-// dialog or settings screen.
+// Файл: қадамҳои иҷозатҳои Android ва санҷиши онҳо.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +9,7 @@ import '../../core/notify_bridge.dart';
 import '../../ui/nigoh_design.dart';
 import '../../l10n/l10n.dart';
 
-/// One permission page of the wizard.
+/// Ҳолатҳо ё навъҳои имконпазири қадамҳои иҷозатҳои Android ва санҷиши онҳоро муайян мекунад.
 enum WizardStepId {
   location,
   notifications,
@@ -23,17 +21,15 @@ enum WizardStepId {
   battery,
   fullScreen,
 
-  /// Parent: «display over other apps», so incoming calls and SOS open
-  /// full-screen even while the phone is in use.
+  /// Қадами дохилии қадамҳои иҷозатҳои Android ва санҷиши онҳо.
   callOverlay,
   camera,
 }
 
-/// Which part of a step is shown. Only location has two parts: first
-/// «while in use», then «always».
+/// Ҳолатҳо ё навъҳои имконпазири қадамҳои иҷозатҳои Android ва санҷиши онҳоро муайян мекунад.
 enum StepStage { main, always }
 
-/// Steps for each role, in order.
+/// wizardStepsFor мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
 List<WizardStepId> wizardStepsFor({required bool childMode}) => childMode
     ? const [
         WizardStepId.location,
@@ -54,7 +50,7 @@ List<WizardStepId> wizardStepsFor({required bool childMode}) => childMode
         WizardStepId.battery,
       ];
 
-/// Current state of one step, read from Android.
+/// StepStatus додаҳо ва рафтори иҷозатҳои Android-ро ифода мекунад.
 class StepStatus {
   const StepStatus({
     required this.granted,
@@ -66,51 +62,47 @@ class StepStatus {
 
   final bool granted;
 
-  /// Android will not show its dialog again (permanently denied /
-  /// restricted): only the settings screen can help.
+  /// Қимати blocked-ро барои қадамҳои иҷозатҳои Android ва санҷиши онҳо нигоҳ медорад.
   final bool blocked;
   final StepStage stage;
 
-  /// Location step: the GPS / location service is switched off.
+  /// Қимати gpsOff-ро барои қадамҳои иҷозатҳои Android ва санҷиши онҳо нигоҳ медорад.
   final bool gpsOff;
 
-  /// Accessibility step: usage access or overlay is still missing, so the
-  /// native opener shows those screens first.
+  /// Қимати missingPrerequisites-ро барои қадамҳои иҷозатҳои Android ва санҷиши онҳо нигоҳ медорад.
   final bool missingPrerequisites;
 }
 
-/// Thin wrapper over permission_handler, the native device channel and the
-/// notification bridge, so the wizard has a single place that talks to
-/// Android (and tests can mock the platform channels underneath).
+/// WizardPlatform додаҳо ва рафтори иҷозатҳои Android-ро ифода мекунад.
 class WizardPlatform {
   const WizardPlatform();
 
   static const device = MethodChannel('tj.nigoh/device_control');
 
-  /// Native protection/permission flags from `getProtectionStatus`.
+  /// protection мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   Future<Map<String, dynamic>> protection() async =>
       await device.invokeMapMethod<String, dynamic>('getProtectionStatus') ??
       const {};
 
-  /// Current status of a runtime permission.
+  /// status мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   Future<ph.PermissionStatus> status(ph.Permission permission) =>
       permission.status;
 
-  /// Shows Android's dialog for a runtime permission.
+  /// request иҷозат ё маълумоти лозимро дархост мекунад.
   Future<ph.PermissionStatus> request(ph.Permission permission) =>
       permission.request();
 
-  /// Whether the phone's location service (GPS) is switched on.
+  /// locationServiceEnabled мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   Future<bool> locationServiceEnabled() async =>
       await ph.Permission.location.serviceStatus == ph.ServiceStatus.enabled;
 
-  /// Opens the system location (GPS) settings.
+  /// openLocationSettings экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> openLocationSettings() async {
     final opened = await Geolocator.openLocationSettings();
     if (!opened) throw WizardException(tr('Танзимоти GPS кушода нашуд.'));
   }
 
-  /// Opens this app's page in Android settings.
+  /// openAppSettings экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> openAppSettings() async {
     final opened = await ph.openAppSettings();
     if (!opened) {
@@ -123,10 +115,10 @@ class WizardPlatform {
     }
   }
 
-  /// Calls a no-argument method on the native device channel.
+  /// invoke мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   Future<void> invoke(String method) => device.invokeMethod<Object?>(method);
 
-  /// Notification permissions from the native NotifyService bridge.
+  /// notifyStatus listener ё корбарро аз тағйирот огоҳ мекунад.
   Future<NotifyPermissions> notifyStatus() async {
     final status = await NotifyBridge.permissionStatus();
     if (status == null) {
@@ -137,7 +129,7 @@ class WizardPlatform {
     return status;
   }
 
-  /// Opens Android's full-screen-notification setting for this app.
+  /// openFullScreenSettings экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> openFullScreenSettings() async {
     NotifyBridge.lastError.value = null;
     await NotifyBridge.openFullScreenSettings();
@@ -146,15 +138,16 @@ class WizardPlatform {
   }
 }
 
-/// A user-facing (Tajik) error from the wizard.
+/// WizardException додаҳо ва рафтори иҷозатҳои Android-ро ифода мекунад.
 class WizardException implements Exception {
   const WizardException(this.message);
   final String message;
+  /// Намоиши матнии WizardException-ро барои log бармегардонад.
   @override
   String toString() => message;
 }
 
-/// Turns any error into a short Tajik sentence for the UI.
+/// wizardErrorText мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
 String wizardErrorText(Object error) {
   if (error is WizardException) return error.message;
   if (error is MissingPluginException) {
@@ -167,7 +160,7 @@ String wizardErrorText(Object error) {
   return tr('Хато: {error}', {'error': error});
 }
 
-/// Static copy and actions of one step.
+/// WizardStep додаҳо ва рафтори иҷозатҳои Android-ро ифода мекунад.
 class WizardStep {
   const WizardStep({
     required this.id,
@@ -187,7 +180,7 @@ class WizardStep {
   final List<String> help;
   final String summaryTitle;
 
-  /// Copy for the «Ҳамеша» part of the location step.
+  /// Қимати locationAlways-ро барои қадамҳои иҷозатҳои Android ва санҷиши онҳо нигоҳ медорад.
   static WizardStep get locationAlways => WizardStep(
     id: WizardStepId.location,
     icon: Icons.share_location_rounded,
@@ -207,7 +200,7 @@ class WizardStep {
     summaryTitle: tr('Ҷойгиршавӣ'),
   );
 
-  /// Copy (icon, title, reason, tips) for the step [id].
+  /// of мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   static WizardStep of(WizardStepId id) => switch (id) {
     WizardStepId.location => WizardStep(
       id: WizardStepId.location,
@@ -435,7 +428,7 @@ class WizardStep {
   };
 }
 
-/// Runtime permission behind a step (null for special permissions).
+/// runtimePermissionOf иҷозати зарурии Android-ро месанҷад ё дархост мекунад.
 ph.Permission? runtimePermissionOf(WizardStepId id, StepStage stage) =>
     switch (id) {
       WizardStepId.location =>
@@ -449,7 +442,7 @@ ph.Permission? runtimePermissionOf(WizardStepId id, StepStage stage) =>
       _ => null,
     };
 
-/// Native key in `getProtectionStatus` for special permissions.
+/// protectionKeyOf мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
 String? protectionKeyOf(WizardStepId id) => switch (id) {
   WizardStepId.usage => 'usage',
   WizardStepId.overlay || WizardStepId.callOverlay => 'overlay',
@@ -458,12 +451,12 @@ String? protectionKeyOf(WizardStepId id) => switch (id) {
   _ => null,
 };
 
-/// Reads, requests and opens settings for the wizard's steps.
+/// WizardActions додаҳо ва рафтори иҷозатҳои Android-ро ифода мекунад.
 class WizardActions {
   const WizardActions([this.platform = const WizardPlatform()]);
   final WizardPlatform platform;
 
-  /// Reads the state of every step. Throws when Android could not be asked.
+  /// readAll додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<Map<WizardStepId, StepStatus>> readAll(List<WizardStepId> ids) async {
     Map<String, dynamic>? protection;
     if (ids.any((id) => protectionKeyOf(id) != null)) {
@@ -476,7 +469,7 @@ class WizardActions {
     return result;
   }
 
-  /// Reads the status of one step from native flags or permission_handler.
+  /// read додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<StepStatus> _read(
     WizardStepId id,
     Map<String, dynamic>? protection,
@@ -523,12 +516,11 @@ class WizardActions {
     }
   }
 
-  /// Whether Android will no longer show the permission dialog.
+  /// blocked мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   static bool _blocked(ph.PermissionStatus status) =>
       status.isPermanentlyDenied || status.isRestricted;
 
-  /// «Иҷозат додан»: system dialog for runtime permissions, the exact
-  /// settings screen for special ones.
+  /// grant мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   Future<void> grant(WizardStepId id, StepStatus status) async {
     final permission = runtimePermissionOf(id, status.stage);
     if (permission != null) {
@@ -555,7 +547,7 @@ class WizardActions {
     }
   }
 
-  /// «Агар иҷозат дода нашуд»: the settings screen where it is switched on.
+  /// openFallback экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> openFallback(WizardStepId id) async {
     switch (id) {
       case WizardStepId.usage:
@@ -566,13 +558,12 @@ class WizardActions {
         await platform.invoke('openDeviceAdminSettings');
       case WizardStepId.fullScreen:
         await platform.openFullScreenSettings();
-      // App details: runtime permissions, battery and — for Accessibility —
-      // the ⋮ «Разрешить ограниченные настройки» menu (Android 13+).
+      // openAppSettings иҷозати зарурии Android-ро месанҷад ё дархост мекунад.
       default:
         await platform.openAppSettings();
     }
   }
 
-  /// Opens the GPS settings (location step when GPS is off).
+  /// openLocationSettings экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> openLocationSettings() => platform.openLocationSettings();
 }

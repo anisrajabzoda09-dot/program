@@ -1,5 +1,4 @@
-// One-time child profile form (name, gender, age) shown on the child phone
-// before pairing.
+// Файл: сабти профили фарзанд пеш аз пайвасткунӣ.
 
 import 'package:flutter/material.dart';
 
@@ -9,17 +8,17 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import '../../l10n/l10n.dart';
 
-/// Child enters name, gender and age once on this phone. Calls [onDone]
-/// with the saved profile so the root gate can move on.
+/// Экрани ChildSetupScreen-ро барои сабти профили фарзанд пеш аз пайвасткунӣ месозад.
 class ChildSetupScreen extends StatefulWidget {
   const ChildSetupScreen({super.key, required this.onDone});
   final ValueChanged<ChildProfile> onDone;
 
+  /// Ҳолати ChildSetupScreen-ро барои насб ва пайвасткунии телефони фарзанд месозад.
   @override
   State<ChildSetupScreen> createState() => _ChildSetupScreenState();
 }
 
-/// Holds the form fields and saves the profile.
+/// Ҳолат ва рафтори ChildSetupScreenState-ро барои навсозии интерфейс идора мекунад.
 class _ChildSetupScreenState extends State<ChildSetupScreen> {
   final form = GlobalKey<FormState>();
   late final name = TextEditingController();
@@ -27,6 +26,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
   int age = 11;
   bool saving = false;
 
+  /// Пас аз тағйири dependency-ҳо ҳолати вобастаро нав мекунад.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -36,13 +36,14 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
     }
   }
 
+  /// Controller ва listener-ҳои ChildSetupScreen-ро озод мекунад.
   @override
   void dispose() {
     name.dispose();
     super.dispose();
   }
 
-  /// Validates the form, saves the profile locally and hands it to [onDone].
+  /// save тағйироти child_setup_screen-ро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> save() async {
     if (!(form.currentState?.validate() ?? false)) return;
     setState(() => saving = true);
@@ -67,12 +68,13 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
     }
   }
 
-  /// Wrong role: signs out so the role can be chosen again.
+  /// back мантиқи зарурии сабти профили фарзанд пеш аз пайвасткунӣро иҷро мекунад.
   Future<void> back() async {
-    // Wrong role chosen: sign out keeps it simple and clears the choice.
+    // Қадами дохилии сабти профили фарзанд пеш аз пайвасткунӣ.
     await SessionScope.read(context).signOut();
   }
 
+  /// Формаи рамзи пайвасткунӣ ва маълумоти насби телефони фарзандро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
