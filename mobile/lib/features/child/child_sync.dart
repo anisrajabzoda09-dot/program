@@ -1,6 +1,4 @@
-// Child-phone background engine (ChildSync): keeps the child record and
-// pairing code, pushes the parent's rules to the native app blocker, uploads
-// the installed-app list and reports location and battery to the server.
+// Файл: ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо.
 
 import 'dart:async';
 
@@ -13,20 +11,17 @@ import '../../core/child_profile.dart';
 import '../../core/models.dart';
 import '../../l10n/l10n.dart';
 
-/// Background engine on the child's phone. Everything goes through the NIGOH
-/// server: the child record + pairing code, the installed-app list, the
-/// parent's rules (pushed to the native blocker) and the location.
-///
-/// Errors never disappear silently: each area keeps its latest message and
-/// [lastError] exposes the most recent one for the UI.
+/// Додаҳо ва рафтори марбут ба ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро ифода мекунад.
 class ChildSync extends ChangeNotifier {
   ChildSync({
     required this.api,
     MethodChannel? deviceChannel,
     EventChannel? packageEvents,
+    /// Function мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
     Future<ChildProfile?> Function()? loadProfile,
     this.trackLocation = true,
     this.listenPackageEvents = true,
+    /// Function мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now,
        device = deviceChannel ?? const MethodChannel('tj.nigoh/device_control'),
@@ -42,7 +37,7 @@ class ChildSync extends ChangeNotifier {
   final bool listenPackageEvents;
   final DateTime Function() _clock;
 
-  /// Current time (injectable for tests).
+  /// now мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   DateTime now() => _clock();
 
   static const pollInterval = Duration(seconds: 15);
@@ -50,19 +45,17 @@ class ChildSync extends ChangeNotifier {
   static const locationThrottle = Duration(seconds: 60);
   static const locationHeartbeat = Duration(minutes: 5);
 
-  /// A one-shot fix is requested when nothing was posted for this long,
-  /// independent of the GPS stream (indoors the stream may stay silent).
+  /// Қимати locationFixEvery-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   static const locationFixEvery = Duration(seconds: 60);
   static const locationFixTimeLimit = Duration(seconds: 20);
 
-  /// Server usage values must stay inside the schema (0..1440) or the whole
-  /// batch is rejected.
+  /// clampUsage мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   static int clampUsage(Object? minutes) =>
       ((minutes as num?)?.toInt() ?? 0).clamp(0, 1440);
 
-  // ---------- Status for the UI ----------
+  // Ҳолати пайвастшавӣ, ҳамоҳангсозӣ ва хатогиҳои намоёни телефони фарзанд.
 
-  /// True until the first attempt to find/create the child record finished.
+  /// Қимати loading-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   bool loading = true;
   int? childId;
   String? pairingCode;
@@ -74,30 +67,30 @@ class ChildSync extends ChangeNotifier {
   int appsCount = 0;
   int rulesCount = 0;
 
-  /// The latest child record from the server (rules, bedtime, unread count).
+  /// Қимати child-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   FamilyChild? child;
 
-  /// Last battery level read from the phone (0..100), if known.
+  /// Қимати batteryLevel-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   int? batteryLevel;
 
-  /// The newest GPS position this phone knows (posted or not).
+  /// Қимати lastPosition-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   Position? get lastPosition => _lastPosition;
 
-  /// Raw native protection status (usage, overlay, accessibility, location…).
+  /// Қимати protection-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   Map<String, dynamic> protection = const {};
 
-  /// Whether [protection] has been read at least once.
+  /// Қимати protectionKnown-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   bool protectionKnown = false;
 
-  /// Human-readable names of required permissions that are still missing.
+  /// Қимати missingPermissions-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   List<String> missingPermissions = const [];
 
-  final _errors = <String, String>{}; // insertion-ordered
+  final _errors = <String, String>{}; // Тартиби воридшавии хатогиҳо нигоҳ дошта мешавад.
 
-  /// The latest error message (Tajik), or null when everything works.
+  /// Қимати lastError-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   String? get lastError => _errors.isEmpty ? null : _errors.values.last;
 
-  // ---------- Internals ----------
+  // Timer, stream ва future-ҳои дохилиро барои пешгирии кори такрорӣ нигоҳ медорад.
 
   Timer? _timer;
   StreamSubscription<Position>? _positions;
@@ -125,21 +118,23 @@ class ChildSync extends ChangeNotifier {
     'accessibility': 'Назорати барномаҳо',
   };
 
-  /// Records the latest error of one sync [area] for the UI.
+  /// setError ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   void _setError(String area, Object error) {
     _errors.remove(area);
     _errors[area] = error is String ? error : _text(error);
   }
 
+  /// clearError маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   void _clearError(String area) => _errors.remove(area);
 
+  /// notify listener ё корбарро аз тағйирот огоҳ мекунад.
   void _notify() {
     if (!_disposed) notifyListeners();
   }
 
-  // ---------- Lifecycle ----------
+  // Даври polling ва шунидани тағйири package-ҳои Android-ро оғоз мекунад.
 
-  /// Starts the periodic sync, package-change listening and location updates.
+  /// start раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void start() {
     if (_running || _disposed) return;
     _running = true;
@@ -163,7 +158,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Stops all timers, streams and listeners (sign-out or dispose).
+  /// stop раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   void stop() {
     _running = false;
     _timer?.cancel();
@@ -175,6 +170,7 @@ class ChildSync extends ChangeNotifier {
     _packageSub = null;
   }
 
+  /// Controller ва listener-ҳои ChildSync-ро озод мекунад.
   @override
   void dispose() {
     stop();
@@ -182,7 +178,7 @@ class ChildSync extends ChangeNotifier {
     super.dispose();
   }
 
-  /// «Аз нав кӯшиш»: run every step now (apps are re-sent too).
+  /// forceSync мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> forceSync() async {
     _appsDirty = true;
     await tick();
@@ -190,17 +186,16 @@ class ChildSync extends ChangeNotifier {
     if (_appsInFlight != null) await _appsInFlight;
   }
 
-  // ---------- Child record / pairing ----------
+  // Профили фарзандро танҳо бо як дархости ҳамзамон таъмин мекунад.
 
-  /// Finds this phone's child record on the server or creates it (with the
-  /// profile the child entered) so a pairing code exists.
+  /// ensureChild дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   Future<void> ensureChild() {
     return _ensureInFlight ??= _ensureChild().whenComplete(
       () => _ensureInFlight = null,
     );
   }
 
-  /// Loads this phone's child record, or creates a pairing code if none exists.
+  /// ensureChild дурустӣ ва шартҳои зарурии додаҳоро месанҷад.
   Future<void> _ensureChild() async {
     try {
       final snapshot = await api.snapshot();
@@ -219,7 +214,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Creates a pairing code using the child's locally entered profile.
+  /// createCode мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> _createCode() async {
     final profile = await _loadProfile();
     final data = await api.createPairCode(
@@ -236,8 +231,7 @@ class ChildSync extends ChangeNotifier {
     paired = nowPaired;
   }
 
-  /// A fresh pairing code (only while not paired). Throws [ApiException] so
-  /// the screen can show it.
+  /// regenerateCode мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> regenerateCode() async {
     if (paired) return;
     try {
@@ -251,8 +245,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Applies a fresh child record: pairing state, parent name and the rules
-  /// (cleared when the phone is no longer paired).
+  /// applyChild рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   Future<void> _applyChild(Map<String, dynamic> raw) async {
     final child = FamilyChild.fromJson(raw);
     this.child = child;
@@ -264,7 +257,7 @@ class ChildSync extends ChangeNotifier {
         ? null
         : child.parentName!.trim();
     if (paired && !wasPaired) _appsDirty = true;
-    // After an unlink the phone must stop enforcing old rules.
+    // Қоидаҳои навгирифтаро фавран ба blocker-и Android мефиристад.
     await pushRules(
       paired ? child.apps : const [],
       bedtime: paired ? child.bedtime : const Bedtime(),
@@ -272,9 +265,7 @@ class ChildSync extends ChangeNotifier {
     );
   }
 
-  /// Sends the parent's rules to the native blocker. Bonus time, «always
-  /// allowed», an active [bedtime] and active [study] hours are folded in by
-  /// [ChildApp.toNativeRule].
+  /// pushRules мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> pushRules(
     List<ChildApp> apps, {
     Bedtime bedtime = const Bedtime(),
@@ -299,7 +290,7 @@ class ChildSync extends ChangeNotifier {
       lastRulesSync = DateTime.now();
       _clearError('rules');
     } on MissingPluginException {
-      // Not on Android (tests) — nothing to enforce.
+      // Дар муҳити бе plugin қоидаҳо танҳо дар сервер боқӣ мемонанд.
     } catch (e) {
       _setError(
         'rules',
@@ -308,12 +299,10 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// (bedtimeActive, studyActive) of the last push.
+  /// Фаъолии охирини реҷаи хоб ва дарсро барои ошкор кардани гузариши вақт нигоҳ медорад.
   (bool, bool)? _pushedWindows;
 
-  /// Without internet the snapshot fails, but bedtime / study hours must
-  /// still start and end on time: re-push the last known rules when a
-  /// window flipped since the last push.
+  /// repushIfWindowChanged мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> _repushIfWindowChanged() async {
     final c = child;
     if (c == null || !paired) return;
@@ -323,15 +312,14 @@ class ChildSync extends ChangeNotifier {
     await pushRules(c.apps, bedtime: c.bedtime, study: c.study);
   }
 
-  // ---------- Periodic step ----------
+  // Як даври ҳамоҳангсозиро бе иҷрои ду future-и ҳамзамон мегузаронад.
 
-  /// One 15-second step; overlapping calls share the running one.
+  /// tick мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> tick() {
     return _tickInFlight ??= _tick().whenComplete(() => _tickInFlight = null);
   }
 
-  /// One sync step: refresh the child record and rules, protection status,
-  /// the app list when due, and location tracking.
+  /// tick мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> _tick() async {
     if (childId == null) {
       await ensureChild();
@@ -367,9 +355,9 @@ class ChildSync extends ChangeNotifier {
     _notify();
   }
 
-  // ---------- Protection status ----------
+  // Вазъи usage access, overlay, Accessibility ва батареяро аз Android мехонад.
 
-  /// Reads from native code which protections and permissions are active.
+  /// refreshProtection додаҳоро боз хонда, интерфейсро нав мекунад.
   Future<void> refreshProtection() async {
     try {
       final raw = await device.invokeMapMethod<String, dynamic>(
@@ -383,7 +371,7 @@ class ChildSync extends ChangeNotifier {
       ];
       _clearError('protection');
     } on MissingPluginException {
-      // Not on Android.
+      // Дар муҳити бе plugin вазъи муҳофизати Android дастнорас мемонад.
     } catch (e) {
       _setError(
         'protection',
@@ -392,16 +380,16 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  // ---------- Installed apps ----------
+  // Рӯйхати барномаҳо ва омори истифодаи онҳоро бо сервер ҳамоҳанг месозад.
 
-  /// Uploads the installed-app list; concurrent calls share one upload.
+  /// syncApps додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<void> syncApps() {
     return _appsInFlight ??= _syncApps().whenComplete(
       () => _appsInFlight = null,
     );
   }
 
-  /// Collects installed apps with today's usage and sends them to the server.
+  /// syncApps додаҳоро бо server ҳамоҳанг мекунад ва метавонад API-ро нависад.
   Future<void> _syncApps() async {
     final id = childId;
     if (id == null) return;
@@ -416,7 +404,7 @@ class ChildSync extends ChangeNotifier {
       _appsDirty = false;
       _clearError('apps');
     } catch (e) {
-      // Stays dirty: the next 15-second tick retries.
+      // Пас аз хатои фиристодан рӯйхати барномаҳоро барои кӯшиши навбатӣ dirty мемонад.
       _appsDirty = true;
       _setError(
         'apps',
@@ -427,7 +415,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Installed apps + today's usage in the server's `apps/sync` format.
+  /// buildAppsPayload қисми мувофиқи интерфейсро месозад.
   Future<List<Map<String, dynamic>>> buildAppsPayload() async {
     final installed =
         await device.invokeListMethod<Object?>('getInstalledApps') ??
@@ -438,7 +426,7 @@ class ChildSync extends ChangeNotifier {
           await device.invokeListMethod<Object?>('getUsageStats') ??
           const <Object?>[];
     } catch (e) {
-      // Usage access may be missing; the app list is still useful.
+      // Нокомии хондани омори истифода сабт мешавад, вале рӯйхати барномаҳо идома меёбад.
       debugPrint('getUsageStats: $e');
     }
     final usage = <String, Map>{};
@@ -475,23 +463,20 @@ class ChildSync extends ChangeNotifier {
     return result;
   }
 
-  // ---------- Location ----------
+  // Матнҳои хатои GPS ва иҷозати ҷойгиршавиро барои фарзанд таъмин мекунад.
 
+  /// Қимати ҳисобшудаи gpsOffText-ро аз ҳолати ҷорӣ бармегардонад.
   static String get _gpsOffText => tr(
     'GPS хомӯш аст — ҷойгиршавӣ фиристода намешавад. Онро дар танзимоти телефон фаъол кунед.',
   );
+  /// Қимати ҳисобшудаи noPermissionText-ро аз ҳолати ҷорӣ бармегардонад.
   static String get _noPermissionText =>
       tr('Иҷозати ҷойгиршавӣ дода нашудааст — волидайн ҷои шуморо намебинанд.');
+  /// Қимати ҳисобшудаи noFixText-ро аз ҳолати ҷорӣ бармегардонад.
   static String get _noFixText =>
       tr('Ҷойгиршавӣ ҳоло муайян нашуд (сигнали GPS нест). Боз кӯшиш мекунем.');
 
-  /// One location step (run by every tick). It never depends on the GPS
-  /// stream alone — indoors the stream can stay silent for hours:
-  /// 1. GPS and permission are checked; a clear error is kept otherwise;
-  /// 2. the stream is (re)started and its moves are posted once a minute;
-  /// 3. when nothing was posted for [locationFixEvery], a one-shot fix is
-  ///    requested: the last known position first (only once, right after
-  ///    start), then a medium-accuracy fix limited to 20 seconds.
+  /// startLocation раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   Future<void> startLocation() async {
     if (!trackLocation || _locationStarting) return;
     _locationStarting = true;
@@ -505,18 +490,17 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Whether a one-shot location fix is due (nothing sent for a while).
+  /// Қимати ҳисобшудаи fixDue-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо бармегардонад.
   bool get _fixDue {
     final last = lastLocationSync;
     return last == null || now().difference(last) >= locationFixEvery;
   }
 
-  /// The running one-shot fix, if any (tests await it).
+  /// Қимати pendingFix-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   @visibleForTesting
   Future<void>? get pendingFix => _fixInFlight;
 
-  /// Checks that GPS is on and location permission is granted, recording a
-  /// readable error otherwise.
+  /// locationAllowed мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<bool> _locationAllowed() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
@@ -531,7 +515,7 @@ class ChildSync extends ChangeNotifier {
       }
       return true;
     } on MissingPluginException {
-      return false; // Not on Android.
+      return false; // Дар платформаи ғайри Android дастгирӣ намешавад.
     } catch (e) {
       _setError(
         'location',
@@ -541,7 +525,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Subscribes to the GPS position stream (Android foreground notification).
+  /// startStream раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void _startStream() {
     try {
       final settings = defaultTargetPlatform == TargetPlatform.android
@@ -568,14 +552,13 @@ class ChildSync extends ChangeNotifier {
             onError: (Object e) {
               _setError('location', _fixErrorText(e));
               _positions?.cancel();
-              _positions = null; // the next tick restarts the stream
+              _positions = null; // Даври навбатӣ stream-ро аз нав оғоз мекунад.
               _notify();
             },
           );
     } on MissingPluginException {
-      // Not on Android.
+      // Дар муҳити бе plugin пайгирии GPS оғоз намешавад.
     } catch (e) {
-      // The one-shot fixes keep working without the stream.
       _setError(
         'location',
         tr('Ҷойгиршавӣ оғоз нашуд: {error}', {'error': _text(e)}),
@@ -583,7 +566,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// User-facing message for a failed location fix.
+  /// fixErrorText мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   static String _fixErrorText(Object e) {
     if (e is LocationServiceDisabledException) return _gpsOffText;
     if (e is PermissionDeniedException) return _noPermissionText;
@@ -591,14 +574,14 @@ class ChildSync extends ChangeNotifier {
     return tr('Ҷойгиршавӣ муайян нашуд: {error}', {'error': _text(e)});
   }
 
-  /// One-shot fix, guarded so two never overlap.
+  /// requestFix иҷозат ё маълумоти лозимро дархост мекунад.
   Future<void> requestFix() {
     return _fixInFlight ??= _requestFix().whenComplete(
       () => _fixInFlight = null,
     );
   }
 
-  /// Requests a single location fix (last known first) when the stream is quiet.
+  /// requestFix иҷозат ё маълумоти лозимро дархост мекунад.
   Future<void> _requestFix() async {
     if (childId == null) return;
     try {
@@ -610,7 +593,7 @@ class ChildSync extends ChangeNotifier {
         } on MissingPluginException {
           rethrow;
         } catch (e) {
-          // A fresh fix is requested right below; its error is shown.
+          // Хатои гирифтани ҷойгиршавии охиринро сабт карда, stream-ро идома медиҳад.
           debugPrint('getLastKnownPosition: $e');
         }
         if (last != null) {
@@ -636,7 +619,7 @@ class ChildSync extends ChangeNotifier {
       _lastPositionSent = false;
       await _post(p);
     } on MissingPluginException {
-      // Not on Android.
+      // Дар муҳити бе plugin ҷойгиршавии якдафъаина гирифта намешавад.
     } catch (e) {
       _setError('location', _fixErrorText(e));
     } finally {
@@ -644,15 +627,14 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// New GPS fix from the stream: posted at once when allowed by the
-  /// throttle, otherwise kept and posted by a later tick.
+  /// onPosition рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void onPosition(Position p) {
     _lastPosition = p;
     _lastPositionSent = false;
     _maybePostLocation();
   }
 
-  /// Posts the latest position when it is new enough or the heartbeat is due.
+  /// maybePostLocation мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   void _maybePostLocation() {
     final p = _lastPosition;
     if (p == null || childId == null) return;
@@ -666,13 +648,13 @@ class ChildSync extends ChangeNotifier {
     unawaited(_post(p));
   }
 
-  /// Posts [p] unless another post is running (then waits for that one).
+  /// post мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> _post(Position p) {
     return _locationInFlight ??= _postLocation(p)
         .whenComplete(() => _locationInFlight = null);
   }
 
-  /// Battery level 0..100 from the phone, or null when unknown.
+  /// readBattery додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<int?> readBattery() async {
     try {
       final level = await device.invokeMethod<int>('getBatteryLevel');
@@ -680,13 +662,13 @@ class ChildSync extends ChangeNotifier {
       batteryLevel = level;
       return level;
     } catch (e) {
-      // Optional detail — location is still sent without it.
+      // Хатои хондани фоизи батареяро сабт карда, қимати номаълум бармегардонад.
       debugPrint('getBatteryLevel: $e');
       return null;
     }
   }
 
-  /// Sends a position with the battery level to the server.
+  /// postLocation мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> _postLocation(Position p) async {
     final id = childId;
     if (id == null) return;
@@ -705,7 +687,7 @@ class ChildSync extends ChangeNotifier {
       lastLocationSync = now();
       _clearError('location');
     } catch (e) {
-      // Allow a retry on the next tick instead of waiting the full minute.
+      // Пас аз хатои API вақти фиристодани ҷойгиршавиро пок мекунад, то дубора кӯшиш шавад.
       _lastLocationPost = null;
       _setError(
         'location',
@@ -718,7 +700,7 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
-  /// Readable message for an API, platform or other error.
+  /// text мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   static String _text(Object e) => e is ApiException
       ? e.message
       : e is PlatformException

@@ -1,5 +1,4 @@
-// Child phone home screen: pairing QR/code before pairing, then status (SOS,
-// bedtime, screen time, protection), the child's rules, chat and settings.
+// Файл: саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо.
 
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -16,43 +15,42 @@ import 'child_sync.dart';
 import 'child_widgets.dart';
 import '../../l10n/l10n.dart';
 
-/// QR payload read by the parent's scanner (`UserJourneyLogic.pairingCode`
-/// keeps only the 6 digits).
+/// pairingQrData дархостро ба API мефиристад ва натиҷаро коркард мекунад.
 String pairingQrData(String code) => 'nigoh://pair/$code';
 
-/// Home of the child's phone: pairing / status (with SOS, bedtime and screen
-/// time), «Қоидаҳои ман», chat with the parent and settings. Owns the [ChildSync] background engine.
+/// Додаҳо ва рафтори марбут ба саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳоро ифода мекунад.
 class ChildHome extends StatefulWidget {
   const ChildHome({super.key, this.sync});
 
-  /// Injected engine (tests); by default one is created from the session.
+  /// Қимати sync-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо нигоҳ медорад.
   final ChildSync? sync;
 
+  /// Ҳолати ChildHome-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   State<ChildHome> createState() => _ChildHomeState();
 }
 
-/// Owns the [ChildSync] engine, switches tabs, follows notification targets
-/// and opens the permission wizard when protection is missing.
+/// Ҳолат ва рафтори ChildHomeState-ро барои навсозии интерфейс идора мекунад.
 class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   ChildSync? _sync;
   bool _ownsSync = false;
   int _tab = 0;
   bool _accessShown = false;
 
+  /// Қимати ҳисобшудаи sync-ро аз ҳолати ҷорӣ бармегардонад.
   ChildSync get sync => _sync!;
 
+  /// Ҳадафи аз огоҳинома омадаро мешунавад ва бахши мувофиқи экрани фарзандро мекушояд.
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     homeTarget.addListener(_onHomeTarget);
-    // Opened from a notification before this screen existed.
+    // Огоҳиномаи воридшударо дар ChildHome ба амали мувофиқ равона мекунад.
     WidgetsBinding.instance.addPostFrameCallback((_) => _onHomeTarget());
   }
 
-  /// Notification tap: chat → «Чат», requests/decisions → «Қоидаҳо»
-  /// (the requests list lives there), everything else → «Асосӣ».
+  /// onHomeTarget рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onHomeTarget() {
     final target = homeTarget.value;
     if (target == null || !mounted) return;
@@ -65,6 +63,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     setState(() => _tab = tab);
   }
 
+  /// Пас аз тағйири dependency-ҳо ҳолати вобастаро нав мекунад.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -75,6 +74,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     _sync!.start();
   }
 
+  /// Controller ва listener-ҳои ChildHome-ро озод мекунад.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -84,18 +84,17 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Ба тағйири lifecycle-и ChildHome ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) sync.tick();
   }
 
-  /// Rebuilds on sync changes and opens the permission wizard once when a
-  /// required permission is missing.
+  /// onSync рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onSync() {
     if (!mounted) return;
     setState(() {});
-    // Open the permission wizard once if something required is missing
-    // (not again when it was just shown after registration).
+    // openAccess иҷозати зарурии Android-ро месанҷад ё дархост мекунад.
     if (!_accessShown &&
         !PermissionsWizard.shownThisSession &&
         sync.protectionKnown &&
@@ -105,7 +104,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     }
   }
 
-  /// Opens the permission wizard, then re-checks the protection status.
+  /// openAccess экран, dialog ё танзимоти мувофиқро мекушояд.
   Future<void> _openAccess() async {
     if (!mounted) return;
     _accessShown = true;
@@ -114,6 +113,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
     if (mounted) setState(() {});
   }
 
+  /// Экрани фарзандро бо Home, қоидаҳо, чат ва танзимот месозад.
   @override
   Widget build(BuildContext context) {
     final Widget page;
@@ -157,7 +157,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
       default:
         page = _HomeTab(sync: sync, onOpenAccess: _openAccess);
     }
-    // The chat marks messages read while open, so no badge on that tab.
+    // Қадами дохилии unread барои саҳифаи фарзанд.
     final unread = _tab == 2 ? 0 : (sync.child?.unreadFromParent ?? 0);
     return Scaffold(
       body: AnimatedSwitcher(
@@ -200,12 +200,13 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
   }
 }
 
-/// First tab: the pairing view before pairing, the status view after it.
+/// Додаҳо ва рафтори марбут ба саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳоро ифода мекунад.
 class _HomeTab extends StatelessWidget {
   const _HomeTab({required this.sync, required this.onOpenAccess});
   final ChildSync sync;
   final VoidCallback onOpenAccess;
 
+  /// Widget-и HomeTab-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -239,24 +240,23 @@ class _HomeTab extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Not paired: QR + code
-// ---------------------------------------------------------------------------
+// Қадами дохилии PairingView барои саҳифаи фарзанд.
 
-/// Shows the pairing QR and 6-digit code the parent scans or types.
+/// Widget-и PairingView-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо месозад.
 class _PairingView extends StatefulWidget {
   const _PairingView({super.key, required this.sync});
   final ChildSync sync;
 
+  /// Ҳолати PairingView-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   State<_PairingView> createState() => _PairingViewState();
 }
 
-/// Lets the child request a fresh pairing code.
+/// Ҳолат ва рафтори PairingViewState-ро барои навсозии интерфейс идора мекунад.
 class _PairingViewState extends State<_PairingView> {
   bool _busy = false;
 
-  /// Asks the server for a new pairing code and reports the result.
+  /// newCode мантиқи зарурии саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳоро иҷро мекунад.
   Future<void> _newCode() async {
     setState(() => _busy = true);
     try {
@@ -269,6 +269,7 @@ class _PairingViewState extends State<_PairingView> {
     }
   }
 
+  /// Widget-и PairingView-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final sync = widget.sync;
@@ -328,7 +329,7 @@ class _PairingViewState extends State<_PairingView> {
                             key: const ValueKey('qr'),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              // White behind the QR so it scans in dark mode.
+                              // Қадами дохилии circular барои саҳифаи фарзанд.
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -416,12 +417,13 @@ class _PairingViewState extends State<_PairingView> {
   }
 }
 
-/// Numbered instruction line of the pairing steps.
+/// Додаҳо ва рафтори марбут ба саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳоро ифода мекунад.
 class _Step extends StatelessWidget {
   const _Step({required this.index, required this.text});
   final int index;
   final String text;
 
+  /// Widget-и Step-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -459,12 +461,9 @@ class _Step extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Paired: status cards
-// ---------------------------------------------------------------------------
+// Қадами дохилии PairedView барои саҳифаи фарзанд.
 
-/// Paired status view: SOS, bedtime/study banners, protection status and
-/// today's screen time.
+/// Widget-и PairedView-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо месозад.
 class _PairedView extends StatelessWidget {
   const _PairedView({
     super.key,
@@ -474,8 +473,10 @@ class _PairedView extends StatelessWidget {
   final ChildSync sync;
   final VoidCallback onOpenAccess;
 
+  /// sendSos дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _sendSos(BuildContext context) => sendChildSos(context, sync);
 
+  /// Widget-и PairedView-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -584,7 +585,7 @@ class _PairedView extends StatelessWidget {
             ],
           ),
         ),
-        // Something is missing → the fix comes before everything else.
+        // Қадами дохилии SizedBox барои саҳифаи фарзанд.
         if (needsPermissions) ...[protectionCard, const SizedBox(height: 12)],
         FadeIn(child: SosButton(onTriggered: () => _sendSos(context))),
         SectionTitle(tr('Ҳолати телефон')),
@@ -644,21 +645,22 @@ class _PairedView extends StatelessWidget {
   }
 }
 
-/// Quiet button that fixes a status card and shows its own progress.
+/// Widget-и RetryButton-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо месозад.
 class _RetryButton extends StatefulWidget {
   const _RetryButton({required this.label, required this.onTap});
   final String label;
   final Future<void> Function() onTap;
 
+  /// Ҳолати RetryButton-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   State<_RetryButton> createState() => _RetryButtonState();
 }
 
-/// Runs the retry action with a spinner and blocks double taps.
+/// Ҳолат ва рафтори RetryButtonState-ро барои навсозии интерфейс идора мекунад.
 class _RetryButtonState extends State<_RetryButton> {
   bool _busy = false;
 
-  /// Runs [onTap] while showing progress.
+  /// run мантиқи зарурии саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳоро иҷро мекунад.
   Future<void> _run() async {
     setState(() => _busy = true);
     try {
@@ -668,6 +670,7 @@ class _RetryButtonState extends State<_RetryButton> {
     }
   }
 
+  /// Widget-и RetryButton-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) => FilledButton.tonalIcon(
     onPressed: _busy ? null : _run,
@@ -682,8 +685,7 @@ class _RetryButtonState extends State<_RetryButton> {
   );
 }
 
-/// Sends the SOS (message_type 'urgent') with the latest coordinates and
-/// battery level; the result is always shown.
+/// sendChildSos дархостро ба API мефиристад ва натиҷаро коркард мекунад.
 Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
   final id = sync.childId;
   if (id == null) {
@@ -711,8 +713,7 @@ Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
   }
 }
 
-/// One status line of the child's phone: a coloured tile, the plain-language
-/// state and — when something is wrong — the button that fixes it.
+/// Widget-и StatusCard-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо месозад.
 class _StatusCard extends StatelessWidget {
   const _StatusCard({
     required this.icon,
@@ -730,18 +731,19 @@ class _StatusCard extends StatelessWidget {
   final String title;
   final String value;
 
-  /// One plain sentence: what this means for the child.
+  /// Қимати hint-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо нигоҳ медорад.
   final String hint;
 
-  /// Green state (mint / [okColor]) when true, amber «needs action» when not.
+  /// Қимати ok-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо нигоҳ медорад.
   final bool ok;
 
-  /// Still being checked — neutral, no state pill.
+  /// Қимати unknown-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо нигоҳ медорад.
   final bool unknown;
   final Color okColor;
   final String? detail;
   final Widget? action;
 
+  /// Widget-и StatusCard-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -831,21 +833,22 @@ class _StatusCard extends StatelessWidget {
   }
 }
 
-/// Card that shows a sync error with a retry button.
+/// Widget-и ErrorCard-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо месозад.
 class _ErrorCard extends StatefulWidget {
   const _ErrorCard({required this.text, required this.onRetry});
   final String text;
   final Future<void> Function() onRetry;
 
+  /// Ҳолати ErrorCard-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   State<_ErrorCard> createState() => _ErrorCardState();
 }
 
-/// Runs the retry with progress.
+/// Ҳолат ва рафтори ErrorCardState-ро барои навсозии интерфейс идора мекунад.
 class _ErrorCardState extends State<_ErrorCard> {
   bool _busy = false;
 
-  /// Runs [onRetry] while showing progress.
+  /// retry мантиқи зарурии саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳоро иҷро мекунад.
   Future<void> _retry() async {
     setState(() => _busy = true);
     try {
@@ -855,6 +858,7 @@ class _ErrorCardState extends State<_ErrorCard> {
     }
   }
 
+  /// Widget-и ErrorCard-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     const color = NigohDesign.amber;

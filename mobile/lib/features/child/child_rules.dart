@@ -1,6 +1,4 @@
-// «Қоидаҳои ман» tab of the child phone: shows the rules the parent set
-// (bedtime, study mode, blocked/limited/scheduled apps) and lets the child ask
-// for extra time and see the answers.
+// Файл: татбиқи маҳдудиятҳои барнома, хоб ва дарс.
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +27,7 @@ const _weekdayShort = <int, String>{
   7: 'Яш',
 };
 
-/// «Дш, Сш, Чш» — or «Ҳар рӯз» for all seven days.
+/// weekdaysLabel мантиқи зарурии татбиқи маҳдудиятҳои барнома, хоб ва дарсро иҷро мекунад.
 String weekdaysLabel(List<int> days) {
   final sorted = days.toSet().where(_weekdayShort.containsKey).toList()..sort();
   if (sorted.length == 7) return tr('Ҳар рӯз');
@@ -37,9 +35,7 @@ String weekdaysLabel(List<int> days) {
   return sorted.map((d) => tr(_weekdayShort[d]!)).join(', ');
 }
 
-/// Apps closed by «Тамаркузи дарс»: games, social and video — never
-/// essentials (phone, SMS), «always allowed» or apps the parent already
-/// blocked (those are listed separately).
+/// studyClosedApps мантиқи зарурии татбиқи маҳдудиятҳои барнома, хоб ва дарсро иҷро мекунад.
 List<ChildApp> studyClosedApps(List<ChildApp> apps) => [
   for (final a in apps)
     if (!a.alwaysAllowed &&
@@ -49,7 +45,7 @@ List<ChildApp> studyClosedApps(List<ChildApp> apps) => [
       a,
 ];
 
-/// «45 дақ аз 60» plus «, +15 бонус» when the parent gave bonus time today.
+/// limitUsageLabel мантиқи зарурии татбиқи маҳдудиятҳои барнома, хоб ва дарсро иҷро мекунад.
 String limitUsageLabel(ChildApp app) {
   final base = tr('{used} дақ аз {limit}', {
     'used': app.usageMinutesToday,
@@ -63,7 +59,7 @@ String limitUsageLabel(ChildApp app) {
       : base;
 }
 
-/// «1 соат 5 дақ», «40 дақ».
+/// minutesLabel мантиқи зарурии татбиқи маҳдудиятҳои барнома, хоб ва дарсро иҷро мекунад.
 String minutesLabel(int minutes) {
   if (minutes < 60) return tr('{m} дақ', {'m': minutes});
   final h = minutes ~/ 60;
@@ -73,26 +69,27 @@ String minutesLabel(int minutes) {
       : tr('{h} соат {m} дақ', {'h': h, 'm': m});
 }
 
-/// «Қоидаҳои ман»: what the parent set on this phone, plus extra-time
-/// requests.
+/// Экрани ChildRulesScreen-ро барои татбиқи маҳдудиятҳои барнома, хоб ва дарс месозад.
 class ChildRulesScreen extends StatefulWidget {
   const ChildRulesScreen({super.key, required this.sync});
   final ChildSync sync;
 
+  /// Ҳолати ChildRulesScreen-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   State<ChildRulesScreen> createState() => _ChildRulesScreenState();
 }
 
-/// Keeps the child's time requests loaded and refreshes them when the
-/// parent decides one.
+/// Ҳолат ва рафтори ChildRulesScreenState-ро барои навсозии интерфейс идора мекунад.
 class _ChildRulesScreenState extends State<ChildRulesScreen> {
   List<TimeRequest>? _requests;
   String? _requestsError;
   bool _loadingRequests = false;
   int? _lastPendingCount;
 
+  /// Қимати ҳисобшудаи sync-ро аз ҳолати ҷорӣ бармегардонад.
   ChildSync get sync => widget.sync;
 
+  /// Тағйири ҳамоҳангсозиро мешунавад ва дархостҳои вақти фарзандро бор мекунад.
   @override
   void initState() {
     super.initState();
@@ -101,16 +98,17 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     _loadRequests();
   }
 
+  /// Controller ва listener-ҳои ChildRulesScreen-ро озод мекунад.
   @override
   void dispose() {
     sync.removeListener(_onSync);
     super.dispose();
   }
 
-  /// Rebuilds on sync changes and reloads requests when the pending count changes.
+  /// onSync рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onSync() {
     if (!mounted) return;
-    // A parent decision changes the pending count — refresh the list then.
+    // Қадами дохилии татбиқи маҳдудиятҳои барнома, хоб ва дарс.
     final pending = sync.child?.pendingRequests;
     if (pending != _lastPendingCount) {
       _lastPendingCount = pending;
@@ -119,7 +117,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     setState(() {});
   }
 
-  /// Loads the child's extra-time requests from the server.
+  /// loadRequests додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> _loadRequests() async {
     final id = sync.childId;
     if (id == null || _loadingRequests) return;
@@ -140,13 +138,13 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     }
   }
 
-  /// Pull-to-refresh: syncs rules now and reloads the requests.
+  /// refresh додаҳои қоидаҳои фарзанд-ро боз мехонад ва ChildRulesScreen-ро нав мекунад.
   Future<void> _refresh() async {
     await sync.forceSync();
     await _loadRequests();
   }
 
-  /// Opens the extra-time sheet for [app] and sends the request to the parent.
+  /// askTime иҷозат ё маълумоти лозимро дархост мекунад.
   Future<void> _askTime(ChildApp app) async {
     final id = sync.childId;
     if (id == null) return;
@@ -187,6 +185,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
     }
   }
 
+  /// Қоидаҳои фаъол, лимитҳои барномаҳо ва дархостҳои вақти фарзандро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final child = sync.child;
@@ -227,8 +226,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
         style: TextStyle(color: scheme.onSurfaceVariant, height: 1.4),
       ),
       const SizedBox(height: 8),
-      // Why nothing opens right now, in one sentence. Bedtime wins over
-      // study hours, exactly like the rules pushed to the blocker.
+      // Қадами дохилии татбиқи маҳдудиятҳои барнома, хоб ва дарс.
       if (bedtimeActive) ...[
         const SizedBox(height: 4),
         FadeIn(child: BedtimeNotice(bedtime: bedtime)),
@@ -442,7 +440,7 @@ class _ChildRulesScreenState extends State<ChildRulesScreen> {
   }
 }
 
-/// Title of a rule group plus one short sentence that explains it to a child.
+/// Widget-и GroupHeader-ро барои татбиқи маҳдудиятҳои барнома, хоб ва дарс месозад.
 class _GroupHeader extends StatelessWidget {
   const _GroupHeader({
     required this.icon,
@@ -456,6 +454,7 @@ class _GroupHeader extends StatelessWidget {
   final String title;
   final String text;
 
+  /// Widget-и GroupHeader-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -495,7 +494,7 @@ class _GroupHeader extends StatelessWidget {
   }
 }
 
-/// Card for one rule (bedtime, study mode…) with an optional bottom part.
+/// Widget-и RuleCard-ро барои татбиқи маҳдудиятҳои барнома, хоб ва дарс месозад.
 class _RuleCard extends StatelessWidget {
   const _RuleCard({
     required this.leading,
@@ -511,6 +510,7 @@ class _RuleCard extends StatelessWidget {
   final Widget? trailing;
   final Widget? bottom;
 
+  /// Widget-и RuleCard-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -571,7 +571,7 @@ class _RuleCard extends StatelessWidget {
   }
 }
 
-/// One app row with its rule (blocked, limit, schedule) and usage progress.
+/// AppRule додаҳо ва рафтори қоидаҳои фарзанд-ро ифода мекунад.
 class _AppRule extends StatelessWidget {
   const _AppRule({
     super.key,
@@ -590,6 +590,7 @@ class _AppRule extends StatelessWidget {
   final double? progress;
   final VoidCallback? onAsk;
 
+  /// Widget-и AppRule-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -637,33 +638,36 @@ class _AppRule extends StatelessWidget {
   }
 }
 
-/// What the child entered in the extra-time sheet.
+/// TimeAsk додаҳо ва рафтори қоидаҳои фарзанд-ро ифода мекунад.
 class _TimeAsk {
   const _TimeAsk(this.minutes, this.reason);
   final int minutes;
   final String? reason;
 }
 
-/// Bottom sheet where the child picks extra minutes and an optional reason.
+/// Равзанаи TimeRequestSheet-ро барои татбиқи маҳдудиятҳои барнома, хоб ва дарс нишон медиҳад.
 class _TimeRequestSheet extends StatefulWidget {
   const _TimeRequestSheet({required this.app});
   final ChildApp app;
 
+  /// Ҳолати TimeRequestSheet-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   State<_TimeRequestSheet> createState() => _TimeRequestSheetState();
 }
 
-/// Holds the chosen minutes and the reason text.
+/// Ҳолат ва рафтори TimeRequestSheetState-ро барои навсозии интерфейс идора мекунад.
 class _TimeRequestSheetState extends State<_TimeRequestSheet> {
   int _minutes = 15;
   final _reason = TextEditingController();
 
+  /// Controller ва listener-ҳои TimeRequestSheet-ро озод мекунад.
   @override
   void dispose() {
     _reason.dispose();
     super.dispose();
   }
 
+  /// Widget-и TimeRequestSheet-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -751,7 +755,7 @@ class _TimeRequestSheetState extends State<_TimeRequestSheet> {
   }
 }
 
-/// List of the child's recent extra-time requests and their status.
+/// RequestsList додаҳо ва рафтори қоидаҳои фарзанд-ро ифода мекунад.
 class _RequestsList extends StatelessWidget {
   const _RequestsList({
     required this.requests,
@@ -763,6 +767,7 @@ class _RequestsList extends StatelessWidget {
   final String? error;
   final VoidCallback onRetry;
 
+  /// Widget-и RequestsList-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -811,8 +816,7 @@ class _RequestsList extends StatelessWidget {
   }
 }
 
-/// Pill for a request status: интизор / иҷозат дода шуд / рад шуд. The icon
-/// says it too, so a child does not have to read the word.
+/// requestStatusPill иҷозат ё маълумоти лозимро дархост мекунад.
 Widget requestStatusPill(String status) => switch (status) {
   'approved' => Pill(
     tr('иҷозат дода шуд'),
@@ -831,12 +835,13 @@ Widget requestStatusPill(String status) => switch (status) {
   ),
 };
 
-/// Small error line with a retry action.
+/// InlineError додаҳо ва рафтори қоидаҳои фарзанд-ро ифода мекунад.
 class _InlineError extends StatelessWidget {
   const _InlineError({required this.text, required this.onRetry});
   final String text;
   final VoidCallback onRetry;
 
+  /// Widget-и InlineError-ро барои қоидаҳо ва дархостҳои вақти фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

@@ -1,5 +1,4 @@
-// Reusable child-phone widgets: the hold-to-send SOS button and its sending
-// logic, bedtime/study notices, screen-time cards and small progress/icon UI.
+// Файл: widget-ҳои муштараки интерфейси фарзанд.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,12 +9,11 @@ import '../../ui/widgets.dart';
 import 'child_rules.dart' show minutesLabel;
 import '../../l10n/l10n.dart';
 
-/// True when the phone asks for less motion (accessibility setting):
-/// progress bars and entry animations then jump straight to their end state.
+/// childReducedMotion мантиқи зарурии widget-ҳои муштараки интерфейси фарзандро иҷро мекунад.
 bool childReducedMotion(BuildContext context) =>
     MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
-/// Text of the SOS chat message (message_type 'urgent').
+/// sosMessageText мантиқи зарурии widget-ҳои муштараки интерфейси фарзандро иҷро мекунад.
 String sosMessageText({double? latitude, double? longitude, int? battery}) {
   final lines = [tr('SOS — ба кӯмак ниёз дорам!')];
   if (latitude != null && longitude != null) {
@@ -35,8 +33,7 @@ String sosMessageText({double? latitude, double? longitude, int? battery}) {
   return lines.join('\n');
 }
 
-/// Rounded progress bar that animates to a new [value] (0..1) instead of
-/// jumping, so a child sees the bar grow.
+/// ChildProgressBar додаҳо ва рафтори widget-ҳои фарзанд-ро ифода мекунад.
 class ChildProgressBar extends StatelessWidget {
   const ChildProgressBar({
     super.key,
@@ -49,6 +46,7 @@ class ChildProgressBar extends StatelessWidget {
   final Color color;
   final double height;
 
+  /// Widget-и ChildProgressBar-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -72,8 +70,7 @@ class ChildProgressBar extends StatelessWidget {
   }
 }
 
-/// Soft coloured tile with an icon — the leading element of every card on the
-/// child's phone.
+/// Widget-и ChildIconTile-ро барои widget-ҳои муштараки интерфейси фарзанд месозад.
 class ChildIconTile extends StatelessWidget {
   const ChildIconTile({
     super.key,
@@ -86,6 +83,7 @@ class ChildIconTile extends StatelessWidget {
   final Color color;
   final double size;
 
+  /// Widget-и ChildIconTile-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) => AnimatedContainer(
     duration: childReducedMotion(context)
@@ -101,9 +99,7 @@ class ChildIconTile extends StatelessWidget {
   );
 }
 
-/// The one button the child must never miss: it must be held for
-/// [holdDuration] (a ring fills up) so it is never sent by accident, and it
-/// says in plain words what happens when it is sent.
+/// Widget-и SosButton-ро барои widget-ҳои муштараки интерфейси фарзанд месозад.
 class SosButton extends StatefulWidget {
   const SosButton({
     super.key,
@@ -114,11 +110,12 @@ class SosButton extends StatefulWidget {
   final Future<void> Function() onTriggered;
   final Duration holdDuration;
 
+  /// Ҳолати SosButton-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   State<SosButton> createState() => _SosButtonState();
 }
 
-/// Fills a ring while the SOS button is held and fires once it completes.
+/// Ҳолат ва рафтори SosButtonState-ро барои навсозии интерфейс идора мекунад.
 class _SosButtonState extends State<SosButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _hold = AnimationController(
@@ -127,13 +124,14 @@ class _SosButtonState extends State<SosButton>
   )..addStatusListener(_onStatus);
   bool _sending = false;
 
+  /// Controller ва listener-ҳои SosButton-ро озод мекунад.
   @override
   void dispose() {
     _hold.dispose();
     super.dispose();
   }
 
-  /// Sends the SOS when the hold animation completes.
+  /// onStatus рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   Future<void> _onStatus(AnimationStatus status) async {
     if (status != AnimationStatus.completed || _sending) return;
     setState(() => _sending = true);
@@ -148,19 +146,20 @@ class _SosButtonState extends State<SosButton>
     }
   }
 
-  /// Starts the hold animation when the finger goes down.
+  /// down мантиқи зарурии widget-ҳои муштараки интерфейси фарзандро иҷро мекунад.
   void _down() {
     if (_sending) return;
     HapticFeedback.selectionClick();
     _hold.forward(from: 0);
   }
 
-  /// Cancels the SOS when the finger is lifted before the hold completes.
+  /// release мантиқи зарурии widget-ҳои муштараки интерфейси фарзандро иҷро мекунад.
   void _release() {
     if (_sending || _hold.isCompleted) return;
     _hold.reverse();
   }
 
+  /// Widget-и SosButton-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -313,7 +312,7 @@ class _SosButtonState extends State<SosButton>
   }
 }
 
-/// Coloured notice with one short sentence — used for bedtime and study mode.
+/// ChildNotice додаҳо ва рафтори widget-ҳои фарзанд-ро ифода мекунад.
 class ChildNotice extends StatelessWidget {
   const ChildNotice({
     super.key,
@@ -326,6 +325,7 @@ class ChildNotice extends StatelessWidget {
   final Color color;
   final String text;
 
+  /// Widget-и ChildNotice-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -356,11 +356,12 @@ class ChildNotice extends StatelessWidget {
   }
 }
 
-/// Calm notice while bedtime is active.
+/// BedtimeNotice додаҳо ва рафтори widget-ҳои фарзанд-ро ифода мекунад.
 class BedtimeNotice extends StatelessWidget {
   const BedtimeNotice({super.key, required this.bedtime});
   final Bedtime bedtime;
 
+  /// Widget-и BedtimeNotice-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) => ChildNotice(
     icon: Icons.bedtime_rounded,
@@ -371,11 +372,12 @@ class BedtimeNotice extends StatelessWidget {
   );
 }
 
-/// Calm notice while «Тамаркузи дарс» is active.
+/// StudyNotice додаҳо ва рафтори widget-ҳои фарзанд-ро ифода мекунад.
 class StudyNotice extends StatelessWidget {
   const StudyNotice({super.key, required this.study});
   final StudyMode study;
 
+  /// Widget-и StudyNotice-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) => KeyedSubtree(
     key: const ValueKey('study-notice'),
@@ -389,13 +391,13 @@ class StudyNotice extends StatelessWidget {
   );
 }
 
-/// «Вақти экрани ман»: today's total in words plus the most used apps with
-/// animated bars.
+/// Widget-и ScreenTimeCard-ро барои widget-ҳои муштараки интерфейси фарзанд месозад.
 class ScreenTimeCard extends StatelessWidget {
   const ScreenTimeCard({super.key, required this.apps, this.top = 5});
   final List<ChildApp> apps;
   final int top;
 
+  /// Widget-и ScreenTimeCard-ро барои ҳолатҳо ва амалҳои экрани фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
