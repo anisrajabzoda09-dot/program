@@ -113,6 +113,14 @@
 .btn-apple:hover { background: #1d1d1f; border-color: #1d1d1f; color: #fff; }
 .btn-apple[disabled] { opacity: .7; cursor: progress; }
 .btn-apple .apple-logo { width: 18px; height: 18px; margin-top: -2px; }
+/* Sign in with GitHub — GitHub's dark button style. */
+.btn-github {
+  width: 100%; margin-top: 12px; background: #24292f; color: #fff;
+  border-color: #24292f; border-radius: 12px; font-weight: 600;
+}
+.btn-github:hover { background: #32383f; border-color: #32383f; color: #fff; }
+.btn-github[disabled] { opacity: .7; cursor: progress; }
+.btn-github .github-logo { width: 18px; height: 18px; }
 .divider {
   display: flex; align-items: center; gap: 12px; margin: 20px 0 0;
   color: var(--faint); font-size: .8rem;
