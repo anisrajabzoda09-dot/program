@@ -13,6 +13,14 @@ const Map<String, List<String>> childStrings = {
   'Динамик': ['Динамик', 'Speaker'],
   'Микрофон': ['Микрофон', 'Microphone'],
   'Хотима': ['Завершить', 'End'],
+  '«Қабул» — ҷавоб додан, «Рад» — рад кардан': [
+    '«Принять» — ответить, «Отклонить» — отказаться',
+    '«Accept» to answer, «Decline» to refuse',
+  ],
+  'Барои хотима «Хотима»-ро пахш кунед': [
+    'Чтобы закончить, нажмите «Завершить»',
+    'Tap «End» to finish the call',
+  ],
   // Call end reasons.
   'Рад шуд': ['Отклонён', 'Declined'],
   'Ҷавоб надод': ['Нет ответа', 'No answer'],
@@ -82,7 +90,13 @@ const Map<String, List<String>> childStrings = {
     'Родитель сканирует этот QR-код своим телефоном.',
     'Your parent scans this QR code with their phone.',
   ],
+  'Ин телефонро ба волидайн пайваст кунед — як маротиба.': [
+    'Подключите этот телефон к родителю — это нужно сделать один раз.',
+    'Connect this phone to a parent — you only do it once.',
+  ],
+  'Ё ин коди 6-рақама': ['Или этот 6-значный код', 'Or this 6-digit code'],
   'Коди нав': ['Новый код', 'New code'],
+  'Кушодани пайвастшавӣ': ['Открыть подключение', 'Open pairing'],
   'Чӣ тавр пайваст шавем': ['Как подключить', 'How to connect'],
   'Волидайн NIGOH Family-ро дар телефони худ мекушояд.': [
     'Родитель открывает NIGOH Family на своём телефоне.',
@@ -114,6 +128,34 @@ const Map<String, List<String>> childStrings = {
     'Missing permissions: {n}',
   ],
   'Иҷозатҳо': ['Разрешения', 'Permissions'],
+  'Хуб': ['Хорошо', 'Good'],
+  'Диққат': ['Внимание', 'Attention'],
+  'Дуруст кардан': ['Исправить', 'Fix it'],
+  'Ҳозир фиристодан': ['Отправить сейчас', 'Send now'],
+  'Қоидаҳои волидайн дар ин телефон кор мекунанд.': [
+    'Правила родителя работают на этом телефоне.',
+    'Your parent\'s rules work on this phone.',
+  ],
+  'Бе ин иҷозатҳо қоидаҳо кор намекунанд: {list}': [
+    'Без этих разрешений правила не работают: {list}',
+    'Without these permissions the rules don\'t work: {list}',
+  ],
+  'Волидайн рӯйхати барномаҳои ин телефонро мебинанд.': [
+    'Родитель видит список приложений этого телефона.',
+    'Your parent can see the apps on this phone.',
+  ],
+  'Рӯйхати барномаҳо ҳоло ба волидайн нарасидааст.': [
+    'Список приложений ещё не дошёл до родителя.',
+    'The app list hasn\'t reached your parent yet.',
+  ],
+  'Волидайн мебинанд, ки шумо дар куҷо ҳастед.': [
+    'Родитель видит, где вы находитесь.',
+    'Your parent can see where you are.',
+  ],
+  'Ҷои шумо ҳоло ба волидайн нарасидааст.': [
+    'Ваше местоположение ещё не дошло до родителя.',
+    'Your location hasn\'t reached your parent yet.',
+  ],
   'Барномаҳо': ['Приложения', 'Apps'],
   'Ҳоло фиристода нашудааст': ['Ещё не отправлено', 'Not sent yet'],
   '{n} барнома': ['Приложений: {n}', 'Apps: {n}'],
@@ -144,7 +186,7 @@ const Map<String, List<String>> childStrings = {
   'Яш': ['Вс', 'Sun'],
   'Ҳар рӯз': ['Каждый день', 'Every day'],
   'Ягон рӯз': ['Ни одного дня', 'No days'],
-  '{used}/{limit} дақ': ['{used}/{limit} мин', '{used}/{limit} min'],
+  '{used} дақ аз {limit}': ['{used} мин из {limit}', '{used} of {limit} min'],
   '{base}, +{bonus} бонус': [
     '{base}, +{bonus} бонус',
     '{base}, +{bonus} bonus',
@@ -171,6 +213,10 @@ const Map<String, List<String>> childStrings = {
     'All apps are open with no limits.',
   ],
   'Вақти хоб': ['Время сна', 'Bedtime'],
+  'Шабона телефон истироҳат мекунад.': [
+    'Ночью телефон отдыхает.',
+    'At night the phone rests.',
+  ],
   'Ҳамаи барномаҳо, ғайр аз иҷозатдодашудаҳо, баста мешаванд.': [
     'Все приложения, кроме разрешённых, блокируются.',
     'All apps except allowed ones are blocked.',
@@ -186,6 +232,14 @@ const Map<String, List<String>> childStrings = {
     'Блокируются в учебное время ({n})',
     'Blocked during study time ({n})',
   ],
+  'Дар соатҳои дарс танҳо чизҳои лозимӣ кушодаанд.': [
+    'В учебные часы открыто только самое нужное.',
+    'During study hours only the essentials stay open.',
+  ],
+  'Инҳо дар вақти дарс пӯшида мешаванд.': [
+    'Они закрываются во время уроков.',
+    'These close during study time.',
+  ],
   'Дарс': ['Учёба', 'Study'],
   'Баста ({n})': ['Заблокировано ({n})', 'Blocked ({n})'],
   'Волидайн ин барномаро бастаанд': [
@@ -193,7 +247,23 @@ const Map<String, List<String>> childStrings = {
     'Your parent blocked this app',
   ],
   'Баста': ['Заблокировано', 'Blocked'],
-  'Маҳдудияти рӯзона ({n})': ['Дневной лимит ({n})', 'Daily limit ({n})'],
+  'Ин барномаҳо ҳоло кушода намешаванд.': [
+    'Эти приложения сейчас не открываются.',
+    'These apps won\'t open right now.',
+  ],
+  'Ҳар рӯз вақти муайян; баъд барнома баста мешавад.': [
+    'Каждый день есть лимит времени; потом приложение закрывается.',
+    'A set time each day; after that the app closes.',
+  ],
+  'Танҳо дар ин соатҳо кушода мешаванд.': [
+    'Открываются только в эти часы.',
+    'They only open during these hours.',
+  ],
+  'Инҳо ҳамеша кушодаанд — ҳатто дар вақти хоб.': [
+    'Они открыты всегда — даже во время сна.',
+    'These are always open — even at bedtime.',
+  ],
+  'Лимити рӯзона ({n})': ['Дневной лимит ({n})', 'Daily limit ({n})'],
   'Вақт тамом': ['Время вышло', 'Time\'s up'],
   'Вақти дарс ({n})': ['Время уроков ({n})', 'Homework time ({n})'],
   'Ҷадвал': ['Расписание', 'Schedule'],
@@ -204,6 +274,14 @@ const Map<String, List<String>> childStrings = {
   ],
   'Иҷозат': ['Разрешено', 'Allowed'],
   'Дархостҳои ман': ['Мои запросы', 'My requests'],
+  'Ҷавоби волидайн ба дархостҳои вақти иловагӣ.': [
+    'Ответы родителя на запросы дополнительного времени.',
+    'Your parent\'s answers to extra-time requests.',
+  ],
+  'Волидайн дархости шуморо мебинанд ва ҷавоб медиҳанд.': [
+    'Родитель увидит ваш запрос и ответит.',
+    'Your parent will see your request and answer.',
+  ],
   'Вақти иловагӣ пурсидан': [
     'Попросить дополнительное время',
     'Ask for extra time',
@@ -286,6 +364,12 @@ const Map<String, List<String>> childStrings = {
     'Location is not known yet.',
   ],
   'Батарея: {battery}%': ['Батарея: {battery}%', 'Battery: {battery}%'],
+  'SOS — кӯмак пурсидан': ['SOS — позвать на помощь', 'SOS — ask for help'],
+  'Волидайн фавран хабар мегиранд — ҷои шумо ва батарея фиристода мешавад.': [
+    'Родитель сразу получит уведомление — отправятся ваше местоположение и заряд батареи.',
+    'Your parent is notified right away — your location and battery level are sent.',
+  ],
+  'Нигоҳ доред…': ['Удерживайте…', 'Keep holding…'],
   'SOS. Барои фиристодан пахш карда нигоҳ доред.': [
     'SOS. Нажмите и удерживайте, чтобы отправить.',
     'SOS. Press and hold to send.',
@@ -301,6 +385,10 @@ const Map<String, List<String>> childStrings = {
   'Тамаркузи дарс — бозиҳо ва шабакаҳо то {end} баста ҳастанд': [
     'Учебный режим — игры и соцсети закрыты до {end}',
     'Study mode — games and social media are locked until {end}',
+  ],
+  'Имрӯз чӣ қадар вақт дар кадом барнома гузаштед.': [
+    'Сколько времени вы провели сегодня в каждом приложении.',
+    'How much time you spent in each app today.',
   ],
   'Имрӯз ҳоло барнома истифода нашудааст.': [
     'Сегодня приложения ещё не использовались.',

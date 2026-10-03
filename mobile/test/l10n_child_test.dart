@@ -136,6 +136,17 @@ void main() {
     expect(sosMessageText(battery: 40), contains('SOS — мне нужна помощь!'));
     expect(sosMessageText(battery: 40), contains('Батарея: 40%'));
     expect(chatQuickReplies, contains('Я в пути'));
+    expect(
+      limitUsageLabel(
+        const ChildApp(
+          packageName: 'a',
+          name: 'A',
+          dailyLimitMinutes: 60,
+          usageMinutesToday: 45,
+        ),
+      ),
+      '45 мин из 60',
+    );
     appLanguage.value = 'en';
     expect(minutesLabel(40), '40 min');
     expect(weekdaysLabel([1, 2, 3, 4, 5, 6, 7]), 'Every day');
@@ -177,6 +188,7 @@ void main() {
       find.text('В случае опасности нажмите и удерживайте'),
       findsOneWidget,
     );
+    expect(find.text('SOS — позвать на помощь'), findsOneWidget);
     expect(find.text('одобрено'), findsOneWidget);
 
     appLanguage.value = 'en';
@@ -184,6 +196,7 @@ void main() {
     await _pumpNotices(tester);
     expect(find.text('Bedtime — apps are locked until 07:00'), findsOneWidget);
     expect(find.text('In an emergency, press and hold'), findsOneWidget);
+    expect(find.text('SOS — ask for help'), findsOneWidget);
     expect(find.text('No apps used today yet.'), findsOneWidget);
     expect(find.text('approved'), findsOneWidget);
   });
