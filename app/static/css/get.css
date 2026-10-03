@@ -21,3 +21,20 @@
   background: var(--surface);
   box-shadow: var(--shadow);
 }
+
+.verify-box {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--soft);
+}
+
+.verify-box p { margin-top: 8px; color: var(--muted); }
+.verify-box code {
+  display: block;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+  color: var(--ink-2);
+  font-size: .78rem;
+}

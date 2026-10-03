@@ -10,6 +10,15 @@
     return 'desktop';
   }
 
+  /* Copy a certificate fingerprint and briefly confirm success on its button. */
+  function copyCertificate(button) {
+    navigator.clipboard.writeText(button.dataset.copyValue).then(function () {
+      var original = button.textContent;
+      button.textContent = button.dataset.copySuccess;
+      window.setTimeout(function () { button.textContent = original; }, 1800);
+    });
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -17,4 +26,8 @@
       note.hidden = false;
     });
   }
+
+  document.querySelectorAll('.verify-copy').forEach(function (button) {
+    button.addEventListener('click', function () { copyCertificate(button); });
+  });
 }());
