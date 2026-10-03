@@ -4,6 +4,7 @@
 
   var root = document.documentElement;
   var reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var colorQuery = window.matchMedia('(prefers-color-scheme: dark)');
   var reduced = reduceQuery.matches;
   var revealItems = [];
 
@@ -69,6 +70,29 @@
         applyTheme();
       }
     });
+  }
+
+  /* Theme preference: report whether the visitor has made an explicit choice. */
+  function hasStoredTheme() {
+    try {
+      var stored = localStorage.getItem('nigoh-theme');
+      return stored === 'light' || stored === 'dark';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /* Theme preference: mirror live OS changes until the visitor chooses a theme. */
+  function followSystemTheme(event) {
+    if (hasStoredTheme()) return;
+    var theme = event.matches ? 'dark' : 'light';
+    root.setAttribute('data-theme', theme);
+    if (themeToggle) themeToggle.checked = event.matches;
+  }
+  if (colorQuery.addEventListener) {
+    colorQuery.addEventListener('change', followSystemTheme);
+  } else {
+    colorQuery.addListener(followSystemTheme);
   }
 
   /* Header and progress bar: one passive scroll listener, one rAF write. */
