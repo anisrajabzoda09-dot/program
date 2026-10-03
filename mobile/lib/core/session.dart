@@ -1,8 +1,13 @@
 // Sign-in session: token, user and role persisted in shared preferences,
 // plus the inherited widget that exposes it to the widget tree.
 
+import 'dart:convert';
+import 'dart:math';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
@@ -14,14 +19,55 @@ const googleServerClientId = String.fromEnvironment(
   defaultValue: '708817646656-mdjfklgfsfaq83h9q5fa0j1mr74avo03.apps.googleusercontent.com',
 );
 
+/// Gets an Apple ID credential for [nonce] (already sha256-hashed) through
+/// the given web flow; replaced in tests so they don't need the plugin.
+typedef AppleCredentialProvider =
+    Future<AuthorizationCredentialAppleID> Function({
+      required String nonce,
+      required WebAuthenticationOptions webAuthenticationOptions,
+    });
+
+/// Default [AppleCredentialProvider]: the sign_in_with_apple plugin (Chrome
+/// Custom Tab on Android), asking for email and name.
+Future<AuthorizationCredentialAppleID> pluginAppleCredential({
+  required String nonce,
+  required WebAuthenticationOptions webAuthenticationOptions,
+}) => SignInWithApple.getAppleIDCredential(
+  scopes: const [
+    AppleIDAuthorizationScopes.email,
+    AppleIDAuthorizationScopes.fullName,
+  ],
+  nonce: nonce,
+  webAuthenticationOptions: webAuthenticationOptions,
+);
+
+/// Random raw nonce for one Apple sign-in (Random.secure, URL-safe chars).
+String appleRawNonce([int length = 48]) {
+  const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._';
+  final random = Random.secure();
+  return List.generate(
+    length,
+    (_) => chars[random.nextInt(chars.length)],
+  ).join();
+}
+
+/// Hex sha256 of [raw]; Apple gets this, the server gets the raw value.
+String sha256Hex(String raw) => sha256.convert(utf8.encode(raw)).toString();
+
 /// Signed-in state of the app. One instance lives for the whole app
 /// (see `SessionScope`). Screens read [user]/[role] and call the actions.
 class Session extends ChangeNotifier {
-  Session({NigohApi? api}) : api = api ?? NigohApi() {
+  Session({NigohApi? api, AppleCredentialProvider? appleCredential})
+    : api = api ?? NigohApi(),
+      appleCredential = appleCredential ?? pluginAppleCredential {
     this.api.onUnauthorized = _expired;
   }
 
   final NigohApi api;
+
+  /// Where Apple ID credentials come from (the plugin, or a fake in tests).
+  final AppleCredentialProvider appleCredential;
 
   static const _tokenKey = 'nigoh.token';
   static const _roleKey = 'nigoh.role';
@@ -116,6 +162,42 @@ class Session extends ChangeNotifier {
       throw ApiException(tr('Google токен надод. Аз нав кӯшиш кунед.'));
     }
     await _store(await api.google(idToken));
+  }
+
+  /// Sign in with Apple via the server's web-flow bridge. Throws
+  /// [SignInWithAppleAuthorizationException] (code `canceled` when the user
+  /// backs out) or a readable [ApiException]. [onCredential] fires once Apple
+  /// has answered, before the server is asked.
+  Future<void> signInWithApple({void Function()? onCredential}) async {
+    final config = await api.appleConfig();
+    if (!config.enabled) {
+      throw ApiException(tr('Воридшавӣ бо Apple ҳоло дастрас нест.'));
+    }
+    final rawNonce = appleRawNonce();
+    final credential = await appleCredential(
+      nonce: sha256Hex(rawNonce),
+      webAuthenticationOptions: WebAuthenticationOptions(
+        clientId: config.clientId!,
+        redirectUri: Uri.parse(config.redirectUri!),
+      ),
+    );
+    onCredential?.call();
+    final identityToken = credential.identityToken;
+    if (identityToken == null || identityToken.isEmpty) {
+      throw ApiException(tr('Apple токен надод. Аз нав кӯшиш кунед.'));
+    }
+    final fullName = [credential.givenName, credential.familyName]
+        .whereType<String>()
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .join(' ');
+    await _store(
+      await api.signInWithApple(
+        identityToken: identityToken,
+        nonce: rawNonce,
+        fullName: fullName.isEmpty ? null : fullName,
+      ),
+    );
   }
 
   /// Saves the role chosen for this phone and tells the server about it.
