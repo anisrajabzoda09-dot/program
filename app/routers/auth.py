@@ -1,16 +1,18 @@
-"""Handle browser registration, login, logout, and Google OAuth sessions."""
+"""Handle browser registration, login, logout, and Google / Apple OAuth sessions."""
 
+import json
 import secrets
 import time
 from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Request, Response, HTTPException, Depends
+from fastapi import APIRouter, Request, Response, HTTPException, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.core import apple_auth
 from app.core.config import settings
 from app.core.security import (
     create_session,
@@ -153,7 +155,9 @@ def auth_page(request: Request):
     lang = request.query_params.get("lang", "tg")
     name = f"auth_{lang}.html" if lang in ("ru", "en") else "auth.html"
     return templates.TemplateResponse(
-        request=request, name=name, context={"app_version": settings.APP_VERSION, "lang": lang}
+        request=request, name=name,
+        context={"app_version": settings.APP_VERSION, "lang": lang,
+                 "apple_enabled": apple_auth.apple_configured()},
     )
 
 @router.post("/api/auth/register")
@@ -295,6 +299,90 @@ def google_callback(
     _sign_in_google_user(request, user_response, db, userinfo)
     user_response.delete_cookie("google_oauth_state")
     return user_response
+
+APPLE_STATE_COOKIE = "apple_oauth_state"
+
+
+def _apple_auth_page(lang: str, status: str) -> str:
+    """URL of the sign-in page in the visitor's language with an Apple status flag."""
+    query = f"apple={status}"
+    return f"/auth?lang={lang}&{query}" if lang in ("ru", "en") else f"/auth?{query}"
+
+
+@router.get("/auth/apple/login")
+def apple_login(request: Request, next: str = "/", lang: str = "tg"):
+    """Start Sign in with Apple: remember a one-time state + nonce and redirect to Apple."""
+    if not apple_auth.apple_configured():
+        return RedirectResponse(_apple_auth_page(lang, "not_configured"), status_code=303)
+    _prune_oauth_states()
+    state = secrets.token_urlsafe(32)
+    nonce = secrets.token_urlsafe(24)
+    OAUTH_STATES[state] = {"created_at": time.time(), "next": _safe_next_path(next),
+                           "nonce": nonce, "lang": lang, "provider": "apple"}
+    params = {"client_id": settings.APPLE_CLIENT_ID, "redirect_uri": settings.APPLE_REDIRECT_URI,
+              "response_type": "code", "response_mode": "form_post", "scope": "name email",
+              "state": state, "nonce": nonce}
+    response = RedirectResponse(f"{settings.APPLE_AUTHORIZATION_ENDPOINT}?{urlencode(params)}",
+                                status_code=307)
+    # Apple returns with a cross-site POST, so the state cookie must be
+    # SameSite=None (which browsers only accept together with Secure).
+    response.set_cookie(key=APPLE_STATE_COOKIE, value=state, httponly=True, secure=True,
+                        samesite="none", max_age=settings.GOOGLE_OAUTH_STATE_MAX_AGE)
+    return response
+
+
+@router.post("/auth/apple/callback")
+def apple_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+    code: Optional[str] = Form(None),
+    state: Optional[str] = Form(None),
+    user: Optional[str] = Form(None),
+    error: Optional[str] = Form(None),
+):
+    """Finish the web flow: check state, exchange the code, verify the token, sign the user in."""
+    _prune_oauth_states()
+    record = OAUTH_STATES.pop(state, None) if state else None
+    lang = (record or {}).get("lang", "tg")
+    if error:
+        return RedirectResponse(_apple_auth_page(lang, "cancelled"), status_code=303)
+    cookie = request.cookies.get(APPLE_STATE_COOKIE)
+    if (not code or not record or record.get("provider") != "apple" or not cookie
+            or not secrets.compare_digest(state, cookie)):
+        return RedirectResponse(_apple_auth_page(lang, "failed"), status_code=303)
+    try:
+        id_token = apple_auth.exchange_code(code, settings.APPLE_REDIRECT_URI)
+        claims = apple_auth.verify_identity_token(id_token, [settings.APPLE_CLIENT_ID], nonce=record["nonce"])
+    except HTTPException:
+        return RedirectResponse(_apple_auth_page(lang, "failed"), status_code=303)
+    full_name = None
+    if user:  # Apple sends {"name": {"firstName", "lastName"}} only on the first sign-in.
+        try:
+            name = json.loads(user).get("name") or {}
+            full_name = " ".join(p for p in (name.get("firstName"), name.get("lastName")) if p) or None
+        except (ValueError, AttributeError):
+            full_name = None
+    account = apple_auth.upsert_apple_user(db, claims, full_name)
+    response = RedirectResponse(record["next"], status_code=303)
+    _set_session_cookie(response, request, account.to_dict())
+    response.delete_cookie(APPLE_STATE_COOKIE, secure=True, samesite="none")
+    return response
+
+
+@router.post("/auth/apple/android")
+async def apple_android_bridge(request: Request):
+    """Hand Apple's form_post result back to the Android app (Sign in with Apple web flow).
+
+    The Android plugin opens Apple in a browser tab with this URL as redirect;
+    we bounce the posted fields to the app through an intent:// link for our
+    package only. The app then sends the identity token to the mobile API.
+    """
+    form = await request.form()
+    allowed = {k: str(v) for k, v in form.items() if k in ("code", "id_token", "state", "user", "error")}
+    target = (f"intent://callback?{urlencode(allowed)}#Intent;"
+              f"package={settings.APPLE_ANDROID_PACKAGE};scheme=signinwithapple;end")
+    return RedirectResponse(target, status_code=307)
+
 
 @router.get("/logout")
 def logout(request: Request, response: Response):
