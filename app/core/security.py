@@ -1,3 +1,5 @@
+"""Provide password hashing, web sessions, authentication guards, and rate limits."""
+
 import base64
 import hashlib
 import hmac
@@ -17,9 +19,13 @@ class RateLimiter:
     Protects against automated credential stuffing and DDoS on sensitive endpoints.
     """
     def __init__(self):
+        """Initialize an empty request-timestamp history for each client key."""
+
         self._history: Dict[str, List[float]] = {}
 
     def is_rate_limited(self, key: str, max_requests: int = 15, window_seconds: int = 60) -> bool:
+        """Record a request and report whether its key exceeds the sliding window."""
+
         now = time.time()
         timestamps = self._history.get(key, [])
         # Filter timestamps within window

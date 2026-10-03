@@ -1,3 +1,5 @@
+"""Expose the SQLAlchemy models that make up the server data model."""
+
 from app.models.user import User
 from app.models.child import Child
 from app.models.app_rule import AppRule

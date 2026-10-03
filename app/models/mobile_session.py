@@ -1,3 +1,5 @@
+"""Store hashed bearer sessions issued to signed-in Android devices."""
+
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from app.db.base import Base
 

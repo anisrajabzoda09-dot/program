@@ -1,3 +1,5 @@
+"""Re-export Pydantic request schemas shared by the API route modules."""
+
 from app.schemas.auth import UserRegister, UserLogin, GoogleAuthRequest
 from app.schemas.mobile import (
     RoleSelectRequest,

@@ -1,7 +1,11 @@
+"""Store individual website visits and download-related analytics events."""
+
 from sqlalchemy import Column, Integer, String, DateTime, func
 from app.db.base import Base
 
 class SiteAnalytics(Base):
+    """Represent one tracked website or APK interaction."""
+
     __tablename__ = "site_analytics"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -13,6 +17,8 @@ class SiteAnalytics(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):
+        """Serialize the analytics event for admin API responses."""
+
         return {
             "id": self.id,
             "ip": self.ip,

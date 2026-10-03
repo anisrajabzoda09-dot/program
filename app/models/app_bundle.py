@@ -1,3 +1,5 @@
+"""Persist versioned configuration patches distributed to mobile clients."""
+
 from sqlalchemy import Column, DateTime, Integer, JSON, String, func
 
 from app.db.base import Base
@@ -16,6 +18,8 @@ class AppBundle(Base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     def to_dict(self) -> dict:
+        """Serialize a bundle for mobile synchronization responses."""
+
         return {
             "bundle_version": self.bundle_version,
             "min_native_code": self.min_native_code,

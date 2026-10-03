@@ -1,3 +1,5 @@
+"""Create and migrate local tables, seed configuration, and provision admin access."""
+
 import os
 import sqlite3
 from sqlalchemy import text

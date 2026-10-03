@@ -1,8 +1,12 @@
+"""Persist a child's requests for additional application time."""
+
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from app.db.base import Base
 
 
 class AppExtensionRequest(Base):
+    """Represent a time-extension request and its parent's decision."""
+
     __tablename__ = "app_extension_requests"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -16,6 +20,8 @@ class AppExtensionRequest(Base):
     processed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     def to_dict(self):
+        """Serialize request status and processing metadata for mobile clients."""
+
         return {
             "id": self.id,
             "child_id": self.child_id,

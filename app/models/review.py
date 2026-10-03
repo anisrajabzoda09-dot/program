@@ -1,7 +1,11 @@
+"""Store parent testimonials displayed on the public website."""
+
 from sqlalchemy import Column, Integer, String
 from app.db.base import Base
 
 class Review(Base):
+    """Represent one rated testimonial and its public author details."""
+
     __tablename__ = "reviews"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -12,6 +16,8 @@ class Review(Base):
     date = Column(String, nullable=False)
 
     def to_dict(self):
+        """Serialize the testimonial for template and API consumption."""
+
         return {
             "id": self.id,
             "author_name": self.author_name,

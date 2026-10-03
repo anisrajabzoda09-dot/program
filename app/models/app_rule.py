@@ -1,7 +1,11 @@
+"""Store each child's blocking, scheduling, and usage-limit rule per app."""
+
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, func
 from app.db.base import Base
 
 class AppRule(Base):
+    """Represent parental controls for one installed app on one child device."""
+
     __tablename__ = "app_rules"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -25,6 +29,8 @@ class AppRule(Base):
     )
 
     def to_dict(self):
+        """Serialize the app rule for family-control API responses."""
+
         return {
             "id": self.id,
             "child_id": self.child_id,

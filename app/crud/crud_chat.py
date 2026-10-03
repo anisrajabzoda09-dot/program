@@ -1,3 +1,5 @@
+"""Read and write chat messages exchanged within a family."""
+
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.chat import ChatMessage

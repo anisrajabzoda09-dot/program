@@ -1,8 +1,12 @@
+"""Store per-day app usage totals reported by child devices."""
+
 from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, UniqueConstraint, func
 from app.db.base import Base
 
 
 class AppUsageDaily(Base):
+    """Represent a child's accumulated minutes for one app and calendar day."""
+
     __tablename__ = "app_usage_daily"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -18,6 +22,8 @@ class AppUsageDaily(Base):
     )
 
     def to_dict(self):
+        """Serialize a daily usage record with ISO-formatted timestamps."""
+
         return {
             "id": self.id,
             "child_id": self.child_id,

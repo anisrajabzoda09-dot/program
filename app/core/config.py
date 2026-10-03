@@ -1,3 +1,5 @@
+"""Load environment settings and expose application-wide configuration values."""
+
 import os
 
 from dotenv import load_dotenv
@@ -7,6 +9,8 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(APP_DIR))
 load_dotenv(os.path.join(PROJECT_DIR, ".env"))
 
 class Settings:
+    """Collect server paths, integration credentials, versions, and defaults."""
+
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
     APP_VERSION: str = "2.17.0"

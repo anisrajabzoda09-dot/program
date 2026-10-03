@@ -1,7 +1,11 @@
+"""Store server user accounts and their external identity links."""
+
 from sqlalchemy import Column, Integer, String, DateTime, func
 from app.db.base import Base
 
 class User(Base):
+    """Represent a parent, child, admin, or not-yet-assigned account."""
+
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -15,6 +19,8 @@ class User(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
+        """Serialize non-secret account fields for API responses."""
+
         return {
             "id": self.id,
             "email": self.email,

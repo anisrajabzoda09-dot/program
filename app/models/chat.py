@@ -1,7 +1,11 @@
+"""Persist text, voice, and urgent messages in the family chat."""
+
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from app.db.base import Base
 
 class ChatMessage(Base):
+    """Represent one parent-or-child message associated with a child profile."""
+
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
@@ -15,6 +19,8 @@ class ChatMessage(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
+        """Serialize a chat message for mobile clients."""
+
         return {
             "id": self.id,
             "child_id": self.child_id,

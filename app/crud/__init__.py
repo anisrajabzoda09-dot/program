@@ -1,3 +1,5 @@
+"""Re-export the database operations used by API routers."""
+
 from app.crud.crud_user import (
     get_user_by_email,
     get_user_by_id,

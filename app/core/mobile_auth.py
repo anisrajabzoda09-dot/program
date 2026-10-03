@@ -26,10 +26,14 @@ _ROLES = {"parent", "child"}
 
 
 def _hash(token: str) -> str:
+    """Create the irreversible token digest stored for a mobile session."""
+
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def issue_token(db: Session, user: User, device: str = "") -> str:
+    """Create and persist a mobile session, returning its bearer token."""
+
     token = TOKEN_PREFIX + secrets.token_urlsafe(32)
     db.add(MobileSession(user_id=user.id, token_hash=_hash(token), device=(device or "")[:160]))
     db.commit()
@@ -37,11 +41,15 @@ def issue_token(db: Session, user: User, device: str = "") -> str:
 
 
 def revoke_token(db: Session, token: str) -> None:
+    """Delete the session represented by a bearer token from the database."""
+
     db.query(MobileSession).filter(MobileSession.token_hash == _hash(token)).delete()
     db.commit()
 
 
 def bearer_token(request: Request) -> str:
+    """Read a required bearer token from an incoming mobile request."""
+
     header = request.headers.get("Authorization", "")
     if not header.startswith("Bearer ") or not header[7:].strip():
         raise HTTPException(status_code=401, detail="Лутфан аз нав ворид шавед")
@@ -49,11 +57,15 @@ def bearer_token(request: Request) -> str:
 
 
 def _role_hint(request: Request) -> Optional[str]:
+    """Return a valid per-device family role hint from request headers."""
+
     hint = request.headers.get("X-NIGOH-Role", "").strip().lower()
     return hint if hint in _ROLES else None
 
 
 def _user_dict(user: User, request: Request) -> dict:
+    """Serialize a user with the requesting device's effective family role."""
+
     data = user.to_dict()
     hint = _role_hint(request)
     # The role chosen on this phone decides which family side the request acts
@@ -65,6 +77,8 @@ def _user_dict(user: User, request: Request) -> dict:
 
 
 def _session_user(db: Session, token: str) -> User:
+    """Resolve an active session to its user and refresh recent activity."""
+
     session = db.query(MobileSession).filter(MobileSession.token_hash == _hash(token)).first()
     if session is None:
         raise HTTPException(status_code=401, detail="Сессия ба охир расид. Аз нав ворид шавед")
@@ -103,11 +117,15 @@ def require_mobile_user(request: Request, db: Session) -> dict:
 # ---------- Google ----------
 
 def _allowed_google_audiences() -> set:
+    """Parse the configured OAuth client IDs accepted from mobile clients."""
+
     raw = settings.GOOGLE_MOBILE_CLIENT_IDS
     return {item.strip() for item in raw.split(",") if item.strip()}
 
 
 def verify_google_id_token(id_token: str) -> dict:
+    """Verify a Google ID token and return normalized account identity data."""
+
     try:
         response = httpx.get(
             "https://oauth2.googleapis.com/tokeninfo",
@@ -134,6 +152,8 @@ def verify_google_id_token(id_token: str) -> dict:
 
 
 def upsert_google_user(db: Session, identity: dict) -> User:
+    """Create or refresh the local account for a verified Google identity."""
+
     user = db.query(User).filter(User.google_id == identity["google_id"]).first()
     if user is None:
         user = db.query(User).filter(User.email == identity["email"]).first()

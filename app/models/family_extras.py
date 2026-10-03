@@ -1,3 +1,5 @@
+"""Define location, safe-place, notification, and call-signaling records."""
+
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, func
 from app.db.base import Base
 
@@ -16,6 +18,8 @@ class LocationPoint(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):
+        """Serialize a historical location sample for the parent map."""
+
         return {
             "latitude": self.latitude,
             "longitude": self.longitude,
@@ -39,6 +43,8 @@ class SafePlace(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
+        """Serialize a named geofence and its radius for mobile clients."""
+
         return {
             "id": self.id,
             "name": self.name,
@@ -67,6 +73,8 @@ class FamilyEvent(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):
+        """Serialize a notification event and decode its structured payload."""
+
         import json
 
         return {
@@ -94,6 +102,8 @@ class CallSession(Base):
     ended_at = Column(DateTime, nullable=True)
 
     def to_dict(self):
+        """Serialize call state and lifecycle timestamps for polling clients."""
+
         return {
             "id": self.id,
             "child_id": self.child_id,
@@ -118,4 +128,6 @@ class CallSignal(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
+        """Serialize a WebRTC signaling message for the other caller."""
+
         return {"id": self.id, "from_role": self.from_role, "kind": self.kind, "payload": self.payload}

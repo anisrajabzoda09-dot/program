@@ -1,3 +1,5 @@
+"""Configure the SQLite engine and provide request-scoped database sessions."""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings

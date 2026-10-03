@@ -60,11 +60,15 @@ _MESSAGES = {
 
 
 def request_lang(headers) -> str:
+    """Select a supported response language from the mobile request headers."""
+
     lang = (headers.get("X-NIGOH-Lang") or "").strip().lower()[:2]
     return lang if lang in LANGS else "tg"
 
 
 def translate(message: Optional[str], lang: str) -> Optional[str]:
+    """Translate a known Tajik API message, preserving unknown messages."""
+
     if not message or lang == "tg" or not isinstance(message, str):
         return message
     pair = _MESSAGES.get(message)

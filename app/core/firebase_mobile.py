@@ -17,6 +17,8 @@ from app.models.user import User
 
 
 def _bearer(request: Request) -> str:
+    """Extract a nonempty Firebase bearer token or reject the request."""
+
     header = request.headers.get("Authorization", "")
     if not header.startswith("Bearer "):
         raise HTTPException(
@@ -30,6 +32,8 @@ def _bearer(request: Request) -> str:
 
 
 def _lookup(token: str) -> dict:
+    """Validate a Firebase token with Google and return normalized identity data."""
+
     if not settings.FIREBASE_WEB_API_KEY:
         raise HTTPException(status_code=503, detail="Firebase token verification танзим нашудааст")
     url = (
@@ -88,6 +92,8 @@ def require_firebase_user(request: Request, db: Session) -> dict:
 
 
 def find_user_by_firebase_uid(db: Session, firebase_uid: Optional[str]) -> Optional[User]:
+    """Find the local user linked to a Firebase UID, if one is supplied."""
+
     if not firebase_uid:
         return None
     return db.query(User).filter(User.firebase_uid == firebase_uid).first()

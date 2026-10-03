@@ -1,3 +1,5 @@
+"""Manage child profiles, device pairing, and their initial app rules."""
+
 import secrets
 from typing import Optional, List, Dict
 from sqlalchemy.orm import Session
@@ -33,6 +35,8 @@ def create_or_get_child_for_user(
     age: int = 11,
     role: str = "child"
 ) -> dict:
+    """Create or update the child profile associated with a user or parent."""
+
     pairing_code = f"NIGOH-{secrets.randbelow(8999)+1000}-X"
 
     if role == "child":
@@ -74,6 +78,8 @@ def create_or_get_child_for_user(
     return child.to_dict()
 
 def get_child_for_user(db: Session, user_id: int, role: str) -> Optional[dict]:
+    """Return the relevant child profile for a child or parent account."""
+
     if role == "child":
         child = db.query(Child).filter(Child.user_id == user_id).first()
     else:
@@ -81,10 +87,14 @@ def get_child_for_user(db: Session, user_id: int, role: str) -> Optional[dict]:
     return child.to_dict() if child else None
 
 def get_child_by_pairing_code(db: Session, pairing_code: str) -> Optional[Child]:
+    """Look up the child device that issued a normalized pairing code."""
+
     clean_code = pairing_code.strip().upper()
     return db.query(Child).filter(Child.pairing_code == clean_code).first()
 
 def pair_child_with_parent(db: Session, parent_id: int, pairing_code: str) -> Optional[dict]:
+    """Attach a child device to a parent and persist its paired state."""
+
     child = get_child_by_pairing_code(db, pairing_code)
     if not child:
         return None
@@ -95,6 +105,8 @@ def pair_child_with_parent(db: Session, parent_id: int, pairing_code: str) -> Op
     return child.to_dict()
 
 def get_children_list(db: Session, limit: int = 10) -> List[dict]:
+    """Return the most recently created child profiles up to a limit."""
+
     children = db.query(Child).order_by(Child.id.desc()).limit(limit).all()
     return [c.to_dict() for c in children]
 

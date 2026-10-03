@@ -1,3 +1,5 @@
+"""Create, checksum, and retrieve versioned mobile configuration bundles."""
+
 import hashlib
 import json
 from copy import deepcopy
@@ -9,6 +11,8 @@ from app.models.app_bundle import AppBundle
 
 
 def canonical_json(value: Any) -> str:
+    """Serialize a value deterministically for stable bundle checksums."""
+
     return json.dumps(
         value,
         ensure_ascii=False,
@@ -18,10 +22,14 @@ def canonical_json(value: Any) -> str:
 
 
 def payload_checksum(payload: dict) -> str:
+    """Return the SHA-256 checksum of a canonical bundle payload."""
+
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
 
 
 def default_bundle_payload() -> dict:
+    """Build the initial UI and parental-rule configuration for mobile apps."""
+
     return {
         "ui_overrides": {
             "theme": {
@@ -52,6 +60,8 @@ def default_bundle_payload() -> dict:
 
 
 def ensure_initial_bundle(db: Session) -> AppBundle:
+    """Return the newest bundle, creating the default first version if absent."""
+
     bundle = db.query(AppBundle).order_by(AppBundle.bundle_version.desc()).first()
     if bundle:
         return bundle
@@ -70,6 +80,8 @@ def ensure_initial_bundle(db: Session) -> AppBundle:
 
 
 def list_after(db: Session, version: int) -> list[AppBundle]:
+    """Return configuration patches newer than a client's installed version."""
+
     return (
         db.query(AppBundle)
         .filter(AppBundle.bundle_version > version)
@@ -85,6 +97,8 @@ def create_bundle(
     patch_type: str,
     payload: dict,
 ) -> AppBundle:
+    """Persist a new sequential configuration bundle and return it."""
+
     latest = db.query(AppBundle).order_by(AppBundle.bundle_version.desc()).first()
     next_version = (latest.bundle_version if latest else 0) + 1
     bundle = AppBundle(

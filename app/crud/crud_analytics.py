@@ -1,3 +1,5 @@
+"""Record site activity and assemble real metrics for the admin dashboard."""
+
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
@@ -38,6 +40,8 @@ _DAY_NAMES = ["Дш", "Сш", "Чш", "Пш", "Ҷм", "Шб", "Яш"]
 
 
 def _is_recent(moment: Optional[datetime], minutes: int) -> bool:
+    """Report whether a timestamp falls within the requested recent interval."""
+
     if moment is None:
         return False
     if moment.tzinfo is not None:
