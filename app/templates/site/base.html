@@ -194,13 +194,21 @@
 
   <script>
     (function () {
-      var header = document.querySelector('.site-header');
-      var toggle = document.querySelector('.nav-toggle');
-      if (!header || !toggle) return;
-      toggle.addEventListener('click', function () {
-        var open = header.classList.toggle('open');
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
+      /* Initialize the mobile menu only after the document is ready. */
+      function setupMobileMenu() {
+        var header = document.querySelector('.site-header');
+        var toggle = document.querySelector('.nav-toggle');
+        if (!header || !toggle) return;
+        toggle.addEventListener('click', function () {
+          var open = header.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupMobileMenu, { once: true });
+      } else {
+        setupMobileMenu();
+      }
     })();
   </script>
   <script src="/static/js/motion.js?v={{ app_version }}" defer></script>
