@@ -57,6 +57,17 @@
 .download-toast span { display: block; }
 .download-toast span { margin-top: 3px; color: var(--muted); font-size: .875rem; }
 
+.get-live {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .install-timeline { position: relative; }
 .install-timeline::after {
   content: "";

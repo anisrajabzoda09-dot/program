@@ -36,6 +36,8 @@
   function confirmCopy(button) {
     var original = button.textContent;
     button.textContent = button.dataset.copySuccess;
+    var live = document.querySelector('.get-live');
+    if (live) live.textContent = button.dataset.copySuccess;
     window.setTimeout(function () { button.textContent = original; }, 1800);
   }
 

@@ -148,10 +148,11 @@
   </div>
 </section>
 
-<div class="download-toast" hidden>
+<div class="download-toast" role="status" aria-live="polite" aria-atomic="true" hidden>
   <strong>Боргирӣ оғоз шуд</strong>
   <span>Пас аз анҷом ёфтан файли APK-ро кушоед, то насбро идома диҳед.</span>
 </div>
+<p class="get-live" aria-live="polite" aria-atomic="true"></p>
 <div class="sticky-download" hidden>
   <span>Версияи {{ app_version }}</span>
   <a class="btn btn-primary" href="/download/android" data-download-action aria-label="Боргирии NIGOH Family версияи {{ app_version }} барои Android">Боргирии APK</a>

@@ -148,10 +148,11 @@
   </div>
 </section>
 
-<div class="download-toast" hidden>
+<div class="download-toast" role="status" aria-live="polite" aria-atomic="true" hidden>
   <strong>Download started</strong>
   <span>When it finishes, open the APK file to continue installation.</span>
 </div>
+<p class="get-live" aria-live="polite" aria-atomic="true"></p>
 <div class="sticky-download" hidden>
   <span>Version {{ app_version }}</span>
   <a class="btn btn-primary" href="/download/android" data-download-action aria-label="Download NIGOH Family version {{ app_version }} for Android">Download APK</a>
