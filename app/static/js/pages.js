@@ -41,6 +41,24 @@ function initHowTimeline() {
   addEventListener('resize', update);
 }
 
+// Mark each setup step when its numbered badge reaches the viewport.
+function initStepBadges() {
+  const steps = document.querySelectorAll('.how-timeline .step');
+  if (!steps.length || !('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: .45 });
+  steps.forEach((step) => {
+    step.classList.add('is-staged');
+    observer.observe(step);
+  });
+}
+
 initCardSpotlights();
 initRulesTable();
 initHowTimeline();
+initStepBadges();

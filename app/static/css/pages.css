@@ -78,6 +78,12 @@
   transform-origin: top;
 }
 .how-timeline .step { position: relative; z-index: 1; }
+.js-motion .how-timeline .step.is-staged::before { opacity: .5; transform: scale(.72); }
+.js-motion .how-timeline .step.is-visible::before {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity .35s ease, transform .45s cubic-bezier(.2, .8, .2, 1.25);
+}
 
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
@@ -110,4 +116,5 @@
   .js-motion .home-rules-card .meta-table.is-staged tr { opacity: 1; transform: none; transition: none; }
   .home-cta { animation: none; background-position: 50% 50%; }
   .how-timeline { --timeline-progress: 1 !important; }
+  .js-motion .how-timeline .step.is-staged::before { opacity: 1; transform: none; transition: none; }
 }
