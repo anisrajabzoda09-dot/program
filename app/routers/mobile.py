@@ -1,4 +1,4 @@
-"""Provide legacy and v2 mobile family-control, telemetry, chat, and sync APIs."""
+"""Файл: API-и mobile барои pairing, назорат, chat, location ва usage."""
 
 from fastapi import APIRouter, Request, Depends, Header, HTTPException, Query, status
 from fastapi.responses import JSONResponse, RedirectResponse, Response
@@ -67,7 +67,7 @@ router = APIRouter(tags=["Mobile API & OTA"])
 # --- Request Schemas for New Features ---
 
 class ChildRenameRequest(BaseModel):
-    """Validate profile fields a parent may change for an owned child."""
+    """Маълумоти `ChildRenameRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     child_id: Optional[int] = None
     name: str = Field(..., min_length=1, description="New name for the child")
@@ -76,7 +76,7 @@ class ChildRenameRequest(BaseModel):
     device_name: Optional[str] = None
 
 class SOSAlertRequest(BaseModel):
-    """Describe an emergency alert with optional location and battery context."""
+    """Маълумоти `SOSAlertRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     latitude: Optional[float] = None
     longitude: Optional[float] = None
@@ -84,7 +84,7 @@ class SOSAlertRequest(BaseModel):
     message: Optional[str] = "ХАТАР! Кӯдак тугмаи SOS-ро пахш намуд!"
 
 class GeofenceRequest(BaseModel):
-    """Describe a named circular safe zone requested by a parent."""
+    """Маълумоти `GeofenceRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     zone_name: str
     latitude: float
@@ -92,33 +92,33 @@ class GeofenceRequest(BaseModel):
     radius_meters: int = 200
 
 class BedtimeScheduleRequest(BaseModel):
-    """Describe whether and when the child's bedtime lock should apply."""
+    """Маълумоти `BedtimeScheduleRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     is_enabled: bool = True
     bedtime_start: str = "21:30"
     bedtime_end: str = "07:00"
 
 class DeviceLockRequest(BaseModel):
-    """Carry an immediate device lock state and message for the child."""
+    """Маълумоти `DeviceLockRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     is_locked: bool
     lock_message: Optional[str] = "Вақти дарс ва тамаркуз аст! Телефон баста шуд."
 
 class WebFilterRequest(BaseModel):
-    """Carry adult-content and safe-search preferences for web access."""
+    """Маълумоти `WebFilterRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     block_adult_content: bool
     safe_search_enabled: bool = True
 
 class ScreenTimeBonusRequest(BaseModel):
-    """Describe a screen-time reward and its parent-facing reason."""
+    """Маълумоти `ScreenTimeBonusRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     bonus_minutes: int = 15
     reason: Optional[str] = "Барои иҷрои супоришҳои мактабӣ"
 
 
 def _get_owned_child(db: Session, user: dict, child_id: int) -> Child:
-    """Resolve a child without trusting a client-supplied parent/child id."""
+    """Барои гирифтан ё санҷидани get owned фарзанд истифода мешавад."""
     query = db.query(Child).filter(Child.id == child_id)
     if user.get("role") == "parent":
         query = query.filter(Child.parent_id == user["id"])
@@ -133,7 +133,7 @@ def _get_owned_child(db: Session, user: dict, child_id: int) -> Child:
 
 
 def _rule_payload(rule: AppRule, usage: Optional[AppUsageDaily] = None) -> dict:
-    """Combine an app rule with today's usage and remaining allowance."""
+    """Маълумоти ёрирасони қоида payload-ро омода карда, ба caller бармегардонад."""
 
     minutes = usage.minutes if usage else 0
     limit = rule.daily_limit_minutes or 0
@@ -157,7 +157,7 @@ def _rule_payload(rule: AppRule, usage: Optional[AppUsageDaily] = None) -> dict:
 
 
 def _mobile_child(db: Session, user: dict, child_id: Optional[int] = None) -> Child:
-    """Resolve a child accessible to the authenticated mobile family member."""
+    """Маълумоти ёрирасони фарзанд-ро омода карда, ба caller бармегардонад."""
 
     query = db.query(Child)
     if user.get("role") == "parent":
@@ -173,7 +173,7 @@ def _mobile_child(db: Session, user: dict, child_id: Optional[int] = None) -> Ch
 
 
 def _mobile_child_payload(db: Session, child: Child) -> dict:
-    """Build a child snapshot with real synced apps, usage, and chat counts."""
+    """Маълумоти ёрирасони фарзанд payload-ро омода карда, ба caller бармегардонад."""
 
     # The mobile app shows only apps really reported by the child's phone;
     # placeholder defaults (never synced) must not appear or block anything.
@@ -222,7 +222,7 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
 
 
 def _json_or_none(raw: Optional[str]):
-    """Decode an optional JSON database field, returning none when invalid."""
+    """Маълумоти ёрирасони json or none-ро омода карда, ба caller бармегардонад."""
 
     if not raw:
         return None
@@ -233,7 +233,7 @@ def _json_or_none(raw: Optional[str]):
 
 
 def _unread(db: Session, child_id: int, sender_role: str) -> int:
-    """Count unread family chat messages sent by one side of the family."""
+    """Маълумоти ёрирасони unread-ро омода карда, ба caller бармегардонад."""
 
     return db.query(ChatMessage).filter(
         ChatMessage.child_id == child_id,
@@ -243,7 +243,7 @@ def _unread(db: Session, child_id: int, sender_role: str) -> int:
 
 
 def _last_urgent(db: Session, child_id: int) -> Optional[dict]:
-    """Newest unread SOS from the child within the last 24 hours."""
+    """Маълумоти ёрирасони last urgent-ро омода карда, ба caller бармегардонад."""
     row = db.query(ChatMessage).filter(
         ChatMessage.child_id == child_id,
         ChatMessage.sender_role == "child",
@@ -259,7 +259,7 @@ def _last_urgent(db: Session, child_id: int) -> Optional[dict]:
 
 
 def _mobile_snapshot(db: Session, user: dict) -> dict:
-    """Build the complete family snapshot appropriate to a parent or child."""
+    """Маълумоти ёрирасони snapshot-ро омода карда, ба caller бармегардонад."""
 
     if user.get("role") == "parent":
         children = db.query(Child).filter(Child.parent_id == user["id"]).order_by(Child.id.desc()).all()
@@ -281,12 +281,12 @@ def _mobile_snapshot(db: Session, user: dict) -> dict:
 
 @router.get("/mobile")
 def mobile_app_page():
-    """Redirect to official APK download section"""
+    """Дархости `GET /mobile`-ро барои app саҳифа коркард мекунад."""
     return RedirectResponse(url="/get", status_code=302)
 
 @router.get("/api/mobile/version")
 def get_app_version(request: Request, current_version_code: int = 0):
-    """Version check for Over-The-Air (OTA) Instant Updates on client phones"""
+    """Дархости `GET /api/mobile/version`-ро барои get app version коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     latest_version_code = settings.APP_VERSION_CODE
     base_str = str(request.base_url).rstrip("/")
     download_url = f"{settings.OFFICIAL_DOMAIN}/download/android" if ("qobus.tj" in base_str or "nigohfamily" in base_str) else f"{base_str}/download/android"
@@ -310,7 +310,7 @@ def sync_dynamic_bundle(
     bundle_header: Optional[int] = Header(default=None, alias="X-Client-Bundle-Version"),
     native_header: Optional[int] = Header(default=None, alias="X-Native-Version-Code"),
 ):
-    """Return only dynamic config deltas; native changes still require APK update."""
+    """Дархости `GET /api/mobile/sync-bundle`-ро барои sync dynamic bundle коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     current_bundle = client_bundle_version
     if current_bundle is None:
         current_bundle = bundle_header if bundle_header is not None else 0
@@ -354,7 +354,7 @@ def publish_dynamic_bundle(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Publish a dynamic patch. Only an authenticated admin may publish it."""
+    """Дархости `POST /api/mobile/bundles`-ро барои publish dynamic bundle коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     user = require_auth(request)
     if user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Танҳо администратор bundle нашр карда метавонад")
@@ -368,7 +368,7 @@ def publish_dynamic_bundle(
 
 @router.post("/api/mobile/role-select")
 def set_user_role(payload: RoleSelectRequest, request: Request, db: Session = Depends(get_db)):
-    """Persist the selected family role and refresh all active web sessions."""
+    """Дархости `POST /api/mobile/role-select`-ро барои set корбар нақш коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     updated = update_user_role(db, user["id"], payload.role)
@@ -380,7 +380,7 @@ def set_user_role(payload: RoleSelectRequest, request: Request, db: Session = De
 
 @router.post("/api/mobile/setup-child")
 def setup_child_profile(payload: ChildProfileSetupRequest, request: Request, db: Session = Depends(get_db)):
-    """Create or update the child profile used by the signed-in account."""
+    """Дархости `POST /api/mobile/setup-child`-ро барои setup фарзанд профил коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     child = create_or_get_child_for_user(
@@ -395,7 +395,7 @@ def setup_child_profile(payload: ChildProfileSetupRequest, request: Request, db:
 
 @router.get("/api/mobile/status")
 def get_mobile_status(request: Request, db: Session = Depends(get_db)):
-    """Return legacy mobile user, child, app-rule, and chat state."""
+    """Дархости `GET /api/mobile/status`-ро барои get ҳолат коркард мекунад."""
 
     user = require_auth(request)
     role = user.get("role", "child")
@@ -418,7 +418,7 @@ def get_mobile_status(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/api/mobile/chat/send")
 def send_mobile_chat_message(payload: SendChatMessageRequest, request: Request, db: Session = Depends(get_db)):
-    """Persist a legacy family chat message for the user's linked child."""
+    """Дархости `POST /api/mobile/chat/send`-ро барои send chat паём коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     role = user.get("role", "parent")
@@ -440,7 +440,7 @@ def send_mobile_chat_message(payload: SendChatMessageRequest, request: Request, 
 
 @router.post("/api/mobile/pair")
 def pair_device(payload: PairRequest, request: Request, db: Session = Depends(get_db)):
-    """Pair a legacy child code to the authenticated parent account."""
+    """Дархости `POST /api/mobile/pair`-ро барои pairing дастгоҳ коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     if user.get("role") != "parent":
@@ -462,7 +462,7 @@ def pair_device(payload: PairRequest, request: Request, db: Session = Depends(ge
 
 @router.get("/api/mobile/v2/snapshot")
 def mobile_snapshot_v2(request: Request, db: Session = Depends(get_db)):
-    """Return the authenticated mobile user's current family snapshot."""
+    """Дархости `GET /api/mobile/v2/snapshot`-ро барои snapshot коркард мекунад."""
 
     user = require_mobile_user(request, db)
     return _mobile_snapshot(db, user)
@@ -474,7 +474,7 @@ def create_mobile_pair_code_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Create or refresh a child profile and issue its device pairing code."""
+    """Дархости `POST /api/mobile/v2/pair/code`-ро барои create pairing code коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     if user.get("role") != "child":
@@ -515,7 +515,7 @@ def pair_mobile_device_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Attach an unclaimed child device to the authenticated parent."""
+    """Дархости `POST /api/mobile/v2/pair`-ро барои pairing дастгоҳ коркард мекунад."""
 
     user = require_mobile_user(request, db)
     if user.get("role") != "parent":
@@ -539,7 +539,7 @@ def link_existing_mobile_family_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Bridge a family paired by the previous Firebase-only build."""
+    """Дархости `POST /api/mobile/v2/link-existing`-ро барои link existing оила коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     child_user = require_mobile_user(request, db)
     if child_user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо ҳисоби фарзанд метавонад пайваст шавад")
@@ -560,7 +560,7 @@ def sync_mobile_apps_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Replace the child's reported app inventory and update usage metadata."""
+    """Дархости `POST /api/mobile/v2/children/{child_id}/apps/sync`-ро барои sync app-ҳо коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     if user.get("role") != "child":
@@ -623,7 +623,7 @@ def update_mobile_app_rule_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Persist a parent's controls for one app installed on an owned child."""
+    """Дархости `PUT /api/mobile/v2/children/{child_id}/apps/{package_name}`-ро барои update app қоида коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     if user.get("role") != "parent":
@@ -655,7 +655,7 @@ def update_mobile_location_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Store child-device location and battery telemetry for the parent."""
+    """Дархости `POST /api/mobile/v2/children/{child_id}/location`-ро барои update location коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     if user.get("role") != "child":
@@ -688,7 +688,7 @@ def get_mobile_chat_v2(
     db: Session = Depends(get_db),
     after_id: int = Query(default=0, ge=0),
 ):
-    """Return family messages newer than an optional polling cursor."""
+    """Дархости `GET /api/mobile/v2/children/{child_id}/chat`-ро барои get chat коркард мекунад."""
 
     user = require_mobile_user(request, db)
     child = _mobile_child(db, user, child_id)
@@ -707,7 +707,7 @@ def send_mobile_chat_v2(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Persist a mobile family message and return its serialized record."""
+    """Дархости `POST /api/mobile/v2/children/{child_id}/chat`-ро барои send chat коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     child = _mobile_child(db, user, child_id)
@@ -735,7 +735,7 @@ def send_mobile_chat_v2(
 
 @router.delete("/api/mobile/v2/children/{child_id}")
 def unlink_mobile_child_v2(child_id: int, request: Request, db: Session = Depends(get_db)):
-    """Parent removes a child from the family. The child's phone keeps its profile."""
+    """Дархости `DELETE /api/mobile/v2/children/{child_id}`-ро барои unlink фарзанд коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     user = require_mobile_user(request, db)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн фарзандро хориҷ карда метавонад")
@@ -750,7 +750,7 @@ def unlink_mobile_child_v2(child_id: int, request: Request, db: Session = Depend
 
 @router.get("/api/v1/children/{child_id}/apps/")
 def list_child_apps_v1(child_id: int, request: Request, db: Session = Depends(get_db)):
-    """Return an owned child's app controls combined with today's usage."""
+    """Дархости `GET /api/v1/children/{child_id}/apps/`-ро барои list фарзанд app-ҳо коркард мекунад."""
 
     user = require_auth(request)
     child = _get_owned_child(db, user, child_id)
@@ -778,7 +778,7 @@ def update_child_app_limit_v1(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Persist a parent's blocking, allowance, schedule, or exemption changes."""
+    """Дархости `PUT /api/v1/children/{child_id}/apps/{package_name}/limits`-ро барои update фарзанд app limit коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     if user.get("role") != "parent":
@@ -829,7 +829,7 @@ def report_child_usage_v1(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Upsert daily app-usage telemetry reported by the owned child device."""
+    """Дархости `POST /api/v1/children/{child_id}/apps/report-usage`-ро барои ҳисобот фарзанд истифода коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     if user.get("role") != "child":
@@ -864,7 +864,7 @@ def process_time_extension_v1(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Create a child's time request or persist its parent's decision."""
+    """Дархости `POST /api/v1/children/{child_id}/requests/time-extension`-ро барои process вақт тамдид коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     child = _get_owned_child(db, user, child_id)
@@ -899,7 +899,7 @@ def process_time_extension_v1(
 
 @router.post("/api/mobile/apps/toggle")
 def toggle_child_app(payload: AppRuleToggleRequest, request: Request, db: Session = Depends(get_db)):
-    """Persist an app's blocked state for the parent's linked child."""
+    """Дархости `POST /api/mobile/apps/toggle`-ро барои toggle фарзанд app коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "parent")
@@ -913,7 +913,7 @@ def toggle_child_app(payload: AppRuleToggleRequest, request: Request, db: Sessio
 
 @router.post("/api/mobile/apps/limit")
 def set_child_app_limit_endpoint(payload: AppLimitRequest, request: Request, db: Session = Depends(get_db)):
-    """Persist an app's daily limit for the parent's linked child."""
+    """Дархости `POST /api/mobile/apps/limit`-ро барои set фарзанд app limit коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "parent")
@@ -929,7 +929,7 @@ def set_child_app_limit_endpoint(payload: AppLimitRequest, request: Request, db:
 
 @router.post("/api/mobile/child/rename")
 def rename_child_profile(payload: ChildRenameRequest, request: Request, db: Session = Depends(get_db)):
-    """User request: Allow parents to change the child's name, gender, or age."""
+    """Дархости `POST /api/mobile/child/rename`-ро барои rename фарзанд профил коркард мекунад."""
     user = require_auth(request)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн метавонанд профили фарзандро иваз кунанд")
@@ -956,7 +956,7 @@ def rename_child_profile(payload: ChildRenameRequest, request: Request, db: Sess
 # 1. SOS Emergency Panic Alert
 @router.post("/api/mobile/sos")
 def trigger_sos_alert(payload: SOSAlertRequest, request: Request, db: Session = Depends(get_db)):
-    """Record an urgent child chat alert with location and battery context."""
+    """Дархости `POST /api/mobile/sos`-ро барои trigger SOS alert коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "child")
@@ -970,7 +970,7 @@ def trigger_sos_alert(payload: SOSAlertRequest, request: Request, db: Session = 
 # 2. Geofence Safe Zones (School / Home)
 @router.post("/api/mobile/geofence")
 def set_geofence_safe_zone(payload: GeofenceRequest, request: Request, db: Session = Depends(get_db)):
-    """Validate and echo a requested legacy safe-zone configuration."""
+    """Дархости `POST /api/mobile/geofence`-ро барои set geofence бехатар zone коркард мекунад."""
 
     user = require_auth(request)
     return {
@@ -988,7 +988,7 @@ def set_geofence_safe_zone(payload: GeofenceRequest, request: Request, db: Sessi
 # 3. Bedtime Schedule Lock
 @router.post("/api/mobile/schedule/bedtime")
 def set_bedtime_schedule(payload: BedtimeScheduleRequest, request: Request, db: Session = Depends(get_db)):
-    """Validate and echo a requested legacy bedtime configuration."""
+    """Дархости `POST /api/mobile/schedule/bedtime`-ро барои set вақти хоб schedule коркард мекунад."""
 
     user = require_auth(request)
     return {
@@ -1004,7 +1004,7 @@ def set_bedtime_schedule(payload: BedtimeScheduleRequest, request: Request, db: 
 # 4. Instant Remote Device Lock / Unlock
 @router.post("/api/mobile/device/lock")
 def toggle_device_lock(payload: DeviceLockRequest, request: Request, db: Session = Depends(get_db)):
-    """Acknowledge a requested legacy remote lock or unlock state."""
+    """Дархости `POST /api/mobile/device/lock`-ро барои toggle дастгоҳ lock коркард мекунад."""
 
     user = require_auth(request)
     return {
@@ -1017,7 +1017,7 @@ def toggle_device_lock(payload: DeviceLockRequest, request: Request, db: Session
 # 5. SafeSearch & Web Filtering
 @router.post("/api/mobile/webfilter")
 def set_web_filter(payload: WebFilterRequest, request: Request, db: Session = Depends(get_db)):
-    """Persist adult-content filtering for the parent's linked child."""
+    """Дархости `POST /api/mobile/webfilter`-ро барои set web филтр коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_auth(request)
     child = get_child_for_user(db, user["id"], "parent")
@@ -1036,7 +1036,7 @@ def set_web_filter(payload: WebFilterRequest, request: Request, db: Session = De
 # 6. Live Location Ping
 @router.get("/api/mobile/location/ping")
 def ping_live_location(request: Request, db: Session = Depends(get_db)):
-    """Return the parent's latest known child location when available."""
+    """Дархости `GET /api/mobile/location/ping`-ро барои ping live location коркард мекунад."""
 
     user = require_auth(request)
     if user.get("role") != "parent":
@@ -1061,7 +1061,7 @@ def ping_live_location(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/api/mobile/location/update")
 def update_child_location(payload: LocationUpdateRequest, request: Request, db: Session = Depends(get_db)):
-    """Store only a location reported by the authenticated child device."""
+    """Дархости `POST /api/mobile/location/update`-ро барои update фарзанд location коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
     user = require_auth(request)
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад макон фиристад")
@@ -1082,7 +1082,7 @@ def update_child_location(payload: LocationUpdateRequest, request: Request, db: 
 # 7. Screen Time Bonus (+15m, +30m)
 @router.post("/api/mobile/screentime/bonus")
 def reward_screen_time_bonus(payload: ScreenTimeBonusRequest, request: Request, db: Session = Depends(get_db)):
-    """Acknowledge a requested legacy screen-time reward."""
+    """Дархости `POST /api/mobile/screentime/bonus`-ро барои reward экран вақт вақти иловагӣ коркард мекунад."""
 
     user = require_auth(request)
     return {
@@ -1095,7 +1095,7 @@ def reward_screen_time_bonus(payload: ScreenTimeBonusRequest, request: Request, 
 # 8. Recent App Installation Tracker
 @router.get("/api/mobile/apps/recent")
 def get_recently_installed_apps(request: Request, db: Session = Depends(get_db)):
-    """Return the legacy sample feed of recently installed applications."""
+    """Дархости `GET /api/mobile/apps/recent`-ро барои get recently насбшуда app-ҳо коркард мекунад."""
 
     user = require_auth(request)
     return {
@@ -1109,7 +1109,7 @@ def get_recently_installed_apps(request: Request, db: Session = Depends(get_db))
 # 9. Low Battery Threshold Alert
 @router.get("/api/mobile/battery/alert")
 def check_battery_status(request: Request, db: Session = Depends(get_db)):
-    """Report the linked child's battery and whether it is below the threshold."""
+    """Дархости `GET /api/mobile/battery/alert`-ро барои check батарея ҳолат коркард мекунад."""
 
     user = require_auth(request)
     role = user.get("role", "parent")
@@ -1126,7 +1126,7 @@ def check_battery_status(request: Request, db: Session = Depends(get_db)):
 # 10. Family Daily Summary Report
 @router.get("/api/mobile/reports/daily")
 def get_daily_family_report(request: Request, db: Session = Depends(get_db)):
-    """Return the legacy daily family summary payload."""
+    """Дархости `GET /api/mobile/reports/daily`-ро барои get рӯзона оила ҳисобот коркард мекунад."""
 
     user = require_auth(request)
     return {
