@@ -39,6 +39,19 @@
 .js-motion .home-rules-card .meta-table.is-visible tr:nth-child(3) { transition-delay: .16s; }
 .js-motion .home-rules-card .meta-table.is-visible tr:nth-child(4) { transition-delay: .24s; }
 
+/* Make genuine review cards read as quotations with a consistent footer. */
+.review-grid { align-items: stretch; }
+.review-card { display: flex; min-height: 190px; flex-direction: column; box-shadow: var(--shadow); }
+.review-card blockquote { position: relative; padding-top: 20px; }
+.review-card blockquote::before {
+  content: "“";
+  position: absolute;
+  top: -14px;
+  color: var(--blue);
+  font: 700 2.5rem/1 Georgia, serif;
+}
+.review-card figcaption { margin-top: auto !important; padding-top: 22px; border-top: 1px solid var(--line); }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }

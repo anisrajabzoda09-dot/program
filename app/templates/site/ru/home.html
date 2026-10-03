@@ -199,9 +199,9 @@
       <span class="eyebrow">Отзывы пользователей</span>
       <h2>Что говорят родители</h2>
     </div>
-    <div class="grid-3">
+    <div class="grid-3 review-grid">
       {% for r in reviews[:3] %}
-      <figure class="card" style="margin:0">
+      <figure class="card review-card" style="margin:0">
         <blockquote style="margin:0;color:var(--ink-2)">{{ r.comment }}</blockquote>
         <figcaption class="small muted" style="margin-top:18px">
           <strong style="color:var(--ink)">{{ r.author_name }}</strong>{% if r.role_title %} · {{ r.role_title }}{% endif %}{% if r.rating %} · {{ r.rating }}/5{% endif %}
