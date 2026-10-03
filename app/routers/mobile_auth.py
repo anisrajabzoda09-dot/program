@@ -17,7 +17,7 @@ from app.core.mobile_auth import (
     upsert_google_user,
     verify_google_id_token,
 )
-from app.core import apple_auth
+from app.core import apple_auth, github_auth
 from app.core.config import settings
 from app.core.security import check_rate_limit, hash_password, verify_password
 from app.db.session import get_db
@@ -153,6 +153,36 @@ def apple(payload: AppleRequest, request: Request, db: Session = Depends(get_db)
     claims = apple_auth.verify_identity_token(payload.identity_token, apple_auth.apple_audiences(),
                                               nonce=payload.nonce)
     user = apple_auth.upsert_apple_user(db, claims, payload.full_name)
+    if user.role == "admin":
+        raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
+    return _auth_response(db, user, request)
+
+
+@router.get("/auth/github/config")
+def github_config():
+    """Public GitHub settings the app needs to show the button and open the browser flow."""
+    enabled = github_auth.github_configured()
+    base = settings.GITHUB_REDIRECT_URI.rsplit("/", 1)[0]
+    return {"enabled": enabled,
+            "start_url": f"{base}/mobile" if enabled else None,
+            "callback_scheme": settings.GITHUB_APP_SCHEME if enabled else None}
+
+
+class GitHubRequest(BaseModel):
+    """One-time ticket from the browser flow plus the raw nonce the app generated."""
+
+    ticket: str = Field(..., min_length=20, max_length=128)
+    nonce: str = Field(..., min_length=16, max_length=128)
+
+
+@router.post("/auth/github")
+def github(payload: GitHubRequest, request: Request, db: Session = Depends(get_db)):
+    """Trade a GitHub login ticket (and its nonce) for a mobile session."""
+    check_rate_limit(request, "mobile_github", max_requests=20, window_seconds=300)
+    user_id = github_auth.redeem_ticket(payload.ticket, payload.nonce)
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="Воридшавӣ бо GitHub тасдиқ нашуд")
     if user.role == "admin":
         raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
     return _auth_response(db, user, request)
