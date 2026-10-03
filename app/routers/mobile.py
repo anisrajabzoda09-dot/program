@@ -268,7 +268,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.15.0: барнома бо се забон (тоҷикӣ, русӣ, англисӣ); занг ва SOS дар тамоми экран.",
+        "release_notes": "v2.17.0: тарҳи нав ва фаҳмотар бо аниматсия, харита ислоҳ шуд, нест кардани барнома дар телефони фарзанд танҳо бо PIN-и волидайн.",
         "download_url": download_url
     }
 
