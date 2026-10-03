@@ -162,7 +162,10 @@ p { margin: 0; text-wrap: pretty; }
 .nav { display: flex; align-items: center; gap: 28px; height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 700; letter-spacing: -.01em; white-space: nowrap; flex: none; }
 .brand:hover { color: var(--ink); }
-.brand img { width: 30px; height: 30px; }
+.brand img { width: 30px; height: 30px; transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+@media (hover: hover) and (pointer: fine) {
+  .brand:hover img { transform: rotate(-5deg) scale(1.06); }
+}
 .nav-links { display: flex; gap: 4px; margin: 0 auto 0 12px; padding: 0; list-style: none; }
 .nav-links a {
   display: block; position: relative; padding: 8px 10px; border-radius: 8px; white-space: nowrap;
@@ -376,6 +379,7 @@ p { margin: 0; text-wrap: pretty; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
+  .brand:hover img { transform: none !important; }
   .site-header.open .nav-links, .site-header.open .nav-actions { animation: none !important; }
 }
 
