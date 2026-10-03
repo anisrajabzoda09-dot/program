@@ -1,5 +1,4 @@
-// Parent "Map" tab: the child's live position on OpenStreetMap, 24-hour path
-// and timeline, safe places, and refresh/centre controls.
+// Файл: харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -15,36 +14,38 @@ import 'parent_logic.dart';
 import 'places_sheets.dart';
 import '../../l10n/l10n.dart';
 
-/// Last known location of the selected child on an OpenStreetMap map.
+/// Экрани MapScreen-ро барои харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд месозад.
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, required this.controller});
   final FamilyController controller;
 
+  /// Ҳолати MapScreen-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
 
-/// Follows the child's position and manages the history path and place sheets.
+/// Ҳолат ва рафтори MapScreenState-ро барои навсозии интерфейс идора мекунад.
 class _MapScreenState extends State<MapScreen> {
   final _map = MapController();
   bool _mapReady = false;
   LatLng? _shown;
   bool _refreshing = false;
 
-  /// 24 h path.
+  /// Қимати _showHistory-ро барои харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд нигоҳ медорад.
   bool _showHistory = false;
   bool _historyLoading = false;
   int? _historyChild;
   List<HistoryPoint>? _history;
   String? _historyError;
 
+  /// Controller ва listener-ҳои MapScreen-ро озод мекунад.
   @override
   void dispose() {
     _map.dispose();
     super.dispose();
   }
 
-  /// Moves the camera to [point] when the child's position changes.
+  /// follow мантиқи зарурии харита, ҷойгиршавӣ ва таърихи ҳаракати фарзандро иҷро мекунад.
   void _follow(LatLng point) {
     if (_shown == point) return;
     _shown = point;
@@ -55,7 +56,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  /// Reloads the family snapshot and reports a failure.
+  /// refresh додаҳои харита ва ҷойгиршавӣ-ро боз мехонад ва MapScreen-ро нав мекунад.
   Future<void> _refresh() async {
     setState(() => _refreshing = true);
     await widget.controller.refresh();
@@ -65,7 +66,7 @@ class _MapScreenState extends State<MapScreen> {
     if (error != null) showMessage(context, error, error: true);
   }
 
-  /// Shows or hides the 24-hour path (loading it when shown).
+  /// toggleHistory ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.
   Future<void> _toggleHistory(FamilyChild child) async {
     if (_showHistory) {
       setState(() => _showHistory = false);
@@ -75,7 +76,7 @@ class _MapScreenState extends State<MapScreen> {
     await _loadHistory(child);
   }
 
-  /// Loads the child's last 24 h of positions for the path.
+  /// loadHistory додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<void> _loadHistory(FamilyChild child) async {
     setState(() {
       _historyLoading = true;
@@ -106,7 +107,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  /// Opens the path timeline; tapping a point centres the map on it.
+  /// openTimeline экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openTimeline(List<HistoryPoint> points) {
     showModalBottomSheet<void>(
       context: context,
@@ -122,7 +123,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// Opens the sheet for adding a safe place at [at] or the child's position.
+  /// addPlace мантиқи зарурии харита, ҷойгиршавӣ ва таърихи ҳаракати фарзандро иҷро мекунад.
   Future<void> _addPlace(FamilyChild child, LatLng? at) async {
     final location = child.location;
     await showModalBottomSheet<bool>(
@@ -140,7 +141,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// Opens the list of the child's safe places.
+  /// openPlaces экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openPlaces(FamilyChild child) {
     showModalBottomSheet<void>(
       context: context,
@@ -163,6 +164,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  /// Харитаро бо нишонаи фарзанд, ҷойҳои бехатар ва корти ҷойгиршавӣ месозад.
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.controller,
@@ -250,7 +252,7 @@ class _MapScreenState extends State<MapScreen> {
                       point: LatLng(place.latitude, place.longitude),
                       width: 130,
                       height: 110,
-                      // Label sits above the circle centre, clear of the child.
+                      // Қадами дохилии харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд.
                       child: Align(
                         alignment: Alignment.topCenter,
                         child: _PlaceLabel(name: place.name),
@@ -293,8 +295,7 @@ class _MapScreenState extends State<MapScreen> {
             left: 0,
             right: 0,
             top: 0,
-            // The overlay chrome keeps its own type scale: at the system's
-            // largest font setting it would otherwise swallow the map.
+            // Қадами дохилии харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд.
             child: MediaQuery.withClampedTextScaling(
               maxScaleFactor: _overlayTextScale,
               child: SafeArea(
@@ -361,9 +362,7 @@ class _MapScreenState extends State<MapScreen> {
               child: SafeArea(
                 top: false,
                 minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                // Bottom-anchored, never taller than [_bottomCardShare] of the
-                // screen: the card scrolls inside the cap instead of growing
-                // over the map.
+                // Қадами дохилии харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд.
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: ConstrainedBox(
@@ -408,23 +407,22 @@ class _MapScreenState extends State<MapScreen> {
   );
 }
 
-/// The map overlay never follows the system font scale past this: a 2× scale
-/// turned the compact card into a panel over half the map.
+/// Қимати _overlayTextScale-ро барои харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд нигоҳ медорад.
 const _overlayTextScale = 1.2;
 
-/// Share of the screen height the bottom card may use at most.
+/// Қимати _bottomCardShare-ро барои харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд нигоҳ медорад.
 const _bottomCardShare = .34;
 
-/// Maximum height of the bottom info card for this screen.
+/// bottomCardLimit мантиқи зарурии харита, ҷойгиршавӣ ва таърихи ҳаракати фарзандро иҷро мекунад.
 double _bottomCardLimit(BuildContext context) =>
     (MediaQuery.sizeOf(context).height * _bottomCardShare).clamp(110.0, 280.0);
 
-/// Smooth height changes (a pill or an error line appearing) instead of the
-/// card jumping; collapses when the user asked for less motion.
+/// AnimatedBox додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _AnimatedBox extends StatelessWidget {
   const _AnimatedBox({required this.child});
   final Widget child;
 
+  /// Widget-и AnimatedBox-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) {
     if (reducedMotion(context)) return child;
@@ -437,11 +435,11 @@ class _AnimatedBox extends StatelessWidget {
   }
 }
 
-/// One line that says what the map is for and how to add a safe place —
-/// long-press is invisible otherwise.
+/// MapHint додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _MapHint extends StatelessWidget {
   const _MapHint();
 
+  /// Widget-и MapHint-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -482,12 +480,13 @@ class _MapHint extends StatelessWidget {
   }
 }
 
-/// Map marker with the child's photo/initial, coloured by online state.
+/// ChildMarker додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _ChildMarker extends StatelessWidget {
   const _ChildMarker({required this.child, this.url});
   final FamilyChild child;
   final String? url;
 
+  /// Widget-и ChildMarker-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) {
     final color = child.online ? NigohDesign.blue : NigohDesign.amber;
@@ -510,10 +509,7 @@ class _ChildMarker extends StatelessWidget {
   }
 }
 
-/// Compact floating card under the map: avatar, name, last update, status
-/// labels, the OpenStreetMap credit and a refresh button. Every text is
-/// single-line with an ellipsis and the whole card is height-capped by the
-/// caller, so it can never grow into a panel over the map.
+/// Widget-и LocationCard-ро барои харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд месозад.
 class _LocationCard extends StatelessWidget {
   const _LocationCard({
     required this.child,
@@ -536,6 +532,7 @@ class _LocationCard extends StatelessWidget {
   final bool refreshing;
   final VoidCallback onRefresh;
 
+  /// Widget-и LocationCard-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -627,8 +624,6 @@ class _LocationCard extends StatelessWidget {
             ),
             if (battery != null || placeStatus != null) ...[
               const SizedBox(height: 10),
-              // One single-line row, so a long place name can never wrap the
-              // card into a tall panel.
               Row(
                 children: [
                   if (placeStatus != null)
@@ -668,8 +663,6 @@ class _LocationCard extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 6),
-            // Required by the OpenStreetMap tile licence; inside the card so
-            // the map keeps only one floating surface at the bottom.
             Text(
               '© OpenStreetMap contributors',
               maxLines: 1,
@@ -683,8 +676,7 @@ class _LocationCard extends StatelessWidget {
   }
 }
 
-/// Rounded status label that shrinks instead of overflowing — the shared
-/// [Pill] keeps its text on one unbreakable line.
+/// StatusLabel додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _StatusLabel extends StatelessWidget {
   const _StatusLabel({
     required this.text,
@@ -696,6 +688,7 @@ class _StatusLabel extends StatelessWidget {
   final Color color;
   final IconData icon;
 
+  /// Widget-и StatusLabel-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
@@ -725,7 +718,7 @@ class _StatusLabel extends StatelessWidget {
   );
 }
 
-/// Small floating action chip over the map (path, places, refresh…).
+/// MapChip додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _MapChip extends StatelessWidget {
   const _MapChip({
     super.key,
@@ -744,6 +737,7 @@ class _MapChip extends StatelessWidget {
   final bool selected;
   final bool busy;
 
+  /// Widget-и MapChip-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -796,12 +790,13 @@ class _MapChip extends StatelessWidget {
   }
 }
 
-/// Start/end marker of the history path.
+/// PathDot додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _PathDot extends StatelessWidget {
   const _PathDot({required this.color, required this.icon});
   final Color color;
   final IconData icon;
 
+  /// Widget-и PathDot-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
@@ -813,11 +808,12 @@ class _PathDot extends StatelessWidget {
   );
 }
 
-/// Name label drawn next to a safe-place circle.
+/// PlaceLabel додаҳо ва рафтори харита ва ҷойгиршавӣ-ро ифода мекунад.
 class _PlaceLabel extends StatelessWidget {
   const _PlaceLabel({required this.name});
   final String name;
 
+  /// Widget-и PlaceLabel-ро барои харита, ҷойгиршавӣ ва ҷойҳои бехатар месозад.
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

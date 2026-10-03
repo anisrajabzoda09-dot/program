@@ -1,4 +1,4 @@
-// Parent screen for pairing a new child phone by QR scan or 6-digit code.
+// Файл: пайваст кардани телефони фарзанд бо QR ё код.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,30 +10,31 @@ import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import '../../l10n/l10n.dart';
 
-/// Pair a child's phone: scan its QR or type the 6-digit code.
-/// Pops with `true` after a successful pairing.
+/// Экрани AddChildScreen-ро барои пайваст кардани телефони фарзанд бо QR ё код месозад.
 class AddChildScreen extends StatefulWidget {
   const AddChildScreen({super.key, required this.controller});
   final FamilyController controller;
 
+  /// Ҳолати AddChildScreen-ро барои илова кардани фарзанд ба оила месозад.
   @override
   State<AddChildScreen> createState() => _AddChildScreenState();
 }
 
-/// Handles the QR scanner, the typed code and the pairing request.
+/// Ҳолат ва рафтори AddChildScreenState-ро барои навсозии интерфейс идора мекунад.
 class _AddChildScreenState extends State<AddChildScreen> {
   final _code = TextEditingController();
   bool _scanning = false;
   bool _busy = false;
   String? _error;
 
+  /// Controller ва listener-ҳои AddChildScreen-ро озод мекунад.
   @override
   void dispose() {
     _code.dispose();
     super.dispose();
   }
 
-  /// QR payloads may be the bare code or a link/JSON that contains it.
+  /// extractCode мантиқи зарурии пайваст кардани телефони фарзанд бо QR ё кодро иҷро мекунад.
   static String extractCode(String raw) {
     final direct = UserJourneyLogic.pairingCode(raw);
     if (direct.isNotEmpty) return direct;
@@ -41,7 +42,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
     return match?.group(0) ?? '';
   }
 
-  /// Extracts the 6-digit code (from a QR or typed text) and pairs the child.
+  /// submit дархости add_child_screen-ро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _submit(String raw) async {
     if (_busy) return;
     final code = extractCode(raw);
@@ -67,6 +68,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
     }
   }
 
+  /// Формаи сохтани профили фарзанд ва рамзи пайвасткуниро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -195,7 +197,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                // The QR button above stays dominant; this one is quiet.
+                // Қадами дохилии пайваст кардани телефони фарзанд бо QR ё код.
                 child: OutlinedButton.icon(
                   key: const Key('add-child.submit'),
                   style: OutlinedButton.styleFrom(
@@ -220,7 +222,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
   }
 }
 
-/// Numbered step card of the pairing instructions.
+/// Додаҳо ва рафтори марбут ба пайваст кардани телефони фарзанд бо QR ё кодро ифода мекунад.
 class _Step extends StatelessWidget {
   const _Step({
     required this.number,
@@ -234,6 +236,7 @@ class _Step extends StatelessWidget {
   final String title;
   final String text;
 
+  /// Widget-и Step-ро барои илова кардани фарзанд ба оила месозад.
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 12),

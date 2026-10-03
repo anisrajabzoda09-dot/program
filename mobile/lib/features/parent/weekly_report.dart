@@ -1,5 +1,4 @@
-// Weekly screen-time report for one child: 7-day bar chart, today vs.
-// average, and the top apps of the selected day.
+// Файл: ҳисоботи ҳафтаинаи истифода ва фаъолият.
 
 import 'package:flutter/material.dart';
 
@@ -11,29 +10,31 @@ import 'family_controller.dart';
 import 'parent_logic.dart';
 import '../../l10n/l10n.dart';
 
-/// «Ҳисобот»: 7-day screen time, today vs average, top apps of a day.
+/// Экрани WeeklyReportScreen-ро барои ҳисоботи ҳафтаинаи истифода ва фаъолият месозад.
 class WeeklyReportScreen extends StatefulWidget {
   const WeeklyReportScreen({super.key, required this.api, required this.child});
   final NigohApi api;
   final FamilyChild child;
 
+  /// Ҳолати WeeklyReportScreen-ро барои ҳисоботи ҳафтаинаи истифода месозад.
   @override
   State<WeeklyReportScreen> createState() => _WeeklyReportScreenState();
 }
 
-/// Loads the 7-day usage history and keeps the selected day.
+/// Ҳолат ва рафтори WeeklyReportScreenState-ро барои навсозии интерфейс идора мекунад.
 class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   List<UsageDay>? _days;
   String? _error;
   int? _selected;
 
+  /// Омори истифодаи ҳафт рӯзи фарзандро аз сервер бор мекунад.
   @override
   void initState() {
     super.initState();
     _load();
   }
 
-  /// Fetches the last 7 days of usage from the server.
+  /// load додаҳои ҳисоботи ҳафтаина-ро мехонад ва ҳолати WeeklyReportScreen-ро нав мекунад.
   Future<void> _load() async {
     setState(() => _error = null);
     try {
@@ -54,6 +55,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
     }
   }
 
+  /// Ҳисоботи ҳафтаинаро аз сервер бор карда, ҳолати натиҷаро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final days = _days;
@@ -108,7 +110,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   }
 }
 
-/// Summary + bar chart + top apps of the selected day.
+/// Widget-и WeeklyReportView-ро барои ҳисоботи ҳафтаинаи истифода ва фаъолият месозад.
 class WeeklyReportView extends StatelessWidget {
   const WeeklyReportView({
     super.key,
@@ -122,9 +124,10 @@ class WeeklyReportView extends StatelessWidget {
   final int selected;
   final ValueChanged<int> onSelect;
 
-  /// package → icon (base64) of the child's apps.
+  /// Қимати icons-ро барои ҳисоботи ҳафтаинаи истифода ва фаъолият нигоҳ медорад.
   final Map<String, String> icons;
 
+  /// Ҷамъбасти ҳафта, диаграммаи рӯзҳо ва барномаҳои серистифодаро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -251,14 +254,14 @@ class WeeklyReportView extends StatelessWidget {
     );
   }
 
-  /// Bar label: "today" for the last day, otherwise weekday and date.
+  /// dayLabel мантиқи зарурии ҳисоботи ҳафтаинаи истифода ва фаъолиятро иҷро мекунад.
   static String _dayLabel(DateTime date, DateTime last) {
     if (date == last) return tr('имрӯз');
     return '${tr(weekdayShort[date.weekday - 1])}, ${two(date.day)}.${two(date.month)}';
   }
 }
 
-/// Plain-widget bar chart; tap a bar to select the day.
+/// Додаҳо ва рафтори марбут ба ҳисоботи ҳафтаинаи истифода ва фаъолиятро ифода мекунад.
 class WeeklyBarChart extends StatelessWidget {
   const WeeklyBarChart({
     super.key,
@@ -273,6 +276,7 @@ class WeeklyBarChart extends StatelessWidget {
   final ValueChanged<int> onSelect;
   final double height;
 
+  /// Widget-и WeeklyBarChart-ро барои ҳисоботи ҳафтаинаи истифода месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -347,7 +351,7 @@ class WeeklyBarChart extends StatelessWidget {
     );
   }
 
-  /// Compact axis label for minutes ("45д", "1.5с").
+  /// short мантиқи зарурии ҳисоботи ҳафтаинаи истифода ва фаъолиятро иҷро мекунад.
   static String _short(int minutes) {
     if (minutes < 60) return tr('{minutes}д', {'minutes': minutes});
     final h = minutes / 60;
@@ -357,7 +361,7 @@ class WeeklyBarChart extends StatelessWidget {
   }
 }
 
-/// Small summary statistic tile (today, average…).
+/// Widget-и SummaryTile-ро барои ҳисоботи ҳафтаинаи истифода ва фаъолият месозад.
 class _SummaryTile extends StatelessWidget {
   const _SummaryTile({
     required this.label,
@@ -371,6 +375,7 @@ class _SummaryTile extends StatelessWidget {
   final Color color;
   final IconData icon;
 
+  /// Widget-и SummaryTile-ро барои ҳисоботи ҳафтаинаи истифода месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -422,13 +427,14 @@ class _SummaryTile extends StatelessWidget {
   }
 }
 
-/// One top app of the day with a proportional usage bar.
+/// Widget-и TopAppRow-ро барои ҳисоботи ҳафтаинаи истифода ва фаъолият месозад.
 class _TopAppRow extends StatelessWidget {
   const _TopAppRow({required this.app, required this.max, this.icon = ''});
   final UsageTopApp app;
   final int max;
   final String icon;
 
+  /// Widget-и TopAppRow-ро барои ҳисоботи ҳафтаинаи истифода месозад.
   @override
   Widget build(BuildContext context) {
     final accent = NigohDesign.accentFor(app.packageName);

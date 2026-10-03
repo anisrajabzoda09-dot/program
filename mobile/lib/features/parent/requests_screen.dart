@@ -1,5 +1,4 @@
-// Parent inbox of children's extra-time requests: approve with a chosen
-// number of minutes or deny, with recent decisions listed below.
+// Файл: баррасии дархостҳои вақти иловагӣ.
 
 import 'package:flutter/material.dart';
 
@@ -10,39 +9,41 @@ import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import '../../l10n/l10n.dart';
 
-/// A time request together with the child who sent it.
+/// Додаҳо ва рафтори марбут ба баррасии дархостҳои вақти иловагӣро ифода мекунад.
 class _Entry {
   const _Entry(this.child, this.request);
   final FamilyChild child;
   final TimeRequest request;
 }
 
-/// Inbox of extra-time requests from all children: pending first (approve
-/// with 15/30/60 or the requested minutes, or deny), recent decisions below.
+/// Экрани TimeRequestsScreen-ро барои баррасии дархостҳои вақти иловагӣ месозад.
 class TimeRequestsScreen extends StatefulWidget {
   const TimeRequestsScreen({super.key, required this.controller});
   final FamilyController controller;
 
+  /// Ҳолати TimeRequestsScreen-ро барои дархостҳои вақти иловагӣ месозад.
   @override
   State<TimeRequestsScreen> createState() => _TimeRequestsScreenState();
 }
 
-/// Loads all children's requests and sends the parent's decisions.
+/// Ҳолат ва рафтори TimeRequestsScreenState-ро барои навсозии интерфейс идора мекунад.
 class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
   List<_Entry>? _entries;
   String? _error;
   bool _loading = false;
   final Set<int> _busy = {};
 
+  /// Қимати ҳисобшудаи controller-ро аз ҳолати ҷорӣ бармегардонад.
   FamilyController get controller => widget.controller;
 
+  /// Дархостҳои вақти интизор ва ҳалшударо аз сервер бор мекунад.
   @override
   void initState() {
     super.initState();
     _load();
   }
 
-  /// Loads the time requests of every paired child.
+  /// load додаҳои дархостҳои вақти иловагӣ-ро мехонад ва ҳолати TimeRequestsScreen-ро нав мекунад.
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -73,7 +74,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     }
   }
 
-  /// Lets the parent pick the minutes to grant, then approves the request.
+  /// approve мантиқи зарурии баррасии дархостҳои вақти иловагӣро иҷро мекунад.
   Future<void> _approve(_Entry entry) async {
     final minutes = await showModalBottomSheet<int>(
       context: context,
@@ -84,7 +85,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     await _decide(entry, approve: true, minutes: minutes);
   }
 
-  /// Sends an approve/deny decision and reloads the list.
+  /// decide дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _decide(
     _Entry entry, {
     required bool approve,
@@ -116,6 +117,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
     }
   }
 
+  /// Дархостҳои интизор ва ҳалшудаи вақти иловагиро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final entries = _entries;
@@ -232,7 +234,7 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
   }
 }
 
-/// Card of one pending request with approve and deny buttons.
+/// Widget-и RequestCard-ро барои баррасии дархостҳои вақти иловагӣ месозад.
 class _RequestCard extends StatelessWidget {
   const _RequestCard({
     required this.entry,
@@ -246,6 +248,7 @@ class _RequestCard extends StatelessWidget {
   final VoidCallback onApprove;
   final VoidCallback onDeny;
 
+  /// Widget-и RequestCard-ро барои дархостҳои вақти иловагӣ месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -362,11 +365,12 @@ class _RequestCard extends StatelessWidget {
   }
 }
 
-/// Sheet for choosing how many minutes to grant (requested, 15, 30, 60).
+/// Равзанаи ApproveSheet-ро барои баррасии дархостҳои вақти иловагӣ нишон медиҳад.
 class _ApproveSheet extends StatelessWidget {
   const _ApproveSheet({required this.entry});
   final _Entry entry;
 
+  /// Widget-и ApproveSheet-ро барои дархостҳои вақти иловагӣ месозад.
   @override
   Widget build(BuildContext context) {
     final requested = entry.request.minutes;
@@ -420,11 +424,12 @@ class _ApproveSheet extends StatelessWidget {
   }
 }
 
-/// Row of an already decided request with its result.
+/// Widget-и DecidedTile-ро барои баррасии дархостҳои вақти иловагӣ месозад.
 class _DecidedTile extends StatelessWidget {
   const _DecidedTile({required this.entry});
   final _Entry entry;
 
+  /// Widget-и DecidedTile-ро барои дархостҳои вақти иловагӣ месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

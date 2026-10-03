@@ -1,5 +1,4 @@
-// Parent bottom sheets for safe places: adding one (name, radius, position),
-// listing/deleting them, and the 24-hour location timeline.
+// Файл: эҷод ва таҳрири ҷойҳои бехатар.
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -11,8 +10,7 @@ import 'family_controller.dart';
 import 'parent_logic.dart';
 import '../../l10n/l10n.dart';
 
-/// New safe place: name, radius 50–1000 m, position from the map tap or the
-/// child's current location. Closes with `true` once saved.
+/// Равзанаи AddPlaceSheet-ро барои эҷод ва таҳрири ҷойҳои бехатар нишон медиҳад.
 class AddPlaceSheet extends StatefulWidget {
   const AddPlaceSheet({
     super.key,
@@ -25,30 +23,33 @@ class AddPlaceSheet extends StatefulWidget {
   final FamilyController controller;
   final FamilyChild child;
 
-  /// Point long-pressed on the map, if any.
+  /// Қимати tapped-ро барои эҷод ва таҳрири ҷойҳои бехатар нигоҳ медорад.
   final LatLng? tapped;
   final LatLng? childPosition;
 
+  /// Ҳолати AddPlaceSheet-ро барои ҷойҳои бехатар ва таърихи ҳаракат месозад.
   @override
   State<AddPlaceSheet> createState() => _AddPlaceSheetState();
 }
 
-/// Holds the place name, radius and position choice being edited.
+/// Ҳолат ва рафтори AddPlaceSheetState-ро барои навсозии интерфейс идора мекунад.
 class _AddPlaceSheetState extends State<AddPlaceSheet> {
   final _name = TextEditingController();
   double _radius = 150;
   late bool _useChild = widget.tapped == null;
   bool _saving = false;
 
+  /// Controller ва listener-ҳои AddPlaceSheet-ро озод мекунад.
   @override
   void dispose() {
     _name.dispose();
     super.dispose();
   }
 
+  /// Қимати ҳисобшудаи position-ро аз ҳолати ҷорӣ бармегардонад.
   LatLng? get _position => _useChild ? widget.childPosition : widget.tapped;
 
-  /// Saves the new safe place and closes the sheet.
+  /// save тағйироти ҷойҳои бехатар-ро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> _save() async {
     final position = _position;
     final name = _name.text.trim();
@@ -72,12 +73,12 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
     }
   }
 
+  /// Формаи ном, радиус ва координатаҳои ҷойи бехатарро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final position = _position;
-    // Scrolls: the name field is autofocused, so the keyboard is up from the
-    // start and a small phone has no room for the whole form.
+    // Қадами дохилии эҷод ва таҳрири ҷойҳои бехатар.
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
@@ -213,7 +214,7 @@ class _AddPlaceSheetState extends State<AddPlaceSheet> {
   }
 }
 
-/// List of a child's safe places with delete.
+/// Равзанаи PlacesSheet-ро барои эҷод ва таҳрири ҷойҳои бехатар нишон медиҳад.
 class PlacesSheet extends StatefulWidget {
   const PlacesSheet({
     super.key,
@@ -228,13 +229,14 @@ class PlacesSheet extends StatefulWidget {
   final VoidCallback onAdd;
   final ValueChanged<SafePlace> onShow;
 
+  /// Ҳолати PlacesSheet-ро барои ҷойҳои бехатар ва таърихи ҳаракат месозад.
   @override
   State<PlacesSheet> createState() => _PlacesSheetState();
 }
 
-/// Deletes places after confirmation.
+/// Ҳолат ва рафтори PlacesSheetState-ро барои навсозии интерфейс идора мекунад.
 class _PlacesSheetState extends State<PlacesSheet> {
-  /// Asks for confirmation and deletes [place].
+  /// delete маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> _delete(SafePlace place) async {
     final ok = await showDialog<bool>(
       context: context,
@@ -261,6 +263,7 @@ class _PlacesSheetState extends State<PlacesSheet> {
     }
   }
 
+  /// Рӯйхати ҷойҳои бехатарро бо амалҳои таҳрир ва несткунӣ нишон медиҳад.
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.controller,
@@ -358,7 +361,7 @@ class _PlacesSheetState extends State<PlacesSheet> {
   );
 }
 
-/// One safe place row with its distance from the child and delete button.
+/// Widget-и PlaceTile-ро барои эҷод ва таҳрири ҷойҳои бехатар месозад.
 class _PlaceTile extends StatelessWidget {
   const _PlaceTile({
     required this.place,
@@ -372,6 +375,7 @@ class _PlaceTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
+  /// Widget-и PlaceTile-ро барои ҷойҳои бехатар ва таърихи ҳаракат месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -423,7 +427,7 @@ class _PlaceTile extends StatelessWidget {
   }
 }
 
-/// Timeline of the 24 h location points, newest first.
+/// Равзанаи HistoryTimelineSheet-ро барои эҷод ва таҳрири ҷойҳои бехатар нишон медиҳад.
 class HistoryTimelineSheet extends StatelessWidget {
   const HistoryTimelineSheet({
     super.key,
@@ -434,6 +438,7 @@ class HistoryTimelineSheet extends StatelessWidget {
   final List<HistoryPoint> points;
   final ValueChanged<HistoryPoint> onSelect;
 
+  /// Widget-и HistoryTimelineSheet-ро барои ҷойҳои бехатар ва таърихи ҳаракат месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
