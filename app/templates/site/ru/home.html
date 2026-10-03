@@ -4,13 +4,15 @@
 
 {% block description %}NIGOH Family — бесплатное приложение родительского контроля для Android. Смотрите, где находится ребёнок, блокируйте приложения, ограничивайте экранное время и общайтесь с ребёнком в семейном чате.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 
 <section class="hero">
   <div class="wrap split">
     <div>
       <span class="eyebrow">Родительский контроль для Android</span>
-      <h1>Телефон ребёнка. Правила семьи.</h1>
+      <h1>Телефон ребёнка. <span class="hero-key-phrase">Правила семьи.</span></h1>
       <p class="lead">NIGOH Family показывает родителям, где находится ребёнок и в каких приложениях он проводит время. Вы устанавливаете лимиты, блокируете приложения и остаётесь на связи с ребёнком.</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="/download/android">

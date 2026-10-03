@@ -1,0 +1,24 @@
+/* Page-specific presentation and interaction styles for the core marketing pages. */
+
+/* Give the home hero's key phrase a calm, brand-colored shimmer. */
+.hero-key-phrase {
+  color: var(--blue);
+  background: linear-gradient(100deg, var(--blue), var(--teal), var(--blue));
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pages-key-phrase 7s ease-in-out infinite;
+}
+
+@keyframes pages-key-phrase {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-key-phrase {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}

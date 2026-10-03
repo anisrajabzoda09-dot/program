@@ -4,13 +4,15 @@
 
 {% block description %}NIGOH Family — барномаи ройгони назорати волидайн барои Android. Ҷойгиршавии фарзандро дар харита бинед, барномаҳоро манъ кунед, вақти экранро маҳдуд намоед ва бо фарзанд дар чати оилавӣ сӯҳбат кунед.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 
 <section class="hero">
   <div class="wrap split">
     <div>
       <span class="eyebrow">Назорати волидайн барои Android</span>
-      <h1>Телефони фарзанд. Қоидаҳои оила.</h1>
+      <h1>Телефони фарзанд. <span class="hero-key-phrase">Қоидаҳои оила.</span></h1>
       <p class="lead">NIGOH Family ба волидайн нишон медиҳад, ки фарзанд дар куҷост ва бо кадом барномаҳо вақт мегузаронад. Шумо лимит мегузоред, барномаҳоро манъ мекунед ва бо фарзанд дар тамос мемонед.</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="/download/android">
