@@ -1,11 +1,5 @@
-/* NIGOH Family motion controller: dependency-free progressive enhancement.
-   Effects: page/theme cross-fades; hero stagger, phone float/glow and pointer tilt;
-   section/footer reveals; compact header, progress bar and back-to-top visibility;
-   mobile-menu entrance; nav/footer underlines; logo/card/icon/button responses;
-   primary-CTA shine/gradient glow; and FAQ open/close easing.
-   Reduced motion: JS does not opt into reveals or tilt, uses instant theme and FAQ
-   changes, while CSS media rules stop every transition, transform and animation;
-   content remains visible and anchor scrolling becomes instant. */
+/* Файл: идоракунии ҳаракатҳои ороишии сайт бе вобастагии беруна.
+   Гузариши мавзӯъ, пайдоиши бахшҳо, scroll, parallax ва FAQ-ро бо дастгирии reduced motion идора мекунад. */
 (function () {
   'use strict';
 
@@ -15,7 +9,7 @@
   var reduced = reduceQuery.matches;
   var revealItems = [];
 
-  /* External links: isolate any cross-origin destination supplied by page blocks. */
+  /* Пайвандҳои берунаро бо `noopener` ва `noreferrer` аз саҳифа ҷудо мекунад. */
   function secureExternalLinks() {
     document.querySelectorAll('a[href]').forEach(function (link) {
       var target = new URL(link.href, location.href);
@@ -27,7 +21,7 @@
   }
   secureExternalLinks();
 
-  /* Language links: carry the current in-page destination across translations. */
+  /* Fragment-и ҷориро ҳангоми гузариш байни забонҳо нигоҳ медорад. */
   function syncLanguageHashes() {
     document.querySelectorAll('.lang-switch a').forEach(function (link) {
       var target = new URL(link.href, location.href);
@@ -38,17 +32,18 @@
   syncLanguageHashes();
   addEventListener('hashchange', syncLanguageHashes);
 
-  /* Shared helper: reveal safely, including the observer fallback path. */
+  /* Унсурро намоён мекунад, аз ҷумла дар роҳи эҳтиётии observer. */
   function reveal(element) {
     element.classList.add('is-visible');
   }
 
-  /* Theme switch: persist the choice and reveal from the control when supported. */
+  /* Интихоби мавзӯъро нигоҳ дошта, гузаришро аз ҷойи тугма оғоз мекунад. */
   var themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.checked = root.getAttribute('data-theme') === 'dark';
     themeToggle.addEventListener('change', function () {
       var theme = themeToggle.checked ? 'dark' : 'light';
+      /* Мавзӯъро ба саҳифа татбиқ карда, интихобро дар localStorage менависад. */
       var applyTheme = function () {
         root.setAttribute('data-theme', theme);
         try { localStorage.setItem('nigoh-theme', theme); } catch (error) {}
@@ -79,7 +74,7 @@
     });
   }
 
-  /* Theme preference: report whether the visitor has made an explicit choice. */
+  /* Месанҷад, ки корбар мавзӯъро пештар ошкоро интихоб кардааст ё не. */
   function hasStoredTheme() {
     try {
       var stored = localStorage.getItem('nigoh-theme');
@@ -89,7 +84,7 @@
     }
   }
 
-  /* Theme preference: mirror live OS changes until the visitor chooses a theme. */
+  /* То интихоби корбар тағйироти зиндаи мавзӯи системаро татбиқ мекунад. */
   function followSystemTheme(event) {
     if (hasStoredTheme()) return;
     var theme = event.matches ? 'dark' : 'light';
@@ -102,7 +97,7 @@
     colorQuery.addListener(followSystemTheme);
   }
 
-  /* Header and progress bar: one passive scroll listener, one rAF write. */
+  /* Header, сатри пешрафти scroll ва тугмаи бозгашт ба болоро омода мекунад. */
   var header = document.querySelector('.site-header');
   var backToTop = document.querySelector('.back-to-top');
   var progress = document.createElement('span');
@@ -110,6 +105,7 @@
   progress.setAttribute('aria-hidden', 'true');
   if (header) header.appendChild(progress);
   var scrollQueued = false;
+  /* Ҳолати header ва сатри пешрафтро аз мавқеи ҷории scroll нав мекунад. */
   function paintScroll() {
     var y = window.scrollY || document.documentElement.scrollTop;
     var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
@@ -118,6 +114,7 @@
     progress.style.transform = 'scaleX(' + Math.min(1, y / max) + ')';
     scrollQueued = false;
   }
+  /* Навсозии scroll-ро то кадри навбатии animation маҳдуд мекунад. */
   function queueScroll() {
     if (!scrollQueued) {
       scrollQueued = true;
@@ -128,10 +125,10 @@
   addEventListener('resize', queueScroll, { passive: true });
   queueScroll();
 
-  /* Motion opt-in: content remains visible unless this class and item classes exist. */
+  /* Танҳо ҳангоми иҷозаи ҳаракат class-и motion-ро фаъол мекунад. */
   if (!reduced) root.classList.add('js-motion');
 
-  /* Hero entrance: mark existing semantic pieces without changing their content. */
+  /* Қисмҳои hero-ро барои пайдоиши пайдарпай бе тағйири муҳтаво омода мекунад. */
   var hero = document.querySelector('main .hero');
   var heroVisual = hero && hero.querySelector('.hero-visual');
   if (!reduced && hero) {
@@ -153,12 +150,13 @@
     });
   }
 
-  /* Pointer parallax: fine pointers only, eased through compositor transforms. */
+  /* Барои pointer-и дақиқ parallax-и телефонро бо transform идора мекунад. */
   if (!reduced && heroVisual && matchMedia('(hover: hover) and (pointer: fine)').matches) {
     var visualBox;
     var pointerQueued = false;
     var tiltX = 0;
     var tiltY = 0;
+    /* Кунҷи ҳисобшудаи pointer-ро ба намуди hero татбиқ мекунад. */
     function paintPointer() {
       heroVisual.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
       heroVisual.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
@@ -187,7 +185,7 @@
     }, { passive: true });
   }
 
-  /* Scroll reveals: discover natural page children and reveal each exactly once. */
+  /* Унсурҳои бахшҳоро ёфта, ҳангоми scroll ҳар кадомро як бор нишон медиҳад. */
   if (!reduced) {
     var selector = [
       '.page-hero .wrap > *', '.section-head > *',
@@ -229,9 +227,8 @@
     }
   }
 
-  /* FAQ accordion: smooth height + fade when a question opens or closes.
-     Reduced motion is checked on every click (not only at load), so turning it
-     on while the page is open falls back to the native instant toggle. */
+  /* Кушодану бастани FAQ-ро бо тағйири нарми баландӣ иҷро мекунад.
+     Ҳангоми reduced motion гузариш фавран ва бо рафтори аслии браузер анҷом меёбад. */
   if (Element.prototype.animate) {
     document.querySelectorAll('.faq details').forEach(function (details) {
       var summary = details.querySelector('summary');
@@ -239,7 +236,7 @@
       if (!summary || !answer) return;
       var running = null;
       summary.addEventListener('click', function (event) {
-        if (reduceQuery.matches) return; // native toggle, no animation
+        if (reduceQuery.matches) return; // Гузариши аслиро бе animation истифода мебарад.
         event.preventDefault();
         if (running) running.cancel();
         var opening = !details.open;
@@ -262,6 +259,6 @@
     });
   }
 
-  /* Safety release: no content may remain hidden if loading or observation stalls. */
+  /* Агар боршавӣ ё observer дер кунад, ҳама муҳтавои пинҳонро маҷбуран нишон медиҳад. */
   setTimeout(function () { revealItems.forEach(reveal); }, 1500);
 }());
