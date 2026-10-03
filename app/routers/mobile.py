@@ -296,7 +296,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.18.0: воридшавӣ бо Apple (вақте ки дар сервер фаъол шавад), тозакунии барнома ва шарҳҳо дар код.",
+        "release_notes": "v2.19.0: воридшавӣ бо GitHub, корти «App info» дар устоди иҷозатҳо ва шарҳи код бо забони тоҷикӣ.",
         "download_url": download_url
     }
 
