@@ -1,0 +1,31 @@
+/* FAQ page controls and progressively enhanced question filtering. */
+.faq-tools {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+
+.faq-tools label {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.faq-tools input[type="search"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.faq-tools input[type="search"]::placeholder {
+  color: var(--muted);
+}
+
+.faq details[hidden],
+.faq-section-hidden {
+  display: none;
+}

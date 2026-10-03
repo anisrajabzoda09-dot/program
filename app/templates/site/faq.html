@@ -32,6 +32,7 @@
   ]
 }
 </script>
+<link rel="stylesheet" href="/static/css/faq.css?v={{ app_version }}">
 {% endblock %}
 
 {% block content %}
@@ -45,6 +46,11 @@
 
 <section class="section">
   <div class="wrap" style="max-width:860px">
+
+    <form class="faq-tools" role="search" data-faq-search>
+      <label for="faq-search">Ҷустуҷӯ дар саволу ҷавоб</label>
+      <input id="faq-search" type="search" placeholder="Савол ё калима нависед…" autocomplete="off">
+    </form>
 
     <h2>Умумӣ</h2>
     <div class="faq" style="margin-top:24px">
@@ -180,4 +186,8 @@
 
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/faq.js?v={{ app_version }}" defer></script>
 {% endblock %}
