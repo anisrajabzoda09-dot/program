@@ -50,6 +50,7 @@
 
   /* Header and progress bar: one passive scroll listener, one rAF write. */
   var header = document.querySelector('.site-header');
+  var backToTop = document.querySelector('.back-to-top');
   var progress = document.createElement('span');
   progress.className = 'scroll-progress';
   progress.setAttribute('aria-hidden', 'true');
@@ -59,6 +60,7 @@
     var y = window.scrollY || document.documentElement.scrollTop;
     var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     if (header) header.classList.toggle('is-scrolled', y > 8);
+    if (backToTop) backToTop.classList.toggle('is-visible', y > innerHeight);
     progress.style.transform = 'scaleX(' + Math.min(1, y / max) + ')';
     scrollQueued = false;
   }
