@@ -176,7 +176,37 @@ class _SettingsScreenState extends State<SettingsScreen>
     await session.signOut();
   }
 
+  /// «Нест кардани барнома»: NIGOH is a transparent app, so the child may
+  /// remove it — but only the parent's PIN opens Android's uninstall screen.
   Future<void> requestUninstall() async {
+    if (hasPin == false) {
+      final setNow = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          icon: const Icon(Icons.pin_outlined),
+          title: Text(tr('PIN-и волидайн гузошта нашудааст')),
+          content: Text(
+            tr(
+              'Нест кардани NIGOH танҳо бо PIN-и волидайн мумкин аст. '
+              'Аввал волидайн PIN гузорад.',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(tr('Бекор')),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(tr('Гузоштани PIN')),
+            ),
+          ],
+        ),
+      );
+      if (setNow == true && mounted) await editPin();
+      return;
+    }
     final ok = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -210,7 +240,21 @@ class _SettingsScreenState extends State<SettingsScreen>
               onEdit: () => editName(session),
             ),
           ),
-          SectionTitle(tr('Амният')),
+          const SizedBox(height: 12),
+          ScreenHint(
+            child
+                ? tr(
+                    'Ин телефон бо волидайн пайваст аст. Дар ин ҷо PIN, забон ва намуди барномаро тағйир диҳед.',
+                  )
+                : tr(
+                    'Дар ин ҷо PIN-и волидайн, иҷозатҳо, забон ва намуди барномаро танзим кунед.',
+                  ),
+            icon: Icons.info_outline_rounded,
+          ),
+          SectionTitle(
+            tr('Амният'),
+            subtitle: tr('PIN-и волидайн ва иҷозатҳои Android.'),
+          ),
           FadeIn(
             index: i++,
             child: _Group(
@@ -224,8 +268,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                       (hasPin == null
                           ? tr('Санҷида мешавад…')
                           : hasPin!
-                          ? tr('Фаъол аст')
-                          : tr('Гузошта нашудааст')),
+                          ? tr('Фаъол аст — амалҳои муҳим PIN мепурсанд')
+                          : tr('Гузошта нашудааст — ҳоло ҳимоя нест')),
                   subtitleColor: pinError != null ? scheme.error : null,
                   trailing: Text(
                     hasPin == true ? tr('Иваз кардан') : tr('Гузоштан'),
@@ -242,39 +286,27 @@ class _SettingsScreenState extends State<SettingsScreen>
                     key: const ValueKey('settings-wizard'),
                     icon: Icons.verified_user_outlined,
                     color: NigohDesign.mint,
-                    title: tr('Иҷозатҳо (устод)'),
+                    title: tr('Иҷозатҳои Android'),
                     subtitle: child
                         ? tr('Ҷойгиршавӣ, истифода ва бастани барномаҳо')
                         : tr('Огоҳиномаҳо, камера, микрофон ва батарея'),
+                    trailing: Text(
+                      tr('Санҷидан'),
+                      style: TextStyle(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     onTap: () async {
                       await PermissionsWizard.open(context, childMode: child);
                       if (mounted) await loadNotifyStatus();
                     },
                   ),
                 ],
-                if (child && !desktop) ...[
-                  const Divider(height: 1),
-                  _Tile(
-                    icon: Icons.shield_outlined,
-                    color: NigohDesign.amber,
-                    title: tr('Муҳофизат аз несткунӣ'),
-                    subtitle: tr(
-                      'NIGOH-ро танҳо бо PIN-и волидайн нест кардан мумкин аст.',
-                    ),
-                    trailing: Text(
-                      tr('Нест кардан'),
-                      style: TextStyle(
-                        color: scheme.error,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    onTap: requestUninstall,
-                  ),
-                ],
               ],
             ),
           ),
-          SectionTitle(tr('Намуд')),
+          SectionTitle(tr('Намуд'), subtitle: tr('Ранг ва забони барнома.')),
           FadeIn(
             index: i++,
             child: _Group(
@@ -288,13 +320,27 @@ class _SettingsScreenState extends State<SettingsScreen>
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                tr('Режими торик'),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tr('Режими торик'),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    tr('Шабона ба чашм осонтар.'),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            const SizedBox(width: 12),
                             DayNightSwitch(
                               key: const ValueKey('settings-day-night'),
                               value:
@@ -349,14 +395,26 @@ class _SettingsScreenState extends State<SettingsScreen>
                   key: const ValueKey('settings-language'),
                   icon: Icons.language_rounded,
                   color: NigohDesign.sky,
-                  title: tr('Забон'),
-                  subtitle: AppLanguage.names[appLanguage.value],
+                  title: tr('Забони барнома'),
+                  subtitle: tr('Ҳоло: {language}', {
+                    'language': AppLanguage.names[appLanguage.value],
+                  }),
+                  trailing: Text(
+                    tr('Иваз кардан'),
+                    style: TextStyle(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   onTap: () => showLanguageSheet(context),
                 ),
               ],
             ),
           ),
-          SectionTitle(tr('Барнома')),
+          SectionTitle(
+            tr('Барнома'),
+            subtitle: tr('Версия, навсозӣ ва огоҳиномаҳо.'),
+          ),
           FadeIn(
             index: i++,
             child: _Group(
@@ -438,11 +496,50 @@ class _SettingsScreenState extends State<SettingsScreen>
               ],
             ),
           ),
+          // NIGOH is transparent: the child sees the app and may remove it —
+          // with the parent's PIN. Own section so it is impossible to miss.
+          if (child && !desktop) ...[
+            SectionTitle(
+              tr('Нест кардани барнома'),
+              subtitle: tr(
+                'NIGOH пинҳон нест. Барномаро нест кардан мумкин аст, вале PIN-и волидайн лозим аст.',
+              ),
+            ),
+            FadeIn(
+              index: i++,
+              child: _Group(
+                children: [
+                  _Tile(
+                    key: const ValueKey('settings-uninstall'),
+                    icon: Icons.delete_outline_rounded,
+                    color: NigohDesign.coral,
+                    title: tr('Нест кардани барнома'),
+                    subtitle: hasPin == false
+                        ? tr('Аввал волидайн PIN гузорад.')
+                        : tr(
+                            'PIN-и волидайнро мепурсад, баъд Android экрани несткуниро мекушояд.',
+                          ),
+                    trailing: Text(
+                      tr('Нест кардан'),
+                      style: TextStyle(
+                        color: scheme.error,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    onTap: requestUninstall,
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           FadeIn(
             index: i++,
             child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: scheme.error),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: scheme.error,
+                minimumSize: const Size.fromHeight(48),
+              ),
               onPressed: () => signOut(session),
               icon: const Icon(Icons.logout_rounded),
               label: Text(tr('Баромадан аз аккаунт')),
@@ -595,9 +692,24 @@ class _Tile extends StatelessWidget {
       child: Icon(icon, color: color, size: 21),
     ),
     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+    // Statuses change while the screen is open (PIN, notifications, updates):
+    // fade between them instead of swapping the text hard.
     subtitle: subtitle == null
         ? null
-        : Text(subtitle!, style: TextStyle(color: subtitleColor)),
+        : AnimatedSwitcher(
+            duration: reducedMotion(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            layoutBuilder: (current, previous) => Stack(
+              alignment: AlignmentDirectional.centerStart,
+              children: [...previous, ?current],
+            ),
+            child: Text(
+              subtitle!,
+              key: ValueKey(subtitle),
+              style: TextStyle(color: subtitleColor),
+            ),
+          ),
     trailing:
         trailing ??
         (onTap != null ? const Icon(Icons.chevron_right_rounded) : null),
@@ -650,7 +762,10 @@ class _NameDialogState extends State<_NameDialog> {
   );
 }
 
-/// Legacy uninstall flow: the parent PIN unlocks Android's uninstall screen.
+/// «Нест кардани барнома»: the PIN is checked first (`verifyLocalPin`), and
+/// only a correct one reaches `requestUninstallWithPin`, which drops the device
+/// admin and opens Android's own uninstall screen. A wrong PIN just shows the
+/// error — nothing is removed.
 class _UninstallDialog extends StatefulWidget {
   const _UninstallDialog();
 
@@ -679,6 +794,14 @@ class _UninstallDialogState extends State<_UninstallDialog> {
       error = null;
     });
     try {
+      // Check first, so a wrong PIN never reaches the uninstall call.
+      final correct = await ParentPin.verify(value);
+      if (!mounted) return;
+      if (!correct) {
+        return setState(
+          () => error = tr('PIN нодуруст аст. Барнома нест карда нашуд.'),
+        );
+      }
       final result = await ParentPin.channel.invokeMapMethod<String, dynamic>(
         'requestUninstallWithPin',
         {'pin': value},
@@ -694,7 +817,7 @@ class _UninstallDialogState extends State<_UninstallDialog> {
               )
             : code == 'no_pin'
             ? tr('Аввал PIN-и волидайнро гузоред.')
-            : tr('PIN нодуруст аст.');
+            : tr('PIN нодуруст аст. Барнома нест карда нашуд.');
       });
     } on PlatformException catch (e) {
       if (mounted) setState(() => error = e.message ?? tr('Амал иҷро нашуд.'));
@@ -705,15 +828,22 @@ class _UninstallDialogState extends State<_UninstallDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    icon: const Icon(Icons.shield_outlined),
-    title: Text(tr('Тасдиқи волидайн')),
+    icon: const Icon(Icons.delete_outline_rounded, color: NigohDesign.coral),
+    title: Text(tr('Нест кардани барнома')),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(tr('Барои нест кардани NIGOH PIN-и волидайнро ворид кунед.')),
+        Text(
+          tr(
+            'Нест кардани NIGOH танҳо бо PIN-и волидайн мумкин аст. '
+            'PIN-ро ворид кунед — баъд Android экрани несткуниро мекушояд.',
+          ),
+          style: const TextStyle(height: 1.4),
+        ),
         const SizedBox(height: 14),
         TextField(
+          key: const Key('uninstall-pin'),
           controller: pin,
           autofocus: true,
           obscureText: true,
@@ -735,10 +865,25 @@ class _UninstallDialogState extends State<_UninstallDialog> {
         onPressed: busy ? null : () => Navigator.pop(context, false),
         child: Text(tr('Бекор')),
       ),
-      FilledButton(
-        style: FilledButton.styleFrom(minimumSize: const Size(110, 44)),
+      FilledButton.icon(
+        key: const Key('uninstall-confirm'),
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(140, 46),
+          backgroundColor: NigohDesign.coral,
+          foregroundColor: Colors.white,
+        ),
         onPressed: busy ? null : submit,
-        child: Text(tr('Тасдиқ')),
+        icon: busy
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Icon(Icons.delete_outline_rounded),
+        label: Text(tr('Нест кардан')),
       ),
     ],
   );
