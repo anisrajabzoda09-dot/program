@@ -32,6 +32,22 @@
 @keyframes pages-clock-tick { 50% { transform: rotate(9deg); } }
 @keyframes pages-chat-nod { 40% { transform: rotate(-5deg); } 70% { transform: rotate(3deg); } }
 
+/* Paint a pointer-following glow without intercepting card interactions. */
+@media (hover: hover) and (pointer: fine) {
+  .hero + .section .card-link.has-spotlight { position: relative; overflow: hidden; }
+  .hero + .section .card-link.has-spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(220px circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--blue-soft), transparent 72%);
+    transition: opacity .2s ease;
+  }
+  .hero + .section .card-link.has-spotlight:hover::after { opacity: .72; }
+  .hero + .section .card-link.has-spotlight > * { position: relative; z-index: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-key-phrase {
     animation: none;
