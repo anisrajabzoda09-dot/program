@@ -1,4 +1,6 @@
 /* FAQ page search and interaction enhancements. */
+/* Features: live filtering, counts, highlights, shortcuts, bulk toggles, and shareable URLs. */
+/* Questions also support stable fragments, copyable links, linked-card flashes, and live announcements. */
 
 // Normalizes FAQ text so searching is case-insensitive.
 function normalizeFaqText(value) {
@@ -153,9 +155,13 @@ function initFaqSearch() {
   if (window.location.hash) requestAnimationFrame(openFaqHash);
   window.addEventListener('hashchange', openFaqHash);
 
+  // Keeps the search form on the current page when Enter is pressed.
   form.addEventListener('submit', (event) => event.preventDefault());
+  // Opens only the currently visible search results.
   expand?.addEventListener('click', () => questions.filter((question) => !question.hidden).forEach((question) => { question.open = true; }));
+  // Closes every question, including filtered questions.
   collapse?.addEventListener('click', () => questions.forEach((question) => { question.open = false; }));
+  // Implements the slash-to-focus and Escape-to-clear keyboard shortcuts.
   document.addEventListener('keydown', (event) => {
     const isTyping = event.target.matches('input, textarea, select, [contenteditable="true"]');
     if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
@@ -168,6 +174,7 @@ function initFaqSearch() {
       input.focus();
     }
   });
+  // Applies filtering, counting, highlighting, announcements, and URL query syncing.
   input.addEventListener('input', () => {
     const query = normalizeFaqText(input.value);
 
@@ -193,6 +200,7 @@ function initFaqSearch() {
     syncFaqQuery(input.value);
   });
 
+  // Restores a shared filter from the q query parameter on first load.
   const initialQuery = new URL(window.location.href).searchParams.get('q');
   if (initialQuery) {
     input.value = initialQuery;

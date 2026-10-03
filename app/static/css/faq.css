@@ -1,10 +1,12 @@
 /* FAQ page controls and progressively enhanced question filtering. */
+/* Search layout, localized count, and the slash-key hint. */
 .faq-tools {
   display: grid;
   gap: 8px;
   margin-bottom: 40px;
 }
 
+/* Popular-question chips remain working fragment links without JavaScript. */
 .faq-popular {
   display: flex;
   flex-wrap: wrap;
@@ -37,6 +39,7 @@
   color: var(--blue);
 }
 
+/* Strong focus rings cover every interactive FAQ control. */
 .faq-tools input:focus-visible,
 .faq-actions button:focus-visible,
 .faq-popular a:focus-visible,
@@ -87,6 +90,7 @@
   text-align: end;
 }
 
+/* Expand and collapse actions wrap safely on narrow screens. */
 .faq-actions {
   display: flex;
   flex-wrap: wrap;
@@ -121,11 +125,13 @@
   color: var(--muted);
 }
 
+/* Filtering hides only non-matches and empty section headings. */
 .faq details[hidden],
 .faq-section-hidden {
   display: none;
 }
 
+/* No-results guidance replaces the empty question area. */
 .faq-empty {
   margin: 0 0 40px;
   padding: 18px;
@@ -134,6 +140,7 @@
   color: var(--ink-2);
 }
 
+/* Result announcements stay available to assistive technology. */
 .faq-sr-only {
   position: absolute;
   width: 1px;
@@ -146,6 +153,7 @@
   border: 0;
 }
 
+/* Search matches use semantic marks with theme-token contrast. */
 .faq mark {
   padding: 0 .08em;
   border-radius: 3px;
@@ -153,6 +161,7 @@
   color: var(--ink);
 }
 
+/* Question cards expose hover and open states without changing semantics. */
 .faq details {
   position: relative;
   padding: 0 16px;
@@ -186,6 +195,7 @@
   padding-right: 154px;
 }
 
+/* Per-question copy controls sit beside summaries and flow below on phones. */
 .faq-copy {
   position: absolute;
   z-index: 1;
@@ -212,6 +222,7 @@
   .faq-copy { position: static; margin: -10px 0 8px; }
 }
 
+/* Direct links briefly identify their destination question. */
 .faq details.faq-link-target {
   animation: faq-link-flash 1.4s ease-out;
 }
@@ -221,6 +232,7 @@
   100% { background: transparent; }
 }
 
+/* Reduced motion removes flashes, transitions, and chevron transforms. */
 @media (prefers-reduced-motion: reduce) {
   .faq details,
   .faq details.faq-link-target,
@@ -235,6 +247,7 @@
   }
 }
 
+/* Dark-theme overrides refine native controls, cards, chips, and marks. */
 :root[data-theme="dark"] .faq-tools input[type="search"] {
   color-scheme: dark;
   background: var(--soft);
