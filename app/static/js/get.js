@@ -10,23 +10,44 @@
     return 'desktop';
   }
 
+  /* Copy text through a temporary field for browsers without Clipboard API support. */
+  function copyTextLegacy(value) {
+    var field = document.createElement('textarea');
+    field.value = value;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    field.select();
+    var copied = document.execCommand('copy');
+    field.remove();
+    return copied;
+  }
+
+  /* Copy any page value with one Clipboard API helper and an execCommand fallback. */
+  function copyText(value) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(value).catch(function () { return copyTextLegacy(value); });
+    }
+    return Promise.resolve(copyTextLegacy(value));
+  }
+
+  /* Replace a copy button label briefly with its localized success message. */
+  function confirmCopy(button) {
+    var original = button.textContent;
+    button.textContent = button.dataset.copySuccess;
+    window.setTimeout(function () { button.textContent = original; }, 1800);
+  }
+
   /* Copy a certificate fingerprint and briefly confirm success on its button. */
   function copyCertificate(button) {
-    navigator.clipboard.writeText(button.dataset.copyValue).then(function () {
-      var original = button.textContent;
-      button.textContent = button.dataset.copySuccess;
-      window.setTimeout(function () { button.textContent = original; }, 1800);
-    });
+    copyText(button.dataset.copyValue).then(function () { confirmCopy(button); });
   }
 
   /* Copy the absolute APK URL and show localized confirmation. */
   function copyDownloadLink(button) {
     var url = new URL('/download/android', window.location.origin).href;
-    navigator.clipboard.writeText(url).then(function () {
-      var original = button.textContent;
-      button.textContent = button.dataset.copySuccess;
-      window.setTimeout(function () { button.textContent = original; }, 1800);
-    });
+    copyText(url).then(function () { confirmCopy(button); });
   }
 
   /* Show brief next-step guidance after an APK download begins. */
@@ -86,11 +107,7 @@
       navigator.share(payload).catch(function () {});
       return;
     }
-    navigator.clipboard.writeText(payload.url).then(function () {
-      var original = button.textContent;
-      button.textContent = button.dataset.copySuccess;
-      window.setTimeout(function () { button.textContent = original; }, 1800);
-    });
+    copyText(payload.url).then(function () { confirmCopy(button); });
   }
 
   /* Reveal the Android mobile download bar after the hero action leaves view. */
