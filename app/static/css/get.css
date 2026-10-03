@@ -76,10 +76,25 @@
 }
 
 .install-timeline .step { position: relative; z-index: 1; }
-.install-timeline .step::before { position: relative; z-index: 2; }
+.install-timeline .step::before {
+  position: relative;
+  z-index: 2;
+  border-radius: 12px;
+  transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .install-timeline .step:hover::before {
+    background: var(--blue);
+    box-shadow: 0 8px 22px rgba(31, 99, 224, .25);
+    transform: translateY(-2px) rotate(-4deg) scale(1.06);
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .install-timeline.js-get-timeline::after { transform: scaleY(1); transition: none; }
+  .install-timeline .step::before { transition: none; }
+  .install-timeline .step:hover::before { transform: none; }
 }
 
 .qr-open {
