@@ -95,6 +95,11 @@
   .page-hero br { display: none; }
 }
 
+/* Keep feature topic links comfortably tappable and align their section targets. */
+.feature-chips .tag { min-height: 44px; padding-inline: 16px; }
+.feature-chips ~ * { scroll-margin-top: 120px; }
+#apps, #location, #chat, #protection, #setup { scroll-margin-top: 120px !important; }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }

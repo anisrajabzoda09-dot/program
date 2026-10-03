@@ -3,19 +3,21 @@
 {% block title %}Возможности — NIGOH Family{% endblock %}
 {% block description %}Все возможности NIGOH Family: контроль приложений и экранного времени, местоположение ребёнка на карте, семейный чат, защита PIN-кодом и простая установка по QR-коду.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <div class="wrap">
     <span class="eyebrow">Возможности</span>
     <h1>Всё, что нужно<br>для спокойствия родителей</h1>
     <p class="lead">Одно приложение для двух телефонов. Вы видите, какими приложениями пользуется ребёнок и где он находится, и можете оставаться с ним на связи. Правила вы задаёте сами.</p>
-    <div class="btn-row" style="margin-top:28px;gap:8px">
+    <nav class="btn-row feature-chips" style="margin-top:28px;gap:8px" aria-label="Разделы возможностей">
       <a class="tag" href="#apps">Контроль приложений</a>
       <a class="tag" href="#location">Местоположение</a>
       <a class="tag" href="#chat">Общение</a>
       <a class="tag" href="#protection">Защита</a>
       <a class="tag" href="#setup">Установка и обновления</a>
-    </div>
+    </nav>
   </div>
 </section>
 
@@ -225,3 +227,4 @@
   </div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}

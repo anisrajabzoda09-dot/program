@@ -3,19 +3,21 @@
 {% block title %}Имкониятҳо — NIGOH Family{% endblock %}
 {% block description %}Ҳамаи имкониятҳои NIGOH Family: назорати барномаҳо ва вақти экран, ҷойгиршавии фарзанд дар харита, чати оилавӣ, ҳимоя бо PIN ва насби осон бо рамзи QR.{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+
 {% block content %}
 <section class="page-hero">
   <div class="wrap">
     <span class="eyebrow">Имкониятҳо</span>
     <h1>Ҳама чизе, ки барои<br>оромии волидайн лозим аст</h1>
     <p class="lead">Як барнома барои ду телефон. Шумо мебинед, ки фарзанд кадом барномаҳоро истифода мебарад, дар куҷост ва метавонед бо ӯ дар тамос бошед. Қоидаҳоро худатон мегузоред.</p>
-    <div class="btn-row" style="margin-top:28px;gap:8px">
+    <nav class="btn-row feature-chips" style="margin-top:28px;gap:8px" aria-label="Бахшҳои имкониятҳо">
       <a class="tag" href="#apps">Назорати барномаҳо</a>
       <a class="tag" href="#location">Ҷойгиршавӣ</a>
       <a class="tag" href="#chat">Муошират</a>
       <a class="tag" href="#protection">Ҳимоя</a>
       <a class="tag" href="#setup">Насб ва навсозӣ</a>
-    </div>
+    </nav>
   </div>
 </section>
 
@@ -225,3 +227,4 @@
   </div>
 </section>
 {% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}
