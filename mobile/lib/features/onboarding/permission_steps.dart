@@ -26,6 +26,15 @@ enum WizardStepId {
   camera,
 }
 
+/// Қадамҳое, ки Android 13+ бо «Controlled by restricted setting» мебандад:
+/// Usage access, намоиш болои барномаҳо ва Accessibility. Дар ин қадамҳо корти
+/// ёрирасони «App info» нишон дода мешавад.
+bool usesRestrictedSettings(WizardStepId id) =>
+    id == WizardStepId.usage ||
+    id == WizardStepId.overlay ||
+    id == WizardStepId.callOverlay ||
+    id == WizardStepId.accessibility;
+
 /// Ҳолатҳо ё навъҳои имконпазири қадамҳои иҷозатҳои Android ва санҷиши онҳоро муайян мекунад.
 enum StepStage { main, always }
 
@@ -519,6 +528,9 @@ class WizardActions {
   /// blocked мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   static bool _blocked(ph.PermissionStatus status) =>
       status.isPermanentlyDenied || status.isRestricted;
+
+  /// Саҳифаи маълумоти барномаи NIGOH Family-ро мекушояд (ҳамон сафҳа, ки дар он менюи ⋮ ҳаст).
+  Future<void> openAppInfo() => platform.openAppSettings();
 
   /// grant мантиқи зарурии қадамҳои иҷозатҳои Android ва санҷиши онҳоро иҷро мекунад.
   Future<void> grant(WizardStepId id, StepStatus status) async {
