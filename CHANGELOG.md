@@ -6,6 +6,7 @@
 - Fixed: on the parent map the bottom panel could cover half the screen with large system fonts; it is now height-capped and scrolls inside.
 - Child phone: a visible «Uninstall app» row in Settings that requires the parent's PIN before Android's uninstall screen opens.
 - Website: sections fade in on scroll.
+- The Windows (.exe) app is discontinued: installer, download page, /download/windows and the Windows build are removed.
 
 ## 2.16.0 — 2026-10-02
 - Windows app (parent mode): family, app rules, map, chat, voice calls, requests, reports; in-app alerts and SOS alarm while the app is open; navigation rail on wide screens.

@@ -4,7 +4,6 @@
 
 - Сайт: https://nigohfamily.qobus.tj
 - Боргирии Android: https://nigohfamily.qobus.tj/get (рамзи QR ҳамеша версияи охиринро медиҳад)
-- Боргирии Windows (барои волидайн): https://nigohfamily.qobus.tj/download/windows — GitHub Actions (`.github/workflows/windows.yml`) насбкунандаро ҳангоми ҳар тағйири `mobile/` месозад
 - Ҳолати сервер: https://nigohfamily.qobus.tj/health
 
 ## Сохтор
@@ -13,10 +12,12 @@
 |---|---|
 | `app/` | Сервер: FastAPI, SQLAlchemy, SQLite (`app/nigoh.db`), саҳифаҳои сайт ва панели админ |
 | `app/routers/mobile*.py` | API-и барномаи мобилӣ: воридшавӣ, оила, огоҳиномаҳо, занг |
-| `mobile/` | Барномаи Android (Flutter). Нигаред: [mobile/README.md](mobile/README.md) |
-| `scripts/` | Deploy ва скриптҳои ёрирасон |
+| `mobile/` | Барномаи Android (Flutter + Kotlin). Нигаред: [mobile/README.md](mobile/README.md) |
+| `tests/` | Санҷишҳои сервер (`tests/test_mobile_v3.py` — санҷиши пурраи API-и мобилӣ) |
+| `scripts/` | Нашр ба сервер (`deploy_production.py`) ва скриптҳои ёрирасон |
 | `deploy/` | Танзимоти nginx ва HTTPS |
-| `docs/` | Ҳуҷҷатҳои API |
+| `docs/` | Ҳуҷҷатҳо: API-и мобилӣ, танзими Google OAuth |
+| `design/` | Маводи тарҳ: тарҳҳои экран (`stitch/`), презентатсия (`pdf/`), саҳифаи weevolve |
 
 ## Имкониятҳо
 
@@ -39,16 +40,26 @@ venv/bin/python run.py # http://localhost:8080
 Санҷиши API-и мобилӣ (аз аввал то охир, бо базаи маҳаллӣ):
 
 ```bash
-venv/bin/python test_mobile_v3.py
+venv/bin/python tests/test_mobile_v3.py
 ```
 
 ## Deploy
 
-```bash
-read -s -p "Рамзи сервер: " NIGOH_DEPLOY_PASSWORD && export NIGOH_DEPLOY_PASSWORD
-venv/bin/python scripts/deploy_production.py
+Маълумоти дастрасӣ ба сервер дар файли `.env.deploy` дар решаи лоиҳа аст (ба git **намеравад**):
+
+```
+NIGOH_DEPLOY_HOST=…
+NIGOH_DEPLOY_USER=…
+NIGOH_DEPLOY_PASSWORD=…
 ```
 
-Скрипт APK-ро аз `mobile/` месозад, имзоро месанҷад, `app/`-ро ба сервер мефиристад (бе `nigoh.db`) ва серверро аз нав оғоз мекунад. APK-ҳо дар `app/static/downloads` нигоҳ дошта мешаванд ва ба git намераванд (маҳдудияти 100 МБ-и GitHub).
+```bash
+# APK-ро месозад (лоиҳае, ки калиди имзо дорад), месанҷад ва ҳамаро нашр мекунад
+NIGOH_ANDROID_PROJECT=/path/to/nigoh_family_parent venv/bin/python scripts/deploy_production.py
+# ё APK-и аллакай сохташударо дар app/static/downloads танҳо месанҷад ва нашр мекунад
+NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
+```
+
+Базаи `nigoh.db`-и сервер ҳеҷ гоҳ иваз карда намешавад. APK-ҳо дар `app/static/downloads` нигоҳ дошта мешаванд ва ба git намераванд (маҳдудияти 100 МБ-и GitHub).
 
 Пас аз нашри версияи нав `APP_VERSION` ва `APP_VERSION_CODE`-ро дар `app/core/config.py` нав кунед — барнома ба корбарон навсозиро худаш пешниҳод мекунад.
