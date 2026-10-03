@@ -77,6 +77,8 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
+::selection { background: var(--blue); color: #ffffff; }
+:root[data-theme="dark"] ::selection { background: var(--teal); color: #0b0f17; }
 img { max-width: 100%; height: auto; display: block; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { color: var(--blue-ink); }
