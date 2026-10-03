@@ -105,6 +105,14 @@
 }
 .btn-google:hover { border-color: var(--ink); color: var(--ink); background: #fff; }
 .btn-google[disabled] { opacity: .7; cursor: progress; }
+/* Sign in with Apple — black button with white logo/text (Apple HIG style). */
+.btn-apple {
+  width: 100%; margin-top: 12px; background: #000; color: #fff;
+  border-color: #000; border-radius: 12px; font-weight: 600;
+}
+.btn-apple:hover { background: #1d1d1f; border-color: #1d1d1f; color: #fff; }
+.btn-apple[disabled] { opacity: .7; cursor: progress; }
+.btn-apple .apple-logo { width: 18px; height: 18px; margin-top: -2px; }
 .divider {
   display: flex; align-items: center; gap: 12px; margin: 20px 0 0;
   color: var(--faint); font-size: .8rem;

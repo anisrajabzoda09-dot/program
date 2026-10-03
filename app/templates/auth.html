@@ -110,6 +110,13 @@
           <span>Идома бо Google</span>
         </button>
 
+        {% if apple_enabled %}
+        <button type="button" id="appleSignInBtn" class="btn btn-apple">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="apple-logo"><path fill="currentColor" d="M16.37 1.43c0 1.14-.42 2.2-1.12 2.99-.84.95-2.2 1.68-3.31 1.59-.14-1.11.42-2.27 1.1-3.01.76-.85 2.08-1.5 3.33-1.57zM20.5 17.23c-.56 1.29-.83 1.87-1.55 3.01-1.01 1.6-2.43 3.59-4.19 3.6-1.57.02-1.97-1.02-4.1-1.01-2.13.01-2.57 1.03-4.14 1.01-1.76-.01-3.11-1.81-4.12-3.41C-.43 15.86-.72 10.94 1 8.36c1.22-1.83 3.15-2.9 4.96-2.9 1.84 0 3 1.01 4.52 1.01 1.48 0 2.38-1.01 4.51-1.01 1.61 0 3.32.88 4.54 2.4-3.99 2.19-3.34 7.89.97 9.37z"/></svg>
+          <span>Идома бо Apple</span>
+        </button>
+        {% endif %}
+
         <div class="divider">ё бо почтаи электронӣ</div>
 
         <div class="alert-slot" id="alertSlot" aria-live="polite">
@@ -390,6 +397,28 @@
     } else if (oauthStatus === 'cancelled') {
       showAlert('Воридшавӣ тавассути Google бекор карда шуд.', true);
     }
+    // Sign in with Apple (button exists only when the server has Apple keys)
+    var appleBtn = document.getElementById('appleSignInBtn');
+    if (appleBtn) {
+      appleBtn.addEventListener('click', function () {
+        appleBtn.disabled = true;
+        appleBtn.querySelector('span').textContent = 'Гузаштан ба Apple...';
+        window.location.assign('/auth/apple/login?next=%2F');
+      });
+      window.addEventListener('pageshow', function () {
+        appleBtn.disabled = false;
+        appleBtn.querySelector('span').textContent = 'Идома бо Apple';
+      });
+    }
+    var appleStatus = params.get('apple');
+    if (appleStatus === 'not_configured') {
+      showAlert('Sign in with Apple ҳоло дар сервер танзим нашудааст.', true);
+    } else if (appleStatus === 'cancelled') {
+      showAlert('Воридшавӣ тавассути Apple бекор карда шуд.', true);
+    } else if (appleStatus === 'failed') {
+      showAlert('Воридшавӣ бо Apple анҷом наёфт. Аз нав кӯшиш кунед.', true);
+    }
+
   })();
   </script>
 </body>
