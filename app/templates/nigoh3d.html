@@ -1,3 +1,4 @@
+{#- Файл: намоиши интерактивии 3D-и барномаи NIGOH Family ва ҳолатҳои телефон. -#}
 <!DOCTYPE html>
 <html lang="tg" class="h-full scroll-smooth antialiased dark">
 <head>
@@ -8,12 +9,12 @@
   <meta name="description" content="Муаррифии интерактивии 3D барои барномаи Нигоҳ (NIGOH Family) — Назорати волидайн, харитаи зиндаи GPS, бастани бозиҳо ва тугмаи фаврии SOS." />
   <meta name="theme-color" content="#0b0b0e" />
 
-  <!-- Fonts: JetBrains Mono & Plus Jakarta Sans -->
+{# Шрифтҳои JetBrains Mono ва Plus Jakarta Sans-ро барои интерфейси 3D бор мекунад. #}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS CDN -->
+{# Tailwind CSS-ро аз CDN барои тарҳи HUD-и намоиши 3D бор мекунад. #}
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,7 +39,7 @@
     }
   </script>
 
-  <!-- Three.js + OrbitControls + Tween.js CDN -->
+{# Three.js, OrbitControls ва Tween.js-ро барои саҳна, камера ва гузаришҳои 3D бор мекунад. #}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
@@ -58,13 +59,13 @@
       height: 100vh;
       margin: 0;
     }
-    /* Hologram Scanlines */
+    /* Хатҳои scan-и hologram-ро рӯи саҳна нишон медиҳад. */
     .scanlines {
       background: linear-gradient(rgba(18, 16, 26, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
       background-size: 100% 3px, 6px 100%;
       pointer-events: none;
     }
-    /* Glassmorphism */
+    /* Панелҳоро бо услуби шаффофи Glassmorphism оро медиҳад. */
     .glass-hud {
       background: rgba(14, 14, 18, 0.72);
       backdrop-filter: blur(16px);
@@ -78,7 +79,7 @@
       border-color: rgba(228, 0, 124, 0.5);
       box-shadow: 0 0 20px rgba(228, 0, 124, 0.2);
     }
-    /* Custom scrollbar */
+    /* Scrollbar-и фармоиширо бо рангҳои саҳна оро медиҳад. */
     ::-webkit-scrollbar {
       width: 4px;
     }
@@ -90,18 +91,18 @@
 </head>
 <body class="relative w-full h-full bg-bg overflow-hidden flex flex-col justify-between">
 
-  <!-- 3D WebGL Canvas Container -->
+{# Контейнери WebGL саҳнаи интерактивии телефонро қабул мекунад. #}
   <div id="webgl-container" class="absolute inset-0 z-0"></div>
 
-  <!-- Scanlines & Ambient Vignette Overlay -->
+{# Қабати scanline ва vignette рӯи саҳна фазои holographic месозад. #}
   <div class="absolute inset-0 scanlines z-[1] pointer-events-none"></div>
   <div class="absolute inset-0 bg-radial-vignette pointer-events-none z-[1] shadow-[inset_0_0_120px_rgba(0,0,0,0.85)]"></div>
 
-  <!-- TOP FLOATING HUD NAVIGATION BAR -->
+{# HUD-и боло бренд, mode switcher ва амалҳои саҳнаи 3D-ро ҷойгир мекунад. #}
   <header class="relative z-20 px-4 sm:px-6 pt-4 pointer-events-auto">
     <div class="max-w-[1380px] mx-auto flex items-center justify-between gap-4 glass-hud rounded-2xl px-5 py-3 shadow-2xl">
       
-      <!-- Brand & Mode Title -->
+{# Logo ва номи NIGOH-ро бо нишони 3D Experience нишон медиҳад. #}
       <div class="flex items-center gap-3">
         <a href="/" class="flex items-center gap-2 group">
           <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-accent to-purple-600 flex items-center justify-center font-bold text-white shadow-[0_0_12px_rgba(228,0,124,0.5)]">
@@ -118,7 +119,7 @@
         </a>
       </div>
 
-      <!-- Quick Mode Switcher Pills -->
+{# Pill-ҳо байни ҳолатҳои GPS, Geo-fence, App Lock, SOS, Device ва QR мегузаранд. #}
       <div class="hidden lg:flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/5 font-mono text-[11px]">
         <button onclick="switchMode(0)" class="mode-pill active px-3 py-1.5 rounded-lg text-white bg-accent font-semibold transition-all">01 GPS ЗИНДА</button>
         <button onclick="switchMode(1)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">02 ГЕО-МИНТАҚА</button>
@@ -128,15 +129,15 @@
         <button onclick="switchMode(5)" class="mode-pill px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition-all">06 QR ПАЙВАСТ</button>
       </div>
 
-      <!-- Action Buttons -->
+{# Амалҳои HUD гардиши автоматии телефон ва бозгашт ба сайтро идора мекунанд. #}
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- 3D Auto Rotate Toggle -->
+{# Тугмаи Auto Rotate гардиши пайвастаи модели телефонро иваз мекунад. #}
         <button id="btn-rotate" onclick="toggleAutoRotate()" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-[11px] font-mono text-zinc-300 hover:text-white hover:border-accent transition-all flex items-center gap-1.5">
           <span id="rotate-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="rotate-label">3D Давр: ФАЪОЛ</span>
         </button>
 
-        <!-- Download APK Link -->
+{# Пайванд аз намоиши 3D ба саҳифаи боргирии APK мебарад. #}
         <a href="/api/download/apk" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-accent hover:bg-[#c9006d] text-white font-mono text-xs font-bold transition-all shadow-[0_0_15px_rgba(228,0,124,0.4)]">
           <span>Боргирӣ (APK)</span>
           <span class="text-sm">↓</span>
@@ -146,13 +147,13 @@
     </div>
   </header>
 
-  <!-- CENTER 3D INTERACTIVE VIEWPORT PLACEHOLDER (WILL BE POPULATED BY THREE.JS) -->
+{# Viewport-и марказиро Three.js бо телефон ва лавозимоти holographic пур мекунад. #}
   <div class="flex-1 relative z-10 pointer-events-none flex items-center justify-between p-4 sm:p-8">
     
-    <!-- LEFT HUD: FEATURE DEEP DIVE CARD -->
+{# HUD-и чап mode-и интихобшуда, telemetry ва хусусиятҳои онро шарҳ медиҳад. #}
     <div class="pointer-events-auto max-w-sm sm:max-w-md w-full glass-hud rounded-2xl p-5 sm:p-6 shadow-2xl border border-white/10 space-y-4">
       
-      <!-- Mode Badge & Title -->
+{# Badge, рақам ва сарлавҳаи mode-и фаъоли 3D-ро нишон медиҳад. #}
       <div>
         <div class="flex items-center justify-between mb-2">
           <span id="card-tag" class="px-2.5 py-0.5 rounded-md bg-accent/20 border border-accent/40 text-accent font-mono text-[10px] uppercase font-bold tracking-wider">
@@ -168,7 +169,7 @@
         </p>
       </div>
 
-      <!-- Live Telemetry Data Chips -->
+{# Chip-ҳои зинда дақиқии GPS, таъхир ва батареяро нишон медиҳанд. #}
       <div id="card-telemetry" class="grid grid-cols-2 gap-2 font-mono text-[11px]">
         <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
           <span class="text-zinc-500 text-[9px] uppercase block">Аниқии Радиус</span>
@@ -180,7 +181,7 @@
         </div>
       </div>
 
-      <!-- Feature Bullet Points -->
+{# Рӯйхат се қобилияти асосии mode-и интихобшударо мефаҳмонад. #}
       <div id="card-bullets" class="space-y-1.5 font-mono text-[11px] text-zinc-400 border-t border-white/5 pt-3">
         <div class="flex items-center gap-2">
           <span class="text-accent">✓</span>
@@ -196,7 +197,7 @@
         </div>
       </div>
 
-      <!-- Camera Action Buttons -->
+{# Тугмаҳои камера намуди рӯбарӯ ва гардиши 360°-ро оғоз мекунанд. #}
       <div class="flex items-center gap-2 pt-2">
         <button onclick="focusPhone()" class="flex-1 py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-mono text-zinc-200 transition-all text-center">
           Намои Экран [Марказ]
@@ -208,7 +209,7 @@
 
     </div>
 
-    <!-- RIGHT HUD: 3D TELEMETRY & SYSTEM STATE -->
+{# HUD-и рост ҳолати system, session ва кори муҳаррики 3D-ро нишон медиҳад. #}
     <div class="pointer-events-auto hidden md:flex flex-col gap-3 glass-hud rounded-2xl p-5 shadow-2xl border border-white/10 max-w-xs w-full text-xs font-mono">
       <div class="flex items-center justify-between border-b border-white/5 pb-2">
         <span class="text-zinc-400 font-bold uppercase text-[10px]">3D Сенсорҳо &amp; Статус</span>
@@ -244,7 +245,7 @@
 
   </div>
 
-  <!-- BOTTOM NAVIGATION CAROUSEL (MODE SELECTOR) -->
+{# Carousel-и поён шаш mode-и намоишро барои интихоби зуд пешниҳод мекунад. #}
   <footer class="relative z-20 px-4 sm:px-6 pb-4 pointer-events-auto">
     <div class="max-w-[1380px] mx-auto glass-hud rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
       
@@ -253,7 +254,7 @@
         <span class="hidden sm:inline">Функсияҳои калидӣ барои назорати бехатарии кӯдак</span>
       </div>
 
-      <!-- Quick mode selector tabs for mobile / desktop -->
+{# Tab-ҳои поён mode-ро ҳам дар телефон ва ҳам дар desktop иваз мекунанд. #}
       <div class="flex items-center gap-2 overflow-x-auto py-1 max-w-full font-mono text-xs">
         <button onclick="switchMode(0)" class="btn-m px-3 py-1.5 rounded-xl bg-accent text-white font-bold whitespace-nowrap text-[11px] transition-all">1. GPS Зинда</button>
         <button onclick="switchMode(1)" class="btn-m px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 whitespace-nowrap text-[11px] transition-all">2. Гео-Минтақа</button>
@@ -270,9 +271,9 @@
     </div>
   </footer>
 
-  <!-- THREE.JS 3D ENGINE & PRESENTATION LOGIC -->
+{# Скрипти муҳаррик саҳнаи Three.js ва мантиқи муаррифии NIGOH-ро месозад. #}
   <script>
-    // --- 1. SCENE, CAMERA, RENDERER SETUP ---
+    // Саҳна, камера ва renderer-и 3D-ро омода мекунад.
     const container = document.getElementById('webgl-container');
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x0b0b0e, 0.05);
@@ -287,7 +288,7 @@
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // OrbitControls
+    // OrbitControls-ро барои гардиши камера танзим мекунад.
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
@@ -298,7 +299,7 @@
     controls.autoRotate = true;
     controls.autoRotateSpeed = 1.0;
 
-    // --- 2. LIGHTING RIG ---
+    // Манбаъҳои рӯшноии саҳнаи 3D-ро ҷойгир мекунад.
     const ambientLight = new THREE.AmbientLight(0x181824, 2.5);
     scene.add(ambientLight);
 
@@ -318,8 +319,8 @@
     cyanPointLight.position.set(4, -2, -3);
     scene.add(cyanPointLight);
 
-    // --- 3. BACKGROUND COSMOS & GRID FLOOR ---
-    // Floating starfield particles
+    // Кайҳони замина ва фарши шабакавиро месозад.
+    // Зарраҳои ситораҳои шинокунандаро месозад.
     const starCount = 1200;
     const starGeo = new THREE.BufferGeometry();
     const starPos = new Float32Array(starCount * 3);
@@ -338,16 +339,16 @@
     const starMesh = new THREE.Points(starGeo, starMat);
     scene.add(starMesh);
 
-    // Cyberpunk grid floor
+    // Фарши шабакавии cyberpunk-ро месозад.
     const gridHelper = new THREE.GridHelper(30, 40, 0xE4007C, 0x1e1e2d);
     gridHelper.position.y = -3.8;
     scene.add(gridHelper);
 
-    // --- 4. PROCEDURAL 3D SMARTPHONE MODEL ---
+    // Модели 3D-и телефонро аз шаклҳои procedural месозад.
     const phoneGroup = new THREE.Group();
     scene.add(phoneGroup);
 
-    // Rounded rectangle shape helper
+    // Шакли росткунҷаи кунҷҳояш гирдро барои ҷисмҳои 3D месозад.
     function createRoundedRectShape(w, h, r) {
       const shape = new THREE.Shape();
       const x = -w / 2;
@@ -369,7 +370,7 @@
     const phoneRadius = 0.45;
     const phoneThickness = 0.28;
 
-    // Body shape & extrude
+    // Шакли ҷисми телефонро extrude мекунад.
     const bodyShape = createRoundedRectShape(phoneWidth, phoneHeight, phoneRadius);
     const extrudeSettings = {
       depth: phoneThickness,
@@ -383,7 +384,7 @@
     const phoneGeo = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings);
     phoneGeo.center();
 
-    // Dark Titanium frame material
+    // Маводи чаҳорчӯбаи титании торикро муайян мекунад.
     const frameMat = new THREE.MeshStandardMaterial({
       color: 0x17171d,
       metalness: 0.88,
@@ -393,7 +394,7 @@
     const phoneMesh = new THREE.Mesh(phoneGeo, frameMat);
     phoneGroup.add(phoneMesh);
 
-    // Glass Back Cover
+    // Сарпӯши шишагии қафоро месозад.
     const backGeo = new THREE.PlaneGeometry(phoneWidth - 0.1, phoneHeight - 0.1);
     const backMat = new THREE.MeshStandardMaterial({
       color: 0x0f0f14,
@@ -407,14 +408,14 @@
     backMesh.rotation.y = Math.PI;
     phoneGroup.add(backMesh);
 
-    // Back Camera Island (Triple Lens Array)
+    // Ҷазираи се камераи қафоро ҷойгир мекунад.
     const islandGeo = new THREE.BoxGeometry(1.1, 1.2, 0.08);
     const islandMat = new THREE.MeshStandardMaterial({ color: 0x141418, metalness: 0.9, roughness: 0.2 });
     const islandMesh = new THREE.Mesh(islandGeo, islandMat);
     islandMesh.position.set(-0.8, 2.1, -phoneThickness / 2 - 0.08);
     phoneGroup.add(islandMesh);
 
-    // Camera lenses
+    // Линзаҳои камераро месозад.
     for (let c = 0; c < 3; c++) {
       const lensGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.06, 24);
       const lensMat = new THREE.MeshStandardMaterial({ color: 0x050508, metalness: 0.95, roughness: 0.05 });
@@ -426,7 +427,7 @@
       phoneGroup.add(lens);
     }
 
-    // --- 5. DYNAMIC OLED CANVAS DISPLAY ---
+    // Экранро дар Canvas ба таври зинда мекашад.
     const screenCanvas = document.createElement('canvas');
     screenCanvas.width = 1080;
     screenCanvas.height = 2160;
@@ -444,7 +445,7 @@
     screenMesh.position.z = phoneThickness / 2 + 0.045;
     phoneGroup.add(screenMesh);
 
-    // Speaker notch / dynamic island
+    // Ковокии баландгӯяк ва dynamic island-ро месозад.
     const notchGeo = new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.06, 0.35, 8, 16) : new THREE.CylinderGeometry(0.06, 0.06, 0.35, 16);
     const notchMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
     const notch = new THREE.Mesh(notchGeo, notchMat);
@@ -452,8 +453,8 @@
     notch.position.set(0, 2.9, phoneThickness / 2 + 0.048);
     phoneGroup.add(notch);
 
-    // --- 6. HOLOGRAPHIC 3D ACCESSORY MESHES (SHIELD, RADAR, PULSE RINGS) ---
-    // 3D Radar Wave Rings
+    // Сипар, radar ва ҳалқаҳои набзии 3D-ро месозад.
+    // Ҳалқаҳои мавҷи radar-и 3D-ро месозад.
     const radarGroup = new THREE.Group();
     phoneGroup.add(radarGroup);
     const ringGeo = new THREE.RingGeometry(2.2, 2.25, 64);
@@ -463,7 +464,7 @@
     radarRing.position.y = -1.2;
     radarGroup.add(radarRing);
 
-    // 3D Holographic Shield Mesh
+    // Сипари holographic-и 3D-ро месозад.
     const shieldShape = new THREE.Shape();
     shieldShape.moveTo(0, 1.8);
     shieldShape.lineTo(1.4, 1.0);
@@ -484,7 +485,7 @@
     shieldMesh.visible = false;
     phoneGroup.add(shieldMesh);
 
-    // 3D Emergency SOS Radiating Sphere
+    // Сфераи паҳншавандаи SOS-ро месозад.
     const sosSphereGeo = new THREE.SphereGeometry(2.8, 32, 16);
     const sosSphereMat = new THREE.MeshBasicMaterial({
       color: 0xE4007C,
@@ -496,7 +497,7 @@
     sosSphere.visible = false;
     phoneGroup.add(sosSphere);
 
-    // --- 7. PRESENTATION MODES DATA & LOGIC ---
+    // Маълумот ва мантиқи ҳолатҳои намоишро муайян мекунад.
     let currentMode = 0;
     let autoRotate = true;
 
@@ -599,18 +600,19 @@
       }
     ];
 
-    // --- 8. LIVE CANVAS SCREEN DRAWING ENGINE ---
+    // Экранро дар Canvas ба таври зинда мекашад.
     let frameCount = 0;
+    // Муҳтавои ҳолати ҷориро ба texture-и экрани телефон мекашад.
     function drawScreenContent() {
       frameCount++;
       const w = screenCanvas.width;
       const h = screenCanvas.height;
 
-      // Dark background
+      // Заминаи торики экранро мекашад.
       sCtx.fillStyle = '#0c0d12';
       sCtx.fillRect(0, 0, w, h);
 
-      // Top Status Bar
+      // Status bar-и болои экранро мекашад.
       sCtx.fillStyle = '#14141d';
       sCtx.fillRect(0, 0, w, 110);
       sCtx.fillStyle = '#ffffff';
@@ -623,14 +625,14 @@
       sCtx.fillStyle = '#00F0FF';
       sCtx.fillText('4G LTE', w - 380, 75);
 
-      // App Header Bar
+      // Header-и барномаро дар экран мекашад.
       sCtx.fillStyle = '#181824';
       sCtx.fillRect(50, 140, w - 100, 140);
       sCtx.strokeStyle = 'rgba(255,255,255,0.08)';
       sCtx.lineWidth = 4;
       sCtx.strokeRect(50, 140, w - 100, 140);
 
-      // Header logo dot & text
+      // Нуқтаи logo ва матни header-ро мекашад.
       sCtx.fillStyle = '#E4007C';
       sCtx.beginPath();
       sCtx.arc(110, 210, 24, 0, Math.PI * 2);
@@ -643,10 +645,10 @@
       sCtx.fillStyle = '#10B981';
       sCtx.fillText('● МУҲОФИЗАТ ФАЪОЛ', w - 460, 224);
 
-      // Content based on Mode
+      // Муҳтаворо мувофиқи ҳолати интихобшуда мекашад.
       if (currentMode === 0) {
-        // --- MODE 0: GPS RADAR ---
-        // Map Grid Background
+        // Ҳолати GPS radar-ро мекашад.
+        // Шабакаи заминаи харитаро мекашад.
         sCtx.fillStyle = '#111420';
         sCtx.fillRect(50, 310, w - 100, 1380);
 
@@ -665,7 +667,7 @@
           sCtx.stroke();
         }
 
-        // Radar concentric circles
+        // Доираҳои ҳаммаркази radar-ро мекашад.
         const cx = w / 2;
         const cy = 920;
         const pulse = (frameCount % 120) / 120;
@@ -674,14 +676,14 @@
         sCtx.beginPath(); sCtx.arc(cx, cy, 220, 0, Math.PI * 2); sCtx.stroke();
         sCtx.beginPath(); sCtx.arc(cx, cy, 420, 0, Math.PI * 2); sCtx.stroke();
 
-        // Pulsing radar wave
+        // Мавҷи набзии radar-ро ҳаракат медиҳад.
         sCtx.strokeStyle = `rgba(0, 240, 255, ${1 - pulse})`;
         sCtx.lineWidth = 6;
         sCtx.beginPath();
         sCtx.arc(cx, cy, pulse * 520, 0, Math.PI * 2);
         sCtx.stroke();
 
-        // Rotating radar beam
+        // Шуои гардиши radar-ро мекашад.
         const angle = frameCount * 0.03;
         sCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
         sCtx.lineWidth = 4;
@@ -690,7 +692,7 @@
         sCtx.lineTo(cx + Math.cos(angle) * 450, cy + Math.sin(angle) * 450);
         sCtx.stroke();
 
-        // Child location pin
+        // Нишонаи ҷойгиршавии фарзандро мекашад.
         sCtx.fillStyle = '#E4007C';
         sCtx.beginPath();
         sCtx.arc(cx, cy, 32, 0, Math.PI * 2);
@@ -699,7 +701,7 @@
         sCtx.lineWidth = 8;
         sCtx.stroke();
 
-        // Info Banner over map
+        // Banner-и иттилоотиро рӯи харита ҷойгир мекунад.
         sCtx.fillStyle = 'rgba(20, 20, 28, 0.95)';
         sCtx.fillRect(90, 1380, w - 180, 260);
         sCtx.strokeStyle = '#00F0FF';
@@ -715,11 +717,11 @@
         sCtx.fillText('Суръат: 3.5 км/с · Пиёдагард', 130, 1595);
 
       } else if (currentMode === 1) {
-        // --- MODE 1: GEO-FENCING SAFE ZONES ---
+        // Ҳолати минтақаи бехатари Geo-fencing-ро мекашад.
         sCtx.fillStyle = '#10161d';
         sCtx.fillRect(50, 310, w - 100, 1380);
 
-        // Safe perimeter zone circle
+        // Доираи ҳудуди минтақаи бехатарро мекашад.
         const cx = w / 2;
         const cy = 900;
         sCtx.fillStyle = 'rgba(16, 185, 129, 0.12)';
@@ -730,12 +732,12 @@
         sCtx.stroke();
         sCtx.setLineDash([]);
 
-        // Zone Tag
+        // Нишони номи минтақаро мекашад.
         sCtx.fillStyle = '#10B981';
         sCtx.font = '700 40px "JetBrains Mono"';
         sCtx.fillText('МИНТАҚАИ АМН: МАКТАБИ №1', cx - 290, cy - 250);
 
-        // Inner status card
+        // Корти ҳолати дохили минтақаро мекашад.
         sCtx.fillStyle = '#161d24';
         sCtx.fillRect(90, 1400, w - 180, 240);
         sCtx.fillStyle = '#ffffff';
@@ -746,7 +748,7 @@
         sCtx.fillText('✓ Огоҳинома: «Фарзанд соати 08:15 ба мактаб омад»', 140, 1560);
 
       } else if (currentMode === 2) {
-        // --- MODE 2: APP BLOCKING ---
+        // Ҳолати бастани барномаҳоро мекашад.
         sCtx.fillStyle = '#14141a';
         sCtx.fillRect(50, 310, w - 100, 1380);
 
@@ -782,14 +784,14 @@
         });
 
       } else if (currentMode === 3) {
-        // --- MODE 3: EMERGENCY SOS ---
+        // Сфераи паҳншавандаи SOS-ро месозад.
         sCtx.fillStyle = '#1c0e14';
         sCtx.fillRect(50, 310, w - 100, 1380);
 
         const cx = w / 2;
         const cy = 760;
 
-        // Big Red SOS Button
+        // Тугмаи калони сурхи SOS-ро мекашад.
         sCtx.fillStyle = '#E4007C';
         sCtx.beginPath(); sCtx.arc(cx, cy, 260, 0, Math.PI * 2); sCtx.fill();
         sCtx.strokeStyle = '#ffffff';
@@ -811,7 +813,7 @@
         sCtx.fillText('Сабти садо: 00:15 сония сабт шуд', 140, 1460);
 
       } else if (currentMode === 4) {
-        // --- MODE 4: DEVICE TELEMETRY ---
+        // Ҳолати telemetry-и дастгоҳро мекашад.
         sCtx.fillStyle = '#12151c';
         sCtx.fillRect(50, 310, w - 100, 1380);
 
@@ -846,7 +848,7 @@
         });
 
       } else if (currentMode === 5) {
-        // --- MODE 5: QR PAIRING ---
+        // Ҳолати пайвастшавӣ бо QR-ро мекашад.
         sCtx.fillStyle = '#14141a';
         sCtx.fillRect(50, 310, w - 100, 1380);
 
@@ -854,14 +856,14 @@
         sCtx.font = '700 46px "Plus Jakarta Sans"';
         sCtx.fillText('Пайвастшавии Муҳофизатшуда', 120, 410);
 
-        // QR Box simulated
+        // Қуттии намунавии QR-ро мекашад.
         const qx = w / 2 - 260;
         const qy = 500;
         sCtx.fillStyle = '#ffffff';
         sCtx.fillRect(qx, qy, 520, 520);
 
         sCtx.fillStyle = '#000000';
-        // Draw simulated QR matrix pattern
+        // Намунаи матритсаи QR-ро мекашад.
         for (let r = 0; r < 9; r++) {
           for (let c = 0; c < 9; c++) {
             if ((r + c * 3) % 2 === 0 || (r < 3 && c < 3) || (r > 5 && c < 3) || (r < 3 && c > 5)) {
@@ -879,25 +881,25 @@
         sCtx.fillText('Омода барои скани барномаи кӯдак (APK v2.6.2)', 110, 1240);
       }
 
-      // Bottom Home Navigation Indicator
+      // Нишондиҳандаи паймоиши поёни экранро мекашад.
       sCtx.fillStyle = '#ffffff';
       sCtx.fillRect(w / 2 - 160, h - 50, 320, 14);
 
       screenTexture.needsUpdate = true;
     }
 
-    // --- 9. SWITCH MODE INTERACTION ---
+    // Гузариш байни ҳолатҳои намоишро идора мекунад.
     function switchMode(idx) {
       if (idx < 0 || idx >= modes.length) return;
       currentMode = idx;
       const data = modes[idx];
 
-      // Update HUD Left Card
+      // Корти чапи HUD-ро бо маълумоти ҳолат нав мекунад.
       document.getElementById('card-tag').textContent = data.tag;
       document.getElementById('card-title').textContent = data.title;
       document.getElementById('card-desc').textContent = data.desc;
 
-      // Update telemetry chips
+      // Ҳолати telemetry-и дастгоҳро мекашад.
       const telemDiv = document.getElementById('card-telemetry');
       telemDiv.innerHTML = `
         <div class="p-2.5 rounded-xl bg-black/40 border border-white/5">
@@ -910,7 +912,7 @@
         </div>
       `;
 
-      // Update bullets
+      // Рӯйхати хусусиятҳои ҳолатро нав мекунад.
       const bulletsDiv = document.getElementById('card-bullets');
       bulletsDiv.innerHTML = data.bullets.map(b => `
         <div class="flex items-center gap-2">
@@ -919,7 +921,7 @@
         </div>
       `).join('');
 
-      // Update pill buttons state
+      // Ҳолати фаъоли тугмаҳои pill-ро нав мекунад.
       document.querySelectorAll('.mode-pill').forEach((pill, i) => {
         if (i === idx) {
           pill.className = 'mode-pill active px-3 py-1.5 rounded-lg text-white bg-accent font-semibold transition-all';
@@ -935,11 +937,11 @@
         }
       });
 
-      // Show/Hide 3D holographic accessories
+      // Лавозимоти holographic-и 3D-ро нишон медиҳад ё пинҳон мекунад.
       shieldMesh.visible = (idx === 1);
       sosSphere.visible = (idx === 3);
 
-      // Smooth camera transition using TWEEN
+      // Камераро бо TWEEN нарм ба мавқеи нав мебарад.
       new TWEEN.Tween(camera.position)
         .to(data.cameraPos, 1000)
         .easing(TWEEN.Easing.Cubic.Out)
@@ -948,7 +950,7 @@
       drawScreenContent();
     }
 
-    // --- 10. CAMERA ACTION HELPERS ---
+    // Амалҳои ёрирасони идоракунии камераро муайян мекунад.
     function toggleAutoRotate() {
       autoRotate = !autoRotate;
       controls.autoRotate = autoRotate;
@@ -963,6 +965,7 @@
       }
     }
 
+    // Камера ва телефонро нарм ба намуди рӯбарӯ бармегардонад.
     function focusPhone() {
       new TWEEN.Tween(camera.position)
         .to({ x: 0, y: 0, z: 8.5 }, 800)
@@ -974,6 +977,7 @@
         .start();
     }
 
+    // Телефонро барои як намоиши кӯтоҳ 360 дараҷа мегардонад.
     function spinPhone() {
       new TWEEN.Tween(phoneGroup.rotation)
         .to({ y: phoneGroup.rotation.y + Math.PI * 2 }, 1200)
@@ -981,34 +985,35 @@
         .start();
     }
 
-    // Keyboard Shortcuts (1-6)
+    // Миёнбурҳои клавиатураи 1–6-ро идора мекунад.
     window.addEventListener('keydown', (e) => {
       if (e.key >= '1' && e.key <= '6') {
         switchMode(parseInt(e.key) - 1);
       }
     });
 
-    // Window Resize Handler
+    // Андозаи renderer ва камераро бо равзана ҳамоҳанг мекунад.
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- 11. ANIMATION LOOP ---
+    // Даври асосии animation-и саҳнаро оғоз мекунад.
     drawScreenContent();
-    setInterval(drawScreenContent, 1000); // Periodic live canvas refresh
+    setInterval(drawScreenContent, 1000); // Canvas-и зиндаро давра ба давра нав мекунад.
 
+    // Кадрҳои саҳна, камера ва лавозимоти 3D-ро пайваста нав мекунад.
     function animate(time) {
       requestAnimationFrame(animate);
       TWEEN.update(time);
       controls.update();
 
-      // Gentle floating oscillation
+      // Телефонро бо ларзиши ороми шинокунӣ ҳаракат медиҳад.
       const t = time * 0.0015;
       phoneGroup.position.y = Math.sin(t) * 0.12;
 
-      // Accessory mesh animations
+      // Лавозимоти 3D-ро дар ҳар кадр ҳаракат медиҳад.
       if (shieldMesh.visible) {
         shieldMesh.rotation.y = Math.sin(t * 1.5) * 0.15;
       }
@@ -1018,7 +1023,7 @@
       }
       radarRing.rotation.z += 0.01;
 
-      // Slow galaxy rotation
+      // Кайҳони заминаро оҳиста мегардонад.
       starMesh.rotation.y = time * 0.00005;
 
       renderer.render(scene, camera);

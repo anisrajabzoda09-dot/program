@@ -1,3 +1,4 @@
+{#- Файл: саҳифаи интерактивии WeEvolve барои шарҳи марҳилаҳо ва қабули дархост. -#}
 <!DOCTYPE html>
 <html lang="en" class="h-full scroll-smooth antialiased dark">
 <head>
@@ -8,12 +9,12 @@
   <meta name="description" content="AI specialists. A five-phase method — Discover, Diagnose, Design, Deliver, Evolve — that transforms how your business runs on technology. HQ Monterrey, presence in Dubai, 17 countries served." />
   <meta name="theme-color" content="#0e0e10" />
 
-  <!-- Fonts: JetBrains Mono & Plus Jakarta Sans / Inter -->
+{# Шрифтҳои JetBrains Mono ва Plus Jakarta Sans-ро барои саҳифаи WeEvolve бор мекунад. #}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS CDN with custom config -->
+{# Tailwind CSS-ро аз CDN бо рангҳо ва шрифтҳои фармоишии WeEvolve танзим мекунад. #}
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -69,7 +70,7 @@
       background: #E4007C;
       color: #ffffff;
     }
-    /* Custom scrollbar */
+    /* Scrollbar-и фармоиширо бо рангҳои саҳифа оро медиҳад. */
     ::-webkit-scrollbar {
       width: 6px;
     }
@@ -83,7 +84,7 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #E4007C;
     }
-    /* Glow borders */
+    /* Дар гирди кортҳо ҳошияи дурахшон месозад. */
     .candle-glow {
       position: relative;
       transition: all 0.3s ease;
@@ -109,18 +110,18 @@
 </head>
 <body class="min-h-full flex flex-col bg-bg text-[#ededf0] antialiased selection:bg-accent selection:text-white">
 
-  <!-- Background Interactive Canvas (Subtle Starfield / Constellation Effect) -->
+{# Canvas-и ситораҳо ва пайвандҳои ҳаракаткунандаро дар замина ҷойгир мекунад. #}
   <div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden" aria-hidden="true">
     <canvas id="matrix-canvas" class="w-full h-full opacity-35"></canvas>
     <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-[#E4007C]/15 via-[#8A2BE2]/10 to-transparent blur-[120px] rounded-full pointer-events-none"></div>
   </div>
 
-  <!-- Top Floating Pill Navigation -->
+{# Панели шинокунандаи боло logo, паймоиш ва тугмаҳои тамосро дар бар мегирад. #}
   <header class="fixed inset-x-0 top-3 z-50 px-3 sm:px-6">
     <div class="mx-auto max-w-[1240px] rounded-full glass-pill shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300">
       <nav class="flex h-16 items-center justify-between px-5 sm:px-7">
         
-        <!-- Logo -->
+{# Нишон ва номи WeEvolve IT-ро дар паймоиши боло нишон медиҳад. #}
         <a href="#hero" class="flex items-center gap-2 group outline-none">
           <div class="flex items-center font-bold tracking-tight text-[17px] font-mono">
             <span class="text-white group-hover:text-zinc-200 transition-colors">WeEvolve</span>
@@ -129,13 +130,13 @@
           </div>
         </a>
 
-        <!-- Desktop Navigation Links -->
+{# Пайвандҳои desktop ба метод, натиҷаҳо, хизматҳо, абзорҳо ва тамос. #}
         <ul class="hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] font-mono uppercase tracking-wider text-zinc-400">
           <li class="relative group">
             <a href="#services" class="inline-flex items-center gap-1.5 py-2 hover:text-white transition-colors">
               Services <span class="text-[9px] transition-transform duration-200 group-hover:rotate-180">▾</span>
             </a>
-            <!-- Services Mega Menu Dropdown -->
+{# Mega menu хизматҳои AI, Web, Nearshore, Cloud ва Data-ро гурӯҳбандӣ мекунад. #}
             <div class="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-[640px]">
               <div class="rounded-2xl border border-white/10 bg-[#141418]/95 p-6 backdrop-blur-2xl shadow-2xl grid grid-cols-2 gap-4">
                 <a href="#services" class="p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] transition-colors group/item block">
@@ -190,7 +191,7 @@
           </li>
         </ul>
 
-        <!-- Action CTA Buttons -->
+{# Тугмаҳои WhatsApp ва оғози ташхиси ройгонро дар header медиҳад. #}
         <div class="flex items-center gap-3">
           <a href="https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20vi%20su%20sitio%20y%20me%20interesa%20su%20servicio" 
              target="_blank" 
@@ -203,7 +204,7 @@
             <span>Message us</span>
           </a>
 
-          <!-- Mobile Menu Button -->
+{# Тугмаи кушодани менюи WeEvolve-ро дар экранҳои хурд нишон медиҳад. #}
           <button id="mobile-toggle" aria-label="Toggle menu" class="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-full bg-white/5 border border-white/10 text-white">
             <span class="w-4 h-0.5 bg-white mb-1 transition-all"></span>
             <span class="w-4 h-0.5 bg-white transition-all"></span>
@@ -211,7 +212,7 @@
         </div>
       </nav>
 
-      <!-- Mobile dropdown panel -->
+{# Панели мобилӣ пайвандҳои асосӣ ва WhatsApp-ро ҳангоми кушодан нишон медиҳад. #}
       <div id="mobile-menu" class="hidden lg:hidden px-6 pb-6 pt-2 border-t border-white/5 font-mono text-xs uppercase tracking-wider space-y-3">
         <a href="#services" class="block py-1.5 text-zinc-300 hover:text-white">Services</a>
         <a href="#method" class="block py-1.5 text-zinc-300 hover:text-white">The 5 Method</a>
@@ -224,11 +225,11 @@
 
   <main id="main-content" class="flex-1 pt-24 sm:pt-28">
 
-    <!-- Hero Section -->
+{# Hero хизматҳои AI ва automation-и WeEvolve-ро бо terminal муаррифӣ мекунад. #}
     <section id="hero" class="relative max-w-[1240px] mx-auto px-4 sm:px-6 pt-10 pb-20 lg:pt-16 lg:pb-28">
       <div class="flex flex-col items-center text-center">
         
-        <!-- Top AI Specialist & Location Pill -->
+{# Badge тахассуси AI ва макони даста дар McAllen, Texas-ро нишон медиҳад. #}
         <div class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-[#16161c]/90 px-4 py-1.5 text-[11px] font-mono text-zinc-300 shadow-inner mb-8">
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           <span class="text-zinc-400">HQ Monterrey · Presence in Dubai</span>
@@ -239,7 +240,7 @@
           </span>
         </div>
 
-        <!-- Main Headline -->
+{# Сарлавҳаи hero табдили мушкилиҳои кориро ба системаҳои AI ва software ваъда медиҳад. #}
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-black tracking-[-0.04em] leading-[1.05] text-white max-w-5xl font-sans">
           your tech partner. <br class="hidden sm:inline" />
           <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent via-[#ff4d9d] to-purple-400 text-glow">
@@ -247,12 +248,12 @@
           </span>
         </h1>
 
-        <!-- Subheading -->
+{# Зерсарлавҳа равиши машваратӣ ва татбиқи технологияро шарҳ медиҳад. #}
         <p class="mt-7 max-w-2xl text-sm sm:text-base md:text-lg text-zinc-400 font-mono leading-relaxed">
           A five-phase method — <span class="text-zinc-200">Discover, Diagnose, Design, Deliver, Evolve</span> — that transforms how your business runs on technology. An AI-first agency and your end-to-end engineering partner.
         </p>
 
-        <!-- Metrics Bar -->
+{# Сатри омор таҷриба, лоиҳаҳо ва қаноатмандии муштариёнро нишон медиҳад. #}
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-mono text-zinc-400 border border-white/10 rounded-2xl bg-white/[0.02] px-6 py-3 backdrop-blur-sm">
           <div class="flex items-center gap-1.5">
             <span class="text-white font-bold">15+</span>
@@ -275,7 +276,7 @@
           </div>
         </div>
 
-        <!-- Call to Actions -->
+{# Амалҳои hero ба машварати ройгон ва дидани метод мебаранд. #}
         <div class="mt-9 flex flex-col sm:flex-row items-center gap-4">
           <a href="#friction-tool" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-accent hover:bg-[#c9006d] px-7 py-3.5 text-xs font-mono font-semibold text-white tracking-wider uppercase transition-all duration-300 shadow-[0_0_25px_rgba(228,0,124,0.4)] hover:shadow-[0_0_35px_rgba(228,0,124,0.6)] hover:scale-[1.02]">
             <span>Diagnose My Business</span>
@@ -287,9 +288,9 @@
           </a>
         </div>
 
-        <!-- Interactive AI Terminal Showcase -->
+{# Намоиши terminal раванди ташхис ва deployment-и AI-ро тақлид мекунад. #}
         <div class="mt-14 w-full max-w-4xl rounded-2xl border border-white/10 bg-[#121215]/95 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden text-left font-mono text-xs">
-          <!-- Terminal Header -->
+{# Сарлавҳаи terminal ҳолати пайваст ва номи муҳити иҷроиро нишон медиҳад. #}
           <div class="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
@@ -303,7 +304,7 @@
             </div>
           </div>
 
-          <!-- Terminal Body -->
+{# Бадани terminal қадамҳои ташхис, workflow ва натиҷаи deployment-ро нишон медиҳад. #}
           <div class="p-5 space-y-3.5 text-zinc-300 bg-black/40">
             <div class="text-zinc-500 flex items-center justify-between">
               <span>// Autonomous Enterprise Diagnostic & AI Workflow Deployment</span>
@@ -345,7 +346,7 @@
       </div>
     </section>
 
-    <!-- Social Proof & Google Reviews Section -->
+{# Бахши эътимод баҳои Google, шумораи review ва муштариёнро ҷамъбаст мекунад. #}
     <section id="cases" class="border-y border-white/5 bg-[#111114]/60 py-16 backdrop-blur-sm">
       <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
         
@@ -367,10 +368,10 @@
           </div>
         </div>
 
-        <!-- Reviews Grid -->
+{# Grid-и review таҷрибаи чор муштарии WeEvolve-ро нишон медиҳад. #}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          <!-- Review 1 -->
+{# Review-и муштарии аввал натиҷаи automation-и равандҳоро нақл мекунад. #}
           <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
@@ -387,7 +388,7 @@
             </div>
           </div>
 
-          <!-- Review 2 -->
+{# Review-и муштарии дуюм сифати software ва ҳамкориро баҳогузорӣ мекунад. #}
           <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
@@ -404,7 +405,7 @@
             </div>
           </div>
 
-          <!-- Review 3 -->
+{# Review-и муштарии сеюм таъсири ҳалли AI-ро ба тиҷорат тавсиф мекунад. #}
           <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
@@ -421,7 +422,7 @@
             </div>
           </div>
 
-          <!-- Review 4 -->
+{# Review-и муштарии чорум натиҷаи лоиҳаи cloud-ро шарҳ медиҳад. #}
           <div class="rounded-xl border border-white/10 bg-[#16161a] p-5 candle-glow flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between text-amber-400 text-xs mb-3 font-mono">
@@ -440,7 +441,7 @@
 
         </div>
 
-        <!-- Tech Stack Ticker -->
+{# Навори ҳаракаткунанда технологияҳои истифодашавандаи дастаро номбар мекунад. #}
         <div class="mt-12 flex flex-wrap items-center justify-center gap-6 text-zinc-500 text-xs font-mono">
           <span class="text-zinc-600 uppercase text-[10px] tracking-wider">Enterprise Tech Stack:</span>
           <span class="hover:text-zinc-300 transition-colors">Python / FastAPI</span>
@@ -459,10 +460,10 @@
       </div>
     </section>
 
-    <!-- The 5 Method Section -->
+{# Бахши «The 5 Method» панҷ марҳилаи ҳамкории WeEvolve-ро шарҳ медиҳад. #}
     <section id="method" class="py-24 max-w-[1240px] mx-auto px-4 sm:px-6 relative">
       
-      <!-- Section Header -->
+{# Сарлавҳаи метод натиҷаи ҳар марҳиларо аз кашф то рушд тавзеҳ медиҳад. #}
       <div class="max-w-3xl mb-16">
         <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
           <span>THE BLUEPRINT</span>
@@ -478,7 +479,7 @@
           Technology accelerates faster every day. Most businesses fall behind. We're the AI specialists who close that gap — a five-phase method that doesn't follow the curve, it bends it.
         </p>
 
-        <!-- Phase Navigation Tabs -->
+{# Tab-ҳои Discover, Diagnose, Design, Deliver ва Evolve ба кортҳои марҳила мегузаранд. #}
         <div class="mt-8 flex flex-wrap gap-2 text-xs font-mono">
           <button onclick="scrollToPhase('phase-01')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">01 Discover</button>
           <button onclick="scrollToPhase('phase-02')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 hover:border-accent hover:text-white transition-all text-zinc-400 active:scale-95">02 Diagnose</button>
@@ -488,10 +489,10 @@
         </div>
       </div>
 
-      <!-- Phase Cards Grid / Stack -->
+{# Панҷ корти пайдарпай deliverable ва натиҷаи ҳар марҳиларо нишон медиҳанд. #}
       <div class="space-y-6">
 
-        <!-- 01 Discover -->
+{# Марҳилаи 01 — Discover ҳадафҳо, bottleneck ва имкониятҳоро меомӯзад. #}
         <div id="phase-01" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
           <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">01</span>
           <div class="relative z-10 max-w-2xl">
@@ -519,7 +520,7 @@
           </div>
         </div>
 
-        <!-- 02 Diagnose -->
+{# Марҳилаи 02 — Diagnose сабабҳои аслии мушкилро бо маълумот меёбад. #}
         <div id="phase-02" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
           <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">02</span>
           <div class="relative z-10 max-w-2xl">
@@ -547,7 +548,7 @@
           </div>
         </div>
 
-        <!-- 03 Design -->
+{# Марҳилаи 03 — Design меъморӣ ва нақшаи ҳалли мувофиқро месозад. #}
         <div id="phase-03" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
           <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">03</span>
           <div class="relative z-10 max-w-2xl">
@@ -575,7 +576,7 @@
           </div>
         </div>
 
-        <!-- 04 Deliver -->
+{# Марҳилаи 04 — Deliver ҳалли санҷидашударо татбиқ ва ба истифода медиҳад. #}
         <div id="phase-04" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
           <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">04</span>
           <div class="relative z-10 max-w-2xl">
@@ -603,7 +604,7 @@
           </div>
         </div>
 
-        <!-- 05 Evolve -->
+{# Марҳилаи 05 — Evolve системаро пайваста чен, беҳтар ва васеъ мекунад. #}
         <div id="phase-05" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#151519] p-7 sm:p-10 candle-glow group">
           <span class="pointer-events-none absolute right-6 -bottom-6 font-sans font-black text-8xl sm:text-9xl text-white/[0.03] select-none group-hover:text-accent/[0.06] transition-colors">05</span>
           <div class="relative z-10 max-w-2xl">
@@ -634,11 +635,11 @@
       </div>
     </section>
 
-    <!-- Services Bento Grid Section -->
+{# Бахши хизматҳо панҷ самти муҳандисӣ ва transformation-ро муаррифӣ мекунад. #}
     <section id="services" class="py-24 border-t border-white/5 bg-[#121216]/50 backdrop-blur-sm">
       <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
         
-        <!-- Section Header -->
+{# Сарлавҳаи хизматҳо ҳалли мушкилро болотар аз фурӯши технология мегузорад. #}
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
             <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-mono text-zinc-300 mb-3">
@@ -660,10 +661,10 @@
           </a>
         </div>
 
-        <!-- Bento Grid -->
+{# Bento grid хизматҳои WeEvolve-ро дар кортҳои мутобиқшаванда ҷойгир мекунад. #}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          <!-- Card 1: AI Agent Development (Featured Hero Card) -->
+{# Корти асосӣ таҳияи AI Agent барои automation-и равандҳои тиҷоратиро пешниҳод мекунад. #}
           <div class="lg:col-span-2 rounded-2xl border border-accent/40 bg-gradient-to-br from-[#1b1520] via-[#15151a] to-[#121215] p-8 candle-glow relative overflow-hidden group">
             <div class="absolute -right-12 -top-12 w-48 h-48 bg-accent/15 blur-3xl rounded-full pointer-events-none group-hover:bg-accent/25 transition-all"></div>
             <div class="flex items-center justify-between mb-4">
@@ -688,7 +689,7 @@
             </div>
           </div>
 
-          <!-- Card 2: Web Development -->
+{# Корти Web Development сохтани маҳсулоти зуд ва миқёспазирро шарҳ медиҳад. #}
           <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -708,7 +709,7 @@
             </div>
           </div>
 
-          <!-- Card 3: Nearshore Software Engineering -->
+{# Корти Nearshore Software Engineering васеъ кардани дастаи муҳандисиро пешниҳод мекунад. #}
           <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -728,7 +729,7 @@
             </div>
           </div>
 
-          <!-- Card 4: Cloud Migration & Modernization -->
+{# Корти Cloud Migration навсозии инфрасохтор ва кам кардани хавфро тавсиф мекунад. #}
           <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -748,7 +749,7 @@
             </div>
           </div>
 
-          <!-- Card 5: Data & Analytics -->
+{# Корти Data & Analytics маълумотро ба қарорҳои ченшаванда табдил медиҳад. #}
           <div class="rounded-2xl border border-white/10 bg-[#16161b] p-8 candle-glow group flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -773,7 +774,7 @@
       </div>
     </section>
 
-    <!-- Interactive Friction Diagnostic Tool Section -->
+{# Абзори интерактивӣ bottleneck-и интихобшударо ба ҳалли тавсияшуда мепайвандад. #}
     <section id="friction-tool" class="py-24 max-w-[1240px] mx-auto px-4 sm:px-6 relative">
       <div class="rounded-3xl border border-white/10 bg-gradient-to-b from-[#16161d] to-[#101014] p-8 sm:p-14 relative overflow-hidden shadow-2xl">
         <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -795,7 +796,7 @@
           </p>
         </div>
 
-        <!-- Friction Selector Buttons -->
+{# Тугмаҳои интихоб мушкили муҳандисӣ, маълумот, cloud ё automation-ро муайян мекунанд. #}
         <div class="flex flex-wrap gap-2.5 sm:gap-3 mb-10 font-mono text-xs" id="friction-chips">
           <button onclick="selectFriction(0)" class="friction-btn active px-4 py-2.5 rounded-xl border border-accent bg-accent/20 text-white transition-all text-left">
             ⚡ Engineering bottlenecked by manual repetitive tasks
@@ -817,7 +818,7 @@
           </button>
         </div>
 
-        <!-- Dynamic Output Solution Card -->
+{# Корти натиҷа ҳалли мувофиқ, таъсир ва пайванди машваратро нав мекунад. #}
         <div id="solution-display" class="rounded-2xl border border-white/15 bg-black/60 p-6 sm:p-8 backdrop-blur-xl">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
             <div>
@@ -869,7 +870,7 @@
       </div>
     </section>
 
-    <!-- Free Tools Showcase Section -->
+{# Бахши абзорҳои ройгон се санҷиши ибтидоии тиҷоратиро пешниҳод мекунад. #}
     <section id="tools" class="py-24 border-t border-white/5 bg-[#0f0f13]">
       <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
         
@@ -890,7 +891,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <!-- Tool 1: AI Visibility Check -->
+{# Абзори AI Visibility Check намоёнии брендро дар ҷавобҳои AI месанҷад. #}
           <div class="rounded-2xl border border-white/10 bg-[#15151a] p-7 candle-glow flex flex-col justify-between group">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -914,7 +915,7 @@
             </div>
           </div>
 
-          <!-- Tool 2: Free SEO & Core Web Vitals Check -->
+{# Абзори SEO ва Core Web Vitals суръат ва саломатии техникии сайтро месанҷад. #}
           <div class="rounded-2xl border border-white/10 bg-[#15151a] p-7 candle-glow flex flex-col justify-between group">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -938,7 +939,7 @@
             </div>
           </div>
 
-          <!-- Tool 3: Business Diagnosis Doctor -->
+{# Business Diagnosis Doctor монеаи муҳимтарини рушдро дар машварат меёбад. #}
           <div class="rounded-2xl border border-white/10 bg-[#15151a] p-7 candle-glow flex flex-col justify-between group">
             <div>
               <div class="flex items-center justify-between mb-4">
@@ -967,13 +968,13 @@
       </div>
     </section>
 
-    <!-- Contact & Consultation Section -->
+{# Бахши тамос роҳҳои иртибот ва form-и дархости машваратро якҷо мекунад. #}
     <section id="contact" class="py-24 border-t border-white/5 relative">
       <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
           
-          <!-- Left Info Column -->
+{# Сутуни тамос телефон, email, макон ва пайванди WhatsApp-ро нишон медиҳад. #}
           <div>
             <div class="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1 text-[11px] font-mono text-accent mb-4">
               <span>GET IN TOUCH</span>
@@ -1018,7 +1019,7 @@
             </div>
           </div>
 
-          <!-- Right Interactive Consultation Form -->
+{# Form-и машварат ном, email, ширкат ва мушкили кориро қабул мекунад. #}
           <div class="rounded-2xl border border-white/10 bg-[#15151a] p-8 candle-glow shadow-2xl">
             <h3 class="text-xl font-bold font-sans text-white mb-2">Book a Technical Consultation</h3>
             <p class="text-xs font-mono text-zinc-400 mb-6">Talk directly with a Solutions Architect within 24 hours.</p>
@@ -1067,13 +1068,13 @@
 
   </main>
 
-  <!-- Global Footer -->
+{# Footer-и WeEvolve бренд, хизматҳо, метод ва абзорҳои ройгонро ҷамъ мекунад. #}
   <footer class="border-t border-white/10 bg-[#0a0a0d] py-16 text-zinc-400 font-mono text-xs">
     <div class="max-w-[1240px] mx-auto px-4 sm:px-6">
       
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
         
-        <!-- Col 1: Brand Info -->
+{# Сутуни бренд тавсифи WeEvolve ва пайвандҳои иҷтимоиро нишон медиҳад. #}
         <div class="col-span-2">
           <div class="flex items-center font-bold tracking-tight text-[17px] font-mono text-white mb-4">
             <span>WeEvolve</span>
@@ -1089,7 +1090,7 @@
           </div>
         </div>
 
-        <!-- Col 2: Services -->
+{# Сутуни хизматҳо ба AI, Web, Nearshore ва Cloud мебарад. #}
         <div>
           <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">Services</span>
           <ul class="space-y-2 text-zinc-500 text-[11px]">
@@ -1101,7 +1102,7 @@
           </ul>
         </div>
 
-        <!-- Col 3: The 5 Method -->
+{# Сутуни «The 5 Method» ба панҷ марҳилаи раванди кор мебарад. #}
         <div>
           <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">The Method</span>
           <ul class="space-y-2 text-zinc-500 text-[11px]">
@@ -1113,7 +1114,7 @@
           </ul>
         </div>
 
-        <!-- Col 4: Free Tools -->
+{# Сутуни абзорҳо AI Visibility, SEO Check ва Business Doctor-ро пайванд медиҳад. #}
         <div>
           <span class="text-white text-[11px] uppercase tracking-wider block mb-3 font-semibold">Free Tools</span>
           <ul class="space-y-2 text-zinc-500 text-[11px]">
@@ -1127,7 +1128,7 @@
 
       </div>
 
-      <!-- Bottom Bar -->
+{# Сатри поёни footer copyright ва пайвандҳои ҳуқуқиро нишон медиҳад. #}
       <div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-600 text-[11px]">
         <div>
           © 2026 WeEvolveIT. All rights reserved. Monterrey, NL · Dubai, UAE.
@@ -1143,12 +1144,13 @@
   </footer>
 
   <script>
-    // Canvas subtle particle effect
+    // Зарраҳои нарми заминаро дар Canvas ҳаракат медиҳад.
     const canvas = document.getElementById('matrix-canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
       let width, height, particles;
 
+      // Андозаи Canvas-ро ба андозаи viewport мутобиқ мекунад.
       function resize() {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
@@ -1166,6 +1168,7 @@
         }
       }
 
+      // Зарраҳо ва хатҳои байни онҳоро дар ҳар animation frame мекашад.
       function draw() {
         ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = '#ffffff';
@@ -1190,7 +1193,7 @@
       draw();
     }
 
-    // Mobile nav toggle
+    // Менюи мобилиро аз тугма мекушояд ё мепӯшонад.
     const toggleBtn = document.getElementById('mobile-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
     if (toggleBtn && mobileMenu) {
@@ -1199,7 +1202,7 @@
       });
     }
 
-    // Scroll to phase
+    // Ба корти марҳилаи интихобшуда бо scroll-и нарм мегузарад.
     function scrollToPhase(id) {
       const el = document.getElementById(id);
       if (el) {
@@ -1211,7 +1214,7 @@
       }
     }
 
-    // Friction Tool Data & Logic
+    // Маълумоти ташхиси монеаҳои кор ва ҳалли мувофиқро нигоҳ медорад.
     const frictions = [
       {
         phase: "RECOMMENDED METHOD PHASE: 02 DIAGNOSE → 04 DELIVER",
@@ -1269,11 +1272,12 @@
       }
     ];
 
+    // Монеаи интихобшударо фаъол карда, корти ҳалли онро нав мекунад.
     function selectFriction(index) {
       const data = frictions[index];
       if (!data) return;
 
-      // Update button active state
+      // Ҳолати фаъоли тугмаҳои интихобро нав мекунад.
       const buttons = document.querySelectorAll('.friction-btn');
       buttons.forEach((btn, i) => {
         if (i === index) {
@@ -1283,7 +1287,7 @@
         }
       });
 
-      // Update solution card
+      // Матн ва нишондиҳандаҳои корти ҳалро нав мекунад.
       document.getElementById('sol-phase').textContent = data.phase;
       document.getElementById('sol-title').textContent = data.title;
       document.getElementById('sol-impact').textContent = data.impact;
@@ -1293,7 +1297,7 @@
       document.getElementById('sol-cta').href = `https://wa.me/19562721609?text=Hola%20WeEvolveIT%20👋%20quiero%20diagnosticar%20la%20friccion:%20${encodeURIComponent(data.topic)}`;
     }
 
-    // Form submission simulation
+    // Фиристодани form-ро намунасозӣ карда, паёми муваффақият нишон медиҳад.
     function handleFormSubmit(event) {
       event.preventDefault();
       const form = document.getElementById('consult-form');

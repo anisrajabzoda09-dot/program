@@ -1,3 +1,5 @@
+{#- Файл: панели маъмурӣ барои дидани омор ва идора кардани маълумоти фарзандон. -#}
+{# Нишонаи SVG-и мувофиқро аз рӯи номи додашуда месозад. #}
 {%- macro icon(name) -%}
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 {%- if name == 'grid' -%}<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
@@ -25,13 +27,17 @@
 </svg>
 {%- endmacro -%}
 
+{# Санаи ISO-ро ба шакли кӯтоҳи рӯз.моҳ.сол табдил медиҳад. #}
 {%- macro fdate(s) -%}{% if s and s|length >= 10 %}{{ s[8:10] }}.{{ s[5:7] }}.{{ s[:4] }}{% else %}—{% endif %}{%- endmacro -%}
+{# Сана ва вақти ISO-ро ба шакли хонданбоби маҳаллӣ табдил медиҳад. #}
 {%- macro ftime(s) -%}{% if s and s|length >= 16 %}{{ s[8:10] }}.{{ s[5:7] }} {{ s[11:16] }}{% else %}—{% endif %}{%- endmacro -%}
+{# Қисми ҳассоси суроғаи IPv4 ё IPv6-ро пинҳон мекунад. #}
 {%- macro mask_ip(ip) -%}
 {%- if ip and ip.count('.') == 3 -%}{% set p = ip.split('.') %}{{ p[0] }}.{{ p[1] }}.x.x
 {%- elif ip and ':' in ip -%}{{ ip.split(':')[0] }}:…
 {%- else -%}—{%- endif -%}
 {%- endmacro -%}
+{# Барои ҷадвал ё бахши холӣ паёми ягонаи иттилоотӣ месозад. #}
 {%- macro empty(title='Ҳоло маълумот нест', hint='') -%}
 <div class="empty">{{ icon('inbox') }}<p>{{ title }}</p>{% if hint %}<p>{{ hint }}</p>{% endif %}</div>
 {%- endmacro -%}
@@ -94,7 +100,7 @@
 
     <main class="a-main">
 
-      <!-- ===== Overview ===== -->
+{# Бахши шарҳи умумиро ҷудо мекунад. #}
       <section id="overview" class="a-sec" style="margin-top:0">
         <div class="a-head rise" style="--d:0">
           <div>
@@ -146,7 +152,7 @@
         </div>
       </section>
 
-      <!-- ===== Traffic ===== -->
+{# Бахши омори боздидро ҷудо мекунад. #}
       <section id="traffic" class="a-sec">
         <div class="a-sec-head rise" style="--d:7">
           <h2>Трафик</h2>
@@ -211,7 +217,7 @@
         </div>
       </section>
 
-      <!-- ===== Apps ===== -->
+{# Бахши барномаҳо ва омори онҳоро ҷудо мекунад. #}
       <section id="apps" class="a-sec">
         <div class="a-sec-head rise" style="--d:10">
           <h2>Барномаҳо</h2>
@@ -241,7 +247,7 @@
         </div>
       </section>
 
-      <!-- ===== Children ===== -->
+{# Бахши профилҳои фарзандонро ҷудо мекунад. #}
       <section id="children" class="a-sec">
         <div class="a-sec-head rise" style="--d:12">
           <h2>Фарзандон</h2>
@@ -294,7 +300,7 @@
         </div>
       </section>
 
-      <!-- ===== Users ===== -->
+{# Бахши корбаронро ҷудо мекунад. #}
       <section id="users" class="a-sec">
         <div class="a-sec-head rise" style="--d:14">
           <h2>Корбарон</h2>
@@ -341,7 +347,7 @@
         </div>
       </section>
 
-      <!-- ===== Downloads ===== -->
+{# Қисми боргирии барномаи Android-ро ҷойгир мекунад. #}
       <section id="downloads" class="a-sec">
         <div class="a-sec-head rise" style="--d:16">
           <h2>Боргириҳо</h2>
@@ -409,16 +415,17 @@
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var body = document.documentElement;
 
-    /* Entrance + bar growth */
+    /* Пайдоиши саҳифа ва афзоиши сутунҳои диаграммаро оғоз мекунад. */
     requestAnimationFrame(function () { requestAnimationFrame(function () { body.classList.add('ready'); }); });
 
-    /* KPI count-up */
+    /* Рақамҳои KPI-ро аз сифр то қимати ниҳоӣ мешуморад. */
     if (!reduce) {
       document.querySelectorAll('[data-count]').forEach(function (el) {
         var target = parseInt(el.getAttribute('data-count'), 10) || 0;
         if (target <= 0) return;
         var start = null, dur = Math.min(1200, 500 + target * 8);
         el.textContent = '0';
+        /* Қимати KPI-ро дар ҳар animation frame нав мекунад. */
         function step(t) {
           if (start === null) start = t;
           var p = Math.min(1, (t - start) / dur);
@@ -430,8 +437,9 @@
       });
     }
 
-    /* Toast */
+    /* Паёми муваққатии муваффақият ё хаторо ба саҳифа меафзояд. */
     var toasts = document.getElementById('toasts');
+    /* Паёмро сохта, пас аз муҳлати кӯтоҳ аз DOM хориҷ мекунад. */
     function toast(msg, ok) {
       var t = document.createElement('div');
       t.className = 'toast' + (ok ? '' : ' err');
@@ -448,12 +456,13 @@
       }, ok ? 2800 : 4500);
     }
 
-    /* Client-side table filter */
+    /* Сатрҳои ҷадвалро дар браузер аз рӯи матни воридшуда филтр мекунад. */
     document.querySelectorAll('[data-filter]').forEach(function (input) {
       var id = input.getAttribute('data-filter');
       var tbody = document.getElementById(id);
       var counter = document.querySelector('[data-count-for="' + id + '"]');
       var none = document.querySelector('[data-empty-for="' + id + '"]');
+      /* Намоёнии сатрҳо ва шумориши натиҷаҳоро нав мекунад. */
       function apply() {
         var q = input.value.trim().toLowerCase();
         var rows = tbody.querySelectorAll('tr'), shown = 0;
@@ -469,7 +478,7 @@
       tbody._refilter = apply;
     });
 
-    /* API helper */
+    /* Дархости POST-и JSON мефиристад ва хатои API-ро ба Error табдил медиҳад. */
     function post(url, payload) {
       return fetch(url, {
         method: 'POST',
@@ -487,12 +496,13 @@
       });
     }
 
-    /* Edit dialog */
+    /* Dialog-и таҳрири профили фарзандро омода мекунад. */
     var modal = document.getElementById('edit-modal');
     var form = document.getElementById('edit-form');
     var saveBtn = document.getElementById('edit-save');
     var currentRow = null;
 
+    /* Dialog-ро бо маълумоти сатри интихобшуда пур карда мекушояд. */
     function openModal(row) {
       currentRow = row;
       form.child_id.value = row.dataset.id;
@@ -505,6 +515,7 @@
       requestAnimationFrame(function () { modal.classList.add('shown'); });
       setTimeout(function () { form.name.focus(); }, 30);
     }
+    /* Dialog-и таҳрирро бо гузариши кӯтоҳ мепӯшонад. */
     function closeModal() {
       modal.classList.remove('shown');
       setTimeout(function () { if (modal.open) modal.close(); }, reduce ? 0 : 200);
@@ -550,7 +561,7 @@
       }).then(function () { saveBtn.disabled = false; });
     });
 
-    /* Row actions */
+    /* Амалҳои таҳрир ва несткунии сатрро идора карда, ба database менависад. */
     var childBody = document.getElementById('children-tbody');
     if (childBody) {
       childBody.addEventListener('click', function (e) {
@@ -577,7 +588,7 @@
       });
     }
 
-    /* Section highlight in nav */
+    /* Пайванди бахши дар viewport бударо дар паймоиш фаъол мекунад. */
     var links = Array.prototype.slice.call(document.querySelectorAll('#a-nav a'));
     if ('IntersectionObserver' in window) {
       var map = {};
