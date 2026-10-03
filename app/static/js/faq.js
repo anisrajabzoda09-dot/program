@@ -125,6 +125,7 @@ function initFaqSearch() {
   const groups = Array.from(document.querySelectorAll('.faq'));
   const empty = document.querySelector('[data-faq-empty]');
   const count = form.querySelector('[data-faq-count]');
+  const live = document.querySelector('[data-faq-live]');
   const countJoiner = count?.textContent.includes(' аз ') ? ' аз ' : count?.textContent.includes(' из ') ? ' из ' : ' of ';
   const total = groups.reduce((sum, group) => sum + group.querySelectorAll('details').length, 0);
   const questions = Array.from(document.querySelectorAll('.faq details'));
@@ -171,6 +172,7 @@ function initFaqSearch() {
     if (empty) empty.hidden = hasAnyMatch;
     const visible = groups.reduce((sum, group) => sum + group.querySelectorAll('details:not([hidden])').length, 0);
     if (count) count.textContent = `${visible}${countJoiner}${total}`;
+    if (live) live.textContent = live.dataset.template.replace('{}', visible);
     highlightFaqMatches(input.value.trim());
   });
 }
