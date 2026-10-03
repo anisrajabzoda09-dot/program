@@ -7,21 +7,24 @@
          'product': 'Маҳсулот', 'support': 'Дастгирӣ', 'install': 'Насб', 'android': 'Боргирии Android',
          'faqlong': 'Саволу ҷавоб', 'privacy': 'Амният ва махфият', 'account': 'Ҳисоби волидайн', 'qr': 'Рамзи QR',
          'default_desc': 'NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.',
-         'locale': 'tg_TJ', 'theme': 'Режими торик', 'skip': 'Гузаштан ба матлаби асосӣ', 'back_top': 'Бозгашт ба боло'},
+         'locale': 'tg_TJ', 'theme': 'Режими торик', 'skip': 'Гузаштан ба матлаби асосӣ', 'back_top': 'Бозгашт ба боло',
+         'social_image_alt': 'Нишони NIGOH Family'},
   'ru': {'features': 'Возможности', 'how': 'Как это работает', 'security': 'Безопасность', 'faq': 'Вопросы',
          'login': 'Войти', 'logout': 'Выйти', 'panel': 'Панель', 'download': 'Скачать', 'menu': 'Меню',
          'nav': 'Главное', 'about': 'Приложение родительского контроля, созданное в Таджикистане. Для семей, которым важна безопасность детей.',
          'product': 'Продукт', 'support': 'Поддержка', 'install': 'Установка', 'android': 'Скачать для Android',
          'faqlong': 'Вопросы и ответы', 'privacy': 'Безопасность и приватность', 'account': 'Аккаунт родителя', 'qr': 'QR-код',
          'default_desc': 'NIGOH Family — родительский контроль для Android: местоположение, чат, экранное время и правила для приложений.',
-         'locale': 'ru_RU', 'theme': 'Тёмная тема', 'skip': 'Перейти к основному содержанию', 'back_top': 'Вернуться наверх'},
+         'locale': 'ru_RU', 'theme': 'Тёмная тема', 'skip': 'Перейти к основному содержанию', 'back_top': 'Вернуться наверх',
+         'social_image_alt': 'Логотип NIGOH Family'},
   'en': {'features': 'Features', 'how': 'How it works', 'security': 'Security', 'faq': 'FAQ',
          'login': 'Sign in', 'logout': 'Sign out', 'panel': 'Dashboard', 'download': 'Download', 'menu': 'Menu',
          'nav': 'Main', 'about': 'A parental control app made in Tajikistan, for families who care about their children\'s safety.',
          'product': 'Product', 'support': 'Support', 'install': 'Install', 'android': 'Download for Android',
          'faqlong': 'Questions & answers', 'privacy': 'Security & privacy', 'account': 'Parent account', 'qr': 'QR code',
          'default_desc': 'NIGOH Family — parental control for Android: location, chat, screen time and app rules.',
-         'locale': 'en_US', 'theme': 'Dark mode', 'skip': 'Skip to main content', 'back_top': 'Back to top'},
+         'locale': 'en_US', 'theme': 'Dark mode', 'skip': 'Skip to main content', 'back_top': 'Back to top',
+         'social_image_alt': 'NIGOH Family logo'},
 }[lang] -%}
 <!DOCTYPE html>
 <html lang="{{ lang }}">
@@ -42,6 +45,7 @@
   <meta property="og:description" content="{{ self.description() }}">
   <meta property="og:url" content="https://nigohfamily.qobus.tj{{ page_path }}">
   <meta property="og:image" content="https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png">
+  <meta property="og:image:alt" content="{{ L.social_image_alt }}">
   <meta property="og:locale" content="{{ L.locale }}">
   {%- set bp = base_path | default(page_path) %}
   <link rel="alternate" hreflang="tg" href="https://nigohfamily.qobus.tj{{ bp }}">
@@ -49,6 +53,8 @@
   <link rel="alternate" hreflang="en" href="https://nigohfamily.qobus.tj/en{{ '' if bp == '/' else bp }}">
   <link rel="alternate" hreflang="x-default" href="https://nigohfamily.qobus.tj{{ bp }}">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png">
+  <meta name="twitter:image:alt" content="{{ L.social_image_alt }}">
 
   <link rel="manifest" href="/static/manifest.json?v={{ app_version }}">
   <link rel="icon" type="image/png" href="/static/images/nigoh_logo.png">
