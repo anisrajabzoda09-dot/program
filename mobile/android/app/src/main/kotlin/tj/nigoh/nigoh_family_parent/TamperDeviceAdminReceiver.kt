@@ -1,5 +1,4 @@
-// Device-admin receiver that protects NIGOH from being disabled or removed
-// without the parent PIN.
+// Файл: NIGOH-ро аз хомӯш ё нест кардан бе PIN-и волидайн муҳофизат мекунад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -8,10 +7,10 @@ import android.content.Context
 import android.content.Intent
 
 /**
- * Device-admin hook: when someone tries to disable NIGOH's admin rights it
- * opens the parent-PIN screen and shows a warning.
+ * Ҳангоми кӯшиши бекор кардани ҳуқуқи device admin экрани PIN-ро мекушояд.
  */
 class TamperDeviceAdminReceiver : DeviceAdminReceiver() {
+    /** Хомӯш кардани device admin-ро боздошта, санҷиши PIN-и волидайнро мекушояд. */
     override fun onDisableRequested(context: Context, intent: Intent): CharSequence {
         runCatching {
             context.startActivity(Intent(context, PinVerificationActivity::class.java).apply {

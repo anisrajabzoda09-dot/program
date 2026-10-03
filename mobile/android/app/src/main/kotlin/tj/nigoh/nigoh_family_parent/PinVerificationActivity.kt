@@ -1,5 +1,5 @@
-// Native parent-PIN screen guarding NIGOH's removal: after a correct PIN it
-// drops the device-admin rights and opens Android's uninstall screen.
+// Файл: экрани санҷиши PIN-и волидайн барои ҳифзи NIGOH аз несткунӣ;
+// баъди PIN-и дуруст ҳуқуқи device admin-ро мегирад ва uninstall-ро мекушояд.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -21,19 +21,19 @@ import android.widget.TextView
 import android.text.InputType
 
 /**
- * Full-screen PIN prompt shown when someone tries to disable or uninstall
- * NIGOH; Back cannot dismiss it.
+ * Ҳангоми кӯшиши хомӯш ё нест кардани NIGOH PIN мепурсад; тугмаи Back онро намепӯшад.
  */
 class PinVerificationActivity : Activity() {
     private val mainHandler = Handler(Looper.getMainLooper())
 
-    /** Builds the PIN form (field, error line, confirm button) in code. */
+    /** Формаи PIN, сатри хато ва тугмаи тасдиқро месозад. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setFinishOnTouchOutside(false)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val density = resources.displayMetrics.density
+        /** dp-ро барои зичии экран ба pixel табдил медиҳад. */
         fun dp(value: Int) = (value * density).toInt()
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -81,8 +81,7 @@ class PinVerificationActivity : Activity() {
     }
 
     /**
-     * Checks the PIN; on success removes device admin and starts the uninstall,
-     * otherwise shows wrong-PIN, lockout or no-PIN text.
+     * PIN-ро месанҷад; ҳангоми муваффақият device admin-ро гирифта, uninstall-ро оғоз мекунад.
      */
     private fun verify(pin: String, error: TextView) {
         val result = PinSecurity.verify(this, pin)
@@ -102,7 +101,7 @@ class PinVerificationActivity : Activity() {
         }
     }
 
-    /** Opens Android's own uninstall dialog for NIGOH and closes this screen. */
+    /** Равзанаи uninstall-и Android-ро мекушояд ва ин экранро мебандад. */
     private fun launchUninstall() {
         startActivity(Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
             data = Uri.parse("package:$packageName")
@@ -111,7 +110,8 @@ class PinVerificationActivity : Activity() {
         finish()
     }
 
+    /** Барои пешгирии гузаштан аз муҳофизат амали Back-ро нодида мегирад. */
     override fun onBackPressed() {
-        // The protected flow cannot be dismissed with Back.
+        // Раванди муҳофизатшуда бо Back баста намешавад.
     }
 }

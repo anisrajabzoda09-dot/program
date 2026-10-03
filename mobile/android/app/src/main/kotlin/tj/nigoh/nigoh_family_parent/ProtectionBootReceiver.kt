@@ -1,5 +1,4 @@
-// Boot receiver that restarts the notification service and the app-block
-// monitor after the phone reboots.
+// Файл: баъди бозоғозии телефон хидмати огоҳинома ва назорати барномаҳоро барқарор мекунад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -10,12 +9,12 @@ import android.os.Build
 import android.provider.Settings
 
 /**
- * Restarts NIGOH's background services after boot (blocking only when usage
- * access and overlay permission are still granted).
+ * Хидматҳои background-и NIGOH-ро баъди boot, бо дарназардошти иҷозатҳо, оғоз мекунад.
  */
 class ProtectionBootReceiver : BroadcastReceiver() {
+    /** Пас аз boot огоҳиномаҳоро барқарор ва ҳангоми мавҷуд будани иҷозатҳо blocker-ро оғоз мекунад. */
     override fun onReceive(context: Context, intent: Intent?) {
-        // Notifications (independent of app protection): resume when signed in.
+        // Огоҳиномаҳо аз муҳофизати барнома ҷудоанд ва баъди воридшавӣ барқарор мешаванд.
         NotifyService.startIfSignedIn(context)
         if (!AppBlockMonitorService.hasUsageAccess(context) ||
             !Settings.canDrawOverlays(context)) return

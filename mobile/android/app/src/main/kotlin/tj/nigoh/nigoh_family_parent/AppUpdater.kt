@@ -1,5 +1,5 @@
-// Native in-app updater: downloads the new APK, verifies package name,
-// signing certificate and version, and installs it via PackageInstaller.
+// Файл: навсозии дохилии барнома — APK-ро боргирӣ ва санҷида,
+// тавассути PackageInstaller насб мекунад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -19,12 +19,8 @@ import java.net.URL
 import java.security.MessageDigest
 
 /**
- * In-app update without uninstalling: download the APK, make sure it is the
- * same app signed with the same release key and newer, then hand it to
- * Android's PackageInstaller. App data, sign-in and permissions are kept.
- *
- * Progress is reported through [listener] as a map
- * {state: downloading|verifying|installing|done|error, progress: 0..1, message}.
+ * Навсозиро бе нест кардани барнома иҷро мекунад: APK-ро бор гирифта, package,
+ * имзо ва версияро месанҷад. Маълумот, воридшавӣ ва иҷозатҳо нигоҳ дошта мешаванд.
  */
 object AppUpdater {
     @Volatile var listener: ((Map<String, Any?>) -> Unit)? = null
@@ -32,14 +28,14 @@ object AppUpdater {
 
     private val main = Handler(Looper.getMainLooper())
 
-    /** Posts a progress event to Flutter on the main thread; done/error end the run. */
+    /** Вазъ ва пешрафти навсозиро дар main thread ба Flutter мефиристад. */
     private fun emit(state: String, progress: Double? = null, message: String? = null) {
         val event = mapOf("state" to state, "progress" to progress, "message" to message)
         main.post { listener?.invoke(event) }
         if (state == "done" || state == "error") running = false
     }
 
-    /** Starts download → verify → install on a background thread (once at a time). */
+    /** Боргирӣ, санҷиш ва насбро дар background thread оғоз мекунад. */
     fun start(context: Context, url: String) {
         if (running) return
         running = true
@@ -57,7 +53,7 @@ object AppUpdater {
         }.start()
     }
 
-    /** Downloads the APK into the cache (following redirects) with progress events. */
+    /** APK-ро бо пайгирии redirect ба cache бор гирифта, пешрафтро хабар медиҳад. */
     private fun download(context: Context, url: String): File {
         val dir = File(context.cacheDir, "updates").apply { mkdirs() }
         dir.listFiles()?.forEach { it.delete() }
@@ -105,7 +101,7 @@ object AppUpdater {
         return target
     }
 
-    /** SHA-256 digests of the signing certificates in [info]. */
+    /** SHA-256-и сертификатҳои имзои [info]-ро бармегардонад. */
     @Suppress("DEPRECATION")
     private fun signatureDigests(info: PackageInfo?): Set<String> {
         if (info == null) return emptySet()
@@ -120,8 +116,7 @@ object AppUpdater {
     }
 
     /**
-     * Rejects an APK that is a different app, signed with another key, or not
-     * newer than the installed version.
+     * APK-и барномаи дигар, имзои бегона ё версияи кӯҳнаро рад мекунад.
      */
     @Suppress("DEPRECATION")
     private fun verify(context: Context, apk: File) {
@@ -147,14 +142,14 @@ object AppUpdater {
         }
     }
 
-    /** Hands the APK to PackageInstaller in a session and commits it. */
+    /** APK-ро дар session ба PackageInstaller дода, насбро тасдиқ мекунад. */
     private fun install(context: Context, apk: File) {
         val installer = context.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
             setAppPackageName(context.packageName)
             setSize(apk.length())
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                // Android 12+: no extra prompt once this app installed itself before.
+                // Дар Android 12+ баъди насби пешина дархости иловагӣ лозим нест.
                 setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
             }
         }
@@ -174,7 +169,7 @@ object AppUpdater {
         }
     }
 
-    /** Called by [UpdateStatusReceiver]. */
+    /** Натиҷаи PackageInstaller-ро коркард карда, ба Flutter мерасонад. */
     internal fun onStatus(context: Context, intent: Intent) {
         when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
@@ -200,7 +195,8 @@ object AppUpdater {
     }
 }
 
-/** Receives PackageInstaller session results and forwards them to [AppUpdater]. */
+/** Натиҷаи session-и PackageInstaller-ро ба [AppUpdater] месупорад. */
 class UpdateStatusReceiver : BroadcastReceiver() {
+    /** Broadcast-и натиҷаи насбро қабул мекунад. */
     override fun onReceive(context: Context, intent: Intent) = AppUpdater.onStatus(context, intent)
 }

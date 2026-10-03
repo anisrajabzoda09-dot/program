@@ -1,5 +1,5 @@
-// Parent PIN storage and verification on the device: salted SHA-256 record
-// encrypted with an Android Keystore AES key, with lockout after 3 wrong tries.
+// Файл: нигоҳдорӣ ва санҷиши PIN-и волидайн бо SHA-256 ва Android Keystore;
+// баъди се кӯшиши нодуруст воридшавиро муваққатан мебандад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -15,7 +15,7 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-/** One local PIN verifier shared by Flutter, the monitor and Device Admin. */
+/** PIN-и волидайнро бехатар нигоҳ медорад ва кӯшишҳои воридшавиро назорат мекунад. */
 object PinSecurity {
     const val PREFS_NAME = "nigoh_security"
 
@@ -30,8 +30,7 @@ object PinSecurity {
     private const val TRANSFORMATION = "AES/GCM/NoPadding"
 
     /**
-     * Outcome of a PIN check: allowed, or the error ("wrong_pin"/"locked") and
-     * the remaining lockout seconds.
+     * Натиҷаи санҷиши PIN: иҷозат, сабаби рад ва сонияҳои боқимондаи басташавӣ.
      */
     data class Result(
         val allowed: Boolean,
@@ -39,15 +38,15 @@ object PinSecurity {
         val remainingSeconds: Long = 0L,
     )
 
-    /** Whether a parent PIN (current or legacy format) is stored. */
+    /** Мавҷуд будани PIN-и волидайнро дар формати ҷорӣ ё кӯҳна месанҷад. */
     fun hasPin(context: Context): Boolean = context.getSharedPreferences(
         PREFS_NAME,
         Context.MODE_PRIVATE,
     ).let { it.contains(RECORD_KEY) || it.contains(LEGACY_HASH_KEY) }
 
     /**
-     * Validates and stores a new 4-digit PIN, replacing any legacy record and
-     * resetting the failure counter. Returns false on an invalid PIN or error.
+     * PIN-и нави чоррақамаро санҷида, рамзгузорӣ ва нигоҳ медорад;
+     * сабти кӯҳна ва ҳисобкунаки хаторо пок мекунад.
      */
     fun savePin(context: Context, pin: String): Boolean {
         if (!Regex("^\\d{4}$").matches(pin)) return false
@@ -69,8 +68,7 @@ object PinSecurity {
     }
 
     /**
-     * Checks [pin] against the stored record, honouring the lockout window and
-     * counting failures.
+     * [pin]-ро бо сабти нигоҳдошта муқоиса карда, хатогиҳо ва муҳлати бастаро ҳисоб мекунад.
      */
     fun verify(context: Context, pin: String): Result {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -108,7 +106,7 @@ object PinSecurity {
         return recordFailure(prefs)
     }
 
-    /** Counts a failed attempt and starts the 30-second lockout after the third. */
+    /** Хаторо сабт карда, пас аз кӯшиши сеюм PIN-ро 30 сония мебандад. */
     private fun recordFailure(prefs: android.content.SharedPreferences): Result {
         val attempts = prefs.getInt(FAILED_ATTEMPTS_KEY, 0) + 1
         return if (attempts >= MAX_ATTEMPTS) {
@@ -124,21 +122,21 @@ object PinSecurity {
         }
     }
 
-    /** Salted SHA-256 hash of the PIN, Base64-encoded. */
+    /** Хэши PIN-ро бо salt ва SHA-256 сохта, ба Base64 мегузаронад. */
     private fun hashPin(pin: String, salt: String): String = Base64.encodeToString(
         MessageDigest.getInstance("SHA-256")
             .digest("$salt:$pin".toByteArray(StandardCharsets.UTF_8)),
         Base64.NO_WRAP,
     )
 
-    /** Compares two hashes in constant time (no timing leak). */
+    /** Ду хэшро бо вақти доимӣ, бе ифшои timing, муқоиса мекунад. */
     private fun constantTimeEquals(left: String, right: String): Boolean =
         MessageDigest.isEqual(
             left.toByteArray(StandardCharsets.UTF_8),
             right.toByteArray(StandardCharsets.UTF_8),
         )
 
-    /** Loads or creates the AES-GCM key in the Android Keystore. */
+    /** Калиди AES-GCM-ро аз Android Keystore мехонад ё месозад. */
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (store.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
@@ -156,7 +154,7 @@ object PinSecurity {
         return generator.generateKey()
     }
 
-    /** Encrypts [value] with the Keystore key; result is Base64(iv + ciphertext). */
+    /** [value]-ро бо калиди Keystore рамзгузорӣ карда, Base64(iv + ciphertext) медиҳад. */
     private fun encrypt(value: String): String {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, key())
@@ -165,7 +163,7 @@ object PinSecurity {
         return Base64.encodeToString(iv + ciphertext, Base64.NO_WRAP)
     }
 
-    /** Decrypts a value produced by [encrypt]; null when it cannot be read. */
+    /** Қимати сохтаи [encrypt]-ро мекушояд; ҳангоми хато null медиҳад. */
     private fun decrypt(value: String): String? = runCatching {
         val encoded = Base64.decode(value, Base64.NO_WRAP)
         val iv = encoded.copyOfRange(0, 12)
