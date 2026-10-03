@@ -1,13 +1,12 @@
-/* FAQ page search and interaction enhancements. */
-/* Features: live filtering, counts, highlights, shortcuts, bulk toggles, and shareable URLs. */
-/* Questions also support stable fragments, copyable links, linked-card flashes, and live announcements. */
+/* Файл: ҷустуҷӯ ва идоракунии саволу ҷавобҳои маъмул.
+   Филтр, шумориш, равшанкунӣ, миёнбурҳо ва пайвандҳои мубодилашавандаро фароҳам мекунад. */
 
-// Normalizes FAQ text so searching is case-insensitive.
+// Матни FAQ-ро барои ҷустуҷӯи новобаста аз хурду калонии ҳарфҳо яксон мекунад.
 function normalizeFaqText(value) {
   return value.toLocaleLowerCase().trim();
 }
 
-// Removes search highlights and joins their text back into the original content.
+// Равшансозии натиҷаҳоро гирифта, матнро ба ҳолати аввала бармегардонад.
 function clearFaqMarks() {
   document.querySelectorAll('.faq mark[data-faq-mark]').forEach((mark) => {
     const parent = mark.parentNode;
@@ -16,7 +15,7 @@ function clearFaqMarks() {
   });
 }
 
-// Highlights each visible occurrence of the current search phrase.
+// Ҳамаи мувофиқатҳои намоёни ибораи ҷустуҷӯшударо равшан мекунад.
 function highlightFaqMatches(query) {
   clearFaqMarks();
   if (!query) return;
@@ -50,12 +49,12 @@ function highlightFaqMatches(query) {
   });
 }
 
-// Assigns predictable fragment identifiers to every FAQ question.
+// Ба ҳар савол шиносаи устувор медиҳад, то пайванди мустақим кор кунад.
 function assignFaqIds(questions) {
   questions.forEach((question, index) => { question.id ||= `q-${index + 1}`; });
 }
 
-// Copies text in browsers that do not expose the asynchronous Clipboard API.
+// Дар браузерҳои бе Clipboard API матнро бо майдони муваққатӣ нусха мегирад.
 function fallbackFaqCopy(value) {
   const field = document.createElement('textarea');
   field.value = value;
@@ -68,7 +67,7 @@ function fallbackFaqCopy(value) {
   field.remove();
 }
 
-// Copies a question URL and briefly confirms the successful action.
+// URL-и саволро нусха гирифта, муваффақиятро кӯтоҳ нишон медиҳад.
 async function copyFaqLink(button, question, labels) {
   const url = `${window.location.origin}${window.location.pathname}${window.location.search}#${question.id}`;
   const accessibleLabel = button.getAttribute('aria-label');
@@ -86,7 +85,7 @@ async function copyFaqLink(button, question, labels) {
   }, 1600);
 }
 
-// Adds a localized copy-link button to each question.
+// Ба ҳар савол тугмаи маҳаллигардонишудаи нусхабардории пайванд меафзояд.
 function addFaqCopyButtons(questions, form) {
   const labels = { copy: form.dataset.copyLabel, copied: form.dataset.copiedLabel };
   questions.forEach((question) => {
@@ -101,7 +100,7 @@ function addFaqCopyButtons(questions, form) {
   });
 }
 
-// Opens and scrolls to the question named by the current URL fragment.
+// Саволи дар қисми fragment-и URL бударо мекушояд ва ба он мегузарад.
 function openFaqHash() {
   const id = decodeURIComponent(window.location.hash.slice(1));
   if (!/^q-\d+$/.test(id)) return;
@@ -113,7 +112,7 @@ function openFaqHash() {
   question.scrollIntoView({ block: 'center' });
 }
 
-// Replaces the URL fragment when a question is opened without moving the page.
+// Ҳангоми кушодани савол fragment-и URL-ро бе ҷунбондани саҳифа иваз мекунад.
 function syncFaqHash(questions) {
   questions.forEach((question) => {
     question.addEventListener('toggle', () => {
@@ -125,7 +124,7 @@ function syncFaqHash(questions) {
   });
 }
 
-// Stores the current filter in the URL so the result view can be shared.
+// Филтри ҷориро дар URL нигоҳ медорад, то натиҷа мубодила шавад.
 function syncFaqQuery(value) {
   const url = new URL(window.location.href);
   if (value.trim()) url.searchParams.set('q', value.trim());
@@ -133,7 +132,7 @@ function syncFaqQuery(value) {
   history.replaceState(history.state, '', url);
 }
 
-// Filters questions and hides section headings that have no matches.
+// Саволҳоро филтр карда, сарлавҳаи бахшҳои бе натиҷаро пинҳон мекунад.
 function initFaqSearch() {
   const form = document.querySelector('[data-faq-search]');
   if (!form) return;
@@ -155,13 +154,13 @@ function initFaqSearch() {
   if (window.location.hash) requestAnimationFrame(openFaqHash);
   window.addEventListener('hashchange', openFaqHash);
 
-  // Keeps the search form on the current page when Enter is pressed.
+  // Ҳангоми пахши Enter фиристодани form ва тарки саҳифаро пешгирӣ мекунад.
   form.addEventListener('submit', (event) => event.preventDefault());
-  // Opens only the currently visible search results.
+  // Танҳо натиҷаҳои ҳоло намоёни ҷустуҷӯро мекушояд.
   expand?.addEventListener('click', () => questions.filter((question) => !question.hidden).forEach((question) => { question.open = true; }));
-  // Closes every question, including filtered questions.
+  // Ҳамаи саволҳо, аз ҷумла саволҳои филтршударо мепӯшонад.
   collapse?.addEventListener('click', () => questions.forEach((question) => { question.open = false; }));
-  // Implements the slash-to-focus and Escape-to-clear keyboard shortcuts.
+  // Миёнбурҳои `/` барои focus ва Escape барои поккуниро идора мекунад.
   document.addEventListener('keydown', (event) => {
     const isTyping = event.target instanceof Element && event.target.matches('input, textarea, select, [contenteditable="true"]');
     if (event.key === '/' && !isTyping && !event.metaKey && !event.ctrlKey && !event.altKey) {
@@ -174,7 +173,7 @@ function initFaqSearch() {
       input.focus();
     }
   });
-  // Applies filtering, counting, highlighting, announcements, and URL query syncing.
+  // Филтр, шумориш, равшансозӣ, эълон ва ҳамоҳангсозии query-и URL-ро иҷро мекунад.
   input.addEventListener('input', () => {
     const query = normalizeFaqText(input.value);
 
@@ -200,7 +199,7 @@ function initFaqSearch() {
     syncFaqQuery(input.value);
   });
 
-  // Restores a shared filter from the q query parameter on first load.
+  // Ҳангоми боршавии аввал филтри мубодилашударо аз параметри `q` барқарор мекунад.
   const initialQuery = new URL(window.location.href).searchParams.get('q');
   if (initialQuery) {
     input.value = initialQuery;
