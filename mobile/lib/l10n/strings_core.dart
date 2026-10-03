@@ -854,4 +854,10 @@ const Map<String, List<String>> coreStrings = {
     '{value} {unit} of {max}',
   ],
   '{value} аз {max}': ['{value} из {max}', '{value} of {max}'],
+  'Агар Android иҷозатро бо маҳдудият баста бошад': ['Если Android ограничил это разрешение', 'If Android has restricted this permission'],
+  'Тугмаи «App info»-ро пахш кунед — саҳифаи маълумоти NIGOH Family кушода мешавад.': ['Нажмите «О приложении» — откроется страница NIGOH Family.', 'Tap "App info" — the NIGOH Family page opens.'],
+  'Дар кунҷи рости боло ⋮ (се нуқта)-ро пахш кунед.': ['Нажмите ⋮ (три точки) в правом верхнем углу.', 'Tap the three dots in the top-right corner.'],
+  '«Разрешить ограниченные настройки»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.': ['Выберите «Разрешить ограниченные настройки» и подтвердите кодом телефона.', 'Choose "Allow restricted settings" and confirm with your phone lock.'],
+  'Ба NIGOH баргардед ва «Иҷозат додан»-ро аз нав пахш кунед.': ['Вернитесь в NIGOH и снова нажмите «Разрешить».', 'Come back to NIGOH and tap "Allow" again.'],
+  'Агар дар менюи ⋮ ин банд набошад, аввал як бор «Иҷозат додан»-ро пахш кунед, баъд ин ҷо баргардед.': ['Если в меню нет этого пункта, сначала один раз нажмите «Разрешить», потом вернитесь сюда.', 'If the menu lacks this item, tap "Allow" once first, then come back here.'],
 };
