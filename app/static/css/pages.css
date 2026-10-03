@@ -129,6 +129,14 @@
   .table-scroll-hint { border-radius: 8px; box-shadow: inset -16px 0 14px -16px var(--muted); }
 }
 
+/* Add slight image depth inside QR and call-to-action cards on fine pointers. */
+.qr-card img,
+.cta img { transition: transform .3s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .qr-card:hover img,
+  .cta:hover img { transform: scale(1.025); }
+}
+
 /* Keep feature topic links comfortably tappable and align their section targets. */
 .feature-chips .tag { min-height: 44px; padding-inline: 16px; }
 .feature-chips ~ * { scroll-margin-top: 120px; }
@@ -236,4 +244,6 @@
   .security-grid .card:nth-child(-n+2) .icon { animation: none; transform: none; }
   .js-motion .security-grid.is-visible .card { animation: none; }
   .security-grid .card { transform: none !important; transition: none; }
+  .qr-card img,
+  .cta img { transform: none !important; transition: none; }
 }
