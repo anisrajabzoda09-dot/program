@@ -52,6 +52,14 @@
 }
 .review-card figcaption { margin-top: auto !important; padding-top: 22px; border-top: 1px solid var(--line); }
 
+/* Add restrained brand movement to the closing home call to action. */
+.home-cta {
+  background: linear-gradient(115deg, var(--cta-bg), #163d73, #0d655f, var(--cta-bg));
+  background-size: 300% 300%;
+  animation: pages-cta-drift 18s ease-in-out infinite;
+}
+@keyframes pages-cta-drift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
@@ -81,4 +89,5 @@
   }
   .hero + .section .card-link .icon { animation: none !important; transform: none !important; }
   .js-motion .home-rules-card .meta-table.is-staged tr { opacity: 1; transform: none; transition: none; }
+  .home-cta { animation: none; background-position: 50% 50%; }
 }
