@@ -1,10 +1,4 @@
-"""Notifications (long-poll events) and voice-call signaling for the app.
-
-No Firebase: each phone keeps one long-poll request open to
-`/api/mobile/v3/events`; the server answers as soon as something happens
-(SOS, message, call…). Calls use WebRTC; offers/answers/ICE candidates are
-relayed through `/api/mobile/v3/calls/...`.
-"""
+"""Файл: long-poll notification ва signaling-и WebRTC барои зангҳо."""
 
 import os
 import time
@@ -28,7 +22,7 @@ RING_TIMEOUT = timedelta(seconds=45)
 
 
 def _my_children(db: Session, user: dict) -> list:
-    """Return every child profile accessible to the mobile family member."""
+    """Маълумоти ёрирасони my фарзандон-ро омода карда, ба caller бармегардонад."""
 
     if user.get("role") == "parent":
         return db.query(Child).filter(Child.parent_id == user["id"]).all()
@@ -36,7 +30,7 @@ def _my_children(db: Session, user: dict) -> list:
 
 
 def _role(user: dict) -> str:
-    """Normalize the authenticated user's effective side of the family."""
+    """Маълумоти ёрирасони нақш-ро омода карда, ба caller бармегардонад."""
 
     return "parent" if user.get("role") == "parent" else "child"
 
@@ -50,9 +44,7 @@ def events(
     after_id: int = Query(default=0, ge=0),
     wait: int = Query(default=0, ge=0, le=25),
 ):
-    """Events for this phone after `after_id`. With `wait`, hold the request
-    up to that many seconds until something arrives (long-poll).
-    `after_id=0` only returns the current position (no backlog flood)."""
+    """Дархости `GET /events`-ро барои event-ҳо коркард мекунад."""
     user = require_mobile_user(request, db)
     role = _role(user)
     deadline = time.monotonic() + wait
@@ -84,20 +76,20 @@ def events(
 # ---------- Calls ----------
 
 class CallCreate(BaseModel):
-    """Identify the child profile involved in a new family call."""
+    """Маълумоти `CallCreate`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     child_id: int
 
 
 class SignalCreate(BaseModel):
-    """Validate a WebRTC offer, answer, or ICE signaling payload."""
+    """Маълумоти `SignalCreate`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     kind: str = Field(..., pattern="^(offer|answer|ice)$")
     payload: str = Field(..., min_length=1, max_length=20_000)
 
 
 def _call(db: Session, user: dict, call_id: int) -> tuple:
-    """Resolve an accessible call and expire it when ringing timed out."""
+    """Маълумоти ёрирасони занг-ро омода карда, ба caller бармегардонад."""
 
     call = db.query(CallSession).filter(CallSession.id == call_id).first()
     if call is None:
@@ -110,7 +102,7 @@ def _call(db: Session, user: dict, call_id: int) -> tuple:
 
 
 def _expire(db: Session, call: CallSession, child: Child) -> None:
-    """A call nobody answered within 45 s becomes «missed»."""
+    """Занги дар 45 сония беҷавобмондаро missed карда, event мефиристад."""
     if call.status != "ringing" or call.created_at is None:
         return
     created = call.created_at if call.created_at.tzinfo else call.created_at.replace(tzinfo=timezone.utc)
@@ -125,7 +117,7 @@ def _expire(db: Session, call: CallSession, child: Child) -> None:
 
 @router.get("/calls/config")
 def call_config(request: Request, db: Session = Depends(get_db)):
-    """ICE servers for WebRTC. TURN is optional (env TURN_URLS etc.)."""
+    """Дархости `GET /calls/config`-ро барои занг танзимот коркард мекунад."""
     require_mobile_user(request, db)
     servers = [{"urls": ["stun:stun.l.google.com:19302", "stun:stun1.l.google.com:19302"]}]
     turn = [u.strip() for u in os.getenv("TURN_URLS", "").split(",") if u.strip()]
@@ -140,7 +132,7 @@ def call_config(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/calls")
 def start_call(payload: CallCreate, request: Request, db: Session = Depends(get_db)):
-    """Create a ringing family call and notify the other party."""
+    """Дархости `POST /calls`-ро барои start занг коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад ва notification мефиристад."""
 
     user = require_mobile_user(request, db)
     role = _role(user)
@@ -172,7 +164,7 @@ def start_call(payload: CallCreate, request: Request, db: Session = Depends(get_
 
 @router.get("/calls/{call_id}")
 def get_call(call_id: int, request: Request, db: Session = Depends(get_db)):
-    """Return the current state of an accessible family call."""
+    """Дархости `GET /calls/{call_id}`-ро барои get занг коркард мекунад."""
 
     user = require_mobile_user(request, db)
     call, _ = _call(db, user, call_id)
@@ -180,7 +172,7 @@ def get_call(call_id: int, request: Request, db: Session = Depends(get_db)):
 
 
 def _set_status(db: Session, user: dict, call_id: int, action: str) -> dict:
-    """Apply a valid accept, decline, or end transition and notify the peer."""
+    """Маълумоти ёрирасони set ҳолат-ро омода карда, ба caller бармегардонад."""
 
     call, child = _call(db, user, call_id)
     role = _role(user)
@@ -208,28 +200,28 @@ def _set_status(db: Session, user: dict, call_id: int, action: str) -> dict:
 
 @router.post("/calls/{call_id}/accept")
 def accept_call(call_id: int, request: Request, db: Session = Depends(get_db)):
-    """Accept an incoming ringing call for the authenticated family member."""
+    """Дархости `POST /calls/{call_id}/accept`-ро барои accept занг коркард мекунад."""
 
     return _set_status(db, require_mobile_user(request, db), call_id, "accept")
 
 
 @router.post("/calls/{call_id}/decline")
 def decline_call(call_id: int, request: Request, db: Session = Depends(get_db)):
-    """Decline a ringing call and notify the other family member."""
+    """Дархости `POST /calls/{call_id}/decline`-ро барои decline занг коркард мекунад ва notification мефиристад."""
 
     return _set_status(db, require_mobile_user(request, db), call_id, "decline")
 
 
 @router.post("/calls/{call_id}/end")
 def end_call(call_id: int, request: Request, db: Session = Depends(get_db)):
-    """End a ringing or active call and notify the other family member."""
+    """Дархости `POST /calls/{call_id}/end`-ро барои end занг коркард мекунад ва notification мефиристад."""
 
     return _set_status(db, require_mobile_user(request, db), call_id, "end")
 
 
 @router.post("/calls/{call_id}/signal")
 def send_signal(call_id: int, payload: SignalCreate, request: Request, db: Session = Depends(get_db)):
-    """Persist a WebRTC signaling message for polling by the other caller."""
+    """Дархости `POST /calls/{call_id}/signal`-ро барои send signal коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     call, _ = _call(db, user, call_id)
@@ -248,7 +240,7 @@ def get_signals(
     after_id: int = Query(default=0, ge=0),
     wait: int = Query(default=0, ge=0, le=15),
 ):
-    """Signals from the other side (long-poll), plus the current call status."""
+    """Дархости `GET /calls/{call_id}/signals`-ро барои get signals коркард мекунад."""
     user = require_mobile_user(request, db)
     role = _role(user)
     deadline = time.monotonic() + wait

@@ -1,6 +1,4 @@
-"""Family features for the Android app: history, requests, bonus time,
-bedtime, safe places and read receipts. All endpoints check that the child
-belongs to the caller (parent via parent_id, child via user_id)."""
+"""Файл: history, дархости вақт, bonus, bedtime ва safe place-ҳои оила."""
 
 import json
 from datetime import date, datetime, timedelta, timezone
@@ -27,7 +25,7 @@ _TIME = r"^([01]\d|2[0-3]):[0-5]\d$"
 
 
 def _child(db: Session, user: dict, child_id: int) -> Child:
-    """Resolve a child only when it belongs to the authenticated family member."""
+    """Маълумоти ёрирасони фарзанд-ро омода карда, ба caller бармегардонад."""
 
     query = db.query(Child).filter(Child.id == child_id)
     if user.get("role") == "parent":
@@ -41,21 +39,21 @@ def _child(db: Session, user: dict, child_id: int) -> Child:
 
 
 def _parent_only(user: dict) -> None:
-    """Reject a family action unless the mobile user acts as a parent."""
+    """Маълумоти ёрирасони parent only-ро омода карда, ба caller бармегардонад."""
 
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн ин амалро карда метавонад")
 
 
 def _child_only(user: dict) -> None:
-    """Reject a device action unless the mobile user acts as a child."""
+    """Маълумоти ёрирасони фарзанд only-ро омода карда, ба caller бармегардонад."""
 
     if user.get("role") != "child":
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд ин амалро карда метавонад")
 
 
 def _add_bonus(rule: AppRule, minutes: int) -> None:
-    """Add bounded bonus minutes to an app rule for the current day."""
+    """Маълумоти ёрирасони add вақти иловагӣ-ро омода карда, ба caller бармегардонад."""
 
     today = date.today().isoformat()
     current = rule.bonus_minutes if rule.bonus_date == today else 0
@@ -72,7 +70,7 @@ def location_history(
     db: Session = Depends(get_db),
     hours: int = Query(default=24, ge=1, le=168),
 ):
-    """Return bounded recent location samples for an accessible child."""
+    """Дархости `GET /locations`-ро барои location таърих коркард мекунад."""
 
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
@@ -93,7 +91,7 @@ def usage_history(
     db: Session = Depends(get_db),
     days: int = Query(default=7, ge=1, le=31),
 ):
-    """Return daily screen-time totals and top apps over a requested period."""
+    """Дархости `GET /usage`-ро барои истифода таърих коркард мекунад."""
 
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
@@ -124,7 +122,7 @@ def usage_history(
 # ---------- Extra-time requests ----------
 
 class TimeRequestCreate(BaseModel):
-    """Validate a child's request for additional time in one app."""
+    """Маълумоти `TimeRequestCreate`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     package_name: str = Field(..., min_length=1, max_length=255)
     minutes: int = Field(default=15, ge=5, le=120)
@@ -132,14 +130,14 @@ class TimeRequestCreate(BaseModel):
 
 
 class TimeRequestDecision(BaseModel):
-    """Validate a parent's approval choice and optional awarded minutes."""
+    """Маълумоти `TimeRequestDecision`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     approve: bool
     minutes: Optional[int] = Field(default=None, ge=5, le=240)
 
 
 def _request_payload(db: Session, row: AppExtensionRequest) -> dict:
-    """Serialize a time request with its human-readable app name."""
+    """Маълумоти ёрирасони дархост payload-ро омода карда, ба caller бармегардонад."""
 
     rule = db.query(AppRule).filter(AppRule.child_id == row.child_id, AppRule.package_name == row.package_name).first()
     return {**row.to_dict(), "app_name": rule.app_name if rule else row.package_name}
@@ -147,7 +145,7 @@ def _request_payload(db: Session, row: AppExtensionRequest) -> dict:
 
 @router.post("/requests")
 def create_time_request(child_id: int, payload: TimeRequestCreate, request: Request, db: Session = Depends(get_db)):
-    """Persist a child's pending extra-time request and notify its parent."""
+    """Дархости `POST /requests`-ро барои create вақт дархост коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад ва notification мефиристад."""
 
     user = require_mobile_user(request, db)
     _child_only(user)
@@ -185,7 +183,7 @@ def list_time_requests(
     db: Session = Depends(get_db),
     status: str = Query(default="all", pattern="^(all|pending)$"),
 ):
-    """Return recent extra-time requests for an accessible child."""
+    """Дархости `GET /requests`-ро барои list вақт дархостҳо коркард мекунад."""
 
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
@@ -204,7 +202,7 @@ def decide_time_request(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    """Persist a parent's decision, award approved time, and notify the child."""
+    """Дархости `POST /requests/{request_id}/decision`-ро барои decide вақт дархост коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад ва notification мефиристад."""
 
     user = require_mobile_user(request, db)
     _parent_only(user)
@@ -240,14 +238,14 @@ def decide_time_request(
 # ---------- Bonus time ----------
 
 class BonusRequest(BaseModel):
-    """Validate the number of app minutes a parent wants to award."""
+    """Маълумоти `BonusRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     minutes: int = Field(..., ge=5, le=240)
 
 
 @router.post("/apps/{package_name}/bonus")
 def give_bonus(child_id: int, package_name: str, payload: BonusRequest, request: Request, db: Session = Depends(get_db)):
-    """Add today's bonus minutes to an installed app for an owned child."""
+    """Дархости `POST /apps/{package_name}/bonus`-ро барои give вақти иловагӣ коркард мекунад."""
 
     user = require_mobile_user(request, db)
     _parent_only(user)
@@ -263,7 +261,7 @@ def give_bonus(child_id: int, package_name: str, payload: BonusRequest, request:
 # ---------- Bedtime ----------
 
 class Bedtime(BaseModel):
-    """Validate an optional daily bedtime restriction window."""
+    """Маълумоти `Bedtime`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     enabled: bool = False
     start: str = Field(default="21:30", pattern=_TIME)
@@ -271,7 +269,7 @@ class Bedtime(BaseModel):
 
 
 class StudyMode(BaseModel):
-    """Validate a recurring study-mode window and its weekdays."""
+    """Маълумоти `StudyMode`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     enabled: bool = False
     start: str = Field(default="08:00", pattern=_TIME)
@@ -280,7 +278,7 @@ class StudyMode(BaseModel):
 
 
 class ChildSettings(BaseModel):
-    """Group optional bedtime and study-mode settings for a child."""
+    """Маълумоти `ChildSettings`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     bedtime: Optional[Bedtime] = None
     study: Optional[StudyMode] = None
@@ -288,7 +286,7 @@ class ChildSettings(BaseModel):
 
 @router.put("/settings")
 def update_child_settings(child_id: int, payload: ChildSettings, request: Request, db: Session = Depends(get_db)):
-    """Persist a parent's bedtime and study settings for an owned child."""
+    """Дархости `PUT /settings`-ро барои update фарзанд танзимот коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     _parent_only(user)
@@ -310,7 +308,7 @@ def update_child_settings(child_id: int, payload: ChildSettings, request: Reques
 # ---------- Safe places ----------
 
 class SafePlaceCreate(BaseModel):
-    """Validate the name, center, and radius of a new safe-place geofence."""
+    """Маълумоти `SafePlaceCreate`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     name: str = Field(..., min_length=1, max_length=80)
     latitude: float = Field(..., ge=-90, le=90)
@@ -320,7 +318,7 @@ class SafePlaceCreate(BaseModel):
 
 @router.get("/places")
 def list_places(child_id: int, request: Request, db: Session = Depends(get_db)):
-    """Return all saved safe places for an accessible child."""
+    """Дархости `GET /places`-ро барои list маконҳо коркард мекунад."""
 
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
@@ -330,7 +328,7 @@ def list_places(child_id: int, request: Request, db: Session = Depends(get_db)):
 
 @router.post("/places")
 def add_place(child_id: int, payload: SafePlaceCreate, request: Request, db: Session = Depends(get_db)):
-    """Persist a parent's safe place while enforcing the per-child limit."""
+    """Дархости `POST /places`-ро барои add макон коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     _parent_only(user)
@@ -347,7 +345,7 @@ def add_place(child_id: int, payload: SafePlaceCreate, request: Request, db: Ses
 
 @router.delete("/places/{place_id}")
 def delete_place(child_id: int, place_id: int, request: Request, db: Session = Depends(get_db)):
-    """Delete an owned child's safe place after parent authorization."""
+    """Дархости `DELETE /places/{place_id}`-ро барои delete макон коркард мекунад; тағйиротро дар пойгоҳи додаҳо сабт мекунад."""
 
     user = require_mobile_user(request, db)
     _parent_only(user)
@@ -363,7 +361,7 @@ def delete_place(child_id: int, place_id: int, request: Request, db: Session = D
 
 @router.post("/chat/read")
 def mark_chat_read(child_id: int, request: Request, db: Session = Depends(get_db)):
-    """Mark the other side's messages as read."""
+    """Дархости `POST /chat/read`-ро барои mark chat read коркард мекунад."""
     user = require_mobile_user(request, db)
     child = _child(db, user, child_id)
     other = "child" if user.get("role") == "parent" else "parent"
