@@ -5,7 +5,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,8 +43,36 @@ Future<AuthorizationCredentialAppleID> pluginAppleCredential({
   webAuthenticationOptions: webAuthenticationOptions,
 );
 
+/// Opens [url] in a browser tab and resolves with the callback URL the server
+/// redirects to (scheme [callbackUrlScheme]); replaced in tests.
+typedef GitHubBrowserAuth =
+    Future<String> Function({
+      required String url,
+      required String callbackUrlScheme,
+    });
+
+/// Default [GitHubBrowserAuth]: the flutter_web_auth_2 plugin (Custom Tab).
+Future<String> pluginGitHubBrowser({
+  required String url,
+  required String callbackUrlScheme,
+}) => FlutterWebAuth2.authenticate(
+  url: url,
+  callbackUrlScheme: callbackUrlScheme,
+);
+
+/// Thrown when the user backs out of GitHub sign-in; the screen stays silent.
+class GitHubSignInCancelled implements Exception {
+  const GitHubSignInCancelled();
+
+  @override
+  String toString() => 'GitHub sign-in cancelled';
+}
+
 /// Random raw nonce for one Apple sign-in (Random.secure, URL-safe chars).
-String appleRawNonce([int length = 48]) {
+String appleRawNonce([int length = 48]) => secureRawNonce(length);
+
+/// Random raw nonce for one Apple/GitHub sign-in (Random.secure, URL-safe).
+String secureRawNonce([int length = 48]) {
   const chars =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._';
   final random = Random.secure();
@@ -58,9 +88,13 @@ String sha256Hex(String raw) => sha256.convert(utf8.encode(raw)).toString();
 /// Signed-in state of the app. One instance lives for the whole app
 /// (see `SessionScope`). Screens read [user]/[role] and call the actions.
 class Session extends ChangeNotifier {
-  Session({NigohApi? api, AppleCredentialProvider? appleCredential})
-    : api = api ?? NigohApi(),
-      appleCredential = appleCredential ?? pluginAppleCredential {
+  Session({
+    NigohApi? api,
+    AppleCredentialProvider? appleCredential,
+    GitHubBrowserAuth? githubBrowser,
+  }) : api = api ?? NigohApi(),
+       appleCredential = appleCredential ?? pluginAppleCredential,
+       githubBrowser = githubBrowser ?? pluginGitHubBrowser {
     this.api.onUnauthorized = _expired;
   }
 
@@ -68,6 +102,9 @@ class Session extends ChangeNotifier {
 
   /// Where Apple ID credentials come from (the plugin, or a fake in tests).
   final AppleCredentialProvider appleCredential;
+
+  /// Opens the GitHub browser flow (the plugin, or a fake in tests).
+  final GitHubBrowserAuth githubBrowser;
 
   static const _tokenKey = 'nigoh.token';
   static const _roleKey = 'nigoh.role';
@@ -198,6 +235,61 @@ class Session extends ChangeNotifier {
         fullName: fullName.isEmpty ? null : fullName,
       ),
     );
+  }
+
+  /// Sign in with GitHub via the server's browser flow: the tab gets the
+  /// nonce's sha256, the server gets the one-time ticket plus the RAW nonce.
+  /// Throws [GitHubSignInCancelled] when the user backs out, otherwise a
+  /// readable [ApiException].
+  Future<void> signInWithGitHub() async {
+    final config = await api.githubConfig();
+    if (!config.enabled) {
+      throw ApiException(tr('Воридшавӣ бо GitHub ҳоло дастрас нест.'));
+    }
+    final rawNonce = secureRawNonce();
+    final start = Uri.parse(config.startUrl!);
+    final url = start.replace(
+      queryParameters: {
+        ...start.queryParameters,
+        'nonce_hash': sha256Hex(rawNonce),
+      },
+    );
+    final String result;
+    try {
+      result = await githubBrowser(
+        url: url.toString(),
+        callbackUrlScheme: config.callbackScheme!,
+      );
+    } on PlatformException catch (e) {
+      if (e.code == 'CANCELED') throw const GitHubSignInCancelled();
+      throw ApiException(tr('Воридшавӣ бо GitHub нашуд. Аз нав кӯшиш кунед.'));
+    }
+    final ticket = _githubTicket(result);
+    await _store(await api.signInWithGitHub(ticket: ticket, nonce: rawNonce));
+  }
+
+  /// Pulls the ticket out of the GitHub callback URL or throws the matching
+  /// cancel / readable error.
+  String _githubTicket(String callbackUrl) {
+    final params = Uri.tryParse(callbackUrl)?.queryParameters ?? const {};
+    final ticket = params['ticket'] ?? '';
+    final error = params['error'];
+    if (error == null && ticket.isNotEmpty) return ticket;
+    switch (error) {
+      case 'cancelled':
+      case 'canceled':
+        throw const GitHubSignInCancelled();
+      case 'no_email':
+        throw ApiException(
+          tr(
+            'GitHub почтаи тасдиқшударо надод. Почтаи худро дар GitHub тасдиқ кунед ва аз нав кӯшиш кунед.',
+          ),
+        );
+      case 'not_configured':
+        throw ApiException(tr('Воридшавӣ бо GitHub ҳоло дастрас нест.'));
+      default:
+        throw ApiException(tr('Воридшавӣ бо GitHub нашуд. Аз нав кӯшиш кунед.'));
+    }
   }
 
   /// Saves the role chosen for this phone and tells the server about it.
