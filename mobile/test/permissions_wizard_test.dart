@@ -113,6 +113,15 @@ void main() {
   }
 
   Future<void> tapIt(WidgetTester tester, Finder finder) async {
+    // The step page is a ListView; an off-screen target may not be built yet,
+    // so scroll it into view before tapping.
+    final scrollable = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(
+      finder,
+      120,
+      scrollable: scrollable,
+      maxScrolls: 20,
+    );
     await tester.ensureVisible(finder);
     await tester.pumpAndSettle();
     await tester.tap(finder);
@@ -278,22 +287,44 @@ void main() {
     await pumpWizard(tester, child: true);
     await later(tester, 4);
     expect(find.text('Специальные возможности'), findsOneWidget);
-    expect(
-      find.textContaining('Разрешить ограниченные настройки'),
-      findsNothing,
-    );
-    final help = find.byKey(const Key('wizard-help'));
-    await tapIt(tester, help);
+    // The always-on App info card already mentions the restricted setting once.
     expect(
       find.textContaining('Разрешить ограниченные настройки'),
       findsOneWidget,
     );
+    // Prerequisite hint (usage/overlay still missing) sits near the top; check
+    // it before scrolling down, since the ListView disposes off-screen items.
+    expect(find.textContaining('тугма аввал'), findsOneWidget);
+    final help = find.byKey(const Key('wizard-help'));
+    await tapIt(tester, help);
+    // Now both the card and the expanded help mention the restricted setting.
+    expect(
+      find.textContaining('Разрешить ограниченные настройки'),
+      findsNWidgets(2),
+    );
     expect(find.textContaining('Доступ запрещен'), findsWidgets);
     expect(find.textContaining('Автоблокировка'), findsOneWidget);
-    // Prerequisite hint (usage/overlay still missing).
-    expect(find.textContaining('тугма аввал'), findsOneWidget);
     await tapIt(tester, help);
     expect(find.textContaining('Автоблокировка'), findsNothing);
+  });
+
+  testWidgets('restricted-settings steps show the App info card', (
+    tester,
+  ) async {
+    await pumpWizard(tester, child: true);
+    // Steps 3-5 (usage, overlay, accessibility) are the restricted ones.
+    await later(tester, 2);
+    expect(find.byKey(const Key('wizard-restricted')), findsOneWidget);
+    await tapIt(tester, find.byKey(const Key('wizard-app-info')));
+    expect(calls, contains('openAppSettings'));
+  });
+
+  testWidgets('non-restricted steps have no App info card', (tester) async {
+    await pumpWizard(tester, child: true);
+    // Step 2 is notifications (a normal runtime permission).
+    await later(tester);
+    expect(find.text('Огоҳиномаҳо'), findsOneWidget);
+    expect(find.byKey(const Key('wizard-restricted')), findsNothing);
   });
 
   testWidgets('auto-advances after the permission is granted', (tester) async {
