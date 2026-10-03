@@ -48,6 +48,21 @@
     timeline.style.setProperty('--timeline-progress', progress.toFixed(3));
   }
 
+  /* Open the enlarged QR dialog and place focus on its close control. */
+  function openQrDialog(opener) {
+    var dialog = document.querySelector('.qr-dialog');
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    dialog.qrOpener = opener;
+    dialog.showModal();
+    dialog.querySelector('.qr-dialog-close').focus();
+  }
+
+  /* Close the QR dialog and return focus to the control that opened it. */
+  function closeQrDialog(dialog) {
+    dialog.close();
+    if (dialog.qrOpener) dialog.qrOpener.focus();
+  }
+
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -73,4 +88,18 @@
     window.addEventListener('resize', updateTimeline, { passive: true });
     updateTimeline();
   }
+
+  document.querySelectorAll('.qr-open').forEach(function (button) {
+    button.addEventListener('click', function () { openQrDialog(button); });
+  });
+  document.querySelectorAll('.qr-dialog').forEach(function (dialog) {
+    dialog.querySelector('.qr-dialog-close').addEventListener('click', function () { closeQrDialog(dialog); });
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) closeQrDialog(dialog);
+    });
+    dialog.addEventListener('cancel', function (event) {
+      event.preventDefault();
+      closeQrDialog(dialog);
+    });
+  });
 }());

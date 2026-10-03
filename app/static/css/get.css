@@ -81,3 +81,39 @@
 @media (prefers-reduced-motion: reduce) {
   .install-timeline.js-get-timeline::after { transform: scaleY(1); transition: none; }
 }
+
+.qr-open {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.qr-dialog {
+  width: min(460px, calc(100% - 32px));
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .28);
+}
+
+.qr-dialog::backdrop { background: rgba(4, 8, 16, .72); }
+.qr-dialog-card { position: relative; padding: 28px; text-align: center; }
+.qr-dialog-card img { width: min(360px, 100%); margin: 20px auto 0; padding: 12px; border-radius: var(--radius); background: #fff; }
+.qr-dialog-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink);
+  font: 400 1.6rem/1 inherit;
+  cursor: pointer;
+}
