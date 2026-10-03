@@ -1,3 +1,6 @@
+// Localization: the app language setting (Tajik, Russian, English) and the
+// [tr] lookup that translates Tajik source texts via the string tables.
+
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +23,7 @@ class AppLanguage extends ValueNotifier<String> {
   static const names = {'tg': 'Тоҷикӣ', 'ru': 'Русский', 'en': 'English'};
   static const _key = 'nigoh.locale';
 
+  /// Restores the saved language at app start.
   Future<void> load() async {
     try {
       final saved = (await SharedPreferences.getInstance()).getString(_key);
@@ -27,6 +31,7 @@ class AppLanguage extends ValueNotifier<String> {
     } catch (_) {}
   }
 
+  /// Switches the app language and saves it.
   Future<void> set(String lang) async {
     if (!supported.contains(lang)) return;
     value = lang;
@@ -48,6 +53,8 @@ final Map<String, List<String>> _dictionary = {
   ...childStrings,
 };
 
+/// Translates a Tajik source text into the current language and fills its
+/// {placeholders} from [args]; falls back to the Tajik text.
 String tr(String tajik, [Map<String, Object?> args = const {}]) {
   final lang = appLanguage.value;
   var text = tajik;
