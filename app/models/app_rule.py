@@ -1,10 +1,10 @@
-"""Store each child's blocking, scheduling, and usage-limit rule per app."""
+"""Файл: model-и SQLAlchemy барои маълумоти `app_rule` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, func
 from app.db.base import Base
 
 class AppRule(Base):
-    """Represent parental controls for one installed app on one child device."""
+    """Сабти `AppRule`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "app_rules"
 
@@ -29,7 +29,7 @@ class AppRule(Base):
     )
 
     def to_dict(self):
-        """Serialize the app rule for family-control API responses."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

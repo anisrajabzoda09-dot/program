@@ -1,11 +1,11 @@
-"""Define location, safe-place, notification, and call-signaling records."""
+"""Файл: model-и SQLAlchemy барои маълумоти `family_extras` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, func
 from app.db.base import Base
 
 
 class LocationPoint(Base):
-    """One reported position of a child's phone (history for the parent map)."""
+    """Сабти `LocationPoint`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "location_points"
 
@@ -18,7 +18,7 @@ class LocationPoint(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):
-        """Serialize a historical location sample for the parent map."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "latitude": self.latitude,
@@ -30,7 +30,7 @@ class LocationPoint(Base):
 
 
 class SafePlace(Base):
-    """A named circle (home, school…) the parent cares about."""
+    """Доираи номдори бехатарро, мисли хона ё мактаб, нигоҳ медорад."""
 
     __tablename__ = "safe_places"
 
@@ -43,7 +43,7 @@ class SafePlace(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
-        """Serialize a named geofence and its radius for mobile clients."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,
@@ -55,11 +55,7 @@ class SafePlace(Base):
 
 
 class FamilyEvent(Base):
-    """Something a phone should be notified about (SOS, message, call…).
-
-    `target_role` is the side that should see it: 'parent' or 'child'.
-    Phones long-poll `/api/mobile/v3/events` and show local notifications.
-    """
+    """Сабти `FamilyEvent`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "family_events"
 
@@ -73,7 +69,7 @@ class FamilyEvent(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):
-        """Serialize a notification event and decode its structured payload."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         import json
 
@@ -89,7 +85,7 @@ class FamilyEvent(Base):
 
 
 class CallSession(Base):
-    """A voice call between the parent and a child (WebRTC, server signaling)."""
+    """Сабти `CallSession`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "call_sessions"
 
@@ -102,7 +98,7 @@ class CallSession(Base):
     ended_at = Column(DateTime, nullable=True)
 
     def to_dict(self):
-        """Serialize call state and lifecycle timestamps for polling clients."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,
@@ -116,7 +112,7 @@ class CallSession(Base):
 
 
 class CallSignal(Base):
-    """WebRTC offer/answer/ICE message relayed through the server."""
+    """Сабти `CallSignal`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "call_signals"
 
@@ -128,6 +124,6 @@ class CallSignal(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
-        """Serialize a WebRTC signaling message for the other caller."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {"id": self.id, "from_role": self.from_role, "kind": self.kind, "payload": self.payload}

@@ -1,10 +1,10 @@
-"""Persist text, voice, and urgent messages in the family chat."""
+"""Файл: model-и SQLAlchemy барои маълумоти `chat` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from app.db.base import Base
 
 class ChatMessage(Base):
-    """Represent one parent-or-child message associated with a child profile."""
+    """Сабти `ChatMessage`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "chat_messages"
 
@@ -19,7 +19,7 @@ class ChatMessage(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
-        """Serialize a chat message for mobile clients."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

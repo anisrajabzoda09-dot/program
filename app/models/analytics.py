@@ -1,10 +1,10 @@
-"""Store individual website visits and download-related analytics events."""
+"""Файл: model-и SQLAlchemy барои маълумоти `analytics` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Integer, String, DateTime, func
 from app.db.base import Base
 
 class SiteAnalytics(Base):
-    """Represent one tracked website or APK interaction."""
+    """Сабти `SiteAnalytics`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "site_analytics"
 
@@ -17,7 +17,7 @@ class SiteAnalytics(Base):
     created_at = Column(DateTime, server_default=func.now(), index=True)
 
     def to_dict(self):
-        """Serialize the analytics event for admin API responses."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

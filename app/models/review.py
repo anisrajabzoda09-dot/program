@@ -1,10 +1,10 @@
-"""Store parent testimonials displayed on the public website."""
+"""Файл: model-и SQLAlchemy барои маълумоти `review` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Integer, String
 from app.db.base import Base
 
 class Review(Base):
-    """Represent one rated testimonial and its public author details."""
+    """Сабти `Review`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "reviews"
 
@@ -16,7 +16,7 @@ class Review(Base):
     date = Column(String, nullable=False)
 
     def to_dict(self):
-        """Serialize the testimonial for template and API consumption."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

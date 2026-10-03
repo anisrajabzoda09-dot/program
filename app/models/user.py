@@ -1,10 +1,10 @@
-"""Store server user accounts and their external identity links."""
+"""Файл: model-и SQLAlchemy барои маълумоти `user` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Integer, String, DateTime, func
 from app.db.base import Base
 
 class User(Base):
-    """Represent a parent, child, admin, or not-yet-assigned account."""
+    """Сабти `User`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "users"
 
@@ -23,7 +23,7 @@ class User(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
-        """Serialize non-secret account fields for API responses."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

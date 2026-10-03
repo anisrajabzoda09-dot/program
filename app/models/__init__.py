@@ -1,4 +1,4 @@
-"""Expose the SQLAlchemy models that make up the server data model."""
+"""Файл: model-и SQLAlchemy барои маълумоти `__init__` ва табдили он ба ҷавоби API."""
 
 from app.models.user import User
 from app.models.child import Child

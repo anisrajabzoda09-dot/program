@@ -1,10 +1,10 @@
-"""Store child profiles, paired-device status, location, and family settings."""
+"""Файл: model-и SQLAlchemy барои маълумоти `child` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func
 from app.db.base import Base
 
 class Child(Base):
-    """Represent the child and device being managed by a family account."""
+    """Сабти `Child`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "children"
 
@@ -31,7 +31,7 @@ class Child(Base):
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
-        """Serialize core profile, device, and location fields for APIs."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

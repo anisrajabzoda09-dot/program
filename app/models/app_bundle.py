@@ -1,4 +1,4 @@
-"""Persist versioned configuration patches distributed to mobile clients."""
+"""Файл: model-и SQLAlchemy барои маълумоти `app_bundle` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, DateTime, Integer, JSON, String, func
 
@@ -6,7 +6,7 @@ from app.db.base import Base
 
 
 class AppBundle(Base):
-    """A versioned, signed-at-rest dynamic configuration patch."""
+    """Сабти `AppBundle`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "app_bundles"
 
@@ -18,7 +18,7 @@ class AppBundle(Base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     def to_dict(self) -> dict:
-        """Serialize a bundle for mobile synchronization responses."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "bundle_version": self.bundle_version,

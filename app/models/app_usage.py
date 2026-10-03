@@ -1,11 +1,11 @@
-"""Store per-day app usage totals reported by child devices."""
+"""Файл: model-и SQLAlchemy барои маълумоти `app_usage` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, Date, DateTime, ForeignKey, Integer, String, UniqueConstraint, func
 from app.db.base import Base
 
 
 class AppUsageDaily(Base):
-    """Represent a child's accumulated minutes for one app and calendar day."""
+    """Сабти `AppUsageDaily`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "app_usage_daily"
 
@@ -22,7 +22,7 @@ class AppUsageDaily(Base):
     )
 
     def to_dict(self):
-        """Serialize a daily usage record with ISO-formatted timestamps."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

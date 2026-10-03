@@ -1,11 +1,11 @@
-"""Persist a child's requests for additional application time."""
+"""Файл: model-и SQLAlchemy барои маълумоти `extension_request` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from app.db.base import Base
 
 
 class AppExtensionRequest(Base):
-    """Represent a time-extension request and its parent's decision."""
+    """Сабти `AppExtensionRequest`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "app_extension_requests"
 
@@ -20,7 +20,7 @@ class AppExtensionRequest(Base):
     processed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     def to_dict(self):
-        """Serialize request status and processing metadata for mobile clients."""
+        """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
 
         return {
             "id": self.id,

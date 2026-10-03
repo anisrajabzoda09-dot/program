@@ -1,11 +1,11 @@
-"""Store hashed bearer sessions issued to signed-in Android devices."""
+"""Файл: model-и SQLAlchemy барои маълумоти `mobile_session` ва табдили он ба ҷавоби API."""
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from app.db.base import Base
 
 
 class MobileSession(Base):
-    """Long-lived sign-in of the NIGOH Android app. Only a hash of the token is stored."""
+    """Сабти `MobileSession`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 
     __tablename__ = "mobile_sessions"
 
