@@ -43,6 +43,20 @@ class Settings:
     # Toolkit endpoint; no Firebase database write is performed by the API.
     # OAuth client IDs whose Google ID tokens the Android app may send
     # (web client used as serverClientId, plus the Android client).
+    # Sign in with GitHub (empty = the GitHub button is hidden and the routes refuse).
+    # One OAuth App serves both the website and the phone app; its
+    # "Authorization callback URL" must be GITHUB_REDIRECT_URI.
+    GITHUB_CLIENT_ID: str = os.getenv("GITHUB_CLIENT_ID", "")
+    GITHUB_CLIENT_SECRET: str = os.getenv("GITHUB_CLIENT_SECRET", "")
+    GITHUB_REDIRECT_URI: str = os.getenv(
+        "GITHUB_REDIRECT_URI", "https://nigohfamily.qobus.tj/auth/github/callback"
+    )
+    GITHUB_APP_SCHEME: str = os.getenv("GITHUB_APP_SCHEME", "nigohfamily")
+    GITHUB_AUTHORIZATION_ENDPOINT: str = "https://github.com/login/oauth/authorize"
+    GITHUB_TOKEN_ENDPOINT: str = "https://github.com/login/oauth/access_token"
+    GITHUB_API: str = "https://api.github.com"
+    GITHUB_TICKET_MAX_AGE: int = 120
+
     # Sign in with Apple (all empty = the Apple button is hidden and the routes refuse).
     # APPLE_CLIENT_ID is the Services ID; the private key is the .p8 key text
     # (newlines may be written as \n) or a path in APPLE_PRIVATE_KEY_PATH.

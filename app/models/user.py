@@ -14,6 +14,8 @@ class User(Base):
     full_name = Column(String, nullable=False)
     role = Column(String, default="unassigned")
     google_id = Column(String, nullable=True)
+    # Numeric GitHub account id (never changes, unlike the login name).
+    github_id = Column(String, nullable=True, unique=True, index=True)
     # Stable Apple account id ("sub" claim) for Sign in with Apple.
     apple_id = Column(String, nullable=True, unique=True, index=True)
     firebase_uid = Column(String, nullable=True, unique=True, index=True)

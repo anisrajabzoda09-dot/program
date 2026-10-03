@@ -41,6 +41,10 @@ def init_db():
             conn.execute(text("ALTER TABLE users ADD COLUMN firebase_uid TEXT"))
             conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_firebase_uid ON users (firebase_uid)"))
             conn.commit()
+        if "github_id" not in user_cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN github_id TEXT"))
+            conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_github_id ON users (github_id)"))
+            conn.commit()
         if "apple_id" not in user_cols:
             conn.execute(text("ALTER TABLE users ADD COLUMN apple_id TEXT"))
             conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_apple_id ON users (apple_id)"))
