@@ -66,14 +66,6 @@
   transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   transition: transform .18s ease-out;
 }
-.js-motion .motion-hero-visual img[src*="hero_phone_clean"] {
-  animation: motion-phone-float 6s ease-in-out 1.05s infinite;
-  transform: translateZ(24px); will-change: transform;
-}
-@keyframes motion-phone-float {
-  0%, 100% { transform: translate3d(0, 0, 24px); }
-  50% { transform: translate3d(0, -7px, 24px); }
-}
 
 /* Hero glow: brand-blue and teal light drift softly behind the device. */
 .hero-visual::before {
@@ -176,7 +168,6 @@ html.motion-theme-transition::view-transition-new(root) {
   .js-motion .site-footer.motion-reveal {
     opacity: 1 !important; transform: none !important; transition: none !important;
   }
-  .js-motion .motion-hero-visual img[src*="hero_phone_clean"],
   .hero-visual::before { animation: none !important; transform: none !important; }
   .card:hover, .step:hover, .qr-card:hover, .screen:hover, .callout:hover,
   .card:hover .icon { transform: none !important; }

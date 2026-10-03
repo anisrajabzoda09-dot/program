@@ -30,8 +30,8 @@
   .hero + .section .card-link:nth-child(6):hover .icon { animation: pages-lock-click .42s ease; }
 }
 
-/* Reduce glare from screenshot imagery while preserving the protected phone mockup. */
-:root[data-theme="dark"] .screen img:not([src*="hero_phone_clean.png"]) {
+/* Reduce glare from screenshot imagery in dark mode. */
+:root[data-theme="dark"] .screen img {
   filter: brightness(.86) contrast(1.06);
 }
 
