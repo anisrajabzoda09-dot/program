@@ -131,6 +131,25 @@
   }
 }
 
+/* Original Uiverse-style treatment: an animated brand gradient frames the download CTA. */
+.download-cta {
+  border-color: transparent;
+  background: linear-gradient(var(--ink), var(--ink)) padding-box,
+              linear-gradient(110deg, var(--blue), var(--teal), var(--blue)) border-box;
+  background-size: 100% 100%, 220% 100%;
+}
+@media (hover: hover) and (pointer: fine) {
+  .download-cta:hover {
+    color: var(--on-ink);
+    background: linear-gradient(var(--ink-hover), var(--ink-hover)) padding-box,
+                linear-gradient(110deg, var(--blue), var(--teal), var(--blue)) border-box;
+    background-size: 100% 100%, 220% 100%;
+    animation: download-border-flow 1.2s linear infinite;
+    box-shadow: 0 0 18px color-mix(in srgb, var(--blue) 38%, transparent);
+  }
+}
+@keyframes download-border-flow { to { background-position: 0 0, 220% 0; } }
+
 /* FAQ response: native details semantics stay intact; answer content eases in/out. */
 .faq details > div { transform-origin: top; }
 
@@ -159,6 +178,7 @@ html.motion-theme-transition::view-transition-new(root) {
   .card:hover, .step:hover, .qr-card:hover, .screen:hover, .callout:hover,
   .card:hover .icon { transform: none !important; }
   .btn-primary::after { display: none; }
+  .download-cta:hover { animation: none !important; box-shadow: none; }
   /* No hover/scroll transitions at all for reduced-motion visitors. */
   .site-header, .nav, .card, .step, .qr-card, .screen, .callout, .icon, .btn {
     transition: none !important;

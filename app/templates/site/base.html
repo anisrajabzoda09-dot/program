@@ -132,7 +132,7 @@
           <a href="{{ bp if code == 'tg' else '/' ~ code ~ ('' if bp == '/' else bp) }}" hreflang="{{ code }}"{% if code == lang %} aria-current="true"{% endif %}>{{ label }}</a>
           {% endfor %}
         </div>
-        <a class="btn btn-primary btn-sm" href="{{ P }}/get">{{ L.download }}</a>
+        <a class="btn btn-primary btn-sm download-cta" href="{{ P }}/get">{{ L.download }}</a>
       </div>
     </nav>
   </header>
