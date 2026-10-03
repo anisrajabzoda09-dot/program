@@ -487,12 +487,12 @@ int attentionRank(FamilyChild child, [DateTime? now]) {
   return 3;
 }
 
-/// «1с 25д», «40 дақ».
+/// «1 соат 25 дақ», «40 дақ» — always with the unit spelled out.
 String formatMinutes(int minutes) {
   if (minutes < 60) return tr('{minutes} дақ', {'minutes': minutes});
   final hours = minutes ~/ 60;
   final rest = minutes % 60;
   return rest == 0
       ? tr('{hours} соат', {'hours': hours})
-      : tr('{hours}с {rest}д', {'hours': hours, 'rest': rest});
+      : tr('{hours} соат {rest} дақ', {'hours': hours, 'rest': rest});
 }

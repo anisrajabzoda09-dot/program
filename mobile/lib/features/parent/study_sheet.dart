@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/models.dart';
+import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
 import 'parent_sheets.dart';
@@ -107,16 +108,26 @@ class _StudySheetState extends State<StudySheet> {
             SwitchListTile(
               key: const ValueKey('study-switch'),
               contentPadding: EdgeInsets.zero,
+              secondary: const Icon(
+                Icons.school_rounded,
+                color: NigohDesign.mint,
+              ),
               title: Text(tr('Тамаркузи дарс фаъол')),
+              subtitle: Text(
+                enabled
+                    ? tr('Дар рӯзҳо ва соатҳои зер кор мекунад')
+                    : tr('Ҳоло тамаркузи дарс кор намекунад'),
+              ),
               value: enabled,
               onChanged: (v) => setState(() => enabled = v),
             ),
+            SectionTitle(tr('Соатҳои дарс')),
             Row(
               children: [
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('study-start'),
-                    label: tr('Оғоз'),
+                    label: tr('Аз соати'),
                     value: formatHhmm(start),
                     enabled: enabled,
                     onTap: () => _pick(true),
@@ -126,7 +137,7 @@ class _StudySheetState extends State<StudySheet> {
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('study-end'),
-                    label: tr('Анҷом'),
+                    label: tr('То соати'),
                     value: formatHhmm(end),
                     enabled: enabled,
                     onTap: () => _pick(false),
@@ -134,7 +145,7 @@ class _StudySheetState extends State<StudySheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SectionTitle(tr('Рӯзҳои ҳафта')),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -165,16 +176,20 @@ class _StudySheetState extends State<StudySheet> {
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: FilledButton.icon(
                 key: const ValueKey('study-save'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(54),
+                ),
                 onPressed: saving || invalid ? null : _save,
-                child: saving
+                icon: saving
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(tr('Нигоҳ доштан')),
+                    : const Icon(Icons.check_rounded),
+                label: Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],

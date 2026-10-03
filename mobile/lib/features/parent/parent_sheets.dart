@@ -107,16 +107,26 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
             SwitchListTile(
               key: const ValueKey('bedtime-switch'),
               contentPadding: EdgeInsets.zero,
+              secondary: const Icon(
+                Icons.bedtime_rounded,
+                color: NigohDesign.violet,
+              ),
               title: Text(tr('Вақти хоб фаъол')),
+              subtitle: Text(
+                enabled
+                    ? tr('Ҳар шаб дар соатҳои зер кор мекунад')
+                    : tr('Ҳоло вақти хоб кор намекунад'),
+              ),
               value: enabled,
               onChanged: (v) => setState(() => enabled = v),
             ),
+            SectionTitle(tr('Соатҳои хоб')),
             Row(
               children: [
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('bedtime-start'),
-                    label: tr('Оғоз'),
+                    label: tr('Аз соати'),
                     value: formatHhmm(start),
                     enabled: enabled,
                     onTap: () => _pick(true),
@@ -126,7 +136,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
                 Expanded(
                   child: TimeTile(
                     key: const ValueKey('bedtime-end'),
-                    label: tr('Анҷом'),
+                    label: tr('То соати'),
                     value: formatHhmm(end),
                     enabled: enabled,
                     onTap: () => _pick(false),
@@ -145,16 +155,20 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: FilledButton.icon(
                 key: const ValueKey('bedtime-save'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(54),
+                ),
                 onPressed: saving || (enabled && same) ? null : _save,
-                child: saving
+                icon: saving
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(tr('Нигоҳ доштан')),
+                    : const Icon(Icons.check_rounded),
+                label: Text(tr('Нигоҳ доштан')),
               ),
             ),
           ],
@@ -308,7 +322,7 @@ class _AppOptionsSheetState extends State<AppOptionsSheet> {
               ),
               const Divider(height: 24),
               Text(
-                tr('Вақти иловагӣ'),
+                tr('Вақти иловагӣ барои имрӯз'),
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
@@ -366,7 +380,8 @@ class BonusButtons extends StatelessWidget {
         ActionChip(
           key: ValueKey('bonus-${app.packageName}-$m'),
           avatar: const Icon(Icons.more_time_rounded, size: 16),
-          label: Text('+$m'),
+          label: Text(tr('+{m} дақ', {'m': m})),
+          tooltip: tr('Имрӯз {m} дақиқа зиёдтар', {'m': m}),
           onPressed: enabled ? () => onBonus(m) : null,
         ),
       if (app.bonusMinutesToday > 0)

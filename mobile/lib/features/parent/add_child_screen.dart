@@ -78,32 +78,51 @@ class _AddChildScreenState extends State<AddChildScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [
-              _Step(
-                number: 1,
-                color: NigohDesign.blue,
-                title: tr('NIGOH Family-ро дар телефони фарзанд насб кунед'),
-                text: tr('Ворид шавед ва «Фарзанд»-ро интихоб кунед.'),
+              Text(
+                tr(
+                  'Телефони фарзандро дар се қадам пайваст кунед — баъд қоидаҳо, ҷойгиршавӣ ва чат кор мекунанд.',
+                ),
+                key: const ValueKey('add-child-purpose'),
+                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
               ),
-              _Step(
-                number: 2,
-                color: NigohDesign.violet,
-                title: tr('Ном ва синни фарзандро нависед'),
-                text: tr('Дар экран QR ва коди 6-рақама пайдо мешавад.'),
-              ),
-              _Step(
-                number: 3,
-                color: NigohDesign.mint,
-                title: desktop
-                    ? tr('Кодро дар ин ҷо ворид кунед')
-                    : tr('QR-ро скан кунед ё кодро ворид кунед'),
-                text: tr(
-                  'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
+              SectionTitle(tr('Се қадам')),
+              FadeIn(
+                index: 0,
+                child: _Step(
+                  number: 1,
+                  color: NigohDesign.blue,
+                  title: tr('NIGOH Family-ро дар телефони фарзанд насб кунед'),
+                  text: tr('Ворид шавед ва «Фарзанд»-ро интихоб кунед.'),
                 ),
               ),
-              const SizedBox(height: 12),
+              FadeIn(
+                index: 1,
+                child: _Step(
+                  number: 2,
+                  color: NigohDesign.violet,
+                  title: tr('Ном ва синни фарзандро нависед'),
+                  text: tr('Дар экран QR ва коди 6-рақама пайдо мешавад.'),
+                ),
+              ),
+              FadeIn(
+                index: 2,
+                child: _Step(
+                  number: 3,
+                  color: NigohDesign.mint,
+                  title: desktop
+                      ? tr('Кодро дар ин ҷо ворид кунед')
+                      : tr('QR-ро скан кунед ё кодро ворид кунед'),
+                  text: tr(
+                    'Пас аз пайваст ҳамаи иҷозатҳоро дар телефони фарзанд диҳед.',
+                  ),
+                ),
+              ),
+              SectionTitle(tr('Пайваст кардани телефон')),
               if (!desktop) ...[
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
+                  duration: Duration(
+                    milliseconds: reducedMotion(context) ? 0 : 250,
+                  ),
                   child: _scanning
                       ? ClipRRect(
                           key: const ValueKey('scanner'),
@@ -182,19 +201,44 @@ class _AddChildScreenState extends State<AddChildScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  onPressed: _busy ? null : () => _submit(_code.text),
-                  child: _busy
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(tr('Пайваст кардан')),
-                ),
+                // On a computer there is no scanner, so this is the one
+                // primary action and it is filled; on a phone the QR button
+                // above stays dominant and this one is quiet.
+                child: desktop
+                    ? FilledButton.icon(
+                        key: const Key('add-child.submit'),
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(54),
+                        ),
+                        onPressed: _busy ? null : () => _submit(_code.text),
+                        icon: _busy
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.link_rounded),
+                        label: Text(tr('Пайваст кардан')),
+                      )
+                    : OutlinedButton.icon(
+                        key: const Key('add-child.submit'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                        ),
+                        onPressed: _busy ? null : () => _submit(_code.text),
+                        icon: _busy
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.link_rounded),
+                        label: Text(tr('Пайваст кардан')),
+                      ),
               ),
             ],
           ),

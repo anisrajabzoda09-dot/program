@@ -318,8 +318,27 @@ class _ParentHomeState extends State<ParentHome> {
         // width-limited content column. Phones keep the bottom bar.
         final wide =
             MediaQuery.sizeOf(context).width >= ParentHome.wideBreakpoint;
+        // Fade-through between tabs: the old page fades out, the new one
+        // fades and lifts in. Collapses with «less motion».
+        final motion = !reducedMotion(context);
         Widget content = AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
+          duration: Duration(milliseconds: motion ? 220 : 0),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: motion
+                ? SlideTransition(
+                    position: animation.drive(
+                      Tween(
+                        begin: const Offset(0, .015),
+                        end: Offset.zero,
+                      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+                    ),
+                    child: child,
+                  )
+                : child,
+          ),
           child: KeyedSubtree(
             key: ValueKey('tab-$_tab-${children.isEmpty}'),
             child: body,
@@ -634,24 +653,26 @@ class _Overview extends StatelessWidget {
               onRetry: controller.refresh,
             ),
           ],
-          if (controller.children.any((c) => c.paired)) ...[
-            const SizedBox(height: 16),
-            _RequestsTile(
-              count: controller.pendingRequestsTotal,
-              onTap: onRequests,
-            ),
-          ],
-          if (deviceAlerts.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _DeviceAlerts(
-              children: deviceAlerts,
-              onOpen: (child) => onOpen(2, child),
-            ),
+          if (controller.children.any((c) => c.paired) ||
+              deviceAlerts.isNotEmpty) ...[
+            SectionTitle(tr('Корҳои имрӯз')),
+            if (controller.children.any((c) => c.paired))
+              _RequestsTile(
+                count: controller.pendingRequestsTotal,
+                onTap: onRequests,
+              ),
+            if (deviceAlerts.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _DeviceAlerts(
+                children: deviceAlerts,
+                onOpen: (child) => onOpen(2, child),
+              ),
+            ],
           ],
           SectionTitle(
             tr('Фарзандон'),
             trailing: Text(
-              '${sorted.length}',
+              tr('{count} нафар', {'count': sorted.length}),
               style: TextStyle(
                 color: scheme.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
@@ -872,7 +893,17 @@ class _ChildCard extends StatelessWidget {
                     itemBuilder: (_) => [
                       PopupMenuItem(
                         value: 'remove',
-                        child: Text(tr('Хориҷ кардан')),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person_remove_alt_1_rounded,
+                              size: 18,
+                              color: scheme.error,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(tr('Хориҷ кардан')),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -905,7 +936,7 @@ class _ChildCard extends StatelessWidget {
                       icon: Icons.lock_outline_rounded,
                       color: NigohDesign.coral,
                       value: '${child.blockedCount}',
-                      label: tr('Баста'),
+                      label: tr('Барномаи баста'),
                     ),
                   ),
                   Expanded(
@@ -913,7 +944,7 @@ class _ChildCard extends StatelessWidget {
                       icon: Icons.apps_rounded,
                       color: NigohDesign.violet,
                       value: '${child.apps.length}',
-                      label: tr('Барнома'),
+                      label: tr('Ҳамаи барномаҳо'),
                     ),
                   ),
                 ],
@@ -963,26 +994,37 @@ class _ChildCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: _LinkRow(
-                        key: ValueKey('report-${child.id}'),
-                        icon: Icons.bar_chart_rounded,
-                        color: NigohDesign.blue,
-                        label: tr('Ҳисобот'),
-                        onTap: onReport,
+                      child: Tooltip(
+                        message: tr('Вақти экран дар 7 рӯзи охир'),
+                        child: _LinkRow(
+                          key: ValueKey('report-${child.id}'),
+                          icon: Icons.bar_chart_rounded,
+                          color: NigohDesign.blue,
+                          label: tr('Ҳисобот'),
+                          trailing: tr('7 рӯз'),
+                          onTap: onReport,
+                        ),
                       ),
                     ),
                     Expanded(
-                      child: _LinkRow(
-                        key: ValueKey('bedtime-${child.id}'),
-                        icon: bedtimeActive
-                            ? Icons.bedtime_rounded
-                            : Icons.bedtime_outlined,
-                        color: NigohDesign.violet,
-                        label: child.bedtime.enabled
+                      child: Tooltip(
+                        message: child.bedtime.enabled
                             ? bedtimeLabel(child.bedtime)
-                            : tr('Вақти хоб'),
-                        trailing: bedtimeActive ? tr('Ҳозир фаъол') : null,
-                        onTap: onBedtime,
+                            : tr('Вақти хоб гузошта нашудааст'),
+                        child: _LinkRow(
+                          key: ValueKey('bedtime-${child.id}'),
+                          icon: bedtimeActive
+                              ? Icons.bedtime_rounded
+                              : Icons.bedtime_outlined,
+                          color: NigohDesign.violet,
+                          label: tr('Вақти хоб'),
+                          trailing: !child.bedtime.enabled
+                              ? tr('хомӯш')
+                              : bedtimeActive
+                              ? tr('Ҳозир фаъол')
+                              : '${child.bedtime.start}–${child.bedtime.end}',
+                          onTap: onBedtime,
+                        ),
                       ),
                     ),
                     Expanded(
@@ -996,7 +1038,7 @@ class _ChildCard extends StatelessWidget {
                           color: NigohDesign.mint,
                           label: tr('Тамаркузи дарс'),
                           trailing: !child.study.enabled
-                              ? null
+                              ? tr('хомӯш')
                               : studyActive
                               ? tr('Ҳозир фаъол')
                               : '${child.study.start}–${child.study.end}',

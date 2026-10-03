@@ -144,15 +144,33 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                tr(
+                  'Фарзанд вақти иловагӣ мепурсад — шумо иҷозат медиҳед ё рад мекунед. Вақт танҳо барои имрӯз илова мешавад.',
+                ),
+                key: const ValueKey('requests-purpose'),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                ),
+              ),
+            ),
             SectionTitle(
               tr('Интизори ҷавоб ({count})', {'count': pending.length}),
             ),
             if (pending.isEmpty)
-              _EmptyNote(
+              StateMessage(
                 icon: Icons.inbox_rounded,
+                color: NigohDesign.amber,
+                title: tr('Дархости нав нест'),
                 text: tr(
-                  'Дархости нав нест. Вақте фарзанд вақти иловагӣ пурсад, он дар ин ҷо пайдо мешавад.',
+                  'Вақте фарзанд вақти иловагӣ пурсад, дархост дар ин ҷо пайдо мешавад.',
                 ),
+                actionLabel: tr('Навсозӣ'),
+                actionIcon: Icons.refresh_rounded,
+                onAction: _load,
               ),
             for (final (index, entry) in pending.indexed)
               FadeIn(
@@ -166,8 +184,22 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
                 ),
               ),
             if (decided.isNotEmpty) ...[
-              SectionTitle(tr('Ҷавобҳои охирин')),
-              for (final entry in decided) _DecidedTile(entry: entry),
+              SectionTitle(
+                tr('Ҷавобҳои охирин'),
+                trailing: Text(
+                  tr('{count} дархост', {'count': decided.length}),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              for (final (index, entry) in decided.indexed)
+                FadeIn(
+                  key: ValueKey('decided-${entry.request.id}'),
+                  index: index,
+                  child: _DecidedTile(entry: entry),
+                ),
             ],
           ],
         ),
@@ -185,36 +217,8 @@ class _TimeRequestsScreenState extends State<TimeRequestsScreen> {
         ],
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: Duration(milliseconds: reducedMotion(context) ? 0 : 220),
         child: body,
-      ),
-    );
-  }
-}
-
-class _EmptyNote extends StatelessWidget {
-  const _EmptyNote({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: scheme.onSurfaceVariant),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(text, style: TextStyle(color: scheme.onSurfaceVariant)),
-          ),
-        ],
       ),
     );
   }
@@ -298,7 +302,21 @@ class _RequestCard extends StatelessWidget {
                 color: scheme.surfaceContainerHighest.withValues(alpha: .5),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text('«${r.reason!.trim()}»'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tr('Сабаби фарзанд'),
+                    style: TextStyle(
+                      color: scheme.onSurfaceVariant,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text('«${r.reason!.trim()}»'),
+                ],
+              ),
             ),
           ],
           const SizedBox(height: 12),
@@ -366,7 +384,7 @@ class _ApproveSheet extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 16),
+            SectionTitle(tr('Чӣ қадар вақт илова кунем?')),
             Wrap(
               spacing: 10,
               runSpacing: 10,

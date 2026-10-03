@@ -69,6 +69,9 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
         icon: Icons.bar_chart_rounded,
         title: tr('Ҳоло маълумот нест'),
         text: tr('Ҳисобот пас аз истифодаи телефони фарзанд пайдо мешавад.'),
+        actionLabel: tr('Навсозӣ'),
+        actionIcon: Icons.refresh_rounded,
+        onAction: _load,
       );
     } else {
       body = RefreshIndicator(
@@ -93,7 +96,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
         title: Text(tr('Ҳисобот · {name}', {'name': widget.child.name})),
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: Duration(milliseconds: reducedMotion(context) ? 0 : 220),
         child: body,
       ),
     );
@@ -129,6 +132,14 @@ class WeeklyReportView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Text(
+          tr(
+            'Вақти экрани 7 рӯзи охир. Рӯзро пахш кунед, то барномаҳои он рӯзро бинед.',
+          ),
+          key: const ValueKey('report-purpose'),
+          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
+        ),
+        const SizedBox(height: 14),
         Row(
           children: [
             Expanded(
@@ -200,9 +211,26 @@ class WeeklyReportView extends StatelessWidget {
           }),
         ),
         if (day.top.isEmpty)
-          Text(
-            tr('Дар ин рӯз истифода қайд нашудааст.'),
-            style: TextStyle(color: scheme.onSurfaceVariant),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.event_busy_rounded,
+                  size: 18,
+                  color: scheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    tr(
+                      'Дар ин рӯз истифода қайд нашудааст. Рӯзи дигарро интихоб кунед.',
+                    ),
+                    style: TextStyle(color: scheme.onSurfaceVariant),
+                  ),
+                ),
+              ],
+            ),
           ),
         for (final (index, app) in day.top.take(5).indexed)
           FadeIn(
@@ -250,53 +278,61 @@ class WeeklyBarChart extends StatelessWidget {
         children: [
           for (final (i, day) in days.indexed)
             Expanded(
-              child: GestureDetector(
-                key: ValueKey('report-bar-$i'),
-                behavior: HitTestBehavior.opaque,
-                onTap: () => onSelect(i),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      day.minutes == 0 ? '' : _short(day.minutes),
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: i == selected
-                            ? NigohDesign.blue
-                            : scheme.onSurfaceVariant,
-                        fontWeight: i == selected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
+              child: Tooltip(
+                message: tr('{day}: {time}', {
+                  'day': tr(weekdayShort[day.date.weekday - 1]),
+                  'time': formatMinutes(day.minutes),
+                }),
+                child: GestureDetector(
+                  key: ValueKey('report-bar-$i'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onSelect(i),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        day.minutes == 0 ? '' : _short(day.minutes),
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: i == selected
+                              ? NigohDesign.blue
+                              : scheme.onSurfaceVariant,
+                          fontWeight: i == selected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 260),
-                      curve: Curves.easeOutCubic,
-                      width: 22,
-                      height: 4 + (height - 24) * (day.minutes / max),
-                      decoration: BoxDecoration(
-                        color: i == selected
-                            ? NigohDesign.blue
-                            : NigohDesign.blue.withValues(alpha: .22),
-                        borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 4),
+                      AnimatedContainer(
+                        duration: Duration(
+                          milliseconds: reducedMotion(context) ? 0 : 260,
+                        ),
+                        curve: Curves.easeOutCubic,
+                        width: 22,
+                        height: 4 + (height - 24) * (day.minutes / max),
+                        decoration: BoxDecoration(
+                          color: i == selected
+                              ? NigohDesign.blue
+                              : NigohDesign.blue.withValues(alpha: .22),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      tr(weekdayShort[day.date.weekday - 1]),
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: i == selected
-                            ? scheme.onSurface
-                            : scheme.onSurfaceVariant,
-                        fontWeight: i == selected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
+                      const SizedBox(height: 6),
+                      Text(
+                        tr(weekdayShort[day.date.weekday - 1]),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: i == selected
+                              ? scheme.onSurface
+                              : scheme.onSurfaceVariant,
+                          fontWeight: i == selected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
