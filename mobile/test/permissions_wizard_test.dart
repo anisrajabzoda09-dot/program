@@ -250,15 +250,38 @@ void main() {
     await later(tester, 3);
     expect(find.text('Камера'), findsOneWidget);
     expect(find.byKey(const Key('wizard-fallback')), findsOneWidget);
+    expect(
+      find.text('Иҷозат дода нашуд? Танзимоти Android-ро кушоед'),
+      findsOneWidget,
+    );
     await grant(tester);
     expect(calls, ['openAppSettings']);
+  });
+
+  testWidgets('first step explains the wizard; help card is labelled', (
+    tester,
+  ) async {
+    await pumpWizard(tester, child: true);
+    expect(find.textContaining('Иҷозатҳоро як бор медиҳед'), findsOneWidget);
+    // Each step says in one plain sentence what it is for.
+    expect(find.textContaining('Волидайн дар харита мебинанд'), findsOneWidget);
+    expect(find.text('Чӣ бояд кард?'), findsOneWidget);
+    expect(find.text('Дастури қадам ба қадам'), findsOneWidget);
+
+    await later(tester);
+    // The intro is only shown on the way in.
+    expect(find.textContaining('Иҷозатҳоро як бор медиҳед'), findsNothing);
+    expect(find.text('Дастури қадам ба қадам'), findsOneWidget);
   });
 
   testWidgets('help card expands with numbered steps', (tester) async {
     await pumpWizard(tester, child: true);
     await later(tester, 4);
     expect(find.text('Специальные возможности'), findsOneWidget);
-    expect(find.textContaining('Разрешить ограниченные настройки'), findsNothing);
+    expect(
+      find.textContaining('Разрешить ограниченные настройки'),
+      findsNothing,
+    );
     final help = find.byKey(const Key('wizard-help'));
     await tapIt(tester, help);
     expect(
@@ -307,7 +330,9 @@ void main() {
     await pumpWizard(tester, child: false);
     expect(find.text('Батарея'), findsOneWidget);
     await later(tester);
-    expect(find.text('Ҳамааш тайёр'), findsOneWidget);
+    // One permission (battery) is still missing, so the summary says so.
+    expect(find.text('Якчанд иҷозат мондааст'), findsOneWidget);
+    expect(find.text('Ҳамааш тайёр'), findsNothing);
     expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(5));
     expect(find.byIcon(Icons.priority_high_rounded), findsOneWidget);
     await tapIt(tester, find.byKey(const Key('wizard-summary-battery')));

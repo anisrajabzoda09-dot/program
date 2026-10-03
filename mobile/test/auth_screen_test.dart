@@ -57,6 +57,7 @@ void main() {
     tester,
   ) async {
     await pumpAuth(tester, (_) async => http.Response('{}', 200));
+    await tester.ensureVisible(find.byKey(const Key('auth.submit')));
     await tester.tap(find.byKey(const Key('auth.submit')));
     await tester.pump();
     expect(find.text('Почтаро нависед.'), findsOneWidget);
@@ -64,6 +65,7 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('auth.email')), 'not-an-email');
     await tester.enterText(find.byKey(const Key('auth.password')), 'short');
+    await tester.ensureVisible(find.byKey(const Key('auth.submit')));
     await tester.tap(find.byKey(const Key('auth.submit')));
     await tester.pump();
     expect(find.text('Почтаи электронӣ нодуруст аст.'), findsOneWidget);
@@ -76,6 +78,7 @@ void main() {
     await tester.tap(find.text('Бақайдгирӣ'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('auth.name')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('auth.submit')));
     await tester.tap(find.byKey(const Key('auth.submit')));
     await tester.pump();
     expect(find.text('Номро нависед.'), findsOneWidget);
@@ -91,6 +94,7 @@ void main() {
     );
     await tester.enterText(find.byKey(const Key('auth.email')), 'a@b.tj');
     await tester.enterText(find.byKey(const Key('auth.password')), 'secret123');
+    await tester.ensureVisible(find.byKey(const Key('auth.submit')));
     await tester.tap(find.byKey(const Key('auth.submit')));
     await tester.pumpAndSettle();
 
@@ -114,6 +118,7 @@ void main() {
     );
     await tester.enterText(find.byKey(const Key('auth.email')), 'a@b.tj');
     await tester.enterText(find.byKey(const Key('auth.password')), 'secret123');
+    await tester.ensureVisible(find.byKey(const Key('auth.submit')));
     await tester.tap(find.byKey(const Key('auth.submit')));
     await tester.pumpAndSettle();
     expect(session.signedIn, isTrue);

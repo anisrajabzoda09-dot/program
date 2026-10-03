@@ -51,7 +51,11 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
       widget.onDone(profile);
     } catch (e) {
       if (mounted) {
-        showMessage(context, tr('Маълумот нигоҳ дошта нашуд: {error}', {'error': e}), error: true);
+        showMessage(
+          context,
+          tr('Маълумот нигоҳ дошта нашуд: {error}', {'error': e}),
+          error: true,
+        );
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -88,7 +92,13 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                 tr('Волидайн инро дар телефони худ мебинанд.'),
                 style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 15),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 6),
+              ScreenHint(
+                tr(
+                  'Танҳо ном, ҷинс ва синну сол — дигар чизе пурсида намешавад.',
+                ),
+              ),
+              SectionTitle(tr('Маълумоти шумо')),
               FadeIn(
                 child: Card(
                   child: Padding(
@@ -141,7 +151,15 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                             ),
-                            Pill(tr('{age} сола', {'age': age}), color: NigohDesign.blue),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 180),
+                              child: Pill(
+                                tr('{age} сола', {'age': age}),
+                                key: ValueKey(age),
+                                color: NigohDesign.blue,
+                                big: true,
+                              ),
+                            ),
                           ],
                         ),
                         Slider(
@@ -149,7 +167,7 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                           min: 4,
                           max: 18,
                           divisions: 14,
-                          label: '$age',
+                          label: tr('{age} сола', {'age': age}),
                           onChanged: (v) => setState(() => age = v.round()),
                         ),
                       ],
@@ -158,16 +176,28 @@ class _ChildSetupScreenState extends State<ChildSetupScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              FilledButton(
+              FilledButton.icon(
                 key: const Key('child.save'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(54),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 onPressed: saving ? null : save,
-                child: saving
+                icon: saving
                     ? const SizedBox(
-                        width: 22,
-                        height: 22,
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2.4),
                       )
-                    : Text(tr('Идома')),
+                    : const Icon(Icons.arrow_forward_rounded),
+                label: Text(tr('Нигоҳ доштан ва идома')),
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: ScreenHint(tr('Қадами навбатӣ: иҷозатҳои Android.')),
               ),
             ],
           ),

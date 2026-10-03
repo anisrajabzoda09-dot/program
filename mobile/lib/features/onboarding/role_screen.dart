@@ -78,16 +78,29 @@ class _RoleScreenState extends State<RoleScreen> {
                       fontSize: 15,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 14),
+                  ScreenHint(
+                    desktop
+                        ? tr(
+                            'Баъди интихоб телефони фарзандро пайваст мекунед.',
+                          )
+                        : tr(
+                            'Як бор интихоб мекунед. Баъд NIGOH иҷозатҳои лозимиро қадам ба қадам мепурсад.',
+                          ),
+                    icon: Icons.info_outline_rounded,
+                  ),
+                  const SizedBox(height: 20),
                   FadeIn(
                     index: 1,
                     child: _RoleCard(
+                      key: const Key('role.parent'),
                       icon: Icons.family_restroom_rounded,
                       color: NigohDesign.blue,
                       title: tr('Волидайн'),
                       text: tr(
                         'Барномаҳо, ҷойгиршавӣ ва чати фарзандро бинед.',
                       ),
+                      action: tr('Телефони ман'),
                       busy: saving == 'parent',
                       onTap: () => choose('parent'),
                     ),
@@ -104,10 +117,12 @@ class _RoleScreenState extends State<RoleScreen> {
                     FadeIn(
                       index: 2,
                       child: _RoleCard(
+                        key: const Key('role.child'),
                         icon: Icons.child_care_rounded,
                         color: NigohDesign.mint,
                         title: tr('Фарзанд'),
                         text: tr('Ин телефонро ба волидайн пайваст кунед.'),
+                        action: tr('Телефони фарзанд'),
                         busy: saving == 'child',
                         onTap: () => choose('child'),
                       ),
@@ -156,10 +171,12 @@ class _ChildOnPhoneNote extends StatelessWidget {
 
 class _RoleCard extends StatelessWidget {
   const _RoleCard({
+    super.key,
     required this.icon,
     required this.color,
     required this.title,
     required this.text,
+    required this.action,
     required this.busy,
     required this.onTap,
   });
@@ -168,64 +185,77 @@ class _RoleCard extends StatelessWidget {
   final Color color;
   final String title;
   final String text;
+
+  /// Plain label of what tapping the card means.
+  final String action;
   final bool busy;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: .12),
-                  borderRadius: BorderRadius.circular(16),
+    return TapScale(
+      onTap: busy ? null : onTap,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: busy ? null : onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: .12),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, color: color, size: 28),
                 ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      text,
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        height: 1.35,
+                      const SizedBox(height: 4),
+                      Text(
+                        text,
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      Pill(action, color: color, icon: Icons.check_rounded),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              busy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(
-                      Icons.chevron_right_rounded,
-                      color: scheme.onSurfaceVariant,
-                    ),
-            ],
+                const SizedBox(width: 8),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: busy
+                      ? const SizedBox(
+                          key: ValueKey('busy'),
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.chevron_right_rounded,
+                          key: const ValueKey('arrow'),
+                          color: scheme.onSurfaceVariant,
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

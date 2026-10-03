@@ -137,7 +137,9 @@ class _PermissionsWizardState extends State<PermissionsWizard>
       if (!mounted) return;
       setState(() {
         loaded = true;
-        loadError = tr('Ҳолати иҷозатҳо санҷида нашуд: {error}', {'error': wizardErrorText(e)});
+        loadError = tr('Ҳолати иҷозатҳо санҷида нашуд: {error}', {
+          'error': wizardErrorText(e),
+        });
       });
     }
   }
@@ -188,7 +190,9 @@ class _PermissionsWizardState extends State<PermissionsWizard>
       if (mounted) {
         showMessage(
           context,
-          tr('Нигоҳ доштани ҳолат нашуд: {error}', {'error': wizardErrorText(e)}),
+          tr('Нигоҳ доштани ҳолат нашуд: {error}', {
+            'error': wizardErrorText(e),
+          }),
           error: true,
         );
       }
@@ -233,7 +237,10 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                     child: Text(
                       onSummary
                           ? tr('Ҷамъбаст')
-                          : tr('Қадами {step} аз {total}', {'step': index + 1, 'total': steps.length}),
+                          : tr('Қадами {step} аз {total}', {
+                              'step': index + 1,
+                              'total': steps.length,
+                            }),
                       style: TextStyle(
                         color: scheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
@@ -258,6 +265,26 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                 done: [for (final s in steps) statuses[s]?.granted == true],
               ),
             ),
+            // What the whole wizard is for — only on the way in, so the later
+            // steps stay clean.
+            AnimatedSize(
+              duration: reducedMotion(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 240),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment.topCenter,
+              child: index == 0 && !onSummary
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: ScreenHint(
+                        tr(
+                          'Иҷозатҳоро як бор медиҳед — баъд NIGOH дар пасзамина кор мекунад. Ҳар қадамро гузаронидан мумкин аст.',
+                        ),
+                        icon: Icons.info_outline_rounded,
+                      ),
+                    )
+                  : const SizedBox(width: double.infinity),
+            ),
             if (loadError != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -265,7 +292,9 @@ class _PermissionsWizardState extends State<PermissionsWizard>
               ),
             Expanded(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 320),
+                duration: reducedMotion(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 320),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
                 transitionBuilder: (child, animation) {
@@ -300,9 +329,7 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                               status != null &&
                               !status.granted &&
                               (status.blocked ||
-                                  attempted.contains(
-                                    attemptKeyOf(id, status),
-                                  )),
+                                  attempted.contains(attemptKeyOf(id, status))),
                           onGrant: () => run(
                             () => widget.actions.grant(
                               id,
@@ -313,9 +340,8 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                               status ?? const StepStatus(granted: false),
                             ),
                           ),
-                          onFallback: () => run(
-                            () => widget.actions.openFallback(id),
-                          ),
+                          onFallback: () =>
+                              run(() => widget.actions.openFallback(id)),
                           onOpenGps: () =>
                               run(widget.actions.openLocationSettings),
                           onToggleHelp: () =>
@@ -346,6 +372,9 @@ class _PermissionsWizardState extends State<PermissionsWizard>
                           ),
                         TextButton(
                           key: const Key('wizard-later'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: scheme.onSurfaceVariant,
+                          ),
                           onPressed: () => go(index + 1),
                           child: Text(tr('Баъдтар')),
                         ),
@@ -544,9 +573,10 @@ class _StepPage extends StatelessWidget {
           _Notice(
             icon: Icons.info_outline_rounded,
             color: NigohDesign.blue,
-            text:
-                tr('Аввал «Дастрасӣ ба истифода» ва «Намоиш болои барномаҳо» лозим '
-                'аст — тугма аввал ҳамонҳоро мекушояд.'),
+            text: tr(
+              'Аввал «Дастрасӣ ба истифода» ва «Намоиш болои барномаҳо» лозим '
+              'аст — тугма аввал ҳамонҳоро мекушояд.',
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -609,23 +639,35 @@ class _StepPage extends StatelessWidget {
           alignment: Alignment.topCenter,
           child: showFallback
               ? Padding(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 12),
                   child: SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton(
+                    child: OutlinedButton.icon(
                       key: const Key('wizard-fallback'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 14,
                         ),
+                        foregroundColor: NigohDesign.amber,
+                        backgroundColor: NigohDesign.amber.withValues(
+                          alpha: .10,
+                        ),
+                        side: BorderSide(
+                          color: NigohDesign.amber.withValues(alpha: .55),
+                        ),
+                        textStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
                       onPressed: busy ? null : onFallback,
-                      child: Text(
-                        tr('Агар иҷозат дода нашуд — ин ҷоро пахш кунед'),
+                      icon: const Icon(Icons.settings_outlined),
+                      label: Text(
+                        tr('Иҷозат дода нашуд? Танзимоти Android-ро кушоед'),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -706,15 +748,43 @@ class _HelpCard extends StatelessWidget {
             key: const Key('wizard-help'),
             onTap: onToggle,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+              padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
               child: Row(
                 children: [
-                  Icon(Icons.help_outline_rounded, color: scheme.primary),
-                  const SizedBox(width: 10),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.help_outline_rounded,
+                      color: scheme.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      tr('Чӣ бояд кард?'),
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          tr('Чӣ бояд кард?'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          tr('Дастури қадам ба қадам'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   AnimatedRotation(
@@ -814,7 +884,7 @@ class _SummaryPage extends StatelessWidget {
         FadeIn(
           index: 1,
           child: Text(
-            tr('Ҳамааш тайёр'),
+            missing == 0 ? tr('Ҳамааш тайёр') : tr('Якчанд иҷозат мондааст'),
             textAlign: TextAlign.center,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
@@ -826,8 +896,13 @@ class _SummaryPage extends StatelessWidget {
           index: 2,
           child: Text(
             missing == 0
-                ? tr('Ҳамаи иҷозатҳо дода шуданд. NIGOH Family пурра кор мекунад.')
-                : tr('{count} иҷозат ҳоло дода нашудааст. Барои танзим ба он пахш кунед.', {'count': missing}),
+                ? tr(
+                    'Ҳамаи иҷозатҳо дода шуданд. NIGOH Family пурра кор мекунад.',
+                  )
+                : tr(
+                    '{count} иҷозат ҳоло дода нашудааст. Барои танзим ба он пахш кунед.',
+                    {'count': missing},
+                  ),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: scheme.onSurfaceVariant,
@@ -915,10 +990,7 @@ class _ErrorBanner extends StatelessWidget {
           Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              text,
-              style: TextStyle(color: scheme.onErrorContainer),
-            ),
+            child: Text(text, style: TextStyle(color: scheme.onErrorContainer)),
           ),
           TextButton(onPressed: onRetry, child: Text(tr('Аз нав'))),
         ],

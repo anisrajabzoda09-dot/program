@@ -147,7 +147,27 @@ class _AuthScreenState extends State<AuthScreen> {
                                         setState(() => register = value.first);
                                       },
                               ),
-                              const SizedBox(height: 18),
+                              const SizedBox(height: 14),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 220),
+                                child: Text(
+                                  register
+                                      ? tr(
+                                          'Аккаунти нави оила месозед. Баъд интихоб мекунед: волидайн ё фарзанд.',
+                                        )
+                                      : tr(
+                                          'Бо почта ва рамзи аккаунти худ ворид шавед.',
+                                        ),
+                                  key: ValueKey(register),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    height: 1.4,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
                               AnimatedSize(
                                 duration: const Duration(milliseconds: 220),
                                 curve: Curves.easeOutCubic,
@@ -248,20 +268,31 @@ class _AuthScreenState extends State<AuthScreen> {
                               const SizedBox(height: 18),
                               FilledButton(
                                 key: const Key('auth.submit'),
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(52),
+                                  textStyle: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                                 onPressed: busy || googleBusy ? null : submit,
-                                child: busy
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.4,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  child: busy
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.4,
+                                          ),
+                                        )
+                                      : Text(
+                                          register
+                                              ? tr('Сохтани аккаунт')
+                                              : tr('Ворид шудан'),
+                                          key: ValueKey(register),
                                         ),
-                                      )
-                                    : Text(
-                                        register
-                                            ? tr('Сохтани аккаунт')
-                                            : tr('Ворид шудан'),
-                                      ),
+                                ),
                               ),
                             ],
                           ),
@@ -292,6 +323,9 @@ class _AuthScreenState extends State<AuthScreen> {
                       index: 2,
                       child: OutlinedButton.icon(
                         key: const Key('auth.google'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                        ),
                         onPressed: busy || googleBusy ? null : google,
                         icon: googleBusy
                             ? const SizedBox(

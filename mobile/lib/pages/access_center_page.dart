@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
+
 import '../l10n/l10n.dart';
 
 /// A friendly, step-by-step permission setup. Android still owns the final
@@ -71,7 +72,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
     } catch (_) {
       if (mounted) {
         setState(
-          () => error = tr('Танзимот кушода нашуд. Аз Settings → Apps → NIGOH Family кушоед.'),
+          () => error = tr(
+            'Танзимот кушода нашуд. Аз Settings → Apps → NIGOH Family кушоед.',
+          ),
         );
       }
     } finally {
@@ -285,7 +288,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    tr('Барои кори дурусти NIGOH чанд иҷозати Android лозим аст.'),
+                    tr(
+                      'Барои кори дурусти NIGOH чанд иҷозати Android лозим аст.',
+                    ),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: .92),
                     ),
@@ -302,7 +307,10 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    tr('{done} аз {total} омода', {'done': completed, 'total': steps.length}),
+                    tr('{done} аз {total} омода', {
+                      'done': completed,
+                      'total': steps.length,
+                    }),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -350,7 +358,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
                 subtitle: Text(
-                  tr('Акнун волидайн метавонад вақт ва барномаҳоро идора кунад.'),
+                  tr(
+                    'Акнун волидайн метавонад вақт ва барномаҳоро идора кунад.',
+                  ),
                 ),
               ),
             ),
@@ -367,7 +377,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      tr('Барои App Control се иҷозати Android лозим аст: Usage access, Accessibility ва Display over other apps.'),
+                      tr(
+                        'Барои App Control се иҷозати Android лозим аст: Usage access, Accessibility ва Display over other apps.',
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -376,7 +388,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      tr('Аввал қадамҳои кабуди болоиро иҷро кунед, баъд ҳар иҷозатро аз рӯйхати поён боз кунед.'),
+                      tr(
+                        'Аввал қадамҳои кабуди болоиро иҷро кунед, баъд ҳар иҷозатро аз рӯйхати поён боз кунед.',
+                      ),
                     ),
                   ],
                 ),
@@ -391,18 +405,24 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tr('Агар Android «Controlled by restricted setting» гӯяд'),
+                      tr(
+                        'Агар Android «Controlled by restricted setting» гӯяд',
+                      ),
                       style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      tr('1. «App info»-ро кушоед.\n'
-                      '2. Дар кунҷи боло ⋮ → «Allow restricted settings»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.\n'
-                      '3. Ба ин саҳифа баргардед ва Usage access, Display over other apps ва Accessibility-ро як-як фаъол кунед.'),
+                      tr(
+                        '1. «App info»-ро кушоед.\n'
+                        '2. Дар кунҷи боло ⋮ → «Allow restricted settings»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.\n'
+                        '3. Ба ин саҳифа баргардед ва Usage access, Display over other apps ва Accessibility-ро як-як фаъол кунед.',
+                      ),
                     ),
                     SizedBox(height: 8),
                     Text(
-                      tr('Ин танзимро танҳо соҳиби телефон дар Android дода метавонад; NIGOH онро худкор фаъол карда наметавонад.'),
+                      tr(
+                        'Ин танзимро танҳо соҳиби телефон дар Android дода метавонад; NIGOH онро худкор фаъол карда наметавонад.',
+                      ),
                     ),
                   ],
                 ),
@@ -437,7 +457,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
                   )
                 : const Icon(Icons.arrow_forward_rounded),
             label: Text(
-              next == null ? tr('Ҳамаи қадамҳои асосӣ тайёр') : tr('Иҷозати навбатӣ'),
+              next == null
+                  ? tr('Ҳамаи қадамҳои асосӣ тайёр')
+                  : tr('Иҷозати навбатӣ'),
             ),
           ),
           const SizedBox(height: 10),
@@ -452,7 +474,9 @@ class _AccessCenterPageState extends State<AccessCenterPage>
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Text(
-                  tr('Агар Android иҷозатро боз ҳам маҳкам кунад, онро аз Settings → Apps → NIGOH Family фаъол кунед. Ин маҳдудияти худи Android аст.'),
+                  tr(
+                    'Агар Android иҷозатро боз ҳам маҳкам кунад, онро аз Settings → Apps → NIGOH Family фаъол кунед. Ин маҳдудияти худи Android аст.',
+                  ),
                   style: TextStyle(color: Colors.brown.shade900),
                 ),
               ),
