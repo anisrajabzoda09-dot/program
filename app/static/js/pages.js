@@ -13,4 +13,18 @@ function initCardSpotlights() {
   });
 }
 
+// Reveal the home rules rows in order when their table enters the viewport.
+function initRulesTable() {
+  const table = document.querySelector('.home-rules-card .meta-table');
+  if (!table || !('IntersectionObserver' in window)) return;
+  table.classList.add('is-staged');
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    table.classList.add('is-visible');
+    observer.disconnect();
+  }, { threshold: .25 });
+  observer.observe(table);
+}
+
 initCardSpotlights();
+initRulesTable();

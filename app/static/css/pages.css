@@ -26,6 +26,19 @@
   .hero + .section .card-link:nth-child(6):hover .icon { animation: pages-lock-click .42s ease; }
 }
 
+/* Keep compact tables usable on phones and stage home rule rows in sequence. */
+.table-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.table-scroll .meta-table { min-width: 420px; }
+.js-motion .home-rules-card .meta-table.is-staged tr { opacity: 0; transform: translateY(8px); }
+.js-motion .home-rules-card .meta-table.is-visible tr {
+  opacity: 1;
+  transform: none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.js-motion .home-rules-card .meta-table.is-visible tr:nth-child(2) { transition-delay: .08s; }
+.js-motion .home-rules-card .meta-table.is-visible tr:nth-child(3) { transition-delay: .16s; }
+.js-motion .home-rules-card .meta-table.is-visible tr:nth-child(4) { transition-delay: .24s; }
+
 @keyframes pages-pin-bounce { 50% { transform: translateY(-5px); } }
 @keyframes pages-grid-pulse { 50% { transform: scale(1.08); } }
 @keyframes pages-lock-click { 45% { transform: translateY(2px) scale(.96); } }
@@ -54,4 +67,5 @@
     background-position: 50% 50%;
   }
   .hero + .section .card-link .icon { animation: none !important; transform: none !important; }
+  .js-motion .home-rules-card .meta-table.is-staged tr { opacity: 1; transform: none; transition: none; }
 }
