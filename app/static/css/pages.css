@@ -124,6 +124,11 @@
 .next-page span { color: var(--muted); font-size: .875rem; }
 .next-page a:hover::after { transform: translateX(4px); }
 
+/* Hint that wide tables continue horizontally on narrow screens. */
+@media (max-width: 640px) {
+  .table-scroll-hint { border-radius: 8px; box-shadow: inset -16px 0 14px -16px var(--muted); }
+}
+
 /* Keep feature topic links comfortably tappable and align their section targets. */
 .feature-chips .tag { min-height: 44px; padding-inline: 16px; }
 .feature-chips ~ * { scroll-margin-top: 120px; }
