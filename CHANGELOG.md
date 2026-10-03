@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.17.0 — 2026-10-03
+- Clearer interface on every screen: one-line purpose text, labelled groups, units on every number («45 min of 60»), empty states that say what to do next, dominant primary actions.
+- Motion throughout: staggered list entrances, animated progress bars and pills, fade-through between tabs, smooth chat message entry — all off when the system asks for reduced motion.
+- Fixed: on the parent map the bottom panel could cover half the screen with large system fonts; it is now height-capped and scrolls inside.
+- Child phone: a visible «Uninstall app» row in Settings that requires the parent's PIN before Android's uninstall screen opens.
+- Website: sections fade in on scroll.
+
 ## 2.16.0 — 2026-10-02
 - Windows app (parent mode): family, app rules, map, chat, voice calls, requests, reports; in-app alerts and SOS alarm while the app is open; navigation rail on wide screens.
 - Windows installer and portable zip are built by GitHub Actions and published to the «windows-latest» release; /download/windows on the site.
