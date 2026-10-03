@@ -80,6 +80,12 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: var(--blue); text-decoration: none; }
 a:hover { color: var(--blue-ink); }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+.skip-link {
+  position: fixed; z-index: 100; top: 10px; left: 10px; padding: 10px 14px;
+  border-radius: 9px; background: var(--ink); color: var(--on-ink); font-weight: 600;
+  transform: translateY(calc(-100% - 16px)); transition: transform .15s ease;
+}
+.skip-link:focus-visible { color: var(--on-ink); transform: translateY(0); }
 
 /* ---------- Layout ---------- */
 .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }

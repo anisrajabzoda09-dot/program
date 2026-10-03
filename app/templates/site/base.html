@@ -7,21 +7,21 @@
          'product': 'Маҳсулот', 'support': 'Дастгирӣ', 'install': 'Насб', 'android': 'Боргирии Android',
          'faqlong': 'Саволу ҷавоб', 'privacy': 'Амният ва махфият', 'account': 'Ҳисоби волидайн', 'qr': 'Рамзи QR',
          'default_desc': 'NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.',
-         'locale': 'tg_TJ', 'theme': 'Режими торик'},
+         'locale': 'tg_TJ', 'theme': 'Режими торик', 'skip': 'Гузаштан ба матлаби асосӣ'},
   'ru': {'features': 'Возможности', 'how': 'Как это работает', 'security': 'Безопасность', 'faq': 'Вопросы',
          'login': 'Войти', 'logout': 'Выйти', 'panel': 'Панель', 'download': 'Скачать', 'menu': 'Меню',
          'nav': 'Главное', 'about': 'Приложение родительского контроля, созданное в Таджикистане. Для семей, которым важна безопасность детей.',
          'product': 'Продукт', 'support': 'Поддержка', 'install': 'Установка', 'android': 'Скачать для Android',
          'faqlong': 'Вопросы и ответы', 'privacy': 'Безопасность и приватность', 'account': 'Аккаунт родителя', 'qr': 'QR-код',
          'default_desc': 'NIGOH Family — родительский контроль для Android: местоположение, чат, экранное время и правила для приложений.',
-         'locale': 'ru_RU', 'theme': 'Тёмная тема'},
+         'locale': 'ru_RU', 'theme': 'Тёмная тема', 'skip': 'Перейти к основному содержанию'},
   'en': {'features': 'Features', 'how': 'How it works', 'security': 'Security', 'faq': 'FAQ',
          'login': 'Sign in', 'logout': 'Sign out', 'panel': 'Dashboard', 'download': 'Download', 'menu': 'Menu',
          'nav': 'Main', 'about': 'A parental control app made in Tajikistan, for families who care about their children\'s safety.',
          'product': 'Product', 'support': 'Support', 'install': 'Install', 'android': 'Download for Android',
          'faqlong': 'Questions & answers', 'privacy': 'Security & privacy', 'account': 'Parent account', 'qr': 'QR code',
          'default_desc': 'NIGOH Family — parental control for Android: location, chat, screen time and app rules.',
-         'locale': 'en_US', 'theme': 'Dark mode'},
+         'locale': 'en_US', 'theme': 'Dark mode', 'skip': 'Skip to main content'},
 }[lang] -%}
 <!DOCTYPE html>
 <html lang="{{ lang }}">
@@ -71,6 +71,7 @@
   {% block head %}{% endblock %}
 </head>
 <body>
+  <a class="skip-link" href="#main">{{ L.skip }}</a>
   <header class="site-header" id="top">
     <nav class="wrap nav" aria-label="{{ L.nav }}">
       <a class="brand" href="{{ P or '/' }}">
@@ -126,7 +127,7 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main">
     {% block content %}{% endblock %}
   </main>
 
