@@ -1,5 +1,4 @@
-// Parent bottom sheet for «Тамаркузи дарс» (study mode): on/off, school hours
-// and weekdays, plus its labels.
+// Файл: танзими реҷаи дарс.
 
 import 'package:flutter/material.dart';
 
@@ -10,15 +9,15 @@ import 'family_controller.dart';
 import 'parent_sheets.dart';
 import '../../l10n/l10n.dart';
 
-/// Short weekday labels, Monday (1) … Sunday (7).
+/// Қимати studyWeekdayLabels-ро барои танзими реҷаи дарс нигоҳ медорад.
 const studyWeekdayLabels = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
 
-/// Explanation shown in the sheet.
+/// Қимати studyExplanation-ро барои танзими реҷаи дарс нигоҳ медорад.
 String get studyExplanation => tr(
   'Бозиҳо, шабакаҳо ва видео дар соатҳои дарс баста мешаванд. Занг, SMS, барномаҳои таълимӣ ва «Ҳамеша иҷозат» кушода мемонанд.',
 );
 
-/// «Тамаркузи дарс: 08:00–13:00» (or «хомӯш»).
+/// studyLabel мантиқи зарурии танзими реҷаи дарсро иҷро мекунад.
 String studyLabel(StudyMode study) => study.enabled
     ? tr('Тамаркузи дарс: {start}–{end}', {
         'start': study.start,
@@ -26,19 +25,19 @@ String studyLabel(StudyMode study) => study.enabled
       })
     : tr('Тамаркузи дарс: хомӯш');
 
-/// «Тамаркузи дарс»: switch, start/end and weekdays. Saves through the
-/// controller and closes with `true`; errors are shown and the sheet stays.
+/// Равзанаи StudySheet-ро барои танзими реҷаи дарс нишон медиҳад.
 class StudySheet extends StatefulWidget {
   const StudySheet({super.key, required this.controller, required this.child});
 
   final FamilyController controller;
   final FamilyChild child;
 
+  /// Ҳолати StudySheet-ро барои танзими реҷаи дарс месозад.
   @override
   State<StudySheet> createState() => _StudySheetState();
 }
 
-/// Holds the study-mode settings being edited.
+/// Ҳолат ва рафтори StudySheetState-ро барои навсозии интерфейс идора мекунад.
 class _StudySheetState extends State<StudySheet> {
   late bool enabled;
   late TimeOfDay start;
@@ -46,6 +45,7 @@ class _StudySheetState extends State<StudySheet> {
   late Set<int> weekdays;
   bool saving = false;
 
+  /// Реҷаи дарси фарзандро ба вақт, ҳолати фаъол ва рӯзҳои интихобшуда мегузаронад.
   @override
   void initState() {
     super.initState();
@@ -56,7 +56,7 @@ class _StudySheetState extends State<StudySheet> {
     weekdays = {...s.weekdays};
   }
 
-  /// Opens a 24-hour time picker for the start or end time.
+  /// pick мантиқи зарурии танзими реҷаи дарсро иҷро мекунад.
   Future<void> _pick(bool isStart) async {
     final picked = await showTimePicker(
       context: context,
@@ -70,7 +70,7 @@ class _StudySheetState extends State<StudySheet> {
     setState(() => isStart ? start = picked : end = picked);
   }
 
-  /// Saves study mode via the controller and closes the sheet on success.
+  /// save тағйироти реҷаи дарс-ро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> _save() async {
     final study = StudyMode(
       enabled: enabled,
@@ -89,6 +89,7 @@ class _StudySheetState extends State<StudySheet> {
     }
   }
 
+  /// Танзими вақти оғоз, анҷом ва рӯзҳои реҷаи дарсро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

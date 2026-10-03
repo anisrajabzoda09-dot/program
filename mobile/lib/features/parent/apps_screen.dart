@@ -1,6 +1,4 @@
-// Parent "Apps" tab: the selected child's installed apps with block switches,
-// daily limits, schedules, category filters, search, bulk pause and the
-// bedtime / study / weekly-report tools.
+// Файл: рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд.
 
 import 'package:flutter/material.dart';
 
@@ -17,39 +15,42 @@ import '../../l10n/l10n.dart';
 
 const _weekdayLabels = ['Дш', 'Сш', 'Чш', 'Пш', 'Ҷм', 'Шб', 'Яш'];
 
-/// App rules for the selected child: block, daily limit, study schedule.
+/// Экрани AppsScreen-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class AppsScreen extends StatefulWidget {
   const AppsScreen({super.key, required this.controller});
   final FamilyController controller;
 
+  /// Ҳолати AppsScreen-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   State<AppsScreen> createState() => _AppsScreenState();
 }
 
-/// Holds search, filter, limit-slider drafts and bulk-pause progress.
+/// Ҳолат ва рафтори AppsScreenState-ро барои навсозии интерфейс идора мекунад.
 class _AppsScreenState extends State<AppsScreen> {
   final _search = TextEditingController();
   String _query = '';
 
-  /// Filter chip: null = all, 'new' = installed in the last 24 h, or a category.
+  /// Қимати _filter-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   Object? _filter;
 
-  /// Slider position while dragging (package → limit index).
+  /// Қимати _draftLimit-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   final Map<String, int> _draftLimit = {};
 
-  /// Bulk pause progress: done / total, null when idle.
+  /// Қимати _bulkDone-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   int? _bulkDone;
   int _bulkTotal = 0;
 
+  /// Қимати ҳисобшудаи controller-ро аз ҳолати ҷорӣ бармегардонад.
   FamilyController get controller => widget.controller;
 
+  /// Controller ва listener-ҳои AppsScreen-ро озод мекунад.
   @override
   void dispose() {
     _search.dispose();
     super.dispose();
   }
 
-  /// Runs a rule change and shows any error as a snackbar.
+  /// run мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Future<void> _run(Future<void> Function() action) async {
     try {
       await action();
@@ -58,7 +59,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
-  /// Blocks/unblocks every app (quick pause) or only [category].
+  /// bulk мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Future<void> _bulk(
     FamilyChild child,
     bool block, {
@@ -154,7 +155,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
-  /// Opens the schedule sheet for [app] and saves the chosen schedule.
+  /// editSchedule мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Future<void> _editSchedule(FamilyChild child, ChildApp app) async {
     final result = await showModalBottomSheet<AppSchedule>(
       context: context,
@@ -167,7 +168,7 @@ class _AppsScreenState extends State<AppsScreen> {
     await _run(() => controller.setSchedule(fresh, app, result));
   }
 
-  /// Opens the per-app options sheet (bonus time, always allowed…).
+  /// openOptions экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openOptions(FamilyChild child, ChildApp app) {
     showModalBottomSheet<void>(
       context: context,
@@ -181,7 +182,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
-  /// Grants [minutes] of bonus time in [app] and confirms it.
+  /// bonus мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Future<void> _bonus(FamilyChild child, ChildApp app, int minutes) async {
     try {
       await controller.giveBonus(
@@ -202,7 +203,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
-  /// Opens the weekly screen-time report of [child].
+  /// openReport экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openReport(FamilyChild child) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -211,7 +212,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
-  /// Opens the bedtime settings sheet.
+  /// openBedtime экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openBedtime(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -221,7 +222,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
-  /// Opens the study-mode settings sheet.
+  /// openStudy экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openStudy(FamilyChild child) {
     showModalBottomSheet<bool>(
       context: context,
@@ -231,7 +232,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
-  /// Whether [app] passes the selected filter chip (new / category).
+  /// matchesFilter иҷро шудани шарти вобастаро муайян мекунад.
   bool _matchesFilter(ChildApp app) {
     final filter = _filter;
     if (filter == null) return true;
@@ -239,6 +240,7 @@ class _AppsScreenState extends State<AppsScreen> {
     return categoryOf(app) == filter;
   }
 
+  /// Барномаҳои фарзандро бо ҷустуҷӯ, категорияҳо, лимит ва ҳолати басташавӣ нишон медиҳад.
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
@@ -254,7 +256,7 @@ class _AppsScreenState extends State<AppsScreen> {
     },
   );
 
-  /// Builds the apps tab for [child]: tools, summary, filters and the app list.
+  /// buildFor қисми мувофиқи интерфейсро месозад.
   Widget _buildFor(BuildContext context, FamilyChild child) {
     if (child.apps.isEmpty) {
       return RefreshIndicator(
@@ -311,7 +313,6 @@ class _AppsScreenState extends State<AppsScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
         children: [
-          // What this screen is for, in one line.
           Text(
             tr(
               'Қоидаҳои телефони {name}: барномаро бандед, лимити рӯзона ва вақти дарс гузоред.',
@@ -435,7 +436,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
-  /// Pull-to-refresh: reloads the family and reports a failure.
+  /// refresh додаҳои барномаҳо ва маҳдудиятҳо-ро боз мехонад ва AppsScreen-ро нав мекунад.
   Future<void> _refresh() async {
     await controller.refresh();
     if (mounted && controller.error != null) {
@@ -443,7 +444,7 @@ class _AppsScreenState extends State<AppsScreen> {
     }
   }
 
-  /// Rule card of one app wired to the controller actions.
+  /// appCard мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Widget _appCard(FamilyChild child, ChildApp app) {
     final limitIndex =
         _draftLimit[app.packageName] ??
@@ -483,7 +484,7 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
-  /// One filter chip (all / new / a category).
+  /// chip мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Widget _chip(String label, Object? value, {Color? color}) => Padding(
     padding: const EdgeInsets.only(right: 8),
     child: ChoiceChip(
@@ -499,8 +500,7 @@ class _AppsScreenState extends State<AppsScreen> {
   );
 }
 
-/// Report, bedtime and study-mode tiles: each says what it is and its
-/// current value, instead of a bare time range on a button.
+/// Widget-и ToolsRow-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class _ToolsRow extends StatelessWidget {
   const _ToolsRow({
     required this.bedtime,
@@ -514,11 +514,11 @@ class _ToolsRow extends StatelessWidget {
   final VoidCallback onBedtime;
   final Widget study;
 
+  /// Widget-и ToolsRow-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final active = bedtime.activeAt(DateTime.now());
-    // IntrinsicHeight: the three tiles share the tallest one's height; inside
-    // a scroll view «stretch» alone would be an unbounded constraint.
+    // Қадами дохилии рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд.
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -560,13 +560,14 @@ class _ToolsRow extends StatelessWidget {
   }
 }
 
-/// «Тамаркузи дарс» tile next to the bedtime one.
+/// Widget-и StudyButton-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class _StudyButton extends StatelessWidget {
   const _StudyButton({required this.study, required this.onTap});
 
   final StudyMode study;
   final VoidCallback onTap;
 
+  /// Widget-и StudyButton-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final active = study.activeAt(DateTime.now());
@@ -586,7 +587,7 @@ class _StudyButton extends StatelessWidget {
   }
 }
 
-/// Tile of the tools row showing a label, its current value and state.
+/// Widget-и ToolTile-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class _ToolTile extends StatelessWidget {
   const _ToolTile({
     required this.tileKey,
@@ -608,12 +609,13 @@ class _ToolTile extends StatelessWidget {
   final String tooltip;
   final VoidCallback onTap;
 
-  /// The feature is switched on (coloured) rather than off (quiet).
+  /// Қимати on-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   final bool on;
 
-  /// It is running right now — shown with a dot.
+  /// Қимати activeNow-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   final bool activeNow;
 
+  /// Widget-и ToolTile-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -696,7 +698,7 @@ class _ToolTile extends StatelessWidget {
   }
 }
 
-/// «Бастани ҳамаи бозиҳо» for the selected category.
+/// Додаҳо ва рафтори марбут ба рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро ифода мекунад.
 class _CategoryActions extends StatelessWidget {
   const _CategoryActions({
     required this.category,
@@ -710,6 +712,7 @@ class _CategoryActions extends StatelessWidget {
   final VoidCallback onBlock;
   final VoidCallback onUnblock;
 
+  /// Widget-и CategoryActions-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) => Row(
     children: [
@@ -740,7 +743,7 @@ class _CategoryActions extends StatelessWidget {
   );
 }
 
-/// Soft summary of today's screen time (ported from the old overview).
+/// Додаҳо ва рафтори марбут ба рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро ифода мекунад.
 class _ScreenTimeSummary extends StatelessWidget {
   const _ScreenTimeSummary({
     required this.usedMinutes,
@@ -754,6 +757,7 @@ class _ScreenTimeSummary extends StatelessWidget {
   final int blockedCount;
   final int appCount;
 
+  /// Widget-и ScreenTimeSummary-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -871,7 +875,7 @@ class _ScreenTimeSummary extends StatelessWidget {
   }
 }
 
-/// "Pause all" card that blocks or unblocks every app, with progress.
+/// Widget-и PauseCard-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class _PauseCard extends StatelessWidget {
   const _PauseCard({
     required this.busy,
@@ -887,6 +891,7 @@ class _PauseCard extends StatelessWidget {
   final VoidCallback onBlockAll;
   final VoidCallback onUnblockAll;
 
+  /// Widget-и PauseCard-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -987,7 +992,7 @@ class _PauseCard extends StatelessWidget {
   }
 }
 
-/// One app with its block switch, usage bar, limit slider and schedule.
+/// Widget-и AppRuleCard-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class AppRuleCard extends StatelessWidget {
   const AppRuleCard({
     super.key,
@@ -1003,10 +1008,10 @@ class AppRuleCard extends StatelessWidget {
     this.onBonus,
   });
 
-  /// Opens «Ҳамеша иҷозат» / bonus sheet.
+  /// Қимати onOptions-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   final VoidCallback? onOptions;
 
-  /// Adds today's extra minutes (shown when the app has a limit).
+  /// Қимати onBonus-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нигоҳ медорад.
   final ValueChanged<int>? onBonus;
 
   final ChildApp app;
@@ -1018,6 +1023,7 @@ class AppRuleCard extends StatelessWidget {
   final ValueChanged<int> onLimitDone;
   final VoidCallback onSchedule;
 
+  /// Widget-и AppRuleCard-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -1163,7 +1169,6 @@ class AppRuleCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Labelled limit group: the slider alone said nothing.
           Padding(
             padding: const EdgeInsets.only(right: 6),
             child: Row(
@@ -1219,7 +1224,6 @@ class AppRuleCard extends StatelessWidget {
               onChangeEnd: (v) => onLimitDone(v.round()),
             ),
           ),
-          // Icon + label, never bare icons: both actions say what they do.
           Padding(
             padding: const EdgeInsets.only(right: 6, bottom: 2),
             child: Wrap(
@@ -1296,34 +1300,36 @@ class AppRuleCard extends StatelessWidget {
   }
 }
 
-/// Bottom sheet for editing an app's allowed-time schedule.
+/// Равзанаи ScheduleSheet-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд нишон медиҳад.
 class _ScheduleSheet extends StatefulWidget {
   const _ScheduleSheet({required this.app});
   final ChildApp app;
 
+  /// Ҳолати ScheduleSheet-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   State<_ScheduleSheet> createState() => _ScheduleSheetState();
 }
 
-/// Holds the schedule being edited (on/off, start, end, weekdays).
+/// Ҳолат ва рафтори ScheduleSheetState-ро барои навсозии интерфейс идора мекунад.
 class _ScheduleSheetState extends State<_ScheduleSheet> {
   late bool enabled;
   late TimeOfDay start;
   late TimeOfDay end;
   late Set<int> weekdays;
 
+  /// Ҷадвали барномаро ба вақт ва рӯзҳои таҳриршаванда мегузаронад.
   @override
   void initState() {
     super.initState();
     final s = widget.app.schedule;
-    // Opening the editor means the parent wants a schedule: start switched on.
+    // Қадами дохилии рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд.
     enabled = true;
     start = _parse(s.start, const TimeOfDay(hour: 8, minute: 0));
     end = _parse(s.end, const TimeOfDay(hour: 13, minute: 0));
     weekdays = s.weekdays.toSet();
   }
 
-  /// Parses "HH:mm" into a time, or [fallback] when invalid.
+  /// parse додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
   static TimeOfDay _parse(String value, TimeOfDay fallback) {
     final parts = value.split(':');
     if (parts.length != 2) return fallback;
@@ -1335,10 +1341,11 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
     return TimeOfDay(hour: h, minute: m);
   }
 
+  /// format додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
   static String _format(TimeOfDay t) =>
       '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
-  /// Opens a 24-hour time picker for the start or end time.
+  /// pick мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
   Future<void> _pick(bool isStart) async {
     final picked = await showTimePicker(
       context: context,
@@ -1352,11 +1359,11 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
     setState(() => isStart ? start = picked : end = picked);
   }
 
+  /// Widget-и ScheduleSheet-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    // Scrolls so the weekday chips and save button stay reachable on small
-    // phones and with large system fonts.
+    // Қадами дохилии рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд.
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
@@ -1468,7 +1475,7 @@ class _ScheduleSheetState extends State<_ScheduleSheet> {
   }
 }
 
-/// Tappable start/end time field of the schedule sheet.
+/// Widget-и TimeTile-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.
 class _TimeTile extends StatelessWidget {
   const _TimeTile({
     required this.label,
@@ -1482,6 +1489,7 @@ class _TimeTile extends StatelessWidget {
   final bool enabled;
   final VoidCallback onTap;
 
+  /// Widget-и TimeTile-ро барои барномаҳо, лимит ва ҷадвали фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;

@@ -1,5 +1,4 @@
-// Parent bottom sheets for bedtime and per-app options (always allowed,
-// bonus time), plus shared time helpers and tiles.
+// Файл: bottom sheet-ҳои амалҳои волид.
 
 import 'package:flutter/material.dart';
 
@@ -10,7 +9,7 @@ import 'family_controller.dart';
 import 'parent_logic.dart';
 import '../../l10n/l10n.dart';
 
-/// Parses "HH:mm" into a time, or [fallback] when invalid.
+/// parseHhmm додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
 TimeOfDay parseHhmm(String value, TimeOfDay fallback) {
   final parts = value.split(':');
   if (parts.length != 2) return fallback;
@@ -22,11 +21,10 @@ TimeOfDay parseHhmm(String value, TimeOfDay fallback) {
   return TimeOfDay(hour: h, minute: m);
 }
 
-/// Formats a time as "HH:mm".
+/// formatHhmm додаҳоро ба шакли барои истифода мувофиқ табдил медиҳад.
 String formatHhmm(TimeOfDay t) => '${two(t.hour)}:${two(t.minute)}';
 
-/// «Вақти хоб»: switch + start/end. Saves through the controller and
-/// closes with `true` on success; errors are shown and the sheet stays open.
+/// Равзанаи BedtimeSheet-ро барои bottom sheet-ҳои амалҳои волид нишон медиҳад.
 class BedtimeSheet extends StatefulWidget {
   const BedtimeSheet({
     super.key,
@@ -36,17 +34,19 @@ class BedtimeSheet extends StatefulWidget {
   final FamilyController controller;
   final FamilyChild child;
 
+  /// Ҳолати BedtimeSheet-ро барои реҷаи хоб ва амалҳои барнома месозад.
   @override
   State<BedtimeSheet> createState() => _BedtimeSheetState();
 }
 
-/// Holds the bedtime switch and times being edited.
+/// Ҳолат ва рафтори BedtimeSheetState-ро барои навсозии интерфейс идора мекунад.
 class _BedtimeSheetState extends State<BedtimeSheet> {
   late bool enabled;
   late TimeOfDay start;
   late TimeOfDay end;
   bool saving = false;
 
+  /// Реҷаи хоби фарзандро ба вақтҳои оғозу анҷоми таҳриршаванда мегузаронад.
   @override
   void initState() {
     super.initState();
@@ -56,7 +56,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
     end = parseHhmm(b.end, const TimeOfDay(hour: 7, minute: 0));
   }
 
-  /// Opens a 24-hour time picker for the start or end time.
+  /// pick мантиқи зарурии bottom sheet-ҳои амалҳои волидро иҷро мекунад.
   Future<void> _pick(bool isStart) async {
     final picked = await showTimePicker(
       context: context,
@@ -70,7 +70,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
     setState(() => isStart ? start = picked : end = picked);
   }
 
-  /// Saves the bedtime via the controller and closes the sheet on success.
+  /// save тағйироти танзимоти волид-ро барои истифодаи баъдӣ нигоҳ медорад.
   Future<void> _save() async {
     final bedtime = Bedtime(
       enabled: enabled,
@@ -88,6 +88,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
     }
   }
 
+  /// Танзими вақти оғозу анҷоми реҷаи хобро нишон медиҳад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -186,7 +187,7 @@ class _BedtimeSheetState extends State<BedtimeSheet> {
   }
 }
 
-/// Tappable start/end time field used in the parent sheets.
+/// Widget-и TimeTile-ро барои bottom sheet-ҳои амалҳои волид месозад.
 class TimeTile extends StatelessWidget {
   const TimeTile({
     super.key,
@@ -201,6 +202,7 @@ class TimeTile extends StatelessWidget {
   final bool enabled;
   final VoidCallback onTap;
 
+  /// Widget-и TimeTile-ро барои реҷаи хоб ва амалҳои барнома месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -235,7 +237,7 @@ class TimeTile extends StatelessWidget {
   }
 }
 
-/// Per-app extras: «Ҳамеша иҷозат» and today's bonus time.
+/// Равзанаи AppOptionsSheet-ро барои bottom sheet-ҳои амалҳои волид нишон медиҳад.
 class AppOptionsSheet extends StatefulWidget {
   const AppOptionsSheet({
     super.key,
@@ -248,15 +250,16 @@ class AppOptionsSheet extends StatefulWidget {
   final int childId;
   final String packageName;
 
+  /// Ҳолати AppOptionsSheet-ро барои реҷаи хоб ва амалҳои барнома месозад.
   @override
   State<AppOptionsSheet> createState() => _AppOptionsSheetState();
 }
 
-/// Runs the per-app actions with a busy state and a confirmation.
+/// Ҳолат ва рафтори AppOptionsSheetState-ро барои навсозии интерфейс идора мекунад.
 class _AppOptionsSheetState extends State<AppOptionsSheet> {
   bool _busy = false;
 
-  /// Runs [action], then shows [done] or the error.
+  /// run мантиқи зарурии bottom sheet-ҳои амалҳои волидро иҷро мекунад.
   Future<void> _run(Future<void> Function() action, String done) async {
     setState(() => _busy = true);
     try {
@@ -269,6 +272,7 @@ class _AppOptionsSheetState extends State<AppOptionsSheet> {
     }
   }
 
+  /// Амалҳои бастан, лимит, ҷадвал ва бонуси барномаи интихобшударо нишон медиҳад.
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.controller,
@@ -368,7 +372,7 @@ class _AppOptionsSheetState extends State<AppOptionsSheet> {
   );
 }
 
-/// «+15 / +30 / +60» and the current «+N дақ имрӯз».
+/// Додаҳо ва рафтори марбут ба bottom sheet-ҳои амалҳои волидро ифода мекунад.
 class BonusButtons extends StatelessWidget {
   const BonusButtons({
     super.key,
@@ -381,6 +385,7 @@ class BonusButtons extends StatelessWidget {
   final ValueChanged<int> onBonus;
   final bool enabled;
 
+  /// Widget-и BonusButtons-ро барои реҷаи хоб ва амалҳои барнома месозад.
   @override
   Widget build(BuildContext context) => Wrap(
     spacing: 8,
