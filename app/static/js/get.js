@@ -1,11 +1,9 @@
-/* Download page controller: progressive device-aware guidance.
-   Features: Android/iOS/desktop emphasis, resilient copy and Web Share,
-   download feedback, a scroll-driven install timeline, an accessible QR
-   dialog, the Android sticky action, and a reduced-motion version shine. */
+/* Файл: идоракунии саҳифаи боргирӣ мувофиқи дастгоҳи корбар.
+   Нусхабардорӣ, Web Share, QR dialog, раванди насб ва тугмаи часпандаи Android-ро идора мекунад. */
 (function () {
   'use strict';
 
-  /* Detect the broad device family used to tailor download guidance. */
+  /* Навъи умумии дастгоҳро барои мутобиқ кардани дастури боргирӣ муайян мекунад. */
   function detectDevice() {
     var agent = navigator.userAgent || '';
     if (/android/i.test(agent)) return 'android';
@@ -13,7 +11,7 @@
     return 'desktop';
   }
 
-  /* Copy text through a temporary field for browsers without Clipboard API support. */
+  /* Дар браузерҳои бе Clipboard API матнро тавассути майдони муваққатӣ нусха мегирад. */
   function copyTextLegacy(value) {
     var field = document.createElement('textarea');
     field.value = value;
@@ -27,7 +25,7 @@
     return copied;
   }
 
-  /* Copy any page value with one Clipboard API helper and an execCommand fallback. */
+  /* Қимати саҳифаро бо Clipboard API ё роҳи эҳтиётии execCommand нусха мегирад. */
   function copyText(value) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       return navigator.clipboard.writeText(value).catch(function () { return copyTextLegacy(value); });
@@ -35,7 +33,7 @@
     return Promise.resolve(copyTextLegacy(value));
   }
 
-  /* Replace a copy button label briefly with its localized success message. */
+  /* Матни тугмаи нусхабардориро муваққатан бо паёми муваффақият иваз мекунад. */
   function confirmCopy(button) {
     var original = button.textContent;
     button.textContent = button.dataset.copySuccess;
@@ -44,18 +42,18 @@
     window.setTimeout(function () { button.textContent = original; }, 1800);
   }
 
-  /* Copy a certificate fingerprint and briefly confirm success on its button. */
+  /* Нақши SHA-256-и сертификатро нусха гирифта, муваффақиятро дар тугма нишон медиҳад. */
   function copyCertificate(button) {
     copyText(button.dataset.copyValue).then(function () { confirmCopy(button); });
   }
 
-  /* Copy the absolute APK URL and show localized confirmation. */
+  /* URL-и пурраи APK-ро нусха гирифта, тасдиқи маҳаллиро нишон медиҳад. */
   function copyDownloadLink(button) {
     var url = new URL('/download/android', window.location.origin).href;
     copyText(url).then(function () { confirmCopy(button); });
   }
 
-  /* Show brief next-step guidance after an APK download begins. */
+  /* Пас аз оғози боргирии APK дастури кӯтоҳи қадами навбатиро нишон медиҳад. */
   function showDownloadToast() {
     var toast = document.querySelector('.download-toast');
     if (!toast) return;
@@ -64,7 +62,7 @@
     showDownloadToast.timer = window.setTimeout(function () { toast.hidden = true; }, 6000);
   }
 
-  /* Draw the install timeline connector according to its viewport progress. */
+  /* Хати раванди насбро мувофиқи мавқеи он дар viewport пур мекунад. */
   function updateTimeline() {
     var timeline = document.querySelector('.install-timeline');
     if (!timeline) return;
@@ -74,7 +72,7 @@
     timeline.style.setProperty('--timeline-progress', progress.toFixed(3));
   }
 
-  /* Open the enlarged QR dialog and place focus on its close control. */
+  /* QR dialog-и калонро кушода, focus-ро ба тугмаи бастан мегузорад. */
   function openQrDialog(opener) {
     var dialog = document.querySelector('.qr-dialog');
     if (!dialog || typeof dialog.showModal !== 'function') return;
@@ -83,12 +81,12 @@
     dialog.querySelector('.qr-dialog-close').focus();
   }
 
-  /* Close the QR dialog and return focus to the control that opened it. */
+  /* QR dialog-ро мепӯшонад; focus баъд аз рӯйдоди close баргардонда мешавад. */
   function closeQrDialog(dialog) {
     dialog.close();
   }
 
-  /* Keep Tab and Shift+Tab focus inside the open QR dialog. */
+  /* Ҳаракати Tab ва Shift+Tab-ро дар дохили QR dialog нигоҳ медорад. */
   function trapDialogFocus(event, dialog) {
     if (event.key !== 'Tab') return;
     var controls = Array.from(dialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
@@ -105,7 +103,7 @@
     }
   }
 
-  /* Share the current page with the system sheet or copy it as a fallback. */
+  /* Саҳифаро бо менюи системавӣ мубодила мекунад ё URL-ро нусха мегирад. */
   function sharePage(button) {
     var payload = { title: button.dataset.shareTitle, text: button.dataset.shareText, url: window.location.href };
     if (navigator.share) {
@@ -115,7 +113,7 @@
     copyText(payload.url).then(function () { confirmCopy(button); });
   }
 
-  /* Reveal the Android mobile download bar after the hero action leaves view. */
+  /* Пас аз нопадид шудани тугмаи hero панели боргирии Android-ро нишон медиҳад. */
   function setupStickyDownload(device) {
     var primary = document.querySelector('.get-download-primary');
     var sticky = document.querySelector('.sticky-download');
@@ -126,14 +124,14 @@
     observer.observe(primary);
   }
 
-  /* Play the version badge highlight once when motion is allowed. */
+  /* Агар ҳаракат иҷозат бошад, нишони версияро як бор равшан мекунад. */
   function shineVersionBadge() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var badge = document.querySelector('.version-badge');
     if (badge) window.requestAnimationFrame(function () { badge.classList.add('js-version-shine'); });
   }
 
-  /* Device setup controls only emphasis; the server-rendered page stays usable. */
+  /* Навъи дастгоҳро сабт карда, танҳо афзалияти дастурҳоро тағйир медиҳад. */
   var device = detectDevice();
   document.documentElement.setAttribute('data-get-device', device);
   if (device === 'ios') {
@@ -144,7 +142,7 @@
   setupStickyDownload(device);
   shineVersionBadge();
 
-  /* Copy and download bindings share localized feedback from template data. */
+  /* Рӯйдодҳои нусхабардорӣ ва боргириро бо паёмҳои қолаб пайваст мекунад. */
   document.querySelectorAll('.verify-copy').forEach(function (button) {
     button.addEventListener('click', function () { copyCertificate(button); });
   });
@@ -155,7 +153,7 @@
     link.addEventListener('click', showDownloadToast);
   });
 
-  /* Timeline motion is opt-in and never runs for reduced-motion visitors. */
+  /* Ҳаракати раванди насбро танҳо барои корбарони бе reduced motion фаъол мекунад. */
   var timeline = document.querySelector('.install-timeline');
   if (timeline && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     timeline.classList.add('js-get-timeline');
@@ -164,7 +162,7 @@
     updateTimeline();
   }
 
-  /* QR dialog bindings cover pointer, backdrop, Escape, Tab, and focus return. */
+  /* Рӯйдодҳои pointer, замина, Escape, Tab ва бозгашти focus-и QR dialog-ро мепайвандад. */
   document.querySelectorAll('.qr-open').forEach(function (button) {
     button.addEventListener('click', function () { openQrDialog(button); });
   });
@@ -182,7 +180,7 @@
       if (dialog.qrOpener) dialog.qrOpener.focus();
     });
   });
-  /* Share controls use the native sheet when available and copy otherwise. */
+  /* Тугмаҳои мубодиларо ба менюи системавӣ ё нусхабардории эҳтиётӣ мепайвандад. */
   document.querySelectorAll('.share-page').forEach(function (button) {
     button.addEventListener('click', function () { sharePage(button); });
   });
