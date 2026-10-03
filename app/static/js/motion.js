@@ -7,6 +7,17 @@
   var reduced = reduceQuery.matches;
   var revealItems = [];
 
+  /* Language links: carry the current in-page destination across translations. */
+  function syncLanguageHashes() {
+    document.querySelectorAll('.lang-switch a').forEach(function (link) {
+      var target = new URL(link.href, location.href);
+      target.hash = location.hash;
+      link.href = target.pathname + target.search + target.hash;
+    });
+  }
+  syncLanguageHashes();
+  addEventListener('hashchange', syncLanguageHashes);
+
   /* Shared helper: reveal safely, including the observer fallback path. */
   function reveal(element) {
     element.classList.add('is-visible');
