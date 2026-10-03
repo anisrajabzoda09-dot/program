@@ -1,0 +1,151 @@
+/* NIGOH Family motion layer: calm progressive enhancement for public pages. */
+
+/* Cross-document navigation: a restrained browser-native page cross-fade. */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: motion-page-out .18s ease both; }
+::view-transition-new(root) { animation: motion-page-in .28s ease both; }
+@keyframes motion-page-out { to { opacity: 0; } }
+@keyframes motion-page-in { from { opacity: 0; } }
+
+/* Header state and the compositor-only reading progress indicator. */
+.site-header {
+  transition: box-shadow .22s ease, background-color .22s ease;
+}
+.site-header.is-scrolled {
+  box-shadow: 0 8px 30px rgba(11, 18, 32, .09);
+}
+:root[data-theme="dark"] .site-header.is-scrolled {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .32);
+}
+.scroll-progress {
+  position: absolute; z-index: 2; top: 0; left: 0; width: 100%; height: 2px;
+  background: var(--blue); transform: scaleX(0); transform-origin: left center;
+  pointer-events: none; will-change: transform;
+}
+
+/* Hero entrance: content staggers in, while the visual settles independently. */
+.js-motion .motion-hero-item,
+.js-motion .motion-hero-visual {
+  opacity: 0; transform: translateY(18px);
+}
+.js-motion .motion-hero-item.is-visible {
+  opacity: 1; transform: translateY(0);
+  transition: opacity .55s cubic-bezier(.2,.8,.2,1) var(--motion-delay, 0ms),
+              transform .55s cubic-bezier(.2,.8,.2,1) var(--motion-delay, 0ms);
+}
+.js-motion .motion-hero-visual {
+  transform: translateY(26px) scale(.975);
+  transform-style: preserve-3d; will-change: transform;
+}
+.js-motion .motion-hero-visual.is-visible {
+  opacity: 1; transform: translateY(0) scale(1);
+  transition: opacity .7s cubic-bezier(.2,.8,.2,1) .2s,
+              transform .7s cubic-bezier(.2,.8,.2,1) .2s;
+}
+.js-motion .motion-hero-visual.is-parallax-ready {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform .18s ease-out;
+}
+.js-motion .motion-hero-visual img[src*="hero_phone_clean"] {
+  animation: motion-phone-float 6s ease-in-out 1.05s infinite;
+  transform: translateZ(24px); will-change: transform;
+}
+@keyframes motion-phone-float {
+  0%, 100% { transform: translate3d(0, 0, 24px); }
+  50% { transform: translate3d(0, -7px, 24px); }
+}
+
+/* Hero glow: brand-blue and teal light drift softly behind the device. */
+.hero-visual::before {
+  inset: 5% -2% 1%; border-radius: 45%;
+  background:
+    radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--blue) 28%, transparent), transparent 55%),
+    radial-gradient(circle at 72% 72%, color-mix(in srgb, var(--teal) 25%, transparent), transparent 54%);
+  opacity: .72; filter: blur(10px); transform: translate3d(0, 0, 0) scale(.96);
+  animation: motion-glow-drift 9s ease-in-out infinite alternate;
+}
+:root[data-theme="dark"] .hero-visual::before { opacity: .45; }
+@keyframes motion-glow-drift {
+  to { transform: translate3d(8px, -10px, 0) scale(1.04); opacity: .9; }
+}
+
+/* Scroll reveals: only JS-marked natural children start hidden. */
+.js-motion .motion-reveal {
+  opacity: 0; transform: translateY(18px);
+}
+.js-motion .motion-reveal.is-visible {
+  opacity: 1; transform: translateY(0);
+  transition: opacity .52s cubic-bezier(.2,.8,.2,1) var(--motion-delay, 0ms),
+              transform .52s cubic-bezier(.2,.8,.2,1) var(--motion-delay, 0ms);
+}
+
+/* Cards and tiles: light lift plus a compact icon response on fine pointers. */
+@media (hover: hover) and (pointer: fine) {
+  .card, .step, .qr-card, .screen, .callout {
+    transition: transform .2s ease, box-shadow .2s ease, border-color .15s ease;
+  }
+  .card:hover, .step:hover, .qr-card:hover, .screen:hover, .callout:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(11, 18, 32, .09);
+  }
+  :root[data-theme="dark"] .card:hover,
+  :root[data-theme="dark"] .step:hover,
+  :root[data-theme="dark"] .qr-card:hover,
+  :root[data-theme="dark"] .screen:hover,
+  :root[data-theme="dark"] .callout:hover { box-shadow: 0 14px 34px rgba(0, 0, 0, .28); }
+  .icon { transition: transform .18s ease; }
+  .card:hover .icon { transform: scale(1.07); }
+}
+
+/* Primary-button shine: a small original highlight sweep on hover. */
+.btn-primary { position: relative; isolation: isolate; overflow: hidden; }
+.btn-primary::after {
+  content: ""; position: absolute; z-index: -1; inset: -60% -35%;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.24) 50%, transparent 62%);
+  opacity: 0; transform: translateX(-65%); pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover::after {
+    opacity: 1; transform: translateX(65%);
+    transition: transform .48s ease, opacity .12s ease;
+  }
+}
+
+/* FAQ response: native details semantics stay intact; answer content eases in/out. */
+.faq details > div { transform-origin: top; }
+
+/* Theme switch: View Transitions reveal the new theme from the switch position. */
+html.motion-theme-transition::view-transition-old(root) { animation: none; z-index: 1; }
+html.motion-theme-transition::view-transition-new(root) {
+  z-index: 2;
+  animation: motion-theme-circle .48s cubic-bezier(.2,.75,.2,1) both;
+}
+@keyframes motion-theme-circle {
+  from { clip-path: circle(0 at var(--theme-x) var(--theme-y)); }
+  to { clip-path: circle(var(--theme-radius) at var(--theme-x) var(--theme-y)); }
+}
+
+/* Reduced motion: keep every element visible and disable all decorative movement. */
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
+  .js-motion .motion-hero-item,
+  .js-motion .motion-hero-visual,
+  .js-motion .motion-reveal {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+  .js-motion .motion-hero-visual img[src*="hero_phone_clean"],
+  .hero-visual::before { animation: none !important; transform: none !important; }
+  .card:hover, .step:hover, .qr-card:hover, .screen:hover, .callout:hover,
+  .card:hover .icon { transform: none !important; }
+  .btn-primary::after { display: none; }
+  /* No hover/scroll transitions at all for reduced-motion visitors. */
+  .site-header, .card, .step, .qr-card, .screen, .callout, .icon, .btn {
+    transition: none !important;
+  }
+}
+
+/* Small screens: contain the decorative glow and avoid edge clipping. */
+@media (max-width: 640px) {
+  .hero-visual::before { inset-inline: 3%; }
+}
