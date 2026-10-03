@@ -1,6 +1,4 @@
-// Family chat screen shared by parent and child: message list with day
-// separators and read receipts, quick check-in replies, call chips, sending
-// with retry, and periodic polling for new messages.
+// Файл: chat-и волид ва фарзанд.
 
 import 'dart:async';
 
@@ -14,11 +12,10 @@ import '../../ui/widgets.dart';
 import '../call/call_screen.dart';
 import '../../l10n/l10n.dart';
 
-/// Text of the old 'call' chat messages (still rendered; no longer sent).
+/// Қимати chatCallText-ро барои chat-и волид ва фарзанд нигоҳ медорад.
 const chatCallText = 'Занг зад — лутфан ба телефон занг занед';
 
-/// One-tap check-in messages shown to the child above the input.
-/// Sent in the sender's current language.
+/// Қимати chatQuickReplies-ро барои chat-и волид ва фарзанд нигоҳ медорад.
 List<String> get chatQuickReplies => [
   tr('Ман расидам'),
   tr('Ман дар роҳам'),
@@ -26,9 +23,7 @@ List<String> get chatQuickReplies => [
   tr('Ҳама хуб аст'),
 ];
 
-/// Family chat between a parent and one child, used on both phones.
-/// Polls the server every 4 seconds while visible and marks the other side's
-/// messages as read (read receipts).
+/// Экрани ChatScreen-ро барои chat-и волид ва фарзанд месозад.
 class ChatScreen extends StatefulWidget {
   const ChatScreen({
     super.key,
@@ -39,16 +34,17 @@ class ChatScreen extends StatefulWidget {
   final int childId;
   final String title;
 
-  /// Server path of the other side's photo (shown in the app bar).
+  /// Қимати avatarPath-ро барои chat-и волид ва фарзанд нигоҳ медорад.
   final String? avatarPath;
 
   static const pollInterval = Duration(seconds: 4);
 
+  /// Ҳолати ChatScreen-ро барои чат байни волид ва фарзанд месозад.
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-/// A message being sent (or failed) that is not on the server yet.
+/// Pending додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _Pending {
   _Pending(this.content, this.type);
   final String content;
@@ -56,8 +52,7 @@ class _Pending {
   bool failed = false;
 }
 
-/// Polls messages while visible, sends with optimistic bubbles and keeps the
-/// list scrolled to the newest message.
+/// Ҳолат ва рафтори ChatScreenState-ро барои навсозии интерфейс идора мекунад.
 class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final _input = TextEditingController();
   final _scroll = ScrollController();
@@ -71,10 +66,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   int _lastId = 0;
   bool _markedOnce = false;
 
+  /// Қимати ҳисобшудаи api-ро аз ҳолати ҷорӣ бармегардонад.
   NigohApi get _api => SessionScope.read(context).api;
+  /// Қимати ҳисобшудаи myRole-ро аз ҳолати ҷорӣ бармегардонад.
   String get _myRole => SessionScope.read(context).role ?? '';
 
-  /// My newest sent message (the only one that shows «Хонда шуд»).
+  /// myLast мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   ChatMessage? _myLast(String myRole) {
     ChatMessage? last;
     for (final m in _messages.values) {
@@ -83,14 +80,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return last;
   }
 
-  /// Polls from just before my newest unread message, so its `is_read`
-  /// flag is refreshed; otherwise only new messages are fetched.
+  /// fetchAfter додаҳоро мехонад ва ҳолати экранро нав мекунад.
   int _fetchAfter(String myRole) {
     final mine = _myLast(myRole);
     if (mine == null || mine.isRead) return _lastId;
     return mine.id - 1 < _lastId ? mine.id - 1 : _lastId;
   }
 
+  /// Матни воридшавандаро мешунавад, паёмҳоро бор мекунад ва polling-и чатро оғоз менамояд.
   @override
   void initState() {
     super.initState();
@@ -103,10 +100,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
   }
 
+  /// onInput рӯйдодро коркард карда, ҳолати вобастаро нав мекунад.
   void _onInput() {
     if (mounted) setState(() {});
   }
 
+  /// Пас аз иваз шудани параметрҳои widget ҳолати дохилиро ҳамоҳанг месозад.
   @override
   void didUpdateWidget(covariant ChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -121,6 +120,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Ба тағйири lifecycle-и ChatScreen ҷавоб медиҳад.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -133,12 +133,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Starts the periodic message refresh.
+  /// startPolling раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void _startPolling() {
     _timer?.cancel();
     _timer = Timer.periodic(ChatScreen.pollInterval, (_) => _load());
   }
 
+  /// Controller ва listener-ҳои ChatScreen-ро озод мекунад.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -148,7 +149,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  /// Fetches new messages since the last known one and merges them in.
+  /// load додаҳои чати волид ва фарзанд-ро мехонад ва ҳолати ChatScreen-ро нав мекунад.
   Future<void> _load() async {
     if (_loading || !mounted) return;
     _loading = true;
@@ -175,8 +176,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Read receipt for the other side. Not a user action: a failure is
-  /// retried with the next new message and never blocks the chat.
+  /// markRead дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _markRead(int childId) async {
     try {
       await _api.markChatRead(childId);
@@ -185,7 +185,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Adds/updates messages by id; returns the ones that were new.
+  /// merge мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   List<ChatMessage> _merge(Iterable<ChatMessage> items) {
     final added = <ChatMessage>[];
     for (final m in items) {
@@ -196,12 +196,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return added;
   }
 
-  /// Gentle auto-scroll to the newest message. While the child is reading
-  /// older messages ([force] false and the list scrolled up) it stays put.
+  /// scrollToBottom мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   void _scrollToBottom({bool force = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scroll.hasClients) return;
-      // The list is reversed: offset 0 is the newest message.
+      // Қадами дохилии chat-и волид ва фарзанд.
       if (!force && _scroll.offset > 260) return;
       final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
       if (reduced) {
@@ -216,7 +215,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
   }
 
-  /// Sends the text typed in the input field.
+  /// send дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _send() async {
     final text = _input.text.trim();
     if (text.isEmpty || _sending) return;
@@ -224,7 +223,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     await _sendText(text);
   }
 
-  /// Adds a pending bubble for [text] and delivers it.
+  /// sendText дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _sendText(String text) async {
     if (_sending) return;
     final pending = _Pending(text, 'text');
@@ -233,14 +232,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     await _deliver(pending);
   }
 
-  /// Re-sends a message that failed to deliver.
+  /// retry мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   Future<void> _retry(_Pending pending) async {
     if (_sending) return;
     setState(() => pending.failed = false);
     await _deliver(pending);
   }
 
-  /// Posts a pending message to the server; marks it failed on error.
+  /// deliver мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   Future<void> _deliver(_Pending pending) async {
     setState(() => _sending = true);
     try {
@@ -268,7 +267,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  /// Starts a real voice call (WebRTC) with the other side of this chat.
+  /// call мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   Future<void> _call() => CallScreen.openOutgoing(
     context,
     childId: widget.childId,
@@ -276,6 +275,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     peerAvatarUrl: _api.fileUrl(widget.avatarPath),
   );
 
+  /// Экрани чатро бо таърихи паёмҳо, ҷавобҳои зуд ва сатри навиштан месозад.
   @override
   Widget build(BuildContext context) {
     final myRole = SessionScope.of(context).role ?? '';
@@ -329,7 +329,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
   }
 
-  /// Message list, or loading / error / empty state before the first load.
+  /// body мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
   Widget _body(String myRole) {
     if (!_loaded) {
       if (_loadError != null) {
@@ -358,8 +358,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         text: tr('Аввалин паёмро нависед.'),
       );
     }
-    // Built oldest → newest with day separators, shown reversed so the list
-    // starts at the bottom.
+    // Қадами дохилии chat-и волид ва фарзанд.
     final myLast = _myLast(myRole);
     final rows = <Widget>[];
     DateTime? lastDay;
@@ -377,7 +376,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       final read = mine && m.isRead && identical(m, myLast);
       rows.add(
         _Entry(
-          // Keyed by message, so only genuinely new bubbles animate in.
+          // Қадами дохилии chat-и волид ва фарзанд.
           key: ValueKey('msg-${m.id}'),
           mine: mine,
           child: switch (m.type) {
@@ -410,9 +409,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       );
     }
     final reversed = rows.reversed.toList();
-    // Every row is keyed; this lets the list follow a row that only moved
-    // (a new message shifts all indices) instead of rebuilding it — so only
-    // genuinely new rows play their entry animation.
+    // Animation бо назардошти танзими кам кардани ҳаракат иҷро мешавад.
     final rowIndex = <Key, int>{
       for (final (i, row) in reversed.indexed)
         if (row.key != null) row.key!: i,
@@ -429,36 +426,39 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 }
 
-/// Fades and slides a chat row in the first time it is built (so a new
-/// message arrives instead of appearing). Reduced motion skips it.
+/// Entry додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _Entry extends StatefulWidget {
   const _Entry({super.key, required this.child, required this.mine});
   final Widget child;
   final bool mine;
 
+  /// Ҳолати Entry-ро барои чат байни волид ва фарзанд месозад.
   @override
   State<_Entry> createState() => _EntryState();
 }
 
-/// Runs the one-time entry animation of a chat row.
+/// Ҳолат ва рафтори EntryState-ро барои навсозии интерфейс идора мекунад.
 class _EntryState extends State<_Entry> with SingleTickerProviderStateMixin {
   late final AnimationController _in = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 260),
   );
 
+  /// Animation-и пайдо шудани паёми нави чатро оғоз мекунад.
   @override
   void initState() {
     super.initState();
     _in.forward();
   }
 
+  /// Controller ва listener-ҳои Entry-ро озод мекунад.
   @override
   void dispose() {
     _in.dispose();
     super.dispose();
   }
 
+  /// Widget-и Entry-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
@@ -482,21 +482,22 @@ class _EntryState extends State<_Entry> with SingleTickerProviderStateMixin {
   }
 }
 
-/// Two-digit zero-padded number for clock times.
+/// two мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
 String _two(int v) => v.toString().padLeft(2, '0');
 
-/// Local "HH:mm" time of a message, or '' when unknown.
+/// hhmm мантиқи зарурии chat-и волид ва фарзандро иҷро мекунад.
 String _hhmm(DateTime? time) {
   if (time == null) return '';
   final t = time.toLocal();
   return '${_two(t.hour)}:${_two(t.minute)}';
 }
 
-/// "Today" / "Yesterday" / date label between messages of different days.
+/// DaySeparator додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _DaySeparator extends StatelessWidget {
   const _DaySeparator(this.day, {super.key});
   final DateTime day;
 
+  /// Widget-и DaySeparator-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -531,7 +532,7 @@ class _DaySeparator extends StatelessWidget {
   }
 }
 
-/// One chat bubble with time, read ticks and pending/failed state.
+/// Bubble додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _Bubble extends StatelessWidget {
   const _Bubble({
     required this.text,
@@ -547,12 +548,13 @@ class _Bubble extends StatelessWidget {
   final bool mine;
   final String time;
 
-  /// My newest message was read by the other side («Хонда шуд»).
+  /// Қимати read-ро барои chat-и волид ва фарзанд нигоҳ медорад.
   final bool read;
   final bool pending;
   final bool failed;
   final VoidCallback? onRetry;
 
+  /// Widget-и Bubble-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -637,7 +639,7 @@ class _Bubble extends StatelessWidget {
   }
 }
 
-/// SOS / urgent message: a red alert bubble on both phones.
+/// UrgentBubble додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _UrgentBubble extends StatelessWidget {
   const _UrgentBubble({
     required this.message,
@@ -651,6 +653,7 @@ class _UrgentBubble extends StatelessWidget {
   final String time;
   final bool read;
 
+  /// Widget-и UrgentBubble-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -727,14 +730,13 @@ class _UrgentBubble extends StatelessWidget {
   }
 }
 
-/// Row of one-tap check-in replies (e.g. "I've arrived") for the child.
+/// QuickReplies додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _QuickReplies extends StatelessWidget {
   const _QuickReplies({required this.enabled, required this.onTap});
   final bool enabled;
   final ValueChanged<String> onTap;
 
-  /// Same order as [chatQuickReplies] — a picture makes each chip readable
-  /// at a glance.
+  /// Қимати _icons-ро барои chat-и волид ва фарзанд нигоҳ медорад.
   static const _icons = [
     Icons.check_circle_rounded,
     Icons.directions_walk_rounded,
@@ -742,6 +744,7 @@ class _QuickReplies extends StatelessWidget {
     Icons.thumb_up_rounded,
   ];
 
+  /// Widget-и QuickReplies-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -768,12 +771,13 @@ class _QuickReplies extends StatelessWidget {
   }
 }
 
-/// Chat entry for a call event (outgoing, incoming or missed call).
+/// CallChip додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _CallChip extends StatelessWidget {
   const _CallChip({required this.message, required this.mine});
   final ChatMessage message;
   final bool mine;
 
+  /// Widget-и CallChip-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -822,12 +826,13 @@ class _CallChip extends StatelessWidget {
   }
 }
 
-/// Banner shown when refreshing messages failed, with a retry button.
+/// Widget-и ErrorBanner-ро барои chat-и волид ва фарзанд месозад.
 class _ErrorBanner extends StatelessWidget {
   const _ErrorBanner(this.text, this.onRetry);
   final String text;
   final VoidCallback onRetry;
 
+  /// Widget-и ErrorBanner-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -852,7 +857,7 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-/// Text field and send button at the bottom of the chat.
+/// InputBar додаҳо ва рафтори чати волид ва фарзанд-ро ифода мекунад.
 class _InputBar extends StatelessWidget {
   const _InputBar({
     required this.controller,
@@ -864,6 +869,7 @@ class _InputBar extends StatelessWidget {
   final bool canSend;
   final VoidCallback onSend;
 
+  /// Widget-и InputBar-ро барои чат байни волид ва фарзанд месозад.
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
