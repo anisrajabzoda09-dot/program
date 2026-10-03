@@ -1,6 +1,5 @@
-// Child-phone app blocker: a foreground service that watches the foreground
-// app, counts per-app usage for daily limits, and covers forbidden apps with
-// a full-screen overlay according to the parent's rules.
+// Файл: foreground service барои бастани барномаҳои телефони фарзанд;
+// истифодаи рӯзонаро ҳисоб карда, барномаҳои манъшударо бо overlay мепӯшонад.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -42,12 +41,11 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
- * Foreground service enforcing the parent's app rules on the child phone.
- * Polls the foreground app while the screen is on, tracks today's usage per
- * app and shows the block overlay for blocked, scheduled or over-limit apps.
+ * Қоидаҳои волидайнро дар телефони фарзанд татбиқ мекунад: барномаи фаъол ва
+ * вақти истифодаашро назорат карда, барои манъ, ҷадвал ё лимит overlay нишон медиҳад.
  */
 class AppBlockMonitorService : Service() {
-    /** Package (and activity class, when known) currently in the foreground. */
+    /** package ва class-и Activity-и ҳозир фаъолро нигоҳ медорад. */
     private data class ForegroundApp(val packageName: String, val className: String?)
     private val handler = Handler(Looper.getMainLooper())
     private var overlay: View? = null
@@ -61,8 +59,9 @@ class AppBlockMonitorService : Service() {
     private var activeSessionPersistedSeconds = 0L
     private var lastUsageFlushAt = 0L
 
-    /** Pauses monitoring and saves usage when the screen turns off; resumes on. */
+    /** Ҳангоми хомӯшии экран истифодаи ҷориро сабт ва назоратро муваққатан қатъ мекунад. */
     private val screenReceiver = object : android.content.BroadcastReceiver() {
+        /** Ба тағйири ҳолати экран ҷавоб дода, monitor ва overlay-ро идора мекунад. */
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 Intent.ACTION_SCREEN_OFF -> {
@@ -81,8 +80,9 @@ class AppBlockMonitorService : Service() {
         }
     }
 
-    /** Periodic foreground check, re-posted while the screen is on. */
+    /** Санҷиши даврии барномаи фаъолро то фурӯзон будани экран такрор мекунад. */
     private val monitor = object : Runnable {
+        /** Як даври назоратро иҷро ва даври навбатиро ба навбат мегузорад. */
         override fun run() {
             checkForegroundApp()
             if (screenOn) handler.postDelayed(this, POLL_INTERVAL_MS)
@@ -90,8 +90,8 @@ class AppBlockMonitorService : Service() {
     }
 
     /**
-     * Sets up system services, the screen receiver and the foreground
-     * notification, then starts monitoring.
+     * Хидматҳои система, receiver-и экран ва огоҳиномаи foreground-ро омода карда,
+     * назоратро оғоз мекунад.
      */
     override fun onCreate() {
         super.onCreate()
@@ -123,24 +123,23 @@ class AppBlockMonitorService : Service() {
         if (screenOn) handler.post(monitor)
     }
 
-    /** Handles overlay requests sent by the accessibility service; restarts if killed. */
+    /** Дархости overlay-и Accessibility-ро коркард карда, хидматро sticky нигоҳ медорад. */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         handleAccessibilityRequest(intent)
         return START_STICKY
     }
 
-    /** Shows the overlay for an app reported by the accessibility service. */
+    /** Барои барномаи аз Accessibility омада overlay-и басташавиро нишон медиҳад. */
     private fun handleAccessibilityRequest(intent: Intent?) {
         val target = intent?.getStringExtra(EXTRA_OVERLAY_PACKAGE) ?: return
         val reason = intent.getStringExtra(EXTRA_OVERLAY_REASON)
             ?: UiStrings.reasonBlocked(this)
         if (target.isBlank() || target == packageName || target in SAFE_PACKAGES) return
-        // Accessibility may be enabled before Android grants overlay access.
-        // Do not let a TYPE_APPLICATION_OVERLAY exception crash the service.
+        // Accessibility метавонад пеш аз иҷозати overlay фаъол шавад; хато набояд хидматро бандад.
         handler.post { runCatching { showOverlay(target, reason) } }
     }
 
-    /** Stops monitoring, saves usage and removes the overlay. */
+    /** Назоратро қатъ, истифодаи ҷориро сабт ва overlay-ро хориҷ мекунад. */
     override fun onDestroy() {
         handler.removeCallbacks(monitor)
         flushActiveUsage()
@@ -149,11 +148,11 @@ class AppBlockMonitorService : Service() {
         super.onDestroy()
     }
 
+    /** Нишон медиҳад, ки ин хидмат binding-ро дастгирӣ намекунад. */
     override fun onBind(intent: Intent?): IBinder? = null
 
     /**
-     * One monitoring step: finds the foreground app, records its usage and
-     * shows or removes the overlay according to its rule.
+     * Барномаи фаъолро ёфта, истифодаашро сабт мекунад ва мувофиқи қоида overlay-ро идора менамояд.
      */
     private fun checkForegroundApp() {
         if (!screenOn) return
@@ -169,8 +168,7 @@ class AppBlockMonitorService : Service() {
             return
         }
         val openedPackage = foreground.packageName
-        // UsageEvents has no target intent/URI. A Settings activity class does
-        // not identify our app; intercepting it prevents legitimate setup.
+        // UsageEvents intent ё URI надорад; бастани Settings ба танзими дурусти барнома халал мерасонад.
         if (openedPackage == packageName || openedPackage in SAFE_PACKAGES) {
             flushActiveUsage()
             finishActiveSession()
@@ -194,8 +192,8 @@ class AppBlockMonitorService : Service() {
     }
 
     /**
-     * Starts a new usage day at midnight (clearing counters) and ignores clock
-     * rollbacks so a changed clock cannot reset the daily allowance.
+     * Дар нисфи шаб ҳисобкунакҳои рӯзи навро оғоз мекунад; ақиб бурдани соат
+     * лимити рӯзонаро аз нав намекунад.
      */
     private fun rolloverLocalUsageIfNeeded(
         prefs: android.content.SharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE),
@@ -210,7 +208,7 @@ class AppBlockMonitorService : Service() {
             }
             return
         }
-        // A backward clock change must not grant a fresh daily allowance.
+        // Ақиб бурдани соат набояд лимити нави рӯзона диҳад.
         if (lastWallClock > now + CLOCK_ROLLBACK_TOLERANCE_MS) {
             lastWallClockMillis = now
             return
@@ -231,8 +229,7 @@ class AppBlockMonitorService : Service() {
     private var lastWallClockMillis = 0L
 
     /**
-     * Tracks how long the current foreground app has been open, flushing to
-     * storage periodically.
+     * Давомнокии кори барномаи фаъолро ҳисоб карда, давра ба давра нигоҳ медорад.
      */
     private fun recordForegroundSession(
         prefs: android.content.SharedPreferences,
@@ -253,7 +250,7 @@ class AppBlockMonitorService : Service() {
         if (now - lastUsageFlushAt >= USAGE_FLUSH_INTERVAL_MS) flushActiveUsage(prefs)
     }
 
-    /** Saves the active app's accumulated seconds/minutes to shared preferences. */
+    /** Сония ва дақиқаҳои ҷамъшудаи барномаи фаъолро ба shared preferences менависад. */
     private fun flushActiveUsage(
         prefs: android.content.SharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE),
     ) {
@@ -273,7 +270,7 @@ class AppBlockMonitorService : Service() {
         lastUsageFlushAt = activeSessionStartedAt
     }
 
-    /** Forgets the in-memory session of the current foreground app. */
+    /** session-и дар memory будаи барномаи фаъолро ба охир мерасонад. */
     private fun finishActiveSession() {
         activePackage = null
         activeSessionStartedAt = 0L
@@ -282,7 +279,7 @@ class AppBlockMonitorService : Service() {
         lastUsageFlushAt = 0L
     }
 
-    /** Finds the stored rule for [packageName] in the rules JSON. */
+    /** Қоидаи [packageName]-ро аз JSON-и нигоҳдошта меёбад. */
     private fun ruleFor(prefs: android.content.SharedPreferences, packageName: String): JSONObject? {
         val raw = prefs.getString(RULES_KEY, null) ?: return null
         return runCatching {
@@ -296,8 +293,7 @@ class AppBlockMonitorService : Service() {
     }
 
     /**
-     * Today's usage of an app: the larger of Android's usage stats and NIGOH's
-     * own counter.
+     * Истифодаи имрӯзаи барномаро аз қимати калонтарини Android ва ҳисобкунаки NIGOH мегирад.
      */
     private fun todayUsageMillis(
         prefs: android.content.SharedPreferences,
@@ -320,7 +316,7 @@ class AppBlockMonitorService : Service() {
         return maxOf(systemMillis, localMillis)
     }
 
-    /** Sends the user to the home screen. */
+    /** Корбарро ба экрани Home-и Android мебарад. */
     private fun goHome() {
         startActivity(Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
@@ -329,25 +325,24 @@ class AppBlockMonitorService : Service() {
     }
 
     /**
-     * Whether an app schedule window is active now (Monday=1 … Sunday=7;
-     * overnight windows belong to the starting weekday).
+     * Фаъол будани фосилаи ҷадвалро муайян мекунад; фосилаи шабгузар ба рӯзи оғоз тааллуқ дорад.
      */
     private fun isScheduleActive(schedule: JSONObject): Boolean {
         if (!schedule.optBoolean("enabled", false)) return false
         val weekdays = schedule.optJSONArray("weekdays") ?: return false
         val now = Calendar.getInstance()
-        // App rules use Monday=1 ... Sunday=7; Android Calendar uses Sunday=1.
+        // Қоидаҳо Душанбе=1…Якшанбе=7, аммо Android Calendar аз Якшанбе оғоз мекунад.
         val day = ((now.get(Calendar.DAY_OF_WEEK) + 5) % 7) + 1
         val start = parseMinutes(schedule.optString("start", "16:00")) ?: return false
         val end = parseMinutes(schedule.optString("end", "18:00")) ?: return false
         val current = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+        /** Интихоб шудани рӯзи додашударо дар ҷадвал месанҷад. */
         fun enabledOn(targetDay: Int): Boolean {
             for (i in 0 until weekdays.length()) if (weekdays.optInt(i) == targetDay) return true
             return false
         }
         if (start <= end) return enabledOn(day) && current in start until end
-        // For an overnight window, the after-midnight portion belongs to the
-        // previous selected weekday (e.g. Monday 22:00-01:00).
+        // Қисми баъди нисфи шаб ба рӯзи интихобшудаи пешина тааллуқ дорад.
         return if (current >= start) {
             enabledOn(day)
         } else {
@@ -356,7 +351,7 @@ class AppBlockMonitorService : Service() {
         }
     }
 
-    /** Parses "HH:mm" into minutes after midnight; null when invalid. */
+    /** Вақти «HH:mm»-ро ба дақиқаҳои баъди нисфи шаб табдил медиҳад. */
     private fun parseMinutes(value: String): Int? {
         val parts = value.trim().split(":")
         if (parts.size != 2) return null
@@ -366,14 +361,11 @@ class AppBlockMonitorService : Service() {
     }
 
     /**
-     * Latest app moved to the foreground according to UsageEvents, falling back
-     * to the most recently used app.
+     * Барномаи охирини foreground-ро аз UsageEvents ё аз истифодаи охирин меёбад.
      */
     private fun latestForegroundPackage(): ForegroundApp? {
         val end = System.currentTimeMillis()
-        // Activity events are emitted on resume, not continuously. Keep a
-        // useful window and fall back to the most recently used package so the
-        // monitor does not silently stop after the first few seconds offline.
+        // Event-и Activity танҳо ҳангоми resume меояд; fallback назоратро баъди чанд сония нигоҳ медорад.
         val events = usageStats.queryEvents(end - 60_000, end)
         val event = UsageEvents.Event()
         var latestPackage: ForegroundApp? = null
@@ -397,8 +389,8 @@ class AppBlockMonitorService : Service() {
     }
 
     /**
-     * Shows the full-screen block overlay for [blockedPackage] with [reason];
-     * with [tamper] it asks for the parent PIN instead of offering "Home".
+     * Барои [blockedPackage] overlay-и пурраро бо [reason] нишон медиҳад;
+     * дар ҳолати [tamper] PIN-и волидайнро мепурсад.
      */
     private fun showOverlay(blockedPackage: String, reason: String, tamper: Boolean = false) {
         if (overlay != null && overlayPackage == blockedPackage) return
@@ -411,8 +403,11 @@ class AppBlockMonitorService : Service() {
         }.getOrDefault(blockedPackage)
 
         val density = resources.displayMetrics.density
+        /** dp-ро барои зичии экран ба pixel табдил медиҳад. */
         fun dp(value: Int) = (value * density).toInt()
+        /** View-и overlay-ро месозад ва пахши Back-ро ба Home равона мекунад. */
         val view = object : LinearLayout(this) {
+            /** Тугмаи Back-ро гирифта, корбарро ба Home мебарад. */
             override fun onKeyPreIme(keyCode: Int, event: KeyEvent): Boolean {
                 if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
                     goHome()
@@ -488,27 +483,27 @@ class AppBlockMonitorService : Service() {
             windowManager.addView(view, params)
             overlay = view
         } catch (_: SecurityException) {
-            // Permission may be revoked between canDrawOverlays and addView.
+            // Иҷозат метавонад байни canDrawOverlays ва addView бекор шавад.
             overlayPackage = null
         } catch (_: WindowManager.BadTokenException) {
             overlayPackage = null
         }
     }
 
-    /** Removes the block overlay if one is shown. */
+    /** Overlay-и басташавиро, агар намоён бошад, хориҷ мекунад. */
     private fun removeOverlay() {
         overlay?.let { runCatching { windowManager.removeView(it) } }
         overlay = null
         overlayPackage = null
     }
 
-    /** Checks a 4-digit parent PIN with [PinSecurity]. */
+    /** PIN-и чоррақамаи волидайнро бо [PinSecurity] месанҷад. */
     private fun verifyParentPin(pin: String): Boolean {
         if (!Regex("^\\d{4}$").matches(pin)) return false
         return PinSecurity.verify(this, pin).allowed
     }
 
-    /** Creates the low-importance channel for the "protection active" notification. */
+    /** Channel-и аҳамияташ пастро барои огоҳиномаи муҳофизати фаъол месозад. */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -522,6 +517,7 @@ class AppBlockMonitorService : Service() {
         }
     }
 
+    /** Калидҳои нигоҳдорӣ, фосилаҳои назорат ва package-ҳои бехатарро ҷамъ мекунад. */
     companion object {
         const val PREFS_NAME = "nigoh_app_control"
         const val BLOCKED_KEY = "blocked_packages"
@@ -545,7 +541,7 @@ class AppBlockMonitorService : Service() {
             "com.android.permissioncontroller"
         )
 
-        /** Whether NIGOH is an active device admin (uninstall protection). */
+        /** Фаъол будани NIGOH-ро ҳамчун device admin месанҷад. */
         fun isDeviceAdminEnabled(context: Context): Boolean {
             val manager = context.getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
             return manager.isAdminActive(
@@ -553,7 +549,7 @@ class AppBlockMonitorService : Service() {
             )
         }
 
-        /** Whether the app has usage access (needed to see the foreground app). */
+        /** Мавҷуд будани usage access-ро барои дидани барномаи фаъол месанҷад. */
         fun hasUsageAccess(context: Context): Boolean {
             val appOps = context.getSystemService(APP_OPS_SERVICE) as AppOpsManager
             val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) appOps.unsafeCheckOpNoThrow(
@@ -568,7 +564,7 @@ class AppBlockMonitorService : Service() {
             return mode == AppOpsManager.MODE_ALLOWED
         }
 
-        /** Whether NIGOH's accessibility service is enabled in system settings. */
+        /** Фаъол будани Accessibility service-и NIGOH-ро месанҷад. */
         fun isAccessibilityEnabled(context: Context): Boolean {
             val enabled = Settings.Secure.getString(
                 context.contentResolver,
@@ -583,8 +579,7 @@ class AppBlockMonitorService : Service() {
         }
 
         /**
-         * Asks the service to show the block overlay for [targetPackage] (used by the
-         * accessibility service for instant blocking).
+         * Аз хидмат барои [targetPackage] overlay-и фаврии басташавиро дархост мекунад.
          */
         fun requestOverlayFromAccessibility(
             context: Context,

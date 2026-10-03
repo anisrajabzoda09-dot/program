@@ -1,5 +1,5 @@
-// Accessibility service that notices the foreground app instantly and asks
-// the block monitor to cover it when the parent's rules forbid it.
+// Файл: барномаи foreground-ро тавассути Accessibility зуд муайян мекунад
+// ва барои барномаи манъшуда overlay-и басташавиро дархост менамояд.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -10,15 +10,14 @@ import java.util.Calendar
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** Event-driven foreground detection for the linked child profile. */
+/** Барномаи фаъоли телефони фарзандро аз рӯйи event-ҳои Accessibility назорат мекунад. */
 class NIGOHAccessibilityService : AccessibilityService() {
     private var lastPackage: String? = null
     private var lastDecisionAt = 0L
 
     /**
-     * On every window change, checks the foreground app against the stored rules
-     * (blocked, active schedule, used-up daily limit) and requests the block
-     * overlay with the matching reason.
+     * Ҳангоми иваз шудани равзана қоида, ҷадвал ва лимити барномаи фаъолро месанҷад;
+     * барои барномаи мамнӯъ overlay дархост мекунад.
      */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
@@ -53,9 +52,10 @@ class NIGOHAccessibilityService : AccessibilityService() {
         AppBlockMonitorService.requestOverlayFromAccessibility(this, target, reason)
     }
 
+    /** Қатъи Accessibility-ро қабул мекунад; ҳолати иловагӣ барои тоза кардан надорад. */
     override fun onInterrupt() = Unit
 
-    /** Finds the stored rule for package [target] in the rules JSON. */
+    /** Қоидаи package-и [target]-ро аз JSON-и нигоҳдошта меёбад. */
     private fun findRule(raw: String?, target: String): JSONObject? = runCatching {
         val rules = JSONArray(raw ?: return null)
         for (index in 0 until rules.length()) {
@@ -65,7 +65,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
         null
     }.getOrNull()
 
-    /** Whether an app schedule window is active now (supports overnight windows). */
+    /** Фаъол будани фосилаи ҷадвалро, аз ҷумла шабгузарро, муайян мекунад. */
     private fun isScheduleActive(schedule: JSONObject): Boolean {
         if (!schedule.optBoolean("enabled", false)) return false
         val weekdays = schedule.optJSONArray("weekdays") ?: return false
@@ -74,6 +74,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
         val start = parseMinutes(schedule.optString("start", "16:00")) ?: return false
         val end = parseMinutes(schedule.optString("end", "18:00")) ?: return false
         val current = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+        /** Мавҷуд будани рӯзи ҳафтаи додашударо дар ҷадвал месанҷад. */
         fun enabledOn(value: Int): Boolean = (0 until weekdays.length()).any {
             weekdays.optInt(it) == value
         }
@@ -82,7 +83,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
         else enabledOn(if (day == 1) 7 else day - 1)
     }
 
-    /** Parses "HH:mm" into minutes after midnight; null when invalid. */
+    /** Вақти «HH:mm»-ро ба дақиқаҳои баъди нисфи шаб табдил медиҳад. */
     private fun parseMinutes(value: String): Int? {
         val parts = value.trim().split(":")
         if (parts.size != 2) return null
@@ -91,6 +92,7 @@ class NIGOHAccessibilityService : AccessibilityService() {
         return if (hour in 0..23 && minute in 0..59) hour * 60 + minute else null
     }
 
+    /** Қиматҳои debounce ва package-ҳои системавии аз назорат озодро нигоҳ медорад. */
     companion object {
         private const val DECISION_DEBOUNCE_MS = 250L
         private val SAFE_PACKAGES = setOf(

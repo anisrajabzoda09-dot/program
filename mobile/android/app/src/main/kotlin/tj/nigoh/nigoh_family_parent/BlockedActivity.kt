@@ -1,4 +1,4 @@
-// Full-screen "Emergency Lock" page shown over an app the parent blocked.
+// Файл: экрани пурраи басташавӣ барои барномае, ки волидайн маҳдуд кардааст.
 
 package tj.nigoh.nigoh_family_parent
 
@@ -16,11 +16,10 @@ import android.widget.ScrollView
 import android.widget.TextView
 
 /**
- * Activity that explains why an app is blocked and offers to go home or ask
- * the parent for extra time; emergency calls stay available.
+ * Сабаби басташавиро нишон дода, бозгашт ба Home ё дархости вақти иловагиро пешниҳод мекунад.
  */
 class BlockedActivity : Activity() {
-    /** Builds the lock page in code for the blocked package from the intent. */
+    /** Саҳифаи басташавиро барои package-и аз intent гирифташуда месозад. */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val blockedPackage = intent.getStringExtra("blocked_package") ?: ""
@@ -31,13 +30,16 @@ class BlockedActivity : Activity() {
         }.getOrDefault(blockedPackage)
 
         val density = resources.displayMetrics.density
+        /** dp-ро барои зичии экран ба pixel табдил медиҳад. */
         fun dp(value: Int) = (value * density).toInt()
+        /** Заминаи кунҷҳояш гирд ва stroke-и ихтиёрӣ месозад. */
         fun rounded(color: Int, radius: Int = 18, stroke: Int? = null): GradientDrawable =
             GradientDrawable().apply {
                 setColor(color)
                 cornerRadius = dp(radius).toFloat()
                 if (stroke != null) setStroke(dp(1), stroke)
             }
+        /** TextView-и марказонидашударо бо услуби дархостшуда месозад. */
         fun text(value: String, size: Float, color: Int, bold: Boolean = false): TextView =
             TextView(this).apply {
                 this.text = value
@@ -46,6 +48,7 @@ class BlockedActivity : Activity() {
                 gravity = Gravity.CENTER
                 if (bold) typeface = Typeface.DEFAULT_BOLD
             }
+        /** Ба layout фосилаи амудӣ илова мекунад. */
         fun addSpace(parent: LinearLayout, height: Int) {
             parent.addView(View(this), LinearLayout.LayoutParams(1, dp(height)))
         }
