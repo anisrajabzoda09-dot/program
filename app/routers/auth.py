@@ -12,12 +12,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.core import apple_auth, github_auth
+from app.core import apple_auth, github_auth, otp
 from app.core.config import settings
 from app.core.security import (
     create_session,
     get_current_user,
     verify_password,
+    hash_password,
     check_rate_limit,
     SESSIONS
 )
@@ -29,6 +30,12 @@ router = APIRouter(tags=["Authentication"])
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
 
 OAUTH_STATES: Dict[str, Dict[str, Any]] = {}
+
+
+def _web_lang(request: Request) -> str:
+    """Забони саҳифаи воридшавӣ аз header-и X-NIGOH-Lang (tg, ru, en)."""
+    lang = (request.headers.get("X-NIGOH-Lang") or "").lower()[:2]
+    return lang if lang in ("ru", "en") else "tg"
 
 
 def _google_configured() -> bool:
@@ -158,7 +165,8 @@ def auth_page(request: Request):
         request=request, name=name,
         context={"app_version": settings.APP_VERSION, "lang": lang,
                  "apple_enabled": apple_auth.apple_configured(),
-                 "github_enabled": github_auth.github_configured()},
+                 "github_enabled": github_auth.github_configured(),
+                 "email_code_enabled": otp.email_available()},
     )
 
 @router.post("/api/auth/register")
@@ -205,8 +213,22 @@ def api_login(payload: UserLogin, request: Request, response: Response, db: Sess
     if not user_obj or not user_obj.password_hash:
         raise HTTPException(status_code=400, detail="Почта ё пароли нодуруст")
 
+    # Пас аз 5 кӯшиши нодуруст ҳисоб 15 дақиқа қулф мешавад (на танҳо IP).
+    try:
+        otp.check_not_locked(user_obj)
+    except otp.OtpError as error:
+        raise HTTPException(status_code=429, detail=otp.message(error, _web_lang(request)))
     if not verify_password(payload.password, user_obj.password_hash):
+        otp.register_failure(db, user_obj)
         raise HTTPException(status_code=400, detail="Почта ё пароли нодуруст")
+    otp.reset_failures(user_obj)
+    if not user_obj.password_hash.startswith("scrypt$"):
+        user_obj.password_hash = hash_password(payload.password)
+    db.commit()
+
+    # Агар Authenticator фаъол бошад, сессия танҳо пас аз рамзи 6-рақама дода мешавад.
+    if otp.needs_second_factor(user_obj):
+        return {"status": "otp_required", "ticket": otp.issue_ticket(user_obj)}
 
     user_dict = user_obj.to_dict()
     token = create_session(user_dict)
