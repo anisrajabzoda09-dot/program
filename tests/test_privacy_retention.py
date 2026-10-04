@@ -6,7 +6,7 @@ _ROOT = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
 _sys.path.insert(0, _ROOT)
 _os.chdir(_ROOT)
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -27,6 +27,11 @@ from app.models.analytics import SiteAnalytics
 from app.crud.crud_child import delete_child
 
 PASSED = 0
+
+
+def _utcnow() -> datetime:
+    """Вақти ҳозираи UTC бе минтақа (мисли SQLite)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -50,7 +55,7 @@ def seed(db, code: str) -> Child:
     child = Child(name="Test", pairing_code=code)
     db.add(child)
     db.flush()
-    now = datetime.utcnow()
+    now = _utcnow()
     db.add_all([
         LocationPoint(child_id=child.id, latitude=1, longitude=2, created_at=now),
         LocationPoint(child_id=child.id, latitude=1, longitude=2, created_at=now - timedelta(days=LOCATION_RETENTION_DAYS - 1)),
@@ -118,7 +123,7 @@ def run_checks() -> None:
     check("delete_child_data on empty child is safe", True)
 
     # 5. Омори сайт: IP ва браузер пас аз 180 рӯз пок мешаванд, сабтҳо мемонанд.
-    now = datetime.utcnow()
+    now = _utcnow()
     db.add_all([
         SiteAnalytics(ip="1.1.1.1", path="/", user_agent="old", event_type="page_view",
                       created_at=now - timedelta(days=ANALYTICS_RETENTION_DAYS + 1)),
