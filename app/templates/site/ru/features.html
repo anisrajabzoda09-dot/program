@@ -22,6 +22,7 @@
     <nav class="btn-row feature-chips" aria-label="Разделы возможностей">
       <a class="tag" href="#apps">Контроль приложений</a>
       <a class="tag" href="#location">Местоположение</a>
+      <a class="tag" href="#web">Фильтр сайтов</a>
       <a class="tag" href="#chat">Общение</a>
       <a class="tag" href="#protection">Защита</a>
       <a class="tag" href="#setup">Установка и обновления</a>
@@ -71,6 +72,32 @@
     </div>
     <div class="screen">
       <img src="/static/images/mockup_map.png" width="335" height="210" loading="lazy" decoding="async" alt="Экран карты с отметкой местоположения ребёнка">
+    </div>
+  </div>
+</section>
+
+<section class="section" id="web" style="scroll-margin-top:64px">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">Фильтр сайтов</span>
+      <h2>Сайты не по возрасту не открываются</h2>
+      <p class="lead" style="margin-top:16px">Выберите уровень по возрасту ребёнка. Фильтр работает во всех браузерах и приложениях — Chrome, Opera, Firefox и других.</p>
+      <ul class="feature-list">
+        <li><span><strong>До 12 лет</strong> — блокируются сайты для взрослых, прокси и VPN; в Google и YouTube включён безопасный режим.</span></li>
+        <li><span><strong>13–17 лет</strong> — блокируются сайты для взрослых; в Google и Bing включён безопасный поиск.</span></li>
+        <li>Дополнительные сайты, например tiktok.com, блокируются одним нажатием.</li>
+        <li>Если ребёнок выключит фильтр, вы сразу получите уведомление.</li>
+        <li>Проверяются только названия сайтов — не содержимое страниц и сообщений.</li>
+      </ul>
+    </div>
+    <div class="web-mock" role="img" aria-label="Пример браузера: заблокированный сайт и безопасный поиск">
+      <div class="web-mock-bar"><span></span><span></span><span></span><b>example-adult.com</b></div>
+      <div class="web-mock-body">
+        <div class="web-mock-shield" aria-hidden="true"></div>
+        <strong>Этот сайт не открывается</strong>
+        <small>Фильтр NIGOH: не для твоего возраста</small>
+      </div>
+      <div class="web-mock-search"><span class="web-mock-q">игры для детей</span><span class="web-mock-safe">Безопасный поиск</span></div>
     </div>
   </div>
 </section>
