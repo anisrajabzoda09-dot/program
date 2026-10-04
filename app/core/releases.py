@@ -3,6 +3,35 @@
 # Ҳар сабт: версия, сана (YYYY-MM-DD), сарлавҳаи кӯтоҳ ва рӯйхати тағйирот бо се забон.
 RELEASES = [
     {
+        "version": "2.20.0",
+        "date": "2026-10-04",
+        "highlight": True,
+        "title": {"tg": "Филтри сайтҳо ва ҳимояи дуқабата", "ru": "Фильтр сайтов и двухфакторная защита", "en": "Site filter and two-step verification"},
+        "items": {
+            "tg": [
+                "Филтри сайтҳо аз рӯи синну сол: «То 12 сола» ё «13–17 сола». Сайтҳои калонсолон дар ҳама браузерҳо кушода намешаванд ва дар Google ҷустуҷӯи бехатар ҳатмист.",
+                "Волидайн метавонанд сайтҳои иловагиро банданд ва агар фарзанд филтрро хомӯш кунад, огоҳӣ мегиранд.",
+                "Ҳимояи дуқабата: рамзи барномаи Authenticator ҳангоми воридшавӣ, рамзҳои эҳтиётӣ ва воридшавӣ бо рамз ба почта.",
+                "Пас аз 5 кӯшиши нодуруст ҳисоб 15 дақиқа қулф мешавад.",
+                "Саҳифаҳои нав: махфият, шартҳо, тамос, маслиҳатҳо, муқоиса бо Family Link ва «Чӣ нав аст».",
+            ],
+            "ru": [
+                "Фильтр сайтов по возрасту: «До 12 лет» или «13–17 лет». Сайты для взрослых не открываются ни в одном браузере, а в Google включён безопасный поиск.",
+                "Родители могут заблокировать дополнительные сайты и получат уведомление, если ребёнок выключит фильтр.",
+                "Двухфакторная защита: код из приложения Authenticator при входе, резервные коды и вход по коду на почту.",
+                "После 5 неверных попыток аккаунт блокируется на 15 минут.",
+                "Новые страницы: конфиденциальность, условия, контакты, советы родителям, сравнение с Family Link и «Что нового».",
+            ],
+            "en": [
+                "Age-based site filter: «Up to 12» or «Ages 13–17». Adult sites do not open in any browser and SafeSearch is enforced on Google.",
+                "Parents can block extra sites and are alerted if the child turns the filter off.",
+                "Two-step verification: an authenticator code at sign-in, recovery codes and sign-in with an email code.",
+                "After 5 wrong attempts the account is locked for 15 minutes.",
+                "New pages: privacy, terms, contact, tips for parents, comparison with Family Link and What's new.",
+            ],
+        },
+    },
+    {
         "version": "2.19.1",
         "date": "2026-10-04",
         "highlight": False,
