@@ -223,6 +223,32 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Филтри сайтҳоро барои фарзанд нигоҳ медорад (бо ҳолати optimistic ва бозгашт ҳангоми хато).
+  Future<void> setWebFilter(FamilyChild child, WebFilter filter) async {
+    final before = childById(child.id) ?? child;
+    _replaceChild(_copyChild(before, before.apps, webFilter: filter));
+    _pending++;
+    _notify();
+    try {
+      final res = await _guard(
+        () => api.setWebFilter(child.id, filter.toJson()),
+      );
+      final saved = res['web_filter'];
+      if (saved is Map) {
+        final now = childById(child.id) ?? before;
+        _replaceChild(
+          _copyChild(now, now.apps, webFilter: WebFilter.fromJson(saved)),
+        );
+      }
+    } catch (_) {
+      _replaceChild(before);
+      rethrow;
+    } finally {
+      _pending--;
+      _notify();
+    }
+  }
+
   /// decideRequest дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> decideRequest(
     int childId,
@@ -440,6 +466,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     List<ChildApp> apps, {
     Bedtime? bedtime,
     StudyMode? study,
+    WebFilter? webFilter,
   }) => FamilyChild(
     id: c.id,
     name: c.name,
@@ -452,6 +479,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     parentName: c.parentName,
     bedtime: bedtime ?? c.bedtime,
     study: study ?? c.study,
+    webFilter: webFilter ?? c.webFilter,
     childAvatar: c.childAvatar,
     parentAvatar: c.parentAvatar,
     batteryLevel: c.batteryLevel,
