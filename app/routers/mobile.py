@@ -58,6 +58,7 @@ from app.models.chat import ChatMessage
 from app.models.family_extras import LocationPoint
 from app.crud.crud_privacy import prune_location_history, purge_child_history
 from app.core import events as family_events
+from app.core import web_filter
 from app.models.user import User
 from app.core.firebase_mobile import find_user_by_firebase_uid
 from app.core.mobile_auth import require_mobile_user
@@ -211,6 +212,7 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
         "apps": [_rule_payload(rule, usage_by_package.get(rule.package_name)) for rule in rules],
         "bedtime": _json_or_none(child.bedtime_json),
         "study": _json_or_none(child.study_json),
+        "web_filter": web_filter.payload(child),
         "battery_level": child.battery_level if child.location_updated_at else None,
         "unread_from_child": _unread(db, child.id, "child"),
         "unread_from_parent": _unread(db, child.id, "parent"),
