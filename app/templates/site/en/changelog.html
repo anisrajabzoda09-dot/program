@@ -1,0 +1,70 @@
+{#- Файл: саҳифаи «Чӣ нав аст» ба забони англисӣ — хатти замонии ҳамаи версияҳо аз app/core/releases.py. -#}
+{% extends "site/base.html" %}
+
+{% block title %}What's new — NIGOH Family version history{% endblock %}
+{% block description %}Every NIGOH Family version from 1.0.0 to {{ app_version }}: what was added and fixed — explained in plain language for parents.{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<link rel="alternate" type="text/markdown" href="https://github.com/anisrajabzoda09-dot/program/blob/main/CHANGELOG.md" title="CHANGELOG.md">
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Updates</span>
+    <h1>What's new</h1>
+    <p class="lead">NIGOH Family gets better every day. Here you'll find every version — from the first APK to today. The app will let you know when a new version is available and update with one tap.</p>
+    <div class="release-stats">
+      <div><strong>24</strong><span>released versions</span></div>
+      <div><strong>14</strong><span>days of development</span></div>
+      <div><strong>560+</strong><span>code changes</span></div>
+      <div><strong>3</strong><span>languages</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap" style="max-width:860px">
+    <div class="release-filter" role="group" aria-label="Filter" hidden>
+      <button type="button" data-filter="all" aria-pressed="true">All versions</button>
+      <button type="button" data-filter="highlight" aria-pressed="false">Highlights only</button>
+    </div>
+    <ol class="timeline">
+      {% for r in releases %}
+      <li class="release{% if r.highlight %} highlight{% endif %}" id="v{{ r.version|replace('.', '-')|replace(' ', '')|replace('–', '-') }}">
+        <article class="release-card">
+          <header class="release-head">
+            <span class="ver">v{{ r.version }}</span>
+            {% if loop.first %}<span class="latest">Latest</span>{% endif %}
+            <h2>{{ r.title[lang] }}</h2>
+            <time datetime="{{ r.date }}">{{ r.date[8:10] }}.{{ r.date[5:7] }}.{{ r.date[:4] }}</time>
+          </header>
+          <ul>
+            {% for item in r['items'][lang] %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </article>
+      </li>
+      {% endfor %}
+    </ol>
+    <p class="source-note">Full technical list: <a href="https://github.com/anisrajabzoda09-dot/program/blob/main/CHANGELOG.md" rel="noopener">CHANGELOG.md on GitHub</a>.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Get version {{ app_version }}</h2>
+        <p>If the app is already installed, it will offer the update automatically.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="{{ lang_prefix }}/get">Download</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Next page"><a href="{{ lang_prefix }}/tips"><span>Next</span><strong>Tips for parents</strong></a></nav>
+{% endblock %}
+{% block scripts %}<script src="/static/js/info.js?v={{ app_version }}" defer></script>{% endblock %}
