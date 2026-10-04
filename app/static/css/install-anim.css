@@ -1,0 +1,126 @@
+/* Файл: услуби аниматсияи «Насб дар 3 қадам» (_install_anim.html).
+   Ҳар саҳна вақте синфи .is-active мегирад, аниматсияҳояш аз нав сар мешаванд.
+   Бо prefers-reduced-motion ҳолати ниҳоии ҳар саҳна бе ҳаракат нишон дода мешавад. */
+
+.install-anim { --ia-dur: 4.4s; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 56px; align-items: center; }
+
+/* ---------- Рӯйхати қадамҳо ---------- */
+.ia-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ia-step { width: 100%; display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 4px 16px; text-align: left; font: inherit; color: inherit; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
+.ia-step:hover { border-color: var(--line-2); }
+.ia-step.is-active { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)); box-shadow: var(--shadow); }
+.ia-num { grid-row: span 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--soft); color: var(--muted); font-weight: 700; transition: background .2s, color .2s; }
+.ia-step.is-active .ia-num { background: var(--blue); color: #fff; }
+.ia-text strong { display: block; color: var(--ink); font-size: 17px; }
+.ia-text span { display: block; color: var(--muted); font-size: 15px; margin-top: 2px; }
+.ia-bar { grid-column: 2; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 10px; }
+.ia-bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--blue), var(--teal)); }
+.ia-step.is-done .ia-bar span { width: 100%; }
+.ia-step.is-active .ia-bar span { animation: ia-fill var(--ia-dur) linear forwards; }
+@keyframes ia-fill { from { width: 0; } to { width: 100%; } }
+
+/* ---------- Телефон ---------- */
+.ia-stage { display: grid; justify-items: center; gap: 14px; }
+.ia-phone { width: 270px; aspect-ratio: 9 / 19; border-radius: 42px; padding: 10px; background: #0d1117; box-shadow: 0 30px 60px -20px rgba(11, 18, 32, .35), inset 0 0 0 2px #2a3140; }
+.ia-screen { position: relative; height: 100%; border-radius: 33px; overflow: hidden; background: var(--bg); color: var(--ink); font-size: 13px; }
+.ia-status { display: flex; align-items: center; justify-content: space-between; padding: 12px 22px 0; font-size: 12px; font-weight: 600; }
+.ia-island { width: 78px; height: 22px; border-radius: 12px; background: #0d1117; }
+.ia-icons { width: 34px; height: 9px; border-radius: 3px; background: linear-gradient(90deg, currentColor 60%, transparent 60%); opacity: .7; }
+
+.ia-scene { position: absolute; inset: 46px 16px 16px; display: flex; flex-direction: column; gap: 14px; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .35s, transform .35s, visibility 0s .35s; }
+.ia-scene.is-active { opacity: 1; visibility: visible; transform: none; transition: opacity .35s, transform .35s; }
+.ia-title { font-size: 17px; font-weight: 700; margin-top: 18px; text-align: center; }
+.ia-sub { display: block; text-align: center; color: var(--muted); margin-top: -8px; }
+.ia-btn { display: inline-flex; justify-content: center; padding: 10px 16px; border-radius: 12px; background: var(--blue); color: #fff; font-weight: 600; }
+.ia-check { width: 46px; height: 46px; border-radius: 50%; background: var(--teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5L20 7'/%3E%3C/svg%3E") center / 24px no-repeat; }
+
+/* Саҳнаи 1: боргирӣ → тиреза → насб шуд */
+.ia-dl { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: center; padding: 12px; border-radius: 14px; background: var(--soft); margin-top: 8px; }
+.ia-file-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--teal-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2312b5a6' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11m-5-5 5 5 5-5M5 20h14'/%3E%3C/svg%3E") center / 18px no-repeat; }
+.ia-dl-main b { display: block; font-size: 12px; overflow-wrap: anywhere; }
+.ia-dl-main small { display: block; color: var(--muted); font-size: 11px; }
+.ia-progress { display: block; height: 4px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.ia-progress span { display: block; height: 100%; width: 100%; background: var(--teal); transform-origin: left; }
+.ia-dialog { display: grid; justify-items: center; gap: 6px; padding: 18px 14px 12px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); text-align: center; }
+.ia-dialog p { color: var(--muted); font-size: 12px; }
+.ia-dialog-btns { display: flex; gap: 18px; justify-content: flex-end; width: 100%; margin-top: 6px; font-weight: 600; color: var(--blue); }
+.ia-dialog-btns span { padding: 6px 10px; border-radius: 10px; }
+.ia-ok { display: grid; justify-items: center; gap: 10px; text-align: center; margin-top: 6px; }
+
+.ia-scene[data-scene="1"].is-active .ia-progress span { animation: ia-grow 1.3s ease-out both; }
+.ia-scene[data-scene="1"].is-active .ia-dialog { animation: ia-pop .4s 1.4s both; }
+.ia-scene[data-scene="1"].is-active .ia-dialog .ia-tap { animation: ia-press .35s 2.35s both; }
+.ia-scene[data-scene="1"].is-active .ia-ok { animation: ia-pop .4s 2.9s both; }
+
+/* Саҳнаи 2: интихоби «Фарзанд» → рамз */
+.ia-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ia-roles span { padding: 14px 8px; border-radius: 14px; border: 1px solid var(--line-2); text-align: center; font-weight: 600; }
+.ia-code-card { display: grid; justify-items: center; gap: 8px; padding: 16px; border-radius: 18px; background: var(--soft); text-align: center; }
+.ia-code-card small { color: var(--muted); font-size: 11px; }
+.ia-qr { width: 92px; height: 92px; border-radius: 10px; padding: 8px; background: #fff; box-shadow: inset 0 0 0 1px var(--line);
+  background-image: repeating-conic-gradient(#0b1220 0 25%, transparent 0 50%), linear-gradient(#fff, #fff);
+  background-size: 15px 15px, 100% 100%; background-position: 8px 8px, 0 0; background-clip: content-box, padding-box; background-origin: content-box, padding-box; }
+.ia-code { font-size: 26px; letter-spacing: .12em; font-variant-numeric: tabular-nums; color: var(--blue); }
+.ia-scene[data-scene="2"].is-active .ia-role-child { animation: ia-select .45s .8s both; }
+.ia-scene[data-scene="2"].is-active .ia-code-card { animation: ia-pop .45s 1.4s both; }
+
+/* Саҳнаи 3: рақамҳо → пайваст → тайёр */
+.ia-digits { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.ia-digits span { display: grid; place-items: center; height: 40px; border-radius: 10px; border: 1px solid var(--line-2); font-size: 18px; font-weight: 700; color: var(--ink); }
+.ia-connect { align-self: stretch; }
+.ia-done { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 10px; text-align: center; background: var(--bg); padding: 16px; }
+.ia-done small { color: var(--muted); }
+.ia-scene[data-scene="3"].is-active .ia-digits span { animation: ia-digit .25s calc(.3s + var(--i) * .2s) both; }
+.ia-scene[data-scene="3"].is-active .ia-connect { animation: ia-press-btn .35s 1.85s both; }
+.ia-scene[data-scene="3"].is-active .ia-done { animation: ia-pop .45s 2.4s both; }
+.ia-scene[data-scene="3"].is-active .ia-done .ia-check { animation: ia-bounce .6s 2.6s both; }
+
+/* Ангушт, ки пахшро нишон медиҳад */
+.ia-finger { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: rgba(31, 99, 224, .28); border: 2px solid rgba(255, 255, 255, .9); box-shadow: 0 2px 10px rgba(0, 0, 0, .2); opacity: 0; pointer-events: none; left: 70%; top: 80%; }
+.ia-screen[data-on="1"] .ia-finger { animation: ia-finger-1 var(--ia-dur) both; }
+.ia-screen[data-on="2"] .ia-finger { animation: ia-finger-2 var(--ia-dur) both; }
+.ia-screen[data-on="3"] .ia-finger { animation: ia-finger-3 var(--ia-dur) both; }
+@keyframes ia-finger-1 { 0%, 38% { opacity: 0; left: 60%; top: 75%; } 45% { opacity: 1; left: 72%; top: 47%; } 54% { opacity: 1; left: 72%; top: 47%; transform: scale(.8); } 60%, 100% { opacity: 0; left: 72%; top: 47%; transform: none; } }
+@keyframes ia-finger-2 { 0%, 8% { opacity: 0; left: 50%; top: 60%; } 16% { opacity: 1; left: 66%; top: 24%; } 22% { opacity: 1; transform: scale(.8); left: 66%; top: 24%; } 28%, 100% { opacity: 0; left: 66%; top: 24%; transform: none; } }
+@keyframes ia-finger-3 { 0%, 30% { opacity: 0; left: 40%; top: 70%; } 38% { opacity: 1; left: 45%; top: 38%; } 44% { opacity: 1; transform: scale(.8); left: 45%; top: 38%; } 50%, 100% { opacity: 0; left: 45%; top: 38%; transform: none; } }
+
+@keyframes ia-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes ia-pop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes ia-press { 0% { background: transparent; } 40% { background: var(--blue-soft); transform: scale(.94); } 100% { background: var(--blue-soft); transform: none; } }
+@keyframes ia-press-btn { 40% { transform: scale(.94); filter: brightness(.85); } 100% { transform: none; filter: none; } }
+@keyframes ia-select { from { background: transparent; color: inherit; } to { background: var(--blue); border-color: var(--blue); color: #fff; } }
+@keyframes ia-digit { from { opacity: 0; transform: translateY(6px); border-color: var(--line-2); } to { opacity: 1; transform: none; border-color: var(--blue); } }
+@keyframes ia-bounce { 0% { transform: scale(.4); } 60% { transform: scale(1.12); } 100% { transform: none; } }
+
+/* Ҳолати аввал то оғози аниматсия (пинҳон), то ҷаҳиш набошад */
+.ia-scene:not(.is-active) .ia-dialog, .ia-scene:not(.is-active) .ia-ok,
+.ia-scene:not(.is-active) .ia-code-card, .ia-scene:not(.is-active) .ia-done { opacity: 0; }
+
+.ia-toggle { font: inherit; font-size: 14px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.install-anim.is-paused .ia-screen *, .install-anim.is-paused .ia-bar span { animation-play-state: paused !important; }
+
+/* Ҳаракати кам: ҳолати ниҳоӣ бе аниматсия; саҳнаро бо тугмаҳои қадам иваз мекунанд */
+@media (prefers-reduced-motion: reduce) {
+  .install-anim *, .install-anim *::before { animation: none !important; transition: none !important; }
+  .ia-scene[data-scene="1"] .ia-dialog { display: none; }
+  .ia-scene[data-scene="2"] .ia-role-child { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .ia-digits span { border-color: var(--blue); }
+  .ia-scene.is-active .ia-ok, .ia-scene.is-active .ia-code-card, .ia-scene.is-active .ia-done { opacity: 1; }
+  .ia-finger { display: none; }
+  .ia-step.is-active .ia-bar span { width: 100%; }
+}
+
+/* Бе JavaScript: телефон пинҳон, қадамҳо ҳамчун рӯйхати оддӣ */
+.install-anim:not(.is-ready) .ia-stage { display: none; }
+.install-anim:not(.is-ready) { grid-template-columns: 1fr; }
+.install-anim:not(.is-ready) .ia-bar { display: none; }
+
+@media (max-width: 900px) {
+  .install-anim { grid-template-columns: 1fr; gap: 28px; }
+  .ia-stage { order: -1; }
+}
+@media (max-width: 400px) {
+  .ia-phone { width: 236px; }
+  .ia-step { padding: 14px; gap: 4px 12px; grid-template-columns: 34px minmax(0, 1fr); }
+  .ia-num { width: 34px; height: 34px; }
+}
