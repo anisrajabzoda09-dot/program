@@ -17,10 +17,12 @@ class ChildSync extends ChangeNotifier {
     required this.api,
     MethodChannel? deviceChannel,
     EventChannel? packageEvents,
+
     /// Function мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
     Future<ChildProfile?> Function()? loadProfile,
     this.trackLocation = true,
     this.listenPackageEvents = true,
+
     /// Function мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now,
@@ -85,7 +87,8 @@ class ChildSync extends ChangeNotifier {
   /// Қимати missingPermissions-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   List<String> missingPermissions = const [];
 
-  final _errors = <String, String>{}; // Тартиби воридшавии хатогиҳо нигоҳ дошта мешавад.
+  final _errors =
+      <String, String>{}; // Тартиби воридшавии хатогиҳо нигоҳ дошта мешавад.
 
   /// Қимати lastError-ро барои ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳо нигоҳ медорад.
   String? get lastError => _errors.isEmpty ? null : _errors.values.last;
@@ -263,6 +266,63 @@ class ChildSync extends ChangeNotifier {
       bedtime: paired ? child.bedtime : const Bedtime(),
       study: paired ? child.study : const StudyMode(),
     );
+    await applyWebFilter(paired ? child.webFilter : const WebFilter());
+  }
+
+  /// Ҳолати филтри сайтҳо дар ҳамин телефон: active, off ё needs_permission.
+  String? webFilterState;
+
+  /// Ҳолате, ки охирин бор ба сервер фиристода шуд (то такрор нашавад).
+  String? _reportedWebFilterState;
+
+  /// Филтри сайтҳоро ба VPN-и Android месупорад ва ҳолатро ба волидайн хабар медиҳад.
+  Future<void> applyWebFilter(WebFilter filter) async {
+    try {
+      final state = await device.invokeMethod<String>('setWebFilter', {
+        'level': filter.level,
+        'blocked': filter.blocked,
+      });
+      webFilterState = state;
+      await _reportWebFilterState(filter, state);
+    } on MissingPluginException {
+      // Дар муҳити бе plugin (санҷишҳо) филтр танҳо дар сервер мемонад.
+    } catch (e) {
+      debugPrint('setWebFilter: $e');
+    }
+  }
+
+  /// Тирезаи розигии VPN-ро нишон медиҳад; пас аз розигӣ филтр фавран кор мекунад.
+  Future<bool> requestWebFilterPermission() async {
+    try {
+      final ok =
+          await device.invokeMethod<bool>('requestWebFilterPermission') ??
+          false;
+      final c = child;
+      if (c != null) await applyWebFilter(c.webFilter);
+      _notify();
+      return ok;
+    } on MissingPluginException {
+      return false;
+    }
+  }
+
+  /// Ҳолати навро танҳо вақте мефиристад, ки аз ҳолати маълуми сервер фарқ дорад.
+  Future<void> _reportWebFilterState(WebFilter filter, String? state) async {
+    final id = childId;
+    if (id == null || state == null) return;
+    if (state == filter.state) {
+      _reportedWebFilterState = state;
+      return;
+    }
+    if (state == _reportedWebFilterState) return;
+    // Филтре, ки волидайн нагузоштаанд ва сервер ҳолаташро намедонад, хабар лозим нест.
+    if (!filter.enabled && filter.state == null) return;
+    try {
+      await api.reportWebFilterState(id, state);
+      _reportedWebFilterState = state;
+    } catch (e) {
+      debugPrint('reportWebFilterState: $e');
+    }
   }
 
   /// pushRules мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
@@ -469,9 +529,11 @@ class ChildSync extends ChangeNotifier {
   static String get _gpsOffText => tr(
     'GPS хомӯш аст — ҷойгиршавӣ фиристода намешавад. Онро дар танзимоти телефон фаъол кунед.',
   );
+
   /// Қимати ҳисобшудаи noPermissionText-ро аз ҳолати ҷорӣ бармегардонад.
   static String get _noPermissionText =>
       tr('Иҷозати ҷойгиршавӣ дода нашудааст — волидайн ҷои шуморо намебинанд.');
+
   /// Қимати ҳисобшудаи noFixText-ро аз ҳолати ҷорӣ бармегардонад.
   static String get _noFixText =>
       tr('Ҷойгиршавӣ ҳоло муайян нашуд (сигнали GPS нест). Боз кӯшиш мекунем.');
