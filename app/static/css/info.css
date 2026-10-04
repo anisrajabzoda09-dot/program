@@ -1,0 +1,151 @@
+/* Файл: услубҳои саҳифаҳои иттилоотӣ — махфият, шартҳо, тамос, маслиҳатҳо,
+   муқоиса бо Family Link ва таърихи версияҳо. Ранг ва андозаҳо аз site.css. */
+
+/* ---------- Матни дароз (махфият, шартҳо) ---------- */
+.prose-layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 56px; align-items: start; }
+.prose-toc { position: sticky; top: 96px; font-size: 14px; }
+.prose-toc h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); margin-bottom: 12px; }
+.prose-toc ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; counter-reset: toc; }
+.prose-toc li { counter-increment: toc; }
+.prose-toc a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+.prose-toc a::before { content: counter(toc) ". "; color: var(--faint); }
+.prose-toc a:hover, .prose-toc a:focus-visible { color: var(--ink); background: var(--soft); }
+.prose-toc a[aria-current="true"] { color: var(--blue); border-left-color: var(--blue); background: var(--blue-soft); }
+
+.prose { max-width: 720px; font-size: 17px; line-height: 1.7; color: var(--ink-2); }
+.prose > section { scroll-margin-top: 96px; padding-bottom: 8px; }
+.prose > section + section { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--line); }
+.prose h2 { font-size: 24px; line-height: 1.3; color: var(--ink); margin-bottom: 14px; }
+.prose h3 { font-size: 18px; color: var(--ink); margin: 22px 0 8px; }
+.prose p + p, .prose p + ul, .prose ul + p { margin-top: 12px; }
+.prose ul { padding-left: 22px; display: grid; gap: 6px; }
+.prose a { color: var(--blue); }
+.prose strong { color: var(--ink); }
+.prose .meta-table { margin-top: 14px; font-size: 15px; }
+.doc-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; color: var(--faint); font-size: 14px; }
+.doc-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.summary-box { margin-top: 28px; padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--soft); }
+.summary-box h2 { font-size: 16px; margin-bottom: 10px; }
+.summary-box ul { padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); }
+
+/* ---------- Маслиҳатҳо: кортҳои синну сол ---------- */
+.age-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.age-card { position: relative; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.age-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--accent, var(--blue)); }
+.age-card .age { font-size: 13px; font-weight: 600; color: var(--accent, var(--blue)); letter-spacing: .02em; }
+.age-card .limit { font-size: 28px; font-weight: 700; color: var(--ink); line-height: 1.15; }
+.age-card .limit small { display: block; font-size: 14px; font-weight: 500; color: var(--muted); margin-top: 4px; }
+.age-card ul { padding-left: 18px; display: grid; gap: 6px; color: var(--ink-2); font-size: 15px; }
+.age-card.a1 { --accent: #e0662f; }
+.age-card.a2 { --accent: var(--amber); }
+.age-card.a3 { --accent: var(--teal); }
+.age-card.a4 { --accent: var(--blue); }
+.source-note { margin-top: 18px; font-size: 14px; color: var(--faint); }
+
+.tip-list { counter-reset: tip; display: grid; gap: 14px; }
+.tip { counter-increment: tip; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.tip::before { content: counter(tip); display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--blue-soft); color: var(--blue); font-weight: 700; font-size: 18px; }
+.tip h3 { font-size: 18px; margin-bottom: 6px; }
+.tip p { color: var(--ink-2); }
+.say-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.say { padding: 20px; border-radius: var(--radius); border: 1px solid var(--line); }
+.say.do { background: var(--teal-soft); border-color: transparent; }
+.say.dont { background: var(--red-soft); border-color: transparent; }
+.say h3 { font-size: 16px; margin-bottom: 10px; }
+.say ul { list-style: none; padding: 0; display: grid; gap: 8px; color: var(--ink-2); }
+.say li::before { content: "“"; color: var(--faint); margin-right: 2px; }
+.say li::after { content: "”"; color: var(--faint); margin-left: 2px; }
+.warn-signs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.warn-signs li { list-style: none; padding: 14px 16px; border-radius: 12px; background: var(--amber-soft); color: var(--ink-2); font-size: 15px; }
+.warn-signs { padding: 0; }
+
+/* ---------- Муқоиса бо Family Link ---------- */
+.compare-wrap { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.compare-table th, .compare-table td { padding: 14px 18px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.compare-table thead th { background: var(--soft); font-size: 14px; color: var(--muted); font-weight: 600; position: sticky; top: 0; }
+.compare-table thead th.us { color: var(--blue); }
+.compare-table tbody th { font-weight: 500; color: var(--ink); width: 40%; }
+.compare-table tbody tr:last-child > * { border-bottom: 0; }
+.compare-table td.us { background: color-mix(in srgb, var(--blue-soft) 55%, transparent); }
+.compare-table .group th { background: var(--bg); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); padding-top: 18px; }
+.mark { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+.mark::before { content: ""; flex: none; width: 20px; height: 20px; border-radius: 50%; background-position: center; background-repeat: no-repeat; background-size: 12px; }
+.mark.yes::before { background-color: var(--teal-soft); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2312b5a6' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5L20 7'/%3E%3C/svg%3E"); }
+.mark.no::before { background-color: var(--soft); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23879' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E"); }
+.mark.part::before { background-color: var(--amber-soft); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c27a00' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E"); }
+.mark small { flex-basis: 100%; padding-left: 28px; color: var(--faint); font-size: 13px; line-height: 1.35; }
+.choose-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.choose { padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--surface); }
+.choose.us { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+.choose h3 { margin-bottom: 12px; }
+.choose ul { padding-left: 20px; display: grid; gap: 8px; color: var(--ink-2); }
+
+/* ---------- Таърихи версияҳо (хатти замонӣ) ---------- */
+.release-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.release-stats div { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.release-stats strong { display: block; font-size: 28px; color: var(--ink); line-height: 1.1; }
+.release-stats span { font-size: 14px; color: var(--muted); }
+.release-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.release-filter button { font: inherit; font-size: 14px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.release-filter button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+.timeline { position: relative; list-style: none; padding: 0 0 0 36px; margin: 0; }
+.timeline::before { content: ""; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--blue), var(--teal)); border-radius: 2px; opacity: .45; }
+.release { position: relative; padding-bottom: 28px; }
+.release::before { content: ""; position: absolute; left: -31px; top: 22px; width: 14px; height: 14px; border-radius: 50%; background: var(--bg); border: 3px solid var(--blue); }
+.release.highlight::before { background: var(--blue); box-shadow: 0 0 0 5px var(--blue-soft); }
+.release[hidden] { display: none; }
+.release-card { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.release.highlight .release-card { border-color: color-mix(in srgb, var(--blue) 35%, var(--line)); }
+.release-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 10px; }
+.release-head .ver { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 600; padding: 3px 9px; border-radius: 8px; background: var(--blue-soft); color: var(--blue); }
+.release-head h2 { font-size: 19px; line-height: 1.3; }
+.release-head time { margin-left: auto; font-size: 14px; color: var(--faint); }
+.release-card ul { padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); }
+.release .latest { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); }
+
+/* ---------- Тамос ---------- */
+.contact-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: start; }
+.contact-form { display: grid; gap: 16px; padding: 28px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow); }
+.contact-form .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 14px; font-weight: 600; color: var(--ink); }
+.field .hint { font-size: 13px; color: var(--faint); }
+.field input, .field select, .field textarea { font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 1px solid var(--line-2); border-radius: 12px; padding: 12px 14px; width: 100%; transition: border-color .15s, box-shadow .15s; }
+.field textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+.field [aria-invalid="true"] { border-color: var(--red); }
+.field .count { justify-self: end; font-size: 12px; color: var(--faint); }
+.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-status { padding: 14px 16px; border-radius: 12px; font-size: 15px; }
+.form-status.ok { background: var(--teal-soft); color: var(--ink); }
+.form-status.err { background: var(--red-soft); color: var(--ink); }
+.contact-side { display: grid; gap: 14px; }
+.contact-card { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; align-items: start; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); text-decoration: none; color: inherit; }
+a.contact-card:hover { border-color: var(--blue); }
+.contact-card .icon { margin: 0; }
+.contact-card strong { display: block; color: var(--ink); }
+.contact-card span { color: var(--muted); font-size: 15px; overflow-wrap: anywhere; }
+
+/* ---------- Мутобиқсозӣ ба экранҳои хурд ---------- */
+@media (max-width: 960px) {
+  .prose-layout { grid-template-columns: 1fr; gap: 24px; }
+  .prose-toc { position: static; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .age-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .warn-signs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contact-grid { grid-template-columns: 1fr; }
+  .release-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .age-grid, .say-grid, .choose-grid, .warn-signs { grid-template-columns: 1fr; }
+  .contact-form { padding: 20px; }
+  .contact-form .row-2 { grid-template-columns: 1fr; }
+  .compare-table th, .compare-table td { padding: 12px; font-size: 14px; }
+  .compare-table tbody th { width: auto; }
+  .release-head time { margin-left: 0; width: 100%; }
+  .prose { font-size: 16px; }
+}
+@media print {
+  .prose-toc, .release-filter { display: none; }
+  .prose-layout { display: block; }
+}
