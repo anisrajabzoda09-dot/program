@@ -1,0 +1,207 @@
+{#- Файл: телефони интерактивии намоишӣ дар саҳифаи асосӣ — 5 экран (Оила, Барномаҳо, Харита, Чат, Танзимот) бо идораҳои намоишӣ.
+    Матнҳо дар луғати DD вобаста ба забон; услуб demo.css, рафтор demo.js. -#}
+{%- set DD = {
+  'tg': {
+  'eyebrow': 'Намоиш', 'h': 'Барномаро худатон санҷед', 'lead': 'Ин нусхаи зиндаи нақши волидайн аст бо маълумоти намоишӣ. Байни экранҳо гузаред, барномаро банду кушоед, паём нависед ва дархостро ҷавоб диҳед — ҳамааш дар браузер, бе насб.',
+  'note': 'Намоиш — маълумот воқеӣ нест', 'download': 'Боргирии барнома',
+  'nav': ['Оила','Барномаҳо','Харита','Чат','Танзимот'],
+  'hello': 'Салом, Мунис!', 'safe': 'Оилаи шумо дар амният аст',
+  'child': 'Алиҷон', 'device': 'Samsung Galaxy A54 · Дар мактаб', 'online': 'Онлайн', 'battery': 'Батарея 88%',
+  'live': 'Ҷойгиршавии зинда', 'place': 'Мактаби №24', 'updated': 'Навсозӣ 1 дақиқа пеш',
+  't_loc': 'Ҷойгиршавӣ', 't_loc_v': 'Дар мактаб', 't_scr': 'Вақти экран', 't_scr_v': '2с 14д', 't_app': 'Барномаҳо', 't_app_v': '3 маҳкам',
+  'usage_title': 'Вақти экран имрӯз',
+  'req_label': 'Дархости вақт', 'req_text': 'Алиҷон барои YouTube 15 дақ мепурсад', 'deny': 'Рад', 'allow': 'Иҷозат',
+  'req_allowed': 'Иҷозат дода шуд — +15 дақ', 'req_denied': 'Рад карда шуд',
+  'apps_h': 'Барномаҳои Алиҷон', 'apps_sub': 'Тугмаро пахш кунед, то барнома банд ё кушода шавад.',
+  'blocked': 'Баста', 'allowed': 'Кушода', 'limit': 'Лимит: 1 соат', 'always': 'Ҳамеша иҷозат', 'school': 'Вақти дарс',
+  'map_h': 'Алиҷон дар харита', 'map_sub': 'Ҷойгиршавии зинда ва ҷойҳои бехатар.',
+  'chat_in': 'Паём нависед…', 'read': 'Хонда шуд',
+  'm1': 'Салом писарам! Дарс чӣ хел буд?', 'm2': 'Салом! Хуб буд, панҷ гирифтам 😊', 'm3': 'Офарин! Барои YouTube каме вақт мепурсӣ-мӣ?',
+  'reply': 'Бале, раҳмат! 🙏',
+  'set_h': 'Танзимот',
+  'set_profile': 'Мунис Раҷабов', 'set_profile_sub': 'Волидайн · munis@mail.tj',
+  'set_lang': 'Забон', 'set_lang_v': 'Тоҷикӣ', 'set_theme': 'Намуд', 'set_theme_v': 'Равшан',
+  'set_pin': 'PIN-и волидайн', 'set_pin_v': 'Фаъол', 'set_notify': 'Огоҳиномаҳо', 'set_notify_v': 'Фаъол',
+  'set_about': 'Дар бораи барнома', 'set_about_v': 'v' ~ app_version,
+    'yt_used': '45 дақ', 'tg_used': '30 дақ'
+  },
+  'ru': {
+  'eyebrow': 'Демо', 'h': 'Попробуйте приложение сами', 'lead': 'Это живая версия роли родителя с демо-данными. Переключайте экраны, блокируйте приложения, пишите сообщения и отвечайте на запросы — всё в браузере, без установки.',
+  'note': 'Демо — данные не настоящие', 'download': 'Скачать приложение',
+  'nav': ['Семья','Приложения','Карта','Чат','Настройки'],
+  'hello': 'Привет, Мунис!', 'safe': 'Ваша семья в безопасности',
+  'child': 'Алиджон', 'device': 'Samsung Galaxy A54 · В школе', 'online': 'Онлайн', 'battery': 'Батарея 88%',
+  'live': 'Живая геолокация', 'place': 'Школа №24', 'updated': 'Обновлено 1 мин назад',
+  't_loc': 'Место', 't_loc_v': 'В школе', 't_scr': 'Экран', 't_scr_v': '2ч 14м', 't_app': 'Приложения', 't_app_v': '3 закрыто',
+  'usage_title': 'Экранное время сегодня',
+  'req_label': 'Запрос времени', 'req_text': 'Алиджон просит 15 мин для YouTube', 'deny': 'Отказать', 'allow': 'Разрешить',
+  'req_allowed': 'Разрешено — +15 мин', 'req_denied': 'Отклонено',
+  'apps_h': 'Приложения Алиджона', 'apps_sub': 'Нажмите переключатель, чтобы закрыть или открыть приложение.',
+  'blocked': 'Закрыто', 'allowed': 'Открыто', 'limit': 'Лимит: 1 час', 'always': 'Всегда разрешено', 'school': 'Время уроков',
+  'map_h': 'Алиджон на карте', 'map_sub': 'Живая геолокация и безопасные места.',
+  'chat_in': 'Напишите сообщение…', 'read': 'Прочитано',
+  'm1': 'Привет, сынок! Как уроки?', 'm2': 'Привет! Хорошо, получил пятёрку 😊', 'm3': 'Молодец! Попросишь немного времени для YouTube?',
+  'reply': 'Да, спасибо! 🙏',
+  'set_h': 'Настройки',
+  'set_profile': 'Мунис Раджабов', 'set_profile_sub': 'Родитель · munis@mail.tj',
+  'set_lang': 'Язык', 'set_lang_v': 'Русский', 'set_theme': 'Тема', 'set_theme_v': 'Светлая',
+  'set_pin': 'PIN родителя', 'set_pin_v': 'Включён', 'set_notify': 'Уведомления', 'set_notify_v': 'Включены',
+  'set_about': 'О приложении', 'set_about_v': 'v' ~ app_version,
+    'yt_used': '45 мин', 'tg_used': '30 мин'
+  },
+  'en': {
+  'eyebrow': 'Demo', 'h': 'Try the app yourself', 'lead': 'This is a live version of the parent role with demo data. Switch screens, block apps, write messages and answer requests — all in your browser, no install.',
+  'note': 'Demo — data is not real', 'download': 'Download the app',
+  'nav': ['Family','Apps','Map','Chat','Settings'],
+  'hello': 'Hi, Munis!', 'safe': 'Your family is safe',
+  'child': 'Alijon', 'device': 'Samsung Galaxy A54 · At school', 'online': 'Online', 'battery': 'Battery 88%',
+  'live': 'Live location', 'place': 'School No. 24', 'updated': 'Updated 1 min ago',
+  't_loc': 'Location', 't_loc_v': 'At school', 't_scr': 'Screen time', 't_scr_v': '2h 14m', 't_app': 'Apps', 't_app_v': '3 blocked',
+  'usage_title': 'Screen time today',
+  'req_label': 'Time request', 'req_text': 'Alijon asks for 15 min of YouTube', 'deny': 'Deny', 'allow': 'Allow',
+  'req_allowed': 'Allowed — +15 min', 'req_denied': 'Denied',
+  'apps_h': "Alijon's apps", 'apps_sub': 'Tap the switch to block or unblock an app.',
+  'blocked': 'Blocked', 'allowed': 'Allowed', 'limit': 'Limit: 1 hour', 'always': 'Always allowed', 'school': 'Homework time',
+  'map_h': 'Alijon on the map', 'map_sub': 'Live location and safe places.',
+  'chat_in': 'Write a message…', 'read': 'Read',
+  'm1': 'Hi son! How was school?', 'm2': 'Hi! Good, I got an A 😊', 'm3': 'Well done! Want to ask for some YouTube time?',
+  'reply': 'Yes, thanks! 🙏',
+  'set_h': 'Settings',
+  'set_profile': 'Munis Rajabov', 'set_profile_sub': 'Parent · munis@mail.tj',
+  'set_lang': 'Language', 'set_lang_v': 'English', 'set_theme': 'Theme', 'set_theme_v': 'Light',
+  'set_pin': 'Parent PIN', 'set_pin_v': 'On', 'set_notify': 'Notifications', 'set_notify_v': 'On',
+  'set_about': 'About', 'set_about_v': 'v' ~ app_version,
+    'yt_used': '45 min', 'tg_used': '30 min'
+  },
+}[lang | default('tg')] -%}
+<div class="demo-phone" data-demo data-blocked="{{ DD.blocked }}" data-read="{{ DD.read }}" data-reply="{{ DD.reply }}">
+      <div class="demo-screen-frame">
+        <div class="demo-island"></div>
+        <div class="demo-status">
+          <span>09:41</span>
+          <span class="demo-status-icons">
+            <svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg>
+            <svg viewBox="0 0 16 12"><path d="M8 11.5 5.6 8.8a3.4 3.4 0 0 1 4.8 0L8 11.5Zm-4.2-4.7a6 6 0 0 1 8.4 0l1.3-1.4a7.9 7.9 0 0 0-11 0l1.3 1.4ZM1 4a10 10 0 0 1 14 0l1-1.2A11.8 11.8 0 0 0 0 2.8L1 4Z" fill="currentColor"/></svg>
+            <svg viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="17" height="8" rx="2" fill="#34c759"/><rect x="25" y="4.5" width="2" height="4" rx="1" fill="currentColor" opacity=".45"/></svg>
+          </span>
+        </div>
+
+        <div class="demo-views">
+          {#- Экрани 1: Оила -#}
+          <div class="demo-view is-active" data-view="family">
+            <div class="demo-row" style="margin-top:1cqi">
+              <span class="demo-hello-logo"><svg viewBox="0 0 24 24" fill="none"><circle cx="9.4" cy="10.2" r="2" fill="currentColor"/><circle cx="14.6" cy="10.2" r="2" fill="currentColor"/><path d="M6.6 16c.5-2 1.6-3 2.8-3s2.3 1 2.6 3m-.6 0c.4-2 1.5-3 2.8-3s2.3 1 2.8 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+              <div class="demo-grow"><div style="font-size:4.4cqi;font-weight:750">{{ DD.hello }}</div><div class="demo-sub demo-ell">{{ DD.safe }}</div></div>
+            </div>
+            <div class="demo-card demo-row">
+              <span class="demo-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path d="M3.8 21c.9-4.1 4.1-6.4 8.2-6.4s7.3 2.3 8.2 6.4" fill="currentColor"/></svg></span>
+              <div class="demo-grow"><div style="font-size:4cqi;font-weight:720">{{ DD.child }}</div><div class="demo-sub demo-ell">{{ DD.device }}</div></div>
+              <div style="text-align:right;flex:none"><span class="demo-pill demo-pill--ok"><span class="demo-dot"></span>{{ DD.online }}</span><div class="demo-sub" style="margin-top:1cqi;font-size:2.4cqi">{{ DD.battery }}</div></div>
+            </div>
+            <div class="demo-map">
+              <svg viewBox="0 0 300 140" preserveAspectRatio="xMidYMid slice"><rect width="300" height="140" fill="var(--d-map)"/><ellipse cx="248" cy="28" rx="58" ry="30" fill="var(--d-park)"/><ellipse cx="40" cy="120" rx="46" ry="26" fill="var(--d-park)"/><path d="M-10 108 C60 96 110 128 170 112 S260 70 320 84" fill="none" stroke="var(--d-water)" stroke-width="9"/><path d="M-10 52 C70 40 140 76 210 50 S290 30 320 38" fill="none" stroke="var(--d-road-edge)" stroke-width="16"/><path d="M-10 52 C70 40 140 76 210 50 S290 30 320 38" fill="none" stroke="var(--d-road)" stroke-width="12"/><path d="M120 -10 C112 40 136 90 118 150" fill="none" stroke="var(--d-road-edge)" stroke-width="11"/><path d="M120 -10 C112 40 136 90 118 150" fill="none" stroke="var(--d-road)" stroke-width="7"/></svg>
+              <span class="demo-chip"><span class="demo-dot"></span>{{ DD.live }}</span>
+              <span class="demo-pin"><svg viewBox="0 0 30 38"><path d="M15 37c-1-3.5-12-13-12-21.5a12 12 0 0 1 24 0C27 24 16 33.5 15 37Z" fill="var(--d-blue)"/><circle cx="15" cy="15.5" r="6.4" fill="#fff"/><circle cx="15" cy="15.5" r="3.6" fill="var(--d-mint)"/></svg></span>
+              <span class="demo-place"><span><b>{{ DD.place }}</b><small>{{ DD.updated }}</small></span><span class="demo-check"><svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            </div>
+            <div class="demo-tiles">
+              <div class="demo-tile demo-tile--blue"><i><svg viewBox="0 0 16 16"><path d="M8 15s5-4.6 5-8.6A5 5 0 0 0 3 6.4C3 10.4 8 15 8 15Z" fill="currentColor"/><circle cx="8" cy="6.4" r="1.8" fill="var(--d-blue)"/></svg></i><span>{{ DD.t_loc }}</span><b>{{ DD.t_loc_v }}</b></div>
+              <div class="demo-tile demo-tile--mint"><i><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 4.8V8l2.2 1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></i><span>{{ DD.t_scr }}</span><b>{{ DD.t_scr_v }}</b></div>
+              <div class="demo-tile demo-tile--violet"><i><svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5.2 7V5.4a2.8 2.8 0 0 1 5.6 0V7" fill="none" stroke="currentColor" stroke-width="1.7"/></svg></i><span>{{ DD.t_app }}</span><b>{{ DD.t_app_v }}</b></div>
+            </div>
+            <div class="demo-card demo-req" data-req>
+              <div class="demo-req-title"><svg viewBox="0 0 16 16" width="11" height="11"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 4.6V8l2 1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>{{ DD.req_label }}</div>
+              <p>{{ DD.req_text }}</p>
+              <div class="demo-actions">
+                <button class="demo-btn demo-btn--ghost" data-req-deny data-done="{{ DD.req_denied }}">{{ DD.deny }}</button>
+                <button class="demo-btn demo-btn--primary" data-req-allow data-done="{{ DD.req_allowed }}">{{ DD.allow }}</button>
+              </div>
+            </div>
+          </div>
+
+          {#- Экрани 2: Барномаҳо -#}
+          <div class="demo-view" data-view="apps">
+            <h2 class="demo-h">{{ DD.apps_h }}</h2>
+            <p class="demo-sub">{{ DD.apps_sub }}</p>
+            <div class="demo-card" style="padding:1cqi 3.2cqi">
+              <div class="demo-app" data-app>
+                <span class="demo-app-ico" style="background:#ff2d2d"><svg viewBox="0 0 16 16"><path d="M6 4.8v6.4l5.2-3.2L6 4.8Z" fill="#fff"/></svg></span>
+                <div class="demo-grow"><b>YouTube</b><small data-state>{{ DD.limit }} · {{ DD.yt_used }}</small><div class="demo-bar"><span class="warn" style="width:75%"></span></div></div>
+                <button class="demo-toggle" data-toggle aria-pressed="false" aria-label="YouTube"></button>
+              </div>
+              <div class="demo-app" data-app>
+                <span class="demo-app-ico" style="background:#2aa3e6"><svg viewBox="0 0 16 16"><path d="m2.6 7.6 9.8-3.9c.5-.2.9.1.8.7l-1.7 7.8c-.1.5-.5.6-.9.4L8 10.9l-1.3 1.3c-.1.1-.3.2-.5.2l.2-2.7 4.8-4.4c.2-.2 0-.3-.3-.1L5 8.9 2.5 8.1c-.5-.2-.5-.5.1-.5Z" fill="#fff"/></svg></span>
+                <div class="demo-grow"><b>Telegram</b><small data-state>{{ DD.allowed }} · {{ DD.tg_used }}</small><div class="demo-bar"><span style="width:50%"></span></div></div>
+                <button class="demo-toggle" data-toggle aria-pressed="false" aria-label="Telegram"></button>
+              </div>
+              <div class="demo-app is-blocked" data-app>
+                <span class="demo-app-ico" style="background:#3d4452"><svg viewBox="0 0 16 16"><path d="M4.4 2.6 13.4 5 11 14 2 11.6l2.4-9Zm3.1 4.1-.5 1.9 1.9.5.5-1.9-1.9-.5Z" fill="#fff"/></svg></span>
+                <div class="demo-grow"><b>Roblox</b><small data-state style="color:var(--d-red)">{{ DD.blocked }}</small><div class="demo-bar"><span style="width:0%"></span></div></div>
+                <button class="demo-toggle" data-toggle aria-pressed="true" aria-label="Roblox"></button>
+              </div>
+              <div class="demo-app" data-app>
+                <span class="demo-app-ico" style="background:linear-gradient(135deg,#9b2fae,#e1306c,#fcaf45)"><svg viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="3" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="8" cy="8" r="2.4" fill="none" stroke="#fff" stroke-width="1.5"/></svg></span>
+                <div class="demo-grow"><b>Instagram</b><small data-state>{{ DD.school }} 08:00–13:00</small><div class="demo-bar"><span style="width:20%"></span></div></div>
+                <button class="demo-toggle" data-toggle aria-pressed="false" aria-label="Instagram"></button>
+              </div>
+              <div class="demo-app" data-app data-locked>
+                <span class="demo-app-ico" style="background:#14a38b"><svg viewBox="0 0 16 16"><path d="M8 2 2 5l6 3 6-3-6-3Zm0 5.2L3.4 5 8 3l4.6 2L8 7.2ZM4 7.3v3.2c0 .9 1.8 1.8 4 1.8s4-.9 4-1.8V7.3L8 9.3 4 7.3Z" fill="#fff"/></svg></span>
+                <div class="demo-grow"><b>Khan Academy</b><small>{{ DD.always }}</small></div>
+                <span class="demo-pill demo-pill--ok" style="flex:none">✓</span>
+              </div>
+            </div>
+          </div>
+
+          {#- Экрани 3: Харита -#}
+          <div class="demo-view" data-view="map">
+            <h2 class="demo-h">{{ DD.map_h }}</h2>
+            <p class="demo-sub">{{ DD.map_sub }}</p>
+            <div class="demo-map tall">
+              <svg viewBox="0 0 300 280" preserveAspectRatio="xMidYMid slice"><rect width="300" height="280" fill="var(--d-map)"/><ellipse cx="250" cy="60" rx="70" ry="44" fill="var(--d-park)"/><ellipse cx="40" cy="230" rx="60" ry="40" fill="var(--d-park)"/><path d="M-10 200 C60 180 120 240 180 210 S280 150 320 170" fill="none" stroke="var(--d-water)" stroke-width="11"/><path d="M-10 96 C80 70 150 140 230 96 S300 60 320 72" fill="none" stroke="var(--d-road-edge)" stroke-width="18"/><path d="M-10 96 C80 70 150 140 230 96 S300 60 320 72" fill="none" stroke="var(--d-road)" stroke-width="13"/><path d="M130 -10 C118 80 150 180 120 290" fill="none" stroke="var(--d-road-edge)" stroke-width="13"/><path d="M130 -10 C118 80 150 180 120 290" fill="none" stroke="var(--d-road)" stroke-width="8"/><circle cx="92" cy="186" r="5" fill="var(--d-mint)"/><circle cx="150" cy="150" r="4" fill="var(--d-mint)" opacity=".7"/><circle cx="178" cy="120" r="4" fill="var(--d-mint)" opacity=".5"/></svg>
+              <span class="demo-chip"><span class="demo-dot"></span>{{ DD.live }}</span>
+              <span class="demo-pin" style="top:42%"><svg viewBox="0 0 30 38"><path d="M15 37c-1-3.5-12-13-12-21.5a12 12 0 0 1 24 0C27 24 16 33.5 15 37Z" fill="var(--d-blue)"/><circle cx="15" cy="15.5" r="6.4" fill="#fff"/><circle cx="15" cy="15.5" r="3.6" fill="var(--d-mint)"/></svg></span>
+              <span class="demo-place"><span><b>{{ DD.place }}</b><small>{{ DD.updated }}</small></span><span class="demo-check"><svg viewBox="0 0 16 16"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            </div>
+          </div>
+
+          {#- Экрани 4: Чат -#}
+          <div class="demo-view" data-view="chat" style="padding:0;display:none;flex-direction:column">
+            <div class="demo-chat" data-chat style="flex:1;overflow-y:auto;padding:3cqi 4cqi">
+              <span class="demo-day">Имрӯз</span>
+              <div class="demo-msg them">{{ DD.m1 }}</div>
+              <div class="demo-msg me">{{ DD.m2 }}<small>{{ DD.read }} ✓✓</small></div>
+              <div class="demo-msg them">{{ DD.m3 }}</div>
+            </div>
+            <div class="demo-compose">
+              <input class="demo-input" data-chat-input placeholder="{{ DD.chat_in }}" aria-label="{{ DD.chat_in }}">
+              <button class="demo-send" data-chat-send aria-label="Фиристодан"><svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12 2-12 2Z" fill="currentColor"/></svg></button>
+            </div>
+          </div>
+
+          {#- Экрани 5: Танзимот -#}
+          <div class="demo-view" data-view="settings">
+            <h2 class="demo-h">{{ DD.set_h }}</h2>
+            <div class="demo-card demo-row" style="gap:3cqi">
+              <span class="demo-avatar" style="width:12cqi;height:12cqi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path d="M3.8 21c.9-4.1 4.1-6.4 8.2-6.4s7.3 2.3 8.2 6.4" fill="currentColor"/></svg></span>
+              <div class="demo-grow"><div style="font-size:3.6cqi;font-weight:720">{{ DD.set_profile }}</div><div class="demo-sub demo-ell">{{ DD.set_profile_sub }}</div></div>
+            </div>
+            <div class="demo-card" style="padding:0 3.2cqi">
+              <div class="demo-set"><span class="demo-set-ico"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2 8h12M8 2c2 2 2 10 0 12M8 2c-2 2-2 10 0 12" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></span><div class="demo-grow"><b>{{ DD.set_lang }}</b></div><span class="demo-val">{{ DD.set_lang_v }}</span></div>
+              <div class="demo-set"><span class="demo-set-ico" style="background:var(--d-violet-soft);color:var(--d-violet)"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.4" fill="currentColor"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6 13 13M13 3l-1.4 1.4M4.4 11.6 3 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span><div class="demo-grow"><b>{{ DD.set_theme }}</b></div><span class="demo-val">{{ DD.set_theme_v }}</span></div>
+              <div class="demo-set"><span class="demo-set-ico" style="background:var(--d-green-soft);color:var(--d-green)"><svg viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="2" fill="currentColor"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span><div class="demo-grow"><b>{{ DD.set_pin }}</b></div><span class="demo-val">{{ DD.set_pin_v }}</span></div>
+              <div class="demo-set"><span class="demo-set-ico" style="background:var(--d-amber-soft);color:var(--d-amber)"><svg viewBox="0 0 16 16"><path d="M8 2a4 4 0 0 0-4 4v3L2.5 11h11L12 9V6a4 4 0 0 0-4-4ZM6.5 13a1.5 1.5 0 0 0 3 0" fill="currentColor"/></svg></span><div class="demo-grow"><b>{{ DD.set_notify }}</b></div><span class="demo-val">{{ DD.set_notify_v }}</span></div>
+              <div class="demo-set"><span class="demo-set-ico"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><div class="demo-grow"><b>{{ DD.set_about }}</b></div><span class="demo-val">{{ DD.set_about_v }}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="demo-nav" data-nav>
+          <button class="is-active" data-tab="family"><svg viewBox="0 0 24 24"><circle cx="8.5" cy="7.5" r="3" fill="currentColor"/><circle cx="16" cy="9" r="2.4" fill="currentColor"/><path d="M3 19c.6-3.6 2.8-5.6 5.5-5.6s4.9 2 5.5 5.6M13.4 19c.4-2.6 1.8-4.2 3.6-4.2s3.2 1.6 3.6 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>{{ DD.nav[0] }}</button>
+          <button data-tab="apps"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="4.5" height="4.5" rx="1.2"/><rect x="9.75" y="4" width="4.5" height="4.5" rx="1.2"/><rect x="15.5" y="4" width="4.5" height="4.5" rx="1.2"/><rect x="4" y="9.75" width="4.5" height="4.5" rx="1.2"/><rect x="9.75" y="9.75" width="4.5" height="4.5" rx="1.2"/><rect x="15.5" y="9.75" width="4.5" height="4.5" rx="1.2"/><rect x="4" y="15.5" width="4.5" height="4.5" rx="1.2"/><rect x="9.75" y="15.5" width="4.5" height="4.5" rx="1.2"/><rect x="15.5" y="15.5" width="4.5" height="4.5" rx="1.2"/></svg>{{ DD.nav[1] }}</button>
+          <button data-tab="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3.5 6.5 9 4l6 2.5 5.5-2.5v13.5L15 20l-6-2.5-5.5 2.5V6.5Z"/><path d="M9 4v13.5M15 6.5V20"/></svg>{{ DD.nav[2] }}</button>
+          <button data-tab="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 17H10l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5v-9A1.5 1.5 0 0 1 5 5Z"/></svg>{{ DD.nav[3] }}</button>
+          <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8M18.5 18.5l-1.8-1.8M7.3 7.3 5.5 5.5"/></svg>{{ DD.nav[4] }}</button>
+        </nav>
+        <div class="demo-home-ind"></div>
+      </div>
+    </div>
