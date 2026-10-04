@@ -266,7 +266,6 @@ _PAGES = [
     ("/security", "security", "security"),
     ("/faq", "faq", "faq"),
     ("/get", "get", "get"),
-    ("/demo", "demo", "demo"),
 ]
 
 
@@ -341,12 +340,6 @@ def get_app_page(request: Request):
 
     return _site_page(request, "get", "get")
 
-@router.head("/demo", include_in_schema=False)
-@router.get("/demo", response_class=HTMLResponse)
-def demo_page(request: Request):
-    """Намоиши интерактивии нақши волидайни барномаро дар браузер нишон медиҳад."""
-
-    return _site_page(request, "demo", "demo")
 
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
