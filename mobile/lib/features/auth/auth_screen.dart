@@ -9,6 +9,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../core/session.dart';
 import '../../ui/github_mark.dart';
 import '../../ui/widgets.dart';
+import 'otp_sheets.dart';
 import 'brand_logo.dart';
 import '../../l10n/l10n.dart';
 import '../../ui/language_picker.dart';
@@ -52,6 +53,9 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
   /// Қимати githubEnabled-ро барои экрани бақайдгирӣ ва воридшавӣ нигоҳ медорад.
   bool githubEnabled = false;
 
+  /// Воридшавӣ бо рамз ба почта дар сервер фаъол аст ё не.
+  bool emailCodeEnabled = false;
+
   /// Қимати ҳисобшудаи anyBusy-ро аз ҳолати ҷорӣ бармегардонад.
   bool get anyBusy => busy || googleBusy || appleBusy || githubBusy;
 
@@ -65,7 +69,18 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAppleConfig();
       _loadGitHubConfig();
+      _loadOtpConfig();
     });
+  }
+
+  /// Аз сервер мепурсад, ки воридшавӣ бо рамз ба почта фаъол аст ё не.
+  Future<void> _loadOtpConfig() async {
+    try {
+      final config = await SessionScope.read(context).api.otpConfig();
+      if (mounted) setState(() => emailCodeEnabled = config.email);
+    } catch (_) {
+      if (mounted) setState(() => emailCodeEnabled = false);
+    }
   }
 
   /// loadAppleConfig додаҳоро мехонад ва ҳолати экранро нав мекунад.
@@ -123,7 +138,12 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
       if (register) {
         await session.register(email.text, password.text, name.text);
       } else {
-        await session.login(email.text, password.text);
+        final signedIn = await session.login(email.text, password.text);
+        // Бо ҳимояи дуқабата парол кифоя нест: рамзи Authenticator лозим.
+        if (!signedIn && mounted) {
+          setState(() => busy = false);
+          await showOtpSheet(context, session);
+        }
       }
     } catch (e) {
       if (mounted) showMessage(context, e, error: true);
@@ -440,6 +460,20 @@ class _AuthScreenState extends State<AuthScreen> with WidgetsBindingObserver {
                                         ),
                                 ),
                               ),
+                              if (!register && emailCodeEnabled)
+                                TextButton(
+                                  key: const Key('auth.email-code'),
+                                  onPressed: anyBusy
+                                      ? null
+                                      : () => showEmailCodeSheet(
+                                          context,
+                                          SessionScope.read(context),
+                                          initialEmail: email.text.trim(),
+                                        ),
+                                  child: Text(
+                                    tr('Ворид шудан бо рамз ба почта'),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
