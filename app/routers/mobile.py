@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import date, datetime, timedelta, timezone
 import json
-import secrets
 
 from app.core.config import settings
 from app.core.security import require_auth, SESSIONS
@@ -58,7 +57,7 @@ from app.models.chat import ChatMessage
 from app.models.family_extras import LocationPoint
 from app.crud.crud_privacy import prune_location_history, purge_child_history
 from app.core import events as family_events
-from app.core import web_filter
+from app.core import pairing, web_filter
 from app.models.user import User
 from app.core.firebase_mobile import find_user_by_firebase_uid
 from app.core.mobile_auth import require_mobile_user
@@ -273,6 +272,8 @@ def _mobile_snapshot(db: Session, user: dict) -> dict:
             "children": [_mobile_child_payload(db, child) for child in children],
         }
     child = db.query(Child).filter(Child.user_id == user["id"]).order_by(Child.id.desc()).first()
+    # Рамзи кӯҳнаи фарзанди ҳанӯз пайвастнашуда худкор нав мешавад.
+    pairing.refresh_if_expired(db, child)
     return {
         "status": "success",
         "source": "nigoh-api",
@@ -448,6 +449,8 @@ def pair_device(payload: PairRequest, request: Request, db: Session = Depends(ge
     user = require_auth(request)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо ҳисоби волидайн метавонад пайваст кунад")
+    pairing.check_attempt(request, user["id"])
+    pairing.find_child(db, payload.pairing_code)
     existing = get_child_by_pairing_code(db, payload.pairing_code)
     if existing and existing.parent_id not in (None, user["id"]):
         raise HTTPException(status_code=409, detail="Ин дастгоҳ аллакай ба оилаи дигар пайваст аст")
@@ -497,12 +500,7 @@ def create_mobile_pair_code_v2(
         db.flush()
     elif child.is_paired:
         return {"status": "success", "child_id": child.id, "pairing_code": child.pairing_code, "paired": True}
-    existing = {row[0] for row in db.query(Child.pairing_code).all()}
-    for _ in range(20):
-        candidate = str(secrets.randbelow(900000) + 100000)
-        if candidate not in existing:
-            child.pairing_code = candidate
-            break
+    pairing.issue_code(db, child)
     child.name = payload.child_name.strip() or child.name
     child.gender = payload.gender
     child.age = payload.age
@@ -523,10 +521,8 @@ def pair_mobile_device_v2(
     user = require_mobile_user(request, db)
     if user.get("role") != "parent":
         raise HTTPException(status_code=403, detail="Танҳо волидайн метавонад дастгоҳ пайваст кунад")
-    code = payload.pairing_code.strip().upper()
-    child = db.query(Child).filter(Child.pairing_code == code).first()
-    if child is None:
-        raise HTTPException(status_code=404, detail="Коди фарзанд ёфт нашуд")
+    pairing.check_attempt(request, user["id"])
+    child = pairing.find_child(db, payload.pairing_code)
     if child.parent_id not in (None, user["id"]):
         raise HTTPException(status_code=409, detail="Ин дастгоҳ ба оилаи дигар пайваст аст")
     child.parent_id = user["id"]

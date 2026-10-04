@@ -16,6 +16,8 @@ class Child(Base):
     age = Column(Integer, default=11)
     device_name = Column(String, default="Samsung Galaxy A54")
     pairing_code = Column(String, unique=True, nullable=False, index=True)
+    # Рамзи пайвастшавӣ 15 дақиқа эътибор дорад, баъд худкор нав мешавад.
+    pairing_code_expires_at = Column(DateTime, nullable=True)
     is_paired = Column(Integer, default=0)
     is_online = Column(Integer, default=1)
     battery_level = Column(Integer, default=88)
