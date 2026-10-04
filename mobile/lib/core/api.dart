@@ -226,6 +226,57 @@ class NigohApi {
     auth: false,
   );
 
+  /// Кадом навъҳои ҳимояи дуқабата дар сервер фаъоланд (Authenticator, рамз ба почта).
+  Future<({bool totp, bool email})> otpConfig() async {
+    final j = await _send('GET', '/api/mobile/v3/auth/otp/config', auth: false);
+    return (totp: j['totp'] == true, email: j['email'] == true);
+  }
+
+  /// Қадами дуюми воридшавӣ: чипта аз login ва рамзи 6-рақама ё рамзи эҳтиётӣ.
+  Future<Map<String, dynamic>> loginOtp(String ticket, String code) => _send(
+    'POST',
+    '/api/mobile/v3/auth/login/otp',
+    body: {'ticket': ticket, 'code': code},
+    auth: false,
+  );
+
+  /// Рамзи воридшавиро ба почта мефиристад.
+  Future<Map<String, dynamic>> requestEmailCode(String email) => _send(
+    'POST',
+    '/api/mobile/v3/auth/email-code',
+    body: {'email': email},
+    auth: false,
+  );
+
+  /// Рамзи почтаро месанҷад: token ё otp_required бармегардонад.
+  Future<Map<String, dynamic>> verifyEmailCode(String email, String code) =>
+      _send(
+        'POST',
+        '/api/mobile/v3/auth/email-code/verify',
+        body: {'email': email, 'code': code},
+        auth: false,
+      );
+
+  /// Ҳолати Authenticator-и ҳисоби ҷорӣ.
+  Future<Map<String, dynamic>> totpStatus() =>
+      _send('GET', '/api/mobile/v3/me/totp');
+
+  /// Калиди навро месозад: secret, uri ва QR.
+  Future<Map<String, dynamic>> totpSetup() =>
+      _send('POST', '/api/mobile/v3/me/totp/setup');
+
+  /// Аввалин рамзро месанҷад ва рамзҳои эҳтиётиро бармегардонад.
+  Future<Map<String, dynamic>> totpConfirm(String code) =>
+      _send('POST', '/api/mobile/v3/me/totp/confirm', body: {'code': code});
+
+  /// Authenticator-ро бо рамз хомӯш мекунад.
+  Future<Map<String, dynamic>> totpDisable(String code) =>
+      _send('POST', '/api/mobile/v3/me/totp/disable', body: {'code': code});
+
+  /// Рамзҳои эҳтиётии нав.
+  Future<Map<String, dynamic>> totpRecovery(String code) =>
+      _send('POST', '/api/mobile/v3/me/totp/recovery', body: {'code': code});
+
   /// githubConfig мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<GitHubSignInConfig> githubConfig() async =>
       GitHubSignInConfig.fromJson(
