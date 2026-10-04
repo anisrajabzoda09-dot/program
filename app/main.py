@@ -1,6 +1,7 @@
 """Файл: ҷамъ кардани FastAPI app, middleware, startup ва ҳамаи router-ҳо."""
 
 import os
+import time
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +11,7 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 from app.db.init_db import init_db
 from app.crud.crud_analytics import log_analytics_event
+from app.crud.crud_privacy import anonymize_site_analytics
 
 # Modular Routers (DRF-style Separation of Concerns)
 from app.routers.public import router as public_router
@@ -52,11 +54,22 @@ _TRACKED_PATHS = frozenset(
 ) | {"/ru", "/en", "/auth", "/admin"}
 
 
+# Вақти охирини пок кардани IP-ҳои кӯҳна; дар як рӯз як бор кифоя аст.
+_last_anonymize = 0.0
+
+
 def _log_page_view(ip: str, path: str, user_agent: str) -> None:
     """Як боздиди саҳифаро бо сессияи алоҳидаи база сабт мекунад (дар замина)."""
+    global _last_anonymize
     db = SessionLocal()
     try:
         log_analytics_event(db, ip, path, user_agent, event_type="page_view", version=settings.APP_VERSION)
+        if time.monotonic() - _last_anonymize > 86400 or _last_anonymize == 0.0:
+            _last_anonymize = time.monotonic()
+            anonymize_site_analytics(db)
+            db.commit()
+    except Exception:
+        db.rollback()
     finally:
         db.close()
 

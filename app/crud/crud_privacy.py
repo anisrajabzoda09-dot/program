@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 
 from app.models.app_rule import AppRule
+from app.models.analytics import SiteAnalytics
 from app.models.app_usage import AppUsageDaily
 from app.models.chat import ChatMessage
 from app.models.extension_request import AppExtensionRequest
@@ -12,6 +13,8 @@ from app.models.family_extras import CallSession, CallSignal, FamilyEvent, Locat
 
 # Таърихи макон ҳамин қадар рӯз нигоҳ дошта мешавад; волидайн дар барнома 24 соатро мебинанд.
 LOCATION_RETENTION_DAYS = 30
+# Пас аз ин қадар рӯз IP ва браузер аз омори сайт пок мешаванд (шумораҳо мемонанд).
+ANALYTICS_RETENTION_DAYS = 180
 
 
 def _utc_naive(moment: datetime) -> datetime:
@@ -48,3 +51,15 @@ def delete_child_data(db: Session, child_id: int) -> None:
     purge_child_history(db, child_id)
     for model in (AppRule, AppUsageDaily):
         db.query(model).filter(model.child_id == child_id).delete(synchronize_session=False)
+
+
+def anonymize_site_analytics(db: Session, now: datetime | None = None) -> int:
+    """IP ва user-agent-ро дар сабтҳои омори аз ANALYTICS_RETENTION_DAYS кӯҳна пок мекунад.
+
+    Худи сабтҳо (саҳифа, навъ, сана) барои омори умумии панели админ мемонанд.
+    """
+    cutoff = _utc_naive(now or datetime.now(timezone.utc)) - timedelta(days=ANALYTICS_RETENTION_DAYS)
+    return db.query(SiteAnalytics).filter(
+        SiteAnalytics.created_at < cutoff,
+        (SiteAnalytics.ip.isnot(None)) | (SiteAnalytics.user_agent.isnot(None)),
+    ).update({SiteAnalytics.ip: None, SiteAnalytics.user_agent: None}, synchronize_session=False)
