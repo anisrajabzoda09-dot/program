@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.20.0 — 2026-10-04
+- Age-based site filter: parents choose «Up to 12» or «Ages 13–17» (suggested from the child's age) and can block extra sites. It works in every browser through a local DNS-only VPN on the child's phone (CleanBrowsing Family / Adult filters with SafeSearch); parents are alerted if it is turned off.
+- Two-step verification: authenticator app (TOTP) with QR setup and 8 recovery codes, on the website, the admin panel and in the app; sign-in with a one-time email code when SMTP is configured. 5 wrong codes lock the account for 15 minutes.
+- Accounts are locked for 15 minutes after 5 wrong passwords (website and app).
+- Website security: Content-Security-Policy, rejection of cross-site POST/PUT/DELETE, no-store for sensitive pages.
+- Privacy: location history kept 30 days; removing a child erases their location, chat and call history; site-statistics IPs cleared after 180 days.
+- New pages in three languages: privacy policy, terms of use, contact form (with admin inbox), tips for parents, comparison with Google Family Link, What's new; «Set up in 3 steps» animation.
+- Fixed: profile photos disappeared from parent screens after changing a rule; the 3D page crashed; /favicon.ico returned 404.
+
 ## Server — 2026-10-04
 - Faster pages: visit statistics are written in the background after the page is sent, instead of blocking every request; Russian and English pages are now counted too.
 - Browser caching: versioned CSS/JS files are cached for a year, others for an hour (APK downloads are never cached).
