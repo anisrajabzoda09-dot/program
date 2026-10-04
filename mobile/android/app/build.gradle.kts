@@ -87,4 +87,6 @@ flutter {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    // Санҷишҳои JVM барои мантиқи тозаи Kotlin (масалан WebFilterDns).
+    testImplementation("junit:junit:4.13.2")
 }
