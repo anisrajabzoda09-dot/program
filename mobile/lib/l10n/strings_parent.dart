@@ -644,4 +644,66 @@ const Map<String, List<String>> parentStrings = {
     'Change the search or the filter to see every app.',
   ],
   'Ҷустуҷӯро тоза кардан': ['Очистить поиск', 'Clear search'],
+  // Филтри сайтҳо аз рӯи синну сол.
+  '13–17 сола': ['13–17 лет', 'Ages 13–17'],
+  'То 12 сола': ['До 12 лет', 'Up to 12'],
+  'Барои синну сол': ['По возрасту', 'For this age'],
+  'Дар телефони фарзанд фаъол аст': [
+    'Работает на телефоне ребёнка',
+    'Active on your child\'s phone',
+  ],
+  'Дар телефони фарзанд хомӯш аст': [
+    'Выключен на телефоне ребёнка',
+    'Turned off on your child\'s phone',
+  ],
+  'Ин сайт аллакай дар рӯйхат аст': [
+    'Этот сайт уже в списке',
+    'This site is already on the list',
+  ],
+  'Ин сайтҳо ҳамроҳи филтри синну сол баста мешаванд.': [
+    'Эти сайты блокируются вместе с возрастным фильтром.',
+    'These sites are blocked together with the age filter.',
+  ],
+  'Интизори телефони фарзанд': [
+    'Ждём телефон ребёнка',
+    'Waiting for your child\'s phone',
+  ],
+  'Сайтҳоеро, ки ба синну соли {name} мувофиқ нестанд, дар ҳама браузерҳо мебандад.':
+      [
+        'Блокирует во всех браузерах сайты, не подходящие по возрасту для {name}.',
+        'Blocks sites that are not right for {name}\'s age, in every browser.',
+      ],
+  'Сайтҳои иловагии манъшуда': [
+    'Дополнительно заблокированные сайты',
+    'Extra blocked sites',
+  ],
+  'Сайтҳои калонсолон баста мешаванд. Дар Google ва Bing ҷустуҷӯи бехатар ҳатмист.':
+      [
+        'Блокируются сайты для взрослых. В Google и Bing включён безопасный поиск.',
+        'Adult sites are blocked. SafeSearch is enforced on Google and Bing.',
+      ],
+  'Сайтҳои калонсолон, прокси ва VPN баста мешаванд. Дар Google ва YouTube ҷустуҷӯи бехатар ҳатмист.':
+      [
+        'Блокируются сайты для взрослых, прокси и VPN. В Google и YouTube включён безопасный режим.',
+        'Adult sites, proxies and VPNs are blocked. SafeSearch and YouTube Restricted Mode are enforced.',
+      ],
+  'Суроғаи сайтро дуруст нависед, масалан tiktok.com': [
+    'Введите правильный адрес сайта, например tiktok.com',
+    'Enter a valid site address, for example tiktok.com',
+  ],
+  'Фарзанд бояд дар телефонаш иҷозат диҳад': [
+    'Ребёнок должен дать разрешение на своём телефоне',
+    'Your child needs to allow it on their phone',
+  ],
+  'Филтр бо VPN-и маҳаллӣ дар телефони фарзанд кор мекунад: танҳо номи сайтҳо санҷида мешаванд, на мазмуни саҳифаҳо ва паёмҳо.':
+      [
+        'Фильтр работает через локальный VPN на телефоне ребёнка: проверяются только названия сайтов, а не содержимое страниц и сообщений.',
+        'The filter runs as a local VPN on your child\'s phone: only site names are checked, never page content or messages.',
+      ],
+  'Филтр хомӯш аст': ['Фильтр выключен', 'Filter is off'],
+  'Филтри сайтҳо': ['Фильтр сайтов', 'Site filter'],
+  'Филтри сайтҳо: {level}': ['Фильтр сайтов: {level}', 'Site filter: {level}'],
+  'Хомӯш': ['Выключен', 'Off'],
+  'Ҳадди аксар 100 сайт': ['Максимум 100 сайтов', 'Up to 100 sites'],
+  'Ҳамаи сайтҳо кушодаанд.': ['Все сайты открыты.', 'All sites are open.'],
 };
