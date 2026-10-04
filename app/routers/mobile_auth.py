@@ -17,7 +17,8 @@ from app.core.mobile_auth import (
     upsert_google_user,
     verify_google_id_token,
 )
-from app.core import apple_auth, github_auth
+from app.core import apple_auth, github_auth, otp
+from app.core.i18n import request_lang
 from app.core.config import settings
 from app.core.security import check_rate_limit, hash_password, verify_password
 from app.db.session import get_db
@@ -104,13 +105,25 @@ def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)
 
     check_rate_limit(request, "mobile_login", max_requests=20, window_seconds=300)
     user = db.query(User).filter(User.email == payload.email.strip().lower()).first()
-    if user is None or not user.password_hash or not verify_password(payload.password, user.password_hash):
+    if user is None or not user.password_hash:
+        raise HTTPException(status_code=400, detail="Почта ё рамз нодуруст аст")
+    # Қулфи ҳисоб пас аз 5 кӯшиши нодуруст (ҳамон ҳисобкунаки сайт ва OTP).
+    try:
+        otp.check_not_locked(user)
+    except otp.OtpError as error:
+        raise HTTPException(status_code=429, detail=otp.message(error, request_lang(request.headers)))
+    if not verify_password(payload.password, user.password_hash):
+        otp.register_failure(db, user)
         raise HTTPException(status_code=400, detail="Почта ё рамз нодуруст аст")
     if user.role == "admin":
         raise HTTPException(status_code=403, detail="Ҳисоби админ барои барнома нест")
+    otp.reset_failures(user)
     if not user.password_hash.startswith("scrypt$"):
         user.password_hash = hash_password(payload.password)
-        db.commit()
+    db.commit()
+    # Бо Authenticator барнома аввал чипта мегирад, баъд рамзро мефиристад.
+    if otp.needs_second_factor(user):
+        return {"status": "otp_required", "ticket": otp.issue_ticket(user)}
     return _auth_response(db, user, request)
 
 
