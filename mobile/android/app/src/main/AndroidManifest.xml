@@ -113,6 +113,15 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Instant family alerts without Google services: SOS alarms, incoming calls and messages from the linked parent/child, delivered by a long-poll connection to the NIGOH server" />
         </service>
+        <!-- Филтри сайтҳо: VPN-и маҳаллӣ, ки танҳо DNS-ро ба сервери филтрдор мефиристад. -->
+        <service
+            android:name=".WebFilterVpnService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
         <service
             android:name=".NIGOHAccessibilityService"
             android:label="NIGOH Family — назорати барномаҳо"
