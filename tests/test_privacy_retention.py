@@ -20,8 +20,10 @@ from app.models.child import Child
 from app.models.extension_request import AppExtensionRequest
 from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace
 from app.crud.crud_privacy import (
-    LOCATION_RETENTION_DAYS, delete_child_data, prune_location_history, purge_child_history,
+    ANALYTICS_RETENTION_DAYS, LOCATION_RETENTION_DAYS, anonymize_site_analytics,
+    delete_child_data, prune_location_history, purge_child_history,
 )
+from app.models.analytics import SiteAnalytics
 from app.crud.crud_child import delete_child
 
 PASSED = 0
@@ -114,6 +116,27 @@ def run_checks() -> None:
     delete_child_data(db, empty.id)
     db.commit()
     check("delete_child_data on empty child is safe", True)
+
+    # 5. Омори сайт: IP ва браузер пас аз 180 рӯз пок мешаванд, сабтҳо мемонанд.
+    now = datetime.utcnow()
+    db.add_all([
+        SiteAnalytics(ip="1.1.1.1", path="/", user_agent="old", event_type="page_view",
+                      created_at=now - timedelta(days=ANALYTICS_RETENTION_DAYS + 1)),
+        SiteAnalytics(ip="2.2.2.2", path="/", user_agent="old-dl", event_type="apk_download",
+                      created_at=now - timedelta(days=500)),
+        SiteAnalytics(ip="3.3.3.3", path="/", user_agent="new", event_type="page_view",
+                      created_at=now - timedelta(days=ANALYTICS_RETENTION_DAYS - 1)),
+    ])
+    db.commit()
+    changed = anonymize_site_analytics(db)
+    db.commit()
+    check("anonymize clears only old rows", changed == 2, str(changed))
+    check("old rows keep their count", db.query(SiteAnalytics).count() == 3)
+    check("old IPs cleared", db.query(SiteAnalytics).filter(SiteAnalytics.ip.in_(["1.1.1.1", "2.2.2.2"])).count() == 0)
+    check("old user agents cleared", db.query(SiteAnalytics).filter(SiteAnalytics.user_agent.in_(["old", "old-dl"])).count() == 0)
+    check("download event kept for stats", db.query(SiteAnalytics).filter(SiteAnalytics.event_type == "apk_download").count() == 1)
+    check("recent row untouched", db.query(SiteAnalytics).filter(SiteAnalytics.ip == "3.3.3.3", SiteAnalytics.user_agent == "new").count() == 1)
+    check("anonymize is idempotent", anonymize_site_analytics(db) == 0)
 
     print(f"\nALL {PASSED} CHECKS PASSED")
 
