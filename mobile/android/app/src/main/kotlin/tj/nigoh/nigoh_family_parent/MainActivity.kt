@@ -47,6 +47,23 @@ class MainActivity : FlutterActivity() {
     companion object {
         /** Занг ё SOS-и аллакай расонидашударо бо elapsedRealtime нигоҳ медорад. */
         private val recentAutoLaunches = HashMap<String, Long>()
+        /** Рамзи дархости розигии VPN барои филтри сайтҳо. */
+        private const val VPN_REQUEST_CODE = 4242
+    }
+
+    /** Натиҷаи тирезаи розигии VPN, ки ба Dart бармегардад. */
+    private var pendingVpnResult: MethodChannel.Result? = null
+
+    /** Ҷавоби тирезаи розигии VPN-ро мегирад ва филтрро оғоз мекунад. */
+    @Deprecated("FlutterActivity still routes activity results here")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != VPN_REQUEST_CODE) return
+        val granted = resultCode == RESULT_OK
+        if (granted) WebFilterVpnService.startIfEnabled(this)
+        pendingVpnResult?.success(granted)
+        pendingVpnResult = null
     }
 
     private val channelName = "tj.nigoh/update"
@@ -212,6 +229,26 @@ class MainActivity : FlutterActivity() {
                             .apply()
                         if (isBlockServiceEnabled()) startProtectionService()
                         result.success(true)
+                    }
+                    "setWebFilter" -> {
+                        val level = call.argument<String>("level") ?: WebFilterDns.LEVEL_OFF
+                        val blocked = call.argument<List<String>>("blocked") ?: emptyList()
+                        result.success(WebFilterVpnService.configure(this, level, blocked))
+                    }
+                    "getWebFilterStatus" -> result.success(WebFilterVpnService.state(this))
+                    "requestWebFilterPermission" -> {
+                        val consent = android.net.VpnService.prepare(this)
+                        if (consent == null) {
+                            WebFilterVpnService.startIfEnabled(this)
+                            result.success(true)
+                        } else if (pendingVpnResult != null) {
+                            result.success(false)
+                        } else {
+                            // Android тирезаи «NIGOH Family мехоҳад VPN созад»-ро нишон медиҳад.
+                            pendingVpnResult = result
+                            @Suppress("DEPRECATION")
+                            startActivityForResult(consent, VPN_REQUEST_CODE)
+                        }
                     }
                     "getLocalPinStatus" -> result.success(PinSecurity.hasPin(this))
                     "verifyLocalPin" -> {
