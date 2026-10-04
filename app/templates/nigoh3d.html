@@ -446,7 +446,8 @@
     phoneGroup.add(screenMesh);
 
     // Ковокии баландгӯяк ва dynamic island-ро месозад.
-    const notchGeo = new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.06, 0.35, 8, 16) : new THREE.CylinderGeometry(0.06, 0.06, 0.35, 16);
+    // r128 CapsuleGeometry надорад: аввал месанҷем, баъд месозем (на «new X ? …»).
+    const notchGeo = THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.06, 0.35, 8, 16) : new THREE.CylinderGeometry(0.06, 0.06, 0.35, 16);
     const notchMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
     const notch = new THREE.Mesh(notchGeo, notchMat);
     notch.rotation.z = Math.PI / 2;
