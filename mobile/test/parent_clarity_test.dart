@@ -104,12 +104,15 @@ Future<void> _pump(
 
 /// Scrolls the first list until [finder] is built — the app cards sit below
 /// the fold on a phone.
+/// Рӯйхати lazy-ро то сохта шудани виджет мекашад, баъд онро ба экран меорад.
+/// `finder` бояд бе `.first` бошад: виджетҳои зиёд метавонанд мувофиқ оянд.
 Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
-  await tester.scrollUntilVisible(
-    finder,
-    240,
-    scrollable: find.byType(Scrollable).first,
-  );
+  final scrollable = find.byType(Scrollable).first;
+  for (var i = 0; i < 40 && finder.evaluate().isEmpty; i++) {
+    await tester.drag(scrollable, const Offset(0, -240));
+    await tester.pumpAndSettle();
+  }
+  await tester.ensureVisible(finder.first);
   await tester.pumpAndSettle();
 }
 
@@ -169,7 +172,7 @@ void main() {
         expect(find.text('7 рӯзи охир'), findsOneWidget);
         expect(find.text('Тамаркузи дарс'), findsOneWidget);
         // The limit slider has a name and a value with a unit.
-        await _scrollTo(tester, find.text('Лимити рӯзона').first);
+        await _scrollTo(tester, find.text('Лимити рӯзона'));
         expect(find.text('Лимити рӯзона'), findsWidgets);
         expect(find.text('Бе лимит'), findsWidgets);
         // Icon + label, not a bare icon.
@@ -188,6 +191,7 @@ void main() {
         );
         await tester.enterText(find.byType(TextField), 'zzzz');
         await tester.pumpAndSettle();
+        await _scrollTo(tester, find.text('Чизе ёфт нашуд'));
         expect(find.text('Чизе ёфт нашуд'), findsOneWidget);
         final action = find.text('Ҳамаи барномаҳоро нишон додан');
         expect(action, findsOneWidget);
