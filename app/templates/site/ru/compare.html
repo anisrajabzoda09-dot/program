@@ -1,0 +1,112 @@
+{#- Файл: муқоисаи ростқавлонаи NIGOH Family ва Google Family Link ба забони русӣ. -#}
+{% extends "site/base.html" %}
+
+{% block title %}NIGOH Family и Google Family Link: сравнение — NIGOH Family{% endblock %}
+{% block description %}Честное сравнение NIGOH Family и Google Family Link: язык, чат и звонки, SOS, аккаунт Google для ребёнка, фильтр сайтов и платформы. Что подходит вашей семье?{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://nigohfamily.qobus.tj/ru/"},{"@type":"ListItem","position":2,"name":"Сравнение с Family Link","item":"https://nigohfamily.qobus.tj/ru/compare"}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Сравнение</span>
+    <h1>NIGOH Family и Google Family Link</h1>
+    <p class="lead">Оба приложения бесплатны и созданы для родительского контроля на Android. Они различаются языками, возможностями семейного общения и местом хранения данных. Мы сравниваем честно — и отмечаем, где Family Link лучше.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="compare-wrap table-scroll">
+      <table class="compare-table">
+        <caption class="sr-only">Сравнение возможностей</caption>
+        <thead>
+          <tr><th scope="col">Возможность</th><th scope="col" class="us">NIGOH Family</th><th scope="col">Google Family Link</th></tr>
+        </thead>
+        <tbody>
+          <tr class="group"><th colspan="3" scope="colgroup">Основное</th></tr>
+          <tr><th scope="row">Цена</th><td class="us"><span class="mark yes">Бесплатно, без рекламы</span></td><td><span class="mark yes">Бесплатно</span></td></tr>
+          <tr><th scope="row">Таджикский язык</th><td class="us"><span class="mark yes">Да, а также русский и английский</span></td><td><span class="mark no">Нет<small>есть русский и английский</small></span></td></tr>
+          <tr><th scope="row">Аккаунт Google для ребёнка</th><td class="us"><span class="mark yes">Не нужен<small>почта или вход через Google/GitHub</small></span></td><td><span class="mark part">Обязателен<small>контролируемый аккаунт Google</small></span></td></tr>
+          <tr><th scope="row">Установка</th><td class="us"><span class="mark part">APK с сайта<small>пока нет в Google Play</small></span></td><td><span class="mark yes">Google Play и App Store</span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Время и приложения</th></tr>
+          <tr><th scope="row">Дневной лимит для каждого приложения</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark yes">Да</span></td></tr>
+          <tr><th scope="row">Блокировка приложения</th><td class="us"><span class="mark yes">Да, в том числе по категории</span></td><td><span class="mark yes">Да</span></td></tr>
+          <tr><th scope="row">Время сна и время учёбы</th><td class="us"><span class="mark yes">Да<small>звонки и SMS всегда доступны</small></span></td><td><span class="mark yes">Да</span></td></tr>
+          <tr><th scope="row">Запрос дополнительного времени ребёнком</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark yes">Да</span></td></tr>
+          <tr><th scope="row">Одобрение новых приложений до установки</th><td class="us"><span class="mark part">Уведомление о новом приложении<small>после установки</small></span></td><td><span class="mark yes">Да, в Google Play</span></td></tr>
+          <tr><th scope="row">Фильтр сайтов по возрасту</th><td class="us"><span class="mark yes">Да<small>до 12 / 13–17 лет, во всех браузерах</small></span></td><td><span class="mark yes">Да, в Chrome</span></td></tr>
+          <tr><th scope="row">Еженедельный отчёт</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark yes">Да</span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Местоположение и безопасность</th></tr>
+          <tr><th scope="row">Местоположение ребёнка на карте</th><td class="us"><span class="mark yes">Да, с историей за 24 часа</span></td><td><span class="mark yes">Да</span></td></tr>
+          <tr><th scope="row">Уведомления о местах (школа, дом)</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark yes">Да</span></td></tr>
+          <tr><th scope="row">Кнопка SOS с тревожным звонком на телефоне родителя</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark no">Нет</span></td></tr>
+          <tr><th scope="row">Уведомление: низкий заряд, телефон не в сети</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark part">Уровень заряда виден</span></td></tr>
+          <tr><th scope="row">Удаление приложения с телефона ребёнка</th><td class="us"><span class="mark yes">Только с PIN родителя</span></td><td><span class="mark part">Подросток с 13 лет может прекратить контроль<small>родители получат уведомление</small></span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Общение в семье</th></tr>
+          <tr><th scope="row">Чат между родителем и ребёнком</th><td class="us"><span class="mark yes">Да, со статусом «Прочитано»</span></td><td><span class="mark no">Нет<small>только через другие приложения</small></span></td></tr>
+          <tr><th scope="row">Голосовой звонок в самом приложении</th><td class="us"><span class="mark yes">Да</span></td><td><span class="mark no">Нет</span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Платформы и данные</th></tr>
+          <tr><th scope="row">Телефон родителя</th><td class="us"><span class="mark part">Только Android</span></td><td><span class="mark yes">Android и iPhone</span></td></tr>
+          <tr><th scope="row">Телефон ребёнка</th><td class="us"><span class="mark part">Android 8 и новее</span></td><td><span class="mark part">Android и Chromebook</span></td></tr>
+          <tr><th scope="row">Где хранятся данные</th><td class="us"><span class="mark yes">Собственный сервер NIGOH</span></td><td><span class="mark part">Серверы Google</span></td></tr>
+          <tr><th scope="row">Код приложения открыт для проверки</th><td class="us"><span class="mark yes">Да, на GitHub</span></td><td><span class="mark no">Нет</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="source-note">Сведения о Family Link актуальны на октябрь 2026 года, и Google может их изменить. Family Link — товарный знак Google LLC; NIGOH Family не связан с Google.</p>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Что подходит вам?</h2>
+    </div>
+    <div class="choose-grid">
+      <div class="choose us">
+        <h3>Выберите NIGOH Family, если</h3>
+        <ul>
+          <li>вам нужно приложение на таджикском языке;</li>
+          <li>вы хотите, чтобы чат, звонки и SOS были в одном приложении;</li>
+          <li>вы не хотите создавать ребёнку аккаунт Google;</li>
+          <li>вы хотите, чтобы приложение нельзя было удалить без согласия родителя.</li>
+        </ul>
+      </div>
+      <div class="choose">
+        <h3>Выберите Family Link, если</h3>
+        <ul>
+          <li>у вас iPhone;</li>
+          <li>вы хотите одобрять каждое новое приложение до установки;</li>
+          <li>ваша семья уже пользуется сервисами Google (Gmail, Play);</li>
+          <li>для вас важна установка из Google Play.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Попробуйте сами</h2>
+        <p>Установка займёт 5 минут. Демо приложения можно посмотреть прямо сейчас на главной странице.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href="{{ lang_prefix or '/' }}#top">Демо</a>
+        <a class="btn btn-primary" href="{{ lang_prefix }}/get">Скачать</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Следующая страница"><a href="{{ lang_prefix }}/changelog"><span>Далее</span><strong>Что нового</strong></a></nav>
+{% endblock %}
