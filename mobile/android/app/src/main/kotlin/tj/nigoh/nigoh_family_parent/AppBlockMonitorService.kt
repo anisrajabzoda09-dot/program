@@ -85,8 +85,20 @@ class AppBlockMonitorService : Service() {
         /** Як даври назоратро иҷро ва даври навбатиро ба навбат мегузорад. */
         override fun run() {
             checkForegroundApp()
+            ensureWebFilter()
             if (screenOn) handler.postDelayed(this, POLL_INTERVAL_MS)
         }
+    }
+
+    /** Вақти охирини санҷиши филтри сайтҳо; як бор дар дақиқа кифоя аст. */
+    private var lastWebFilterCheck = 0L
+
+    /** Агар волидайн филтрро фаъол карда бошанд ва он қатъ шуда бошад, онро аз нав оғоз мекунад. */
+    private fun ensureWebFilter() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastWebFilterCheck < 60_000L) return
+        lastWebFilterCheck = now
+        WebFilterVpnService.startIfEnabled(this)
     }
 
     /**
