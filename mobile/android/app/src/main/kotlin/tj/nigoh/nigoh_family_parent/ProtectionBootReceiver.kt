@@ -16,6 +16,8 @@ class ProtectionBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         // Огоҳиномаҳо аз муҳофизати барнома ҷудоанд ва баъди воридшавӣ барқарор мешаванд.
         NotifyService.startIfSignedIn(context)
+        // Филтри сайтҳо пас аз хидмати foreground оғоз мешавад (Android иҷозат медиҳад).
+        WebFilterVpnService.startIfEnabled(context)
         if (!AppBlockMonitorService.hasUsageAccess(context) ||
             !Settings.canDrawOverlays(context)) return
         val service = Intent(context, AppBlockMonitorService::class.java)
