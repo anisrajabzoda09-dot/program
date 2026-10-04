@@ -860,4 +860,96 @@ const Map<String, List<String>> coreStrings = {
   '«Разрешить ограниченные настройки»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.': ['Выберите «Разрешить ограниченные настройки» и подтвердите кодом телефона.', 'Choose "Allow restricted settings" and confirm with your phone lock.'],
   'Ба NIGOH баргардед ва «Иҷозат додан»-ро аз нав пахш кунед.': ['Вернитесь в NIGOH и снова нажмите «Разрешить».', 'Come back to NIGOH and tap "Allow" again.'],
   'Агар дар менюи ⋮ ин банд набошад, аввал як бор «Иҷозат додан»-ро пахш кунед, баъд ин ҷо баргардед.': ['Если в меню нет этого пункта, сначала один раз нажмите «Разрешить», потом вернитесь сюда.', 'If the menu lacks this item, tap "Allow" once first, then come back here.'],
+  // Ҳимояи дуқабата (OTP) ва рамз ба почта.
+  '1. Ин рамзи QR-ро дар барномаи Authenticator скан кунед': [
+    '1. Отсканируйте этот QR-код в приложении Authenticator',
+    '1. Scan this QR code in your authenticator app',
+  ],
+  '2. Рамзи 6-рақамаро аз барнома нависед': [
+    '2. Введите 6-значный код из приложения',
+    '2. Enter the 6-digit code from the app',
+  ],
+  'Ё калидро дастӣ ворид кунед:': [
+    'Или введите ключ вручную:',
+    'Or enter the key manually:',
+  ],
+  'Агар ин почта сабт шуда бошад, рамз фиристода шуд.': [
+    'Если эта почта зарегистрирована, код отправлен.',
+    'If this email is registered, a code has been sent.',
+  ],
+  'Агар телефонро гум кунед, бо яке аз ин рамзҳо ворид шуда метавонед. Ҳар рамз танҳо як бор кор мекунад. Онҳо дигар нишон дода намешаванд.':
+      [
+        'Если вы потеряете телефон, войти можно одним из этих кодов. Каждый код работает один раз. Больше они не будут показаны.',
+        'If you lose your phone you can sign in with one of these codes. Each works once. They will not be shown again.',
+      ],
+  'Ворид шудан бо рамз ба почта': [
+    'Войти по коду на почту',
+    'Sign in with a code by email',
+  ],
+  'Ин имконият дар сервер ҳоло танзим нашудааст.': [
+    'Эта функция пока не настроена на сервере.',
+    'This feature is not set up on the server yet.',
+  ],
+  'Мӯҳлати рамз гузашт. Аз нав ворид шавед': [
+    'Срок действия кода истёк. Войдите снова',
+    'The code has expired. Please sign in again',
+  ],
+  'Нусха гирифта шуд': ['Скопировано', 'Copied'],
+  'Нусха гирифтан': ['Копировать', 'Copy'],
+  'Пас аз 5 рамзи нодуруст ҳисоб 15 дақиқа қулф мешавад. Ҳар рамз танҳо як бор ва 30 сония эътибор дорад.':
+      [
+        'После 5 неверных кодов аккаунт блокируется на 15 минут. Каждый код действует один раз и 30 секунд.',
+        'After 5 wrong codes the account is locked for 15 minutes. Each code works once and for 30 seconds.',
+      ],
+  'Почта': ['Почта', 'Email'],
+  'Почтаи худро нависед — мо рамзи 6-рақама мефиристем. Он 10 дақиқа эътибор дорад.':
+      [
+        'Введите вашу почту — мы пришлём 6-значный код. Он действует 10 минут.',
+        'Enter your email — we will send a 6-digit code. It is valid for 10 minutes.',
+      ],
+  'Рамз ба почта': ['Код на почту', 'Code by email'],
+  'Рамзи 6-рақамаро аз барномаи Authenticator ё рамзи эҳтиётиро ворид кунед.': [
+    'Введите 6-значный код из приложения Authenticator или резервный код.',
+    'Enter the 6-digit code from your authenticator app or a recovery code.',
+  ],
+  'Рамзи Authenticator ҳангоми воридшавӣ': [
+    'Код Authenticator при входе',
+    'Authenticator code at sign-in',
+  ],
+  'Рамзи нав': ['Новый код', 'New code'],
+  'Рамзи тасдиқ': ['Код подтверждения', 'Verification code'],
+  'Рамзи ҷорӣ ё рамзи эҳтиётиро ворид кунед.': [
+    'Введите текущий код или резервный код.',
+    'Enter a current code or a recovery code.',
+  ],
+  'Рамзҳои эҳтиётии боқимонда: {n}': [
+    'Осталось резервных кодов: {n}',
+    'Recovery codes left: {n}',
+  ],
+  'Рамзҳои эҳтиётии нав': ['Новые резервные коды', 'New recovery codes'],
+  'Рамзҳои эҳтиётиро нигоҳ доред': [
+    'Сохраните резервные коды',
+    'Save your recovery codes',
+  ],
+  'Тайёр': ['Готово', 'Done'],
+  'Танзим': ['Настроить', 'Set up'],
+  'Фиристодани рамз': ['Отправить код', 'Send code'],
+  'Ҳатто агар касе пароли шуморо донад, бе рамзи 6-рақамаи телефони шумо ворид шуда наметавонад. Барномаи Google Authenticator ё Microsoft Authenticator лозим аст.':
+      [
+        'Даже если кто-то узнает ваш пароль, без 6-значного кода с вашего телефона он не войдёт. Нужно приложение Google Authenticator или Microsoft Authenticator.',
+        'Even if someone learns your password, they can\'t sign in without the 6-digit code from your phone. You need Google Authenticator or Microsoft Authenticator.',
+      ],
+  'Ҳимояи дуқабата': ['Двухфакторная защита', 'Two-step verification'],
+  'Ҳимояи дуқабата фаъол аст': [
+    'Двухфакторная защита включена',
+    'Two-step verification is on',
+  ],
+  'Ҳимояи дуқабата хомӯш аст': [
+    'Двухфакторная защита выключена',
+    'Two-step verification is off',
+  ],
+  'Ҳимояи дуқабата хомӯш шуд': [
+    'Двухфакторная защита выключена',
+    'Two-step verification turned off',
+  ],
 };
