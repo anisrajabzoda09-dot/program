@@ -9,6 +9,7 @@ from app.models.analytics import SiteAnalytics
 from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
+from app.models.contact import ContactMessage
 
 __all__ = [
     "User",
@@ -20,6 +21,7 @@ __all__ = [
     "Review",
     "ChatMessage",
     "SiteAnalytics",
+    "ContactMessage",
 ]
 from app.models.mobile_session import MobileSession
 from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace
