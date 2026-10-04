@@ -1,0 +1,92 @@
+{#- Файл: саҳифаи «Тамос бо мо» ба забони русӣ — формаи паём ва роҳҳои дигари тамос. -#}
+{% extends "site/base.html" %}
+{%- set T = {'question': 'Вопрос о приложении', 'problem': 'Проблема или ошибка', 'privacy': 'Конфиденциальность и данные',
+             'delete_account': 'Удаление аккаунта', 'other': 'Другое'} -%}
+
+{% block title %}Связаться с нами — NIGOH Family{% endblock %}
+{% block description %}Напишите команде NIGOH Family: задайте вопрос, сообщите о проблеме, поделитесь предложением или запросите удаление аккаунта. Обычно мы отвечаем в течение 2 рабочих дней.{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ContactPage","name":"Связаться с нами","url":"https://nigohfamily.qobus.tj/ru/contact","mainEntity":{"@type":"Organization","name":"NIGOH Family","url":"https://nigohfamily.qobus.tj/ru/","email":"anisrajabzoda09@gmail.com"}}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Поддержка</span>
+    <h1>Связаться с нами</h1>
+    <p class="lead">Есть вопрос, проблема или предложение? Напишите нам — обычно мы отвечаем на ваш email в течение 2 рабочих дней.</p>
+  </div>
+</section>
+
+<section class="section" id="form">
+  <div class="wrap contact-grid">
+    <div>
+      {% if sent %}
+      <div class="form-status ok" role="status">
+        <strong>Сообщение отправлено.</strong> Спасибо! Мы ответим на ваш email.
+      </div>
+      <p style="margin-top:20px"><a class="link-arrow" href="{{ lang_prefix }}/contact#form">Написать ещё одно сообщение</a></p>
+      {% else %}
+      <form class="contact-form" method="post" action="{{ lang_prefix }}/contact" novalidate>
+        {% if errors %}
+        <div class="form-status err" role="alert">
+          {% for e in errors %}<p>{{ error_text[e] }}</p>{% endfor %}
+        </div>
+        {% endif %}
+        <div class="row-2">
+          <div class="field">
+            <label for="c-name">Имя</label>
+            <input id="c-name" name="name" type="text" required maxlength="80" autocomplete="name" value="{{ form.name or '' }}"{% if 'name' in errors %} aria-invalid="true"{% endif %}>
+          </div>
+          <div class="field">
+            <label for="c-email">Email</label>
+            <input id="c-email" name="email" type="email" required maxlength="120" autocomplete="email" inputmode="email" value="{{ form.email or '' }}"{% if 'email' in errors %} aria-invalid="true"{% endif %}>
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-topic">Тема</label>
+          <select id="c-topic" name="topic">
+            {% for t in topics %}<option value="{{ t }}"{% if form.topic == t %} selected{% endif %}>{{ T[t] }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="c-message">Сообщение</label>
+          <span class="hint" id="c-message-hint">Если возникла проблема, укажите модель телефона и версию приложения.</span>
+          <textarea id="c-message" name="message" required minlength="10" maxlength="2000" aria-describedby="c-message-hint"{% if 'message' in errors %} aria-invalid="true"{% endif %}>{{ form.message or '' }}</textarea>
+          <span class="count" data-count aria-hidden="true"></span>
+        </div>
+        <div class="hp-field" aria-hidden="true">
+          <label for="c-website">Сайт</label>
+          <input id="c-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <button class="btn btn-primary" type="submit">Отправить</button>
+        <p class="small muted">Отправляя сообщение, вы соглашаетесь с <a href="{{ lang_prefix }}/privacy">Политикой конфиденциальности</a>. Мы используем ваш email только для ответа.</p>
+      </form>
+      {% endif %}
+    </div>
+
+    <aside class="contact-side" aria-label="Другие способы связи">
+      <a class="contact-card" href="mailto:anisrajabzoda09@gmail.com">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
+        <span><strong>Email</strong><span>anisrajabzoda09@gmail.com</span></span>
+      </a>
+      <a class="contact-card" href="{{ lang_prefix }}/faq">
+        <span class="icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg></span>
+        <span><strong>Вопросы и ответы</strong><span>Готовые ответы на 20 частых вопросов</span></span>
+      </a>
+      <a class="contact-card" href="https://github.com/anisrajabzoda09-dot/program/issues" rel="noopener" target="_blank">
+        <span class="icon ink"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg></span>
+        <span><strong>GitHub</strong><span>Ошибки и предложения для разработчиков</span></span>
+      </a>
+      <div class="callout">
+        <p><strong>Экстренная ситуация?</strong> Эта форма не предназначена для экстренной помощи. Позвоните по номеру <strong>112</strong>.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+<nav class="next-page" aria-label="Следующая страница"><a href="{{ lang_prefix }}/faq"><span>Далее</span><strong>Вопросы и ответы</strong></a></nav>
+{% endblock %}
+{% block scripts %}<script src="/static/js/info.js?v={{ app_version }}" defer></script>{% endblock %}
