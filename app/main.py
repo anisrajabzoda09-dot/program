@@ -4,6 +4,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.background import BackgroundTask
 
 from app.core.config import settings
 from app.db.session import SessionLocal
@@ -43,6 +44,37 @@ app.add_middleware(
     ],
 )
 
+# Саҳифаҳое, ки боздид аз онҳо дар омори панели админ ҳисоб мешавад.
+_TRACKED_PATHS = frozenset(
+    prefix + page
+    for prefix in ("", "/ru", "/en")
+    for page in ("/", "/features", "/how-it-works", "/security", "/faq", "/get")
+) | {"/ru", "/en", "/auth", "/admin"}
+
+
+def _log_page_view(ip: str, path: str, user_agent: str) -> None:
+    """Як боздиди саҳифаро бо сессияи алоҳидаи база сабт мекунад (дар замина)."""
+    db = SessionLocal()
+    try:
+        log_analytics_event(db, ip, path, user_agent, event_type="page_view", version=settings.APP_VERSION)
+    finally:
+        db.close()
+
+
+def _attach_background(response, task: BackgroundTask) -> None:
+    """Вазифаи заминаро ба ҷавоб мепайвандад, бе он ки вазифаи мавҷударо гум кунад."""
+    previous = response.background
+    if previous is None:
+        response.background = task
+        return
+
+    async def _both():
+        await previous()
+        await task()
+
+    response.background = BackgroundTask(_both)
+
+
 # 2. Advanced Security Headers & Analytics Tracking Middleware
 @app.middleware("http")
 async def security_and_analytics_middleware(request: Request, call_next):
@@ -58,16 +90,22 @@ async def security_and_analytics_middleware(request: Request, call_next):
         client_ip = "127.0.0.1"
 
     path = request.url.path
-    if path in ["/", "/features", "/how-it-works", "/security", "/faq", "/get", "/auth", "/admin"]:
-        user_agent = request.headers.get("user-agent", "")
-        # Track analytics using scoped SQLAlchemy session
-        db = SessionLocal()
-        try:
-            log_analytics_event(db, client_ip, path, user_agent, event_type="page_view", version=settings.APP_VERSION)
-        finally:
-            db.close()
-
     response = await call_next(request)
+
+    # Омор пас аз фиристодани ҷавоб дар thread-и алоҳида навишта мешавад,
+    # то навиштан ба база саҳифаро суст накунад ва event loop-ро манъ накунад.
+    if path in _TRACKED_PATHS:
+        _attach_background(response, BackgroundTask(
+            _log_page_view, client_ip, path, request.headers.get("user-agent", ""),
+        ))
+
+    # Файлҳои static бо ?v=<версия> тағйир намеёбанд — браузер онҳоро як сол
+    # нигоҳ медорад; бе ?v= — як соат (APK-ҳо ҳамеша аз нав санҷида мешаванд).
+    if path.startswith("/static/") and not path.startswith("/static/downloads/"):
+        if "v=" in request.url.query:
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        else:
+            response.headers.setdefault("Cache-Control", "public, max-age=3600")
 
     # Security Headers against Web Attacks (XSS, Clickjacking, MIME sniffing)
     response.headers["X-Content-Type-Options"] = "nosniff"
