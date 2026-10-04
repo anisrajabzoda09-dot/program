@@ -165,6 +165,7 @@ class FamilyChild {
     this.parentName,
     this.bedtime = const Bedtime(),
     this.study = const StudyMode(),
+    this.webFilter = const WebFilter(),
     this.childAvatar,
     this.parentAvatar,
     this.batteryLevel,
@@ -176,6 +177,9 @@ class FamilyChild {
 
   final Bedtime bedtime;
   final StudyMode study;
+
+  /// Филтри сайтҳо аз рӯи синну сол ва ҳолати охирини он дар телефони фарзанд.
+  final WebFilter webFilter;
 
   /// Қимати childAvatar-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final String? childAvatar;
@@ -189,6 +193,7 @@ class FamilyChild {
 
   /// Қимати lastUrgent-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final ChatMessage? lastUrgent;
+
   /// Қимати ҳисобшудаи newAppsCount-ро аз ҳолати ҷорӣ бармегардонад.
   int get newAppsCount => apps.where((a) => a.isNew).length;
 
@@ -204,8 +209,10 @@ class FamilyChild {
 
   /// Қимати ҳисобшудаи online-ро аз ҳолати ҷорӣ бармегардонад.
   bool get online => location?.online ?? false;
+
   /// Қимати ҳисобшудаи blockedCount-ро аз ҳолати ҷорӣ бармегардонад.
   int get blockedCount => apps.where((a) => a.blocked).length;
+
   /// Қимати ҳисобшудаи usageMinutesToday-ро аз ҳолати ҷорӣ бармегардонад.
   int get usageMinutesToday =>
       apps.fold(0, (sum, a) => sum + a.usageMinutesToday);
@@ -231,6 +238,7 @@ class FamilyChild {
     parentName: j['parent_name']?.toString(),
     bedtime: Bedtime.fromJson(j['bedtime']),
     study: StudyMode.fromJson(j['study']),
+    webFilter: WebFilter.fromJson(j['web_filter']),
     childAvatar: j['child_avatar']?.toString(),
     parentAvatar: j['parent_avatar']?.toString(),
     batteryLevel: (j['battery_level'] as num?)?.toInt(),
@@ -310,6 +318,7 @@ class Bedtime {
   /// activeAt мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
   bool activeAt(DateTime now) {
     if (!enabled) return false;
+
     /// minutes мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
     int? minutes(String hhmm) {
       final parts = hhmm.split(':');
@@ -424,5 +433,87 @@ class StudyMode {
   bool activeAt(DateTime now) {
     if (!enabled || !weekdays.contains(now.weekday)) return false;
     return Bedtime(enabled: true, start: start, end: end).activeAt(now);
+  }
+}
+
+/// Филтри сайтҳо: сатҳ (off, kids — то 12 сола, teen — 13–17 сола), сайтҳое, ки волидайн
+/// дастӣ бастанд, ва ҳолате, ки телефони фарзанд охирин бор хабар дод.
+class WebFilter {
+  const WebFilter({
+    this.level = levelOff,
+    this.blocked = const [],
+    this.state,
+    this.reportedAt,
+  });
+
+  static const levelOff = 'off';
+  static const levelKids = 'kids';
+  static const levelTeen = 'teen';
+  static const levels = [levelOff, levelKids, levelTeen];
+
+  /// Ҳолатҳое, ки телефони фарзанд хабар медиҳад.
+  static const stateActive = 'active';
+  static const stateOff = 'off';
+  static const stateNeedsPermission = 'needs_permission';
+
+  final String level;
+  final List<String> blocked;
+  final String? state;
+  final DateTime? reportedAt;
+
+  /// Филтр аз ҷониби волидайн фаъол карда шудааст.
+  bool get enabled => level != levelOff;
+
+  /// Сатҳи пешниҳодшуда барои синну сол: то 12 — kids, 13–17 — teen, калонтар — off.
+  static String suggestedLevel(int age) {
+    if (age <= 0) return levelKids;
+    if (age <= 12) return levelKids;
+    if (age <= 17) return levelTeen;
+    return levelOff;
+  }
+
+  /// WebFilter-ро аз JSON-и сервер месозад; қимати нодуруст ба «off» табдил меёбад.
+  factory WebFilter.fromJson(Object? raw) {
+    if (raw is! Map) return const WebFilter();
+    final level = raw['level']?.toString();
+    final state = raw['state']?.toString();
+    return WebFilter(
+      level: levels.contains(level) ? level! : levelOff,
+      blocked: (raw['blocked'] as List? ?? const [])
+          .map((d) => d.toString())
+          .where((d) => d.isNotEmpty)
+          .toList(),
+      state: state == null || state.isEmpty ? null : state,
+      reportedAt: DateTime.tryParse(raw['reported_at']?.toString() ?? ''),
+    );
+  }
+
+  /// Танҳо он чизе, ки волидайн мегузоранд (ҳолатро телефон хабар медиҳад).
+  Map<String, dynamic> toJson() => {'level': level, 'blocked': blocked};
+
+  /// Нусхаи нав бо сатҳ ё рӯйхати ивазшуда.
+  WebFilter copyWith({String? level, List<String>? blocked}) => WebFilter(
+    level: level ?? this.level,
+    blocked: blocked ?? this.blocked,
+    state: state,
+    reportedAt: reportedAt,
+  );
+
+  /// Доменро аз суроға ҷудо мекунад: «https://www.YouTube.com/x» → «youtube.com».
+  /// Агар домен нодуруст бошад, null (ҳамон қоидаҳое, ки сервер дорад).
+  static String? normalizeDomain(String raw) {
+    var text = raw.trim().toLowerCase();
+    text = text.replaceFirst(RegExp(r'^[a-z][a-z0-9+.-]*://'), '');
+    text = text.split(RegExp(r'[/?#:]')).first;
+    while (text.endsWith('.')) {
+      text = text.substring(0, text.length - 1);
+    }
+    if (text.startsWith('www.')) text = text.substring(4);
+    final labels = text.split('.');
+    final label = RegExp(r'^(?!-)[a-z0-9-]{1,63}(?<!-)$');
+    if (text.length > 253 || labels.length < 2) return null;
+    if (!labels.every(label.hasMatch)) return null;
+    if (RegExp(r'^\d+$').hasMatch(labels.last)) return null;
+    return text;
   }
 }
