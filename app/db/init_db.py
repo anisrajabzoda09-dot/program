@@ -71,6 +71,9 @@ def init_db():
             conn.commit()
         for column, ddl in (
             ("study_json", "TEXT"),
+            ("web_filter_json", "TEXT"),
+            ("web_filter_state", "TEXT"),
+            ("web_filter_reported_at", "DATETIME"),
             ("low_battery_notified", "INTEGER DEFAULT 0"),
             ("offline_notified", "INTEGER DEFAULT 0"),
         ):

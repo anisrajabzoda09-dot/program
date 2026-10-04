@@ -25,6 +25,10 @@ class Child(Base):
     location_updated_at = Column(DateTime, nullable=True)
     bedtime_json = Column(String, nullable=True)
     study_json = Column(String, nullable=True)
+    # Филтри сайтҳо: {"level": "off|kids|teen", "blocked": [...]} ва ҳолате, ки телефон хабар дод.
+    web_filter_json = Column(String, nullable=True)
+    web_filter_state = Column(String, nullable=True)
+    web_filter_reported_at = Column(DateTime, nullable=True)
     low_battery_notified = Column(Integer, default=0)
     offline_notified = Column(Integer, default=0)
     block_adult_content = Column(Integer, default=1)
