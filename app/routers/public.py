@@ -2,7 +2,7 @@
 
 import os
 from fastapi import APIRouter, Request, Response, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -280,6 +280,13 @@ def get_app_page(request: Request):
     """Дархости `GET /get`-ро барои get app саҳифа коркард мекунад."""
 
     return _site_page(request, "get", "get")
+
+
+@router.head("/favicon.ico", include_in_schema=False)
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    """Браузерҳо /favicon.ico-ро худашон мепурсанд; ба нишонаи сайт мефиристем (бе 404 дар log)."""
+    return RedirectResponse("/static/images/nigoh_logo.png", status_code=301)
 
 
 @router.head("/3d", include_in_schema=False)
