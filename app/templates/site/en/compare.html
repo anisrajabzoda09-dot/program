@@ -1,0 +1,112 @@
+{#- Файл: муқоисаи ростқавлонаи NIGOH Family ва Google Family Link ба забони англисӣ. -#}
+{% extends "site/base.html" %}
+
+{% block title %}NIGOH Family vs Google Family Link: comparison — NIGOH Family{% endblock %}
+{% block description %}An honest comparison of NIGOH Family and Google Family Link: languages, chat and calls, SOS, a Google account for the child, website filtering and platforms. Which suits your family?{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"Comparison with Family Link","item":"https://nigohfamily.qobus.tj/en/compare"}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Comparison</span>
+    <h1>NIGOH Family and Google Family Link</h1>
+    <p class="lead">Both are free and designed for parental control on Android. They differ in language support, family communication and where data is stored. We compare them honestly — including where Family Link is better.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="compare-wrap table-scroll">
+      <table class="compare-table">
+        <caption class="sr-only">Feature comparison</caption>
+        <thead>
+          <tr><th scope="col">Feature</th><th scope="col" class="us">NIGOH Family</th><th scope="col">Google Family Link</th></tr>
+        </thead>
+        <tbody>
+          <tr class="group"><th colspan="3" scope="colgroup">Basics</th></tr>
+          <tr><th scope="row">Price</th><td class="us"><span class="mark yes">Free, no ads</span></td><td><span class="mark yes">Free</span></td></tr>
+          <tr><th scope="row">Tajik language</th><td class="us"><span class="mark yes">Yes, plus Russian and English</span></td><td><span class="mark no">No<small>Russian and English are available</small></span></td></tr>
+          <tr><th scope="row">Google account for the child</th><td class="us"><span class="mark yes">Not required<small>email or sign-in with Google/GitHub</small></span></td><td><span class="mark part">Required<small>a supervised Google account</small></span></td></tr>
+          <tr><th scope="row">Installation</th><td class="us"><span class="mark part">APK from the website<small>not yet on Google Play</small></span></td><td><span class="mark yes">Google Play and App Store</span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Time and apps</th></tr>
+          <tr><th scope="row">Daily limit for each app</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark yes">Yes</span></td></tr>
+          <tr><th scope="row">Block apps</th><td class="us"><span class="mark yes">Yes, including by category</span></td><td><span class="mark yes">Yes</span></td></tr>
+          <tr><th scope="row">Bedtime and study time</th><td class="us"><span class="mark yes">Yes<small>calls and SMS are always available</small></span></td><td><span class="mark yes">Yes</span></td></tr>
+          <tr><th scope="row">Child can request extra time</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark yes">Yes</span></td></tr>
+          <tr><th scope="row">Approve new apps before installation</th><td class="us"><span class="mark part">New app notification<small>after installation</small></span></td><td><span class="mark yes">Yes, in Google Play</span></td></tr>
+          <tr><th scope="row">Age-based website filtering</th><td class="us"><span class="mark yes">Yes<small>up to age 12 / ages 13–17, in every browser</small></span></td><td><span class="mark yes">Yes, in Chrome</span></td></tr>
+          <tr><th scope="row">Weekly report</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark yes">Yes</span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Location and safety</th></tr>
+          <tr><th scope="row">Child's location on a map</th><td class="us"><span class="mark yes">Yes, with 24-hour history</span></td><td><span class="mark yes">Yes</span></td></tr>
+          <tr><th scope="row">Place alerts (school, home)</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark yes">Yes</span></td></tr>
+          <tr><th scope="row">SOS button with an emergency call on the parent's phone</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark no">No</span></td></tr>
+          <tr><th scope="row">Alerts: low battery, phone offline</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark part">Battery level is visible</span></td></tr>
+          <tr><th scope="row">Uninstalling the app from the child's phone</th><td class="us"><span class="mark yes">Only with the parent PIN</span></td><td><span class="mark part">Teenagers can stop supervision from age 13<small>parents are notified</small></span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Family communication</th></tr>
+          <tr><th scope="row">Chat between parent and child</th><td class="us"><span class="mark yes">Yes, with “Read” receipts</span></td><td><span class="mark no">No<small>only through other apps</small></span></td></tr>
+          <tr><th scope="row">Voice calls inside the app</th><td class="us"><span class="mark yes">Yes</span></td><td><span class="mark no">No</span></td></tr>
+
+          <tr class="group"><th colspan="3" scope="colgroup">Platforms and data</th></tr>
+          <tr><th scope="row">Parent's phone</th><td class="us"><span class="mark part">Android only</span></td><td><span class="mark yes">Android and iPhone</span></td></tr>
+          <tr><th scope="row">Child's phone</th><td class="us"><span class="mark part">Android 8 and later</span></td><td><span class="mark part">Android and Chromebook</span></td></tr>
+          <tr><th scope="row">Where data is stored</th><td class="us"><span class="mark yes">NIGOH's own server</span></td><td><span class="mark part">Google servers</span></td></tr>
+          <tr><th scope="row">App code is open for review</th><td class="us"><span class="mark yes">Yes, on GitHub</span></td><td><span class="mark no">No</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="source-note">The information about Family Link is current as of October 2026 and may be changed by Google. Family Link is a trademark of Google LLC; NIGOH Family is not affiliated with Google.</p>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Which one is right for you?</h2>
+    </div>
+    <div class="choose-grid">
+      <div class="choose us">
+        <h3>Choose NIGOH Family if</h3>
+        <ul>
+          <li>you want the app in Tajik;</li>
+          <li>you want chat, calls and SOS in the same app;</li>
+          <li>you don't want to create a Google account for your child;</li>
+          <li>you want to prevent the app from being uninstalled without a parent's permission.</li>
+        </ul>
+      </div>
+      <div class="choose">
+        <h3>Choose Family Link if</h3>
+        <ul>
+          <li>your phone is an iPhone;</li>
+          <li>you want to approve every new app before installation;</li>
+          <li>your family already uses Google services (Gmail, Play);</li>
+          <li>installation from Google Play matters to you.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Try it yourself</h2>
+        <p>Installation takes 5 minutes. See the app demo on the home page right now.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href="{{ lang_prefix or '/' }}#top">Demo</a>
+        <a class="btn btn-primary" href="{{ lang_prefix }}/get">Download</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Next page"><a href="{{ lang_prefix }}/changelog"><span>Next</span><strong>What's new</strong></a></nav>
+{% endblock %}
