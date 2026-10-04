@@ -79,6 +79,7 @@
           {% else %}<span class="avatar">{{ display_name[:1]|upper }}</span>{% endif %}
           <span class="name">{{ display_name }}</span>
         </span>
+        <a class="a-link" href="/account/security" title="Ҳимояи ҳисоб">{{ icon('shield') }}<span class="hide-sm">Ҳимоя</span></a>
         <a class="a-link out" href="/logout" title="Баромад">{{ icon('logout') }}<span class="hide-sm">Баромад</span></a>
       </div>
     </div>
@@ -100,6 +101,11 @@
     </aside>
 
     <main class="a-main">
+      {% if not totp_enabled %}
+      <div class="panel" role="status" style="margin-bottom:16px;border-color:#f0b54a">
+        <b>Ҳимояи дуқабата хомӯш аст.</b> Ҳисоби админ ҳамаи маълумотро мебинад — <a href="/account/security">Authenticator-ро фаъол кунед</a>.
+      </div>
+      {% endif %}
 
 {# Бахши шарҳи умумиро ҷудо мекунад. #}
       <section id="overview" class="a-sec" style="margin-top:0">

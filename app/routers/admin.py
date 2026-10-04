@@ -13,6 +13,7 @@ from app.db.session import get_db
 from app.crud.crud_analytics import get_admin_dashboard_data
 from app.crud.crud_child import update_child_profile, delete_child
 from app.models.contact import ContactMessage
+from app.models.user import User
 
 router = APIRouter(tags=["Admin Panel"])
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
@@ -39,13 +40,15 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     if not user or user.get("role") != "admin":
         return RedirectResponse("/auth?admin=required", status_code=303)
     stats = get_admin_dashboard_data(db)
+    admin = db.get(User, user.get("id")) if user.get("id") else None
     rows = db.query(ContactMessage).order_by(ContactMessage.id.desc()).limit(50).all()
     messages = [row.to_dict() for row in rows]
     unread = db.query(ContactMessage).filter(ContactMessage.is_read == 0).count()
     response = templates.TemplateResponse(
         request=request,
         name="admin.html",
-        context={"user": user, "stats": stats, "messages": messages, "unread_messages": unread}
+        context={"user": user, "stats": stats, "messages": messages, "unread_messages": unread,
+                 "totp_enabled": bool(admin and admin.totp_enabled)}
     )
     # Паёмҳое, ки админ ҳоло дид, хондашуда ҳисоб мешаванд (дар боздиди навбатӣ).
     if unread:
