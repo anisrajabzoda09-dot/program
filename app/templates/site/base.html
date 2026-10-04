@@ -2,7 +2,7 @@
 {%- set lang = lang | default('tg') -%}
 {%- set P = lang_prefix | default('') -%}
 {%- set L = {
-  'tg': {'features': 'Имкониятҳо', 'how': 'Чӣ тавр кор мекунад', 'security': 'Амният', 'faq': 'Саволҳо',
+  'tg': {'demo': 'Намоиш', 'features': 'Имкониятҳо', 'how': 'Чӣ тавр кор мекунад', 'security': 'Амният', 'faq': 'Саволҳо',
          'login': 'Ворид шудан', 'logout': 'Баромад', 'panel': 'Панел', 'download': 'Боргирӣ', 'menu': 'Меню',
          'nav': 'Асосӣ', 'about': 'Барномаи назорати волидайн, ки дар Тоҷикистон сохта шудааст. Барои оилаҳое, ки ба амнияти фарзанд аҳамият медиҳанд.',
          'product': 'Маҳсулот', 'support': 'Дастгирӣ', 'install': 'Насб', 'android': 'Боргирии Android',
@@ -10,7 +10,7 @@
          'default_desc': 'NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.',
          'locale': 'tg_TJ', 'theme': 'Режими торик', 'skip': 'Гузаштан ба матлаби асосӣ', 'back_top': 'Бозгашт ба боло',
          'social_image_alt': 'Нишони NIGOH Family'},
-  'ru': {'features': 'Возможности', 'how': 'Как это работает', 'security': 'Безопасность', 'faq': 'Вопросы',
+  'ru': {'demo': 'Демо', 'features': 'Возможности', 'how': 'Как это работает', 'security': 'Безопасность', 'faq': 'Вопросы',
          'login': 'Войти', 'logout': 'Выйти', 'panel': 'Панель', 'download': 'Скачать', 'menu': 'Меню',
          'nav': 'Главное', 'about': 'Приложение родительского контроля, созданное в Таджикистане. Для семей, которым важна безопасность детей.',
          'product': 'Продукт', 'support': 'Поддержка', 'install': 'Установка', 'android': 'Скачать для Android',
@@ -18,7 +18,7 @@
          'default_desc': 'NIGOH Family — родительский контроль для Android: местоположение, чат, экранное время и правила для приложений.',
          'locale': 'ru_RU', 'theme': 'Тёмная тема', 'skip': 'Перейти к основному содержанию', 'back_top': 'Вернуться наверх',
          'social_image_alt': 'Логотип NIGOH Family'},
-  'en': {'features': 'Features', 'how': 'How it works', 'security': 'Security', 'faq': 'FAQ',
+  'en': {'demo': 'Demo', 'features': 'Features', 'how': 'How it works', 'security': 'Security', 'faq': 'FAQ',
          'login': 'Sign in', 'logout': 'Sign out', 'panel': 'Dashboard', 'download': 'Download', 'menu': 'Menu',
          'nav': 'Main', 'about': 'A parental control app made in Tajikistan, for families who care about their children\'s safety.',
          'product': 'Product', 'support': 'Support', 'install': 'Install', 'android': 'Download for Android',
@@ -99,6 +99,7 @@
       <button class="nav-toggle" type="button" aria-label="{{ L.menu }}" aria-expanded="false"><span></span></button>
       <ul class="nav-links">
         {% for href, key in [
+          ('/demo', 'demo'),
           ('/features', 'features'),
           ('/how-it-works', 'how'),
           ('/security', 'security'),
