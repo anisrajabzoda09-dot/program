@@ -1,0 +1,17 @@
+/* Файл: услуби саҳифаи «Ҳимояи ҳисоб» (account_security.html). */
+.account-security { display: grid; gap: 16px; }
+/* Атрибути hidden бояд аз display:grid қавитар бошад. */
+.account-security [hidden] { display: none !important; }
+.as-card { padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); display: grid; gap: 12px; align-content: start; }
+.as-card h2 { font-size: 18px; }
+.as-status { grid-template-columns: auto 1fr; align-items: center; gap: 14px; }
+.as-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 5px var(--amber-soft); }
+.as-status.is-on .as-dot { background: var(--teal); box-shadow: 0 0 0 5px var(--teal-soft); }
+.as-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.as-code { font: inherit; font-size: 22px; letter-spacing: .2em; font-variant-numeric: tabular-nums; width: 11ch; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg); color: var(--ink); }
+.as-code:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+#as-qr { width: 220px; height: 220px; border-radius: 14px; background: #fff; padding: 8px; border: 1px solid var(--line); image-rendering: pixelated; }
+#as-secret { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; padding: 2px 6px; border-radius: 6px; background: var(--soft); overflow-wrap: anywhere; user-select: all; }
+.as-codes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; list-style: none; counter-reset: c; }
+.as-codes li { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 17px; padding: 10px 12px; border-radius: 10px; background: var(--soft); text-align: center; letter-spacing: .08em; }
+@media (max-width: 640px) { .as-codes { grid-template-columns: 1fr; } .as-code { width: 100%; } }

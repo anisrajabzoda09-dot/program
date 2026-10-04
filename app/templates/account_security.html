@@ -1,0 +1,147 @@
+{#- Файл: саҳифаи «Ҳимояи ҳисоб» — фаъол кардани Authenticator (QR), рамзҳои эҳтиётӣ ва хомӯш кардан.
+    Матнҳо дар луғати S бо се забон; рафтор дар /static/js/account-security.js. -#}
+{% extends "site/base.html" %}
+{%- set S = {
+  'tg': {'title': 'Ҳимояи ҳисоб', 'eyebrow': 'Ҳисоби ман', 'lead': 'Ҳимояи дуқабата: ҳатто агар касе пароли шуморо донад, бе рамзи 6-рақамаи телефони шумо ворид шуда наметавонад.',
+         'on': 'Ҳимояи дуқабата фаъол аст', 'off': 'Ҳимояи дуқабата хомӯш аст', 'left': 'Рамзҳои эҳтиётии боқимонда: {n}',
+         'unavailable': 'Ин имконият дар сервер ҳоло танзим нашудааст.',
+         'how': 'Барномаи Google Authenticator, Microsoft Authenticator ё ҳар барномаи TOTP-ро дар телефон насб кунед.',
+         'enable': 'Фаъол кардан', 'scan': '1. Ин рамзи QR-ро дар барномаи Authenticator скан кунед', 'manual': 'Ё калидро дастӣ ворид кунед:',
+         'enter': '2. Рамзи 6-рақамаро аз барнома нависед', 'confirm': 'Тасдиқ', 'code': 'Рамз',
+         'saved_t': 'Рамзҳои эҳтиётиро нигоҳ доред', 'saved_h': 'Агар телефонро гум кунед, бо яке аз ин рамзҳо ворид шуда метавонед. Ҳар рамз танҳо як бор кор мекунад. Онҳо дигар нишон дода намешаванд.',
+         'copy_btn': 'Нусха гирифтан', 'copied': 'Нусха гирифта шуд', 'download': 'Боргирии .txt', 'done': 'Тайёр',
+         'disable_t': 'Хомӯш кардан', 'disable_h': 'Рамзи ҷорӣ ё рамзи эҳтиётиро ворид кунед.', 'disable': 'Хомӯш кардан',
+         'recovery_t': 'Рамзҳои эҳтиётии нав', 'recovery_h': 'Рамзҳои кӯҳна беэътибор мешаванд.', 'recovery': 'Сохтан',
+         'limits_t': 'Ҳифз аз интихоби рамз', 'limits': ['Пас аз 5 рамзи нодуруст ҳисоб 15 дақиқа қулф мешавад.', 'Ҳар рамз танҳо як бор ва 30 сония эътибор дорад.', 'Пас аз парол барои ворид кардани рамз 5 дақиқа вақт ҳаст.'],
+         'email_t': 'Воридшавӣ бо рамз ба почта', 'email_h': 'Дар саҳифаи воридшавӣ метавонед ба ҷои парол рамзи якдафъаинаро ба почта гиред (10 дақиқа, ҳадди аксар 3 рамз дар соат).',
+         'back': 'Бозгашт', 'error': 'Хатогӣ. Аз нав кӯшиш кунед.'},
+  'ru': {'title': 'Защита аккаунта', 'eyebrow': 'Мой аккаунт', 'lead': 'Двухфакторная защита: даже если кто-то узнает ваш пароль, без 6-значного кода с вашего телефона он не войдёт.',
+         'on': 'Двухфакторная защита включена', 'off': 'Двухфакторная защита выключена', 'left': 'Осталось резервных кодов: {n}',
+         'unavailable': 'Эта функция пока не настроена на сервере.',
+         'how': 'Установите на телефон Google Authenticator, Microsoft Authenticator или любое TOTP-приложение.',
+         'enable': 'Включить', 'scan': '1. Отсканируйте этот QR-код в приложении Authenticator', 'manual': 'Или введите ключ вручную:',
+         'enter': '2. Введите 6-значный код из приложения', 'confirm': 'Подтвердить', 'code': 'Код',
+         'saved_t': 'Сохраните резервные коды', 'saved_h': 'Если вы потеряете телефон, войти можно одним из этих кодов. Каждый код работает один раз. Больше они не будут показаны.',
+         'copy_btn': 'Копировать', 'copied': 'Скопировано', 'download': 'Скачать .txt', 'done': 'Готово',
+         'disable_t': 'Выключить', 'disable_h': 'Введите текущий код или резервный код.', 'disable': 'Выключить',
+         'recovery_t': 'Новые резервные коды', 'recovery_h': 'Старые коды перестанут работать.', 'recovery': 'Создать',
+         'limits_t': 'Защита от подбора', 'limits': ['После 5 неверных кодов аккаунт блокируется на 15 минут.', 'Каждый код действует один раз и 30 секунд.', 'После пароля на ввод кода есть 5 минут.'],
+         'email_t': 'Вход по коду на почту', 'email_h': 'На странице входа можно вместо пароля получить одноразовый код на почту (10 минут, не больше 3 кодов в час).',
+         'back': 'Назад', 'error': 'Ошибка. Попробуйте ещё раз.'},
+  'en': {'title': 'Account security', 'eyebrow': 'My account', 'lead': "Two-step verification: even if someone learns your password, they can't sign in without the 6-digit code from your phone.",
+         'on': 'Two-step verification is on', 'off': 'Two-step verification is off', 'left': 'Recovery codes left: {n}',
+         'unavailable': 'This feature is not set up on the server yet.',
+         'how': 'Install Google Authenticator, Microsoft Authenticator or any TOTP app on your phone.',
+         'enable': 'Turn on', 'scan': '1. Scan this QR code in your authenticator app', 'manual': 'Or enter the key manually:',
+         'enter': '2. Enter the 6-digit code from the app', 'confirm': 'Confirm', 'code': 'Code',
+         'saved_t': 'Save your recovery codes', 'saved_h': 'If you lose your phone you can sign in with one of these codes. Each works once. They will not be shown again.',
+         'copy_btn': 'Copy', 'copied': 'Copied', 'download': 'Download .txt', 'done': 'Done',
+         'disable_t': 'Turn off', 'disable_h': 'Enter a current code or a recovery code.', 'disable': 'Turn off',
+         'recovery_t': 'New recovery codes', 'recovery_h': 'Old codes will stop working.', 'recovery': 'Create',
+         'limits_t': 'Protection against guessing', 'limits': ['After 5 wrong codes the account is locked for 15 minutes.', 'Each code works once and for 30 seconds.', 'After the password you have 5 minutes to enter the code.'],
+         'email_t': 'Sign in with an email code', 'email_h': 'On the sign-in page you can get a one-time code by email instead of the password (10 minutes, up to 3 codes an hour).',
+         'back': 'Back', 'error': 'Something went wrong. Please try again.'},
+}[lang] -%}
+
+{% block title %}{{ S.title }} — NIGOH Family{% endblock %}
+{% block description %}{{ S.lead }}{% endblock %}
+{% block head %}
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/account-security.css?v={{ app_version }}">
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap" style="max-width:820px">
+    <span class="eyebrow">{{ S.eyebrow }}</span>
+    <h1>{{ S.title }}</h1>
+    <p class="lead">{{ S.lead }}</p>
+    <p class="muted" style="margin-top:12px">{{ user.email }}</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap account-security" style="max-width:820px" data-account-security
+       data-error="{{ S.error }}" data-copied="{{ S.copied }}" data-lang="{{ lang }}">
+    <div class="as-card as-status {{ 'is-on' if status.enabled else 'is-off' }}" id="as-status">
+      <span class="as-dot" aria-hidden="true"></span>
+      <div>
+        <strong>{{ S.on if status.enabled else S.off }}</strong>
+        {% if status.enabled %}<p class="muted">{{ S.left | replace('{n}', status.recovery_left|string) }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-status err" id="as-error" role="alert" hidden></div>
+
+    {% if not status.available %}
+      <div class="callout"><p>{{ S.unavailable }}</p></div>
+    {% elif not status.enabled %}
+      <div class="as-card" id="as-start">
+        <p>{{ S.how }}</p>
+        <button class="btn btn-primary" type="button" id="as-enable">{{ S.enable }}</button>
+      </div>
+      <div class="as-card" id="as-setup" hidden>
+        <h2>{{ S.scan }}</h2>
+        <img id="as-qr" alt="QR" width="220" height="220">
+        <p class="muted">{{ S.manual }} <code id="as-secret"></code></p>
+        <h2>{{ S.enter }}</h2>
+        <form class="as-row" id="as-confirm-form">
+          <label class="sr-only" for="as-code">{{ S.code }}</label>
+          <input id="as-code" class="as-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+          <button class="btn btn-primary" type="submit">{{ S.confirm }}</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="grid-2 as-actions">
+        <form class="as-card" id="as-disable-form">
+          <h2>{{ S.disable_t }}</h2>
+          <p class="muted">{{ S.disable_h }}</p>
+          <div class="as-row">
+            <label class="sr-only" for="as-disable-code">{{ S.code }}</label>
+            <input id="as-disable-code" class="as-code" autocomplete="one-time-code" maxlength="12" required>
+            <button class="btn btn-ghost" type="submit">{{ S.disable }}</button>
+          </div>
+        </form>
+        <form class="as-card" id="as-recovery-form">
+          <h2>{{ S.recovery_t }}</h2>
+          <p class="muted">{{ S.recovery_h }}</p>
+          <div class="as-row">
+            <label class="sr-only" for="as-recovery-code">{{ S.code }}</label>
+            <input id="as-recovery-code" class="as-code" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required>
+            <button class="btn btn-ghost" type="submit">{{ S.recovery }}</button>
+          </div>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="as-card" id="as-codes" hidden>
+      <h2>{{ S.saved_t }}</h2>
+      <p class="muted">{{ S.saved_h }}</p>
+      <ol class="as-codes" id="as-codes-list"></ol>
+      <div class="btn-row">
+        <button class="btn btn-ghost" type="button" id="as-copy">{{ S.copy_btn }}</button>
+        <button class="btn btn-ghost" type="button" id="as-download">{{ S.download }}</button>
+        <a class="btn btn-primary" href="{{ lang_prefix }}/account/security">{{ S.done }}</a>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="as-card">
+        <h2>{{ S.limits_t }}</h2>
+        <ul class="feature-list">{% for l in S.limits %}<li>{{ l }}</li>{% endfor %}</ul>
+      </div>
+      {% if email_available %}
+      <div class="as-card">
+        <h2>{{ S.email_t }}</h2>
+        <p class="muted">{{ S.email_h }}</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <p><a class="link-arrow" href="{{ '/admin' if user.role == 'admin' else lang_prefix ~ '/' }}">{{ S.back }}</a></p>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="/static/js/account-security.js?v={{ app_version }}" defer></script>{% endblock %}
