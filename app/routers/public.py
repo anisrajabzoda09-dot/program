@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.review import Review
+from app.core.releases import RELEASES
 
 router = APIRouter(tags=["Public & SEO"])
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
@@ -202,6 +203,34 @@ def _register_translated(lang: str) -> None:
 for _lang in ("ru", "en"):
     _register_translated(_lang)
 
+
+# Саҳифаҳои иловагӣ (маслиҳатҳо, муқоиса, таърихи версияҳо, ҳуқуқӣ), ки
+# барои ҳар се забон бо як функсия сабт мешаванд: /tips, /ru/tips, /en/tips.
+_INFO_PAGES = [
+    ("/tips", "tips"),
+    ("/compare", "compare"),
+    ("/changelog", "changelog"),
+    ("/privacy", "privacy"),
+    ("/terms", "terms"),
+]
+
+
+def _register_info_page(lang: str, suffix: str, name: str) -> None:
+    """Як саҳифаи иттилоотиро барои забони додашуда (GET ва HEAD) сабт мекунад."""
+
+    def view(request: Request, _name=name):
+        """Саҳифаи иттилоотиро бо забони URL нишон медиҳад."""
+        extra = {"releases": RELEASES} if _name == "changelog" else {}
+        return _site_page(request, _name, _name, lang=lang, **extra)
+
+    route = suffix if lang == "tg" else f"/{lang}{suffix}"
+    router.add_api_route(route, view, methods=["GET"], response_class=HTMLResponse, include_in_schema=False)
+    router.add_api_route(route, view, methods=["HEAD"], response_class=HTMLResponse, include_in_schema=False)
+
+
+for _lang in SITE_LANGS:
+    for _suffix, _name in _INFO_PAGES:
+        _register_info_page(_lang, _suffix, _name)
 
 
 @router.head("/", include_in_schema=False)
