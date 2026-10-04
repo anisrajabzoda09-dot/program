@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/home_target.dart';
+import '../../core/models.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
@@ -517,6 +518,44 @@ class _PairedView extends StatelessWidget {
               ),
       ),
     );
+    // Филтри сайтҳо: танҳо вақте нишон дода мешавад, ки волидайн онро фаъол кардаанд.
+    final filter = child?.webFilter ?? const WebFilter();
+    final filterOk = sync.webFilterState == WebFilter.stateActive;
+    final filterNeedsAction = filter.enabled && !filterOk;
+    final filterCard = !filter.enabled
+        ? null
+        : FadeIn(
+            index: 5,
+            child: _StatusCard(
+              key: const ValueKey('child-web-filter'),
+              icon: Icons.travel_explore_rounded,
+              ok: filterOk,
+              okColor: NigohDesign.mint,
+              title: tr('Филтри сайтҳо'),
+              value: filterOk
+                  ? tr('Фаъол: {level}', {
+                      'level': filter.level == WebFilter.levelKids
+                          ? tr('То 12 сола')
+                          : tr('13–17 сола'),
+                    })
+                  : tr('Иҷозат лозим аст'),
+              hint: filterOk
+                  ? tr(
+                      'Сайтҳое, ки барои синну соли шумо нестанд, кушода намешаванд.',
+                    )
+                  : tr(
+                      'Волидайн филтри сайтҳоро фаъол карданд. «Иҷозат додан»-ро пахш кунед ва дар тирезаи Android «OK»-ро интихоб кунед.',
+                    ),
+              action: filterOk
+                  ? null
+                  : FilledButton.icon(
+                      key: const ValueKey('child-web-filter-allow'),
+                      onPressed: sync.requestWebFilterPermission,
+                      icon: const Icon(Icons.vpn_lock_rounded, size: 18),
+                      label: Text(tr('Иҷозат додан')),
+                    ),
+            ),
+          );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -587,6 +626,10 @@ class _PairedView extends StatelessWidget {
         ),
         // Қадами дохилии SizedBox барои саҳифаи фарзанд.
         if (needsPermissions) ...[protectionCard, const SizedBox(height: 12)],
+        if (filterNeedsAction && filterCard != null) ...[
+          filterCard,
+          const SizedBox(height: 12),
+        ],
         FadeIn(child: SosButton(onTriggered: () => _sendSos(context))),
         SectionTitle(tr('Ҳолати телефон')),
         FadeIn(index: 1, child: ScreenTimeCard(apps: child?.apps ?? const [])),
@@ -640,6 +683,10 @@ class _PairedView extends StatelessWidget {
                   ),
           ),
         ),
+        if (!filterNeedsAction && filterCard != null) ...[
+          const SizedBox(height: 12),
+          filterCard,
+        ],
       ],
     );
   }
@@ -716,6 +763,7 @@ Future<void> sendChildSos(BuildContext context, ChildSync sync) async {
 /// Widget-и StatusCard-ро барои саҳифаи асосии фарзанд ва ҳолати маҳдудиятҳо месозад.
 class _StatusCard extends StatelessWidget {
   const _StatusCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.value,
