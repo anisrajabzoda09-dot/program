@@ -2,7 +2,7 @@
 
 import json
 from datetime import date, datetime, timedelta, timezone
-from typing import Optional
+from typing import List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
@@ -10,6 +10,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core import events as family_events
+from app.core import web_filter
 from app.core.mobile_auth import require_mobile_user
 from app.db.session import get_db
 from app.models.app_rule import AppRule
@@ -277,11 +278,19 @@ class StudyMode(BaseModel):
     weekdays: list = Field(default_factory=lambda: [1, 2, 3, 4, 5, 6])
 
 
+class WebFilterSettings(BaseModel):
+    """Танзими филтри сайтҳо: сатҳи синну сол ва сайтҳое, ки волидайн дастӣ бастанд."""
+
+    level: Literal["off", "kids", "teen"] = "off"
+    blocked: List[str] = Field(default_factory=list, max_length=200)
+
+
 class ChildSettings(BaseModel):
     """Маълумоти `ChildSettings`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     bedtime: Optional[Bedtime] = None
     study: Optional[StudyMode] = None
+    web_filter: Optional[WebFilterSettings] = None
 
 
 @router.put("/settings")
@@ -297,12 +306,33 @@ def update_child_settings(child_id: int, payload: ChildSettings, request: Reques
         child.study_json = payload.study.model_dump_json()
     if payload.bedtime is not None:
         child.bedtime_json = payload.bedtime.model_dump_json()
+    if payload.web_filter is not None:
+        web_filter.save(child, payload.web_filter.level, payload.web_filter.blocked)
     db.commit()
     return {
         "status": "success",
         "bedtime": json.loads(child.bedtime_json) if child.bedtime_json else None,
         "study": json.loads(child.study_json) if child.study_json else None,
+        "web_filter": web_filter.payload(child),
     }
+
+
+class WebFilterState(BaseModel):
+    """Ҳолати филтри сайтҳо, ки телефони фарзанд хабар медиҳад."""
+
+    state: Literal["active", "off", "needs_permission", "unsupported"]
+
+
+@router.post("/web-filter/state")
+def report_web_filter_state(child_id: int, payload: WebFilterState, request: Request, db: Session = Depends(get_db)):
+    """Дархости `POST /web-filter/state`: телефони фарзанд мегӯяд, ки филтр фаъол аст ё не."""
+
+    user = require_mobile_user(request, db)
+    _child_only(user)
+    child = _child(db, user, child_id)
+    web_filter.report_state(db, child, payload.state)
+    db.commit()
+    return {"status": "success", "web_filter": web_filter.payload(child)}
 
 
 # ---------- Safe places ----------
