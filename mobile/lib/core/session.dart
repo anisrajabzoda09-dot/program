@@ -190,9 +190,49 @@ class Session extends ChangeNotifier {
   Future<void> register(String email, String password, String name) async =>
       _store(await api.register(email.trim(), password, name.trim()));
 
-  /// login дархостро ба API мефиристад ва натиҷаро коркард мекунад.
-  Future<void> login(String email, String password) async =>
-      _store(await api.login(email.trim(), password));
+  /// Чиптаи қадами дуюм: парол ё рамзи почта дуруст буд, акнун рамзи Authenticator лозим.
+  String? otpTicket;
+
+  /// Бо почта ва парол ворид мешавад. false — агар рамзи Authenticator лозим бошад.
+  Future<bool> login(String email, String password) async =>
+      _finishFirstStep(await api.login(email.trim(), password));
+
+  /// Ҷавоби қадами аввалро коркард мекунад: token-ро нигоҳ медорад ё чиптаро.
+  Future<bool> _finishFirstStep(Map<String, dynamic> response) async {
+    if (response['status'] == 'otp_required') {
+      otpTicket = response['ticket']?.toString();
+      return false;
+    }
+    otpTicket = null;
+    await _store(response);
+    return true;
+  }
+
+  /// Қадами дуюм: рамзи 6-рақама ё рамзи эҳтиётӣ.
+  Future<void> verifyOtp(String code) async {
+    final ticket = otpTicket;
+    if (ticket == null) {
+      throw ApiException(tr('Мӯҳлати рамз гузашт. Аз нав ворид шавед'));
+    }
+    try {
+      await _store(await api.loginOtp(ticket, code.trim()));
+      otpTicket = null;
+    } on ApiException catch (e) {
+      // Чипта беэътибор шуд (мӯҳлат ё қулф) — бояд аз нав парол ворид шавад.
+      if (e.statusCode == 401 || e.statusCode == 429) otpTicket = null;
+      rethrow;
+    }
+  }
+
+  /// Рамзи воридшавиро ба почта мефиристад.
+  Future<void> requestEmailCode(String email) =>
+      api.requestEmailCode(email.trim().toLowerCase());
+
+  /// Бо рамзи почта ворид мешавад. false — агар баъд рамзи Authenticator лозим бошад.
+  Future<bool> verifyEmailCode(String email, String code) async =>
+      _finishFirstStep(
+        await api.verifyEmailCode(email.trim().toLowerCase(), code.trim()),
+      );
 
   /// signInWithGoogle мантиқи зарурии session, token, нақш ва ҳолати воридшавӣро иҷро мекунад.
   Future<void> signInWithGoogle() async {
