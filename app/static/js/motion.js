@@ -150,8 +150,10 @@
     });
   }
 
-  /* Барои pointer-и дақиқ parallax-и телефонро бо transform идора мекунад. */
-  if (!reduced && heroVisual && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  /* Барои pointer-и дақиқ parallax-и телефонро бо transform идора мекунад.
+     Агар телефони интерактивӣ бошад, parallax хомӯш аст, то пахш осон бошад. */
+  var heroInteractive = heroVisual && heroVisual.querySelector('[data-demo]');
+  if (!reduced && heroVisual && !heroInteractive && matchMedia('(hover: hover) and (pointer: fine)').matches) {
     var visualBox;
     var pointerQueued = false;
     var tiltX = 0;
