@@ -56,6 +56,7 @@ from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.chat import ChatMessage
 from app.models.family_extras import LocationPoint
+from app.crud.crud_privacy import prune_location_history, purge_child_history
 from app.core import events as family_events
 from app.models.user import User
 from app.core.firebase_mobile import find_user_by_firebase_uid
@@ -677,6 +678,7 @@ def update_mobile_location_v2(
         accuracy=payload.accuracy,
         battery_level=payload.battery_level,
     ))
+    prune_location_history(db, child.id)
     db.commit()
     return {"status": "success", "location": _mobile_child_payload(db, child)["location"]}
 
@@ -742,6 +744,8 @@ def unlink_mobile_child_v2(child_id: int, request: Request, db: Session = Depend
     child = _mobile_child(db, user, child_id)
     child.parent_id = None
     child.is_paired = 0
+    # Волидайни навбатӣ таърихи макон ва чати пешинаро набояд бубинад.
+    purge_child_history(db, child.id)
     db.commit()
     return {"status": "success"}
 
