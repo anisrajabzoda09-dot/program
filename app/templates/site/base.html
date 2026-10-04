@@ -9,6 +9,8 @@
          'faqlong': 'Саволу ҷавоб', 'privacy': 'Амният ва махфият', 'account': 'Ҳисоби волидайн', 'qr': 'Рамзи QR',
          'default_desc': 'NIGOH Family — барномаи назорати волидайн барои Android: ҷойгиршавӣ, чат, вақти экран ва қоидаҳо барои барномаҳо.',
          'locale': 'tg_TJ', 'theme': 'Режими торик', 'skip': 'Гузаштан ба матлаби асосӣ', 'back_top': 'Бозгашт ба боло',
+         'tips': 'Маслиҳат барои волидайн', 'compare': 'Муқоиса бо Family Link', 'changelog': 'Чӣ нав аст',
+         'contact': 'Тамос бо мо', 'privacy_policy': 'Сиёсати махфият', 'terms': 'Шартҳои истифода', 'legal': 'Ҳуқуқӣ',
          'social_image_alt': 'Нишони NIGOH Family'},
   'ru': {'features': 'Возможности', 'how': 'Как это работает', 'security': 'Безопасность', 'faq': 'Вопросы',
          'login': 'Войти', 'logout': 'Выйти', 'panel': 'Панель', 'download': 'Скачать', 'menu': 'Меню',
@@ -17,6 +19,8 @@
          'faqlong': 'Вопросы и ответы', 'privacy': 'Безопасность и приватность', 'account': 'Аккаунт родителя', 'qr': 'QR-код',
          'default_desc': 'NIGOH Family — родительский контроль для Android: местоположение, чат, экранное время и правила для приложений.',
          'locale': 'ru_RU', 'theme': 'Тёмная тема', 'skip': 'Перейти к основному содержанию', 'back_top': 'Вернуться наверх',
+         'tips': 'Советы родителям', 'compare': 'Сравнение с Family Link', 'changelog': 'Что нового',
+         'contact': 'Связаться с нами', 'privacy_policy': 'Политика конфиденциальности', 'terms': 'Условия использования', 'legal': 'Правовая информация',
          'social_image_alt': 'Логотип NIGOH Family'},
   'en': {'features': 'Features', 'how': 'How it works', 'security': 'Security', 'faq': 'FAQ',
          'login': 'Sign in', 'logout': 'Sign out', 'panel': 'Dashboard', 'download': 'Download', 'menu': 'Menu',
@@ -25,6 +29,8 @@
          'faqlong': 'Questions & answers', 'privacy': 'Security & privacy', 'account': 'Parent account', 'qr': 'QR code',
          'default_desc': 'NIGOH Family — parental control for Android: location, chat, screen time and app rules.',
          'locale': 'en_US', 'theme': 'Dark mode', 'skip': 'Skip to main content', 'back_top': 'Back to top',
+         'tips': 'Tips for parents', 'compare': 'Compared with Family Link', 'changelog': "What's new",
+         'contact': 'Contact us', 'privacy_policy': 'Privacy policy', 'terms': 'Terms of use', 'legal': 'Legal',
          'social_image_alt': 'NIGOH Family logo'},
 }[lang] -%}
 <!DOCTYPE html>
@@ -164,20 +170,23 @@
           <ul>
             <li><a href="{{ P }}/features">{{ L.features }}</a></li>
             <li><a href="{{ P }}/how-it-works">{{ L.how }}</a></li>
-            <li><a href="{{ P }}/get">{{ L.android }}</a></li>
+            <li><a href="{{ P }}/compare">{{ L.compare }}</a></li>
+            <li><a href="{{ P }}/changelog">{{ L.changelog }}</a></li>
           </ul>
         </div>
         <div>
           <h4>{{ L.support }}</h4>
           <ul>
             <li><a href="{{ P }}/faq">{{ L.faqlong }}</a></li>
-            <li><a href="{{ P }}/security">{{ L.privacy }}</a></li>
+            <li><a href="{{ P }}/tips">{{ L.tips }}</a></li>
+            <li><a href="{{ P }}/contact">{{ L.contact }}</a></li>
             <li><a href="/auth{{ '?lang=' ~ lang if lang != 'tg' else '' }}">{{ L.account }}</a></li>
           </ul>
         </div>
         <div>
           <h4>{{ L.install }}</h4>
           <ul>
+            <li><a href="{{ P }}/get">{{ L.android }}</a></li>
             <li><a href="/download/android">APK v{{ app_version }}</a></li>
             <li><a href="{{ P }}/get#qr">{{ L.qr }}</a></li>
           </ul>
@@ -185,7 +194,11 @@
       </div>
       <div class="footer-bottom">
         <span>© 2026 NIGOH Family</span>
-        <span>nigohfamily.qobus.tj</span>
+        <nav class="footer-legal" aria-label="{{ L.legal }}">
+          <a href="{{ P }}/privacy">{{ L.privacy_policy }}</a>
+          <a href="{{ P }}/terms">{{ L.terms }}</a>
+          <a href="{{ P }}/security">{{ L.privacy }}</a>
+        </nav>
       </div>
     </div>
   </footer>
