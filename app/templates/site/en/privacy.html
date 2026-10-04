@@ -1,0 +1,161 @@
+{#- Файл: сиёсати махфияти NIGOH Family ба забони англисӣ — чӣ ҷамъ мешавад, барои чӣ, то кай ва ҳуқуқҳои корбар. -#}
+{% extends "site/base.html" %}
+
+{% block title %}Privacy Policy — NIGOH Family{% endblock %}
+{% block description %}NIGOH Family Privacy Policy: what data we collect, why, who can see it, how long we keep it and how you can delete it.{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"Privacy Policy","item":"https://nigohfamily.qobus.tj/en/privacy"}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Legal</span>
+    <h1>Privacy Policy</h1>
+    <p class="lead">We explain in plain language what data NIGOH Family collects, why, and how you can manage it.</p>
+    <div class="doc-meta">
+      <span>Published: October 4, 2026</span>
+      <span>For: the Android app and nigohfamily.qobus.tj website</span>
+    </div>
+    <div class="summary-box">
+      <h2>In brief</h2>
+      <ul>
+        <li>Data is collected only to make the app work and is stored on NIGOH's own server.</li>
+        <li>We don't show ads or sell your data.</li>
+        <li>Only the linked parent can see the child's location and apps.</li>
+        <li>Location history is kept for 30 days. When you remove a child, their entire history is deleted.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap prose-layout">
+    <nav class="prose-toc" aria-label="Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#who">Who we are</a></li>
+        <li><a href="#data">What we collect</a></li>
+        <li><a href="#why">Why</a></li>
+        <li><a href="#access">Who can see it</a></li>
+        <li><a href="#third">Third-party services</a></li>
+        <li><a href="#retention">How long we keep it</a></li>
+        <li><a href="#rights">Your rights</a></li>
+        <li><a href="#children">Children</a></li>
+        <li><a href="#security">Data protection</a></li>
+        <li><a href="#changes">Changes</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </nav>
+
+    <div class="prose">
+      <section id="who">
+        <h2>1. Who we are</h2>
+        <p>NIGOH Family is a parental-control app for Android, made in Tajikistan. The app and website connect to NIGOH's own server. We don't use Firebase or any other third-party cloud storage for family data.</p>
+      </section>
+
+      <section id="data">
+        <h2>2. What we collect</h2>
+        <div class="table-scroll"><table class="meta-table">
+          <thead><tr><th scope="col">Data</th><th scope="col">Source</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Email, name, password (only as a hash), profile photo</th><td>Parent and child during registration</td></tr>
+            <tr><th scope="row">Google, GitHub or Apple account ID</th><td>Only if you sign in with one of these services</td></tr>
+            <tr><th scope="row">Location (latitude, longitude, accuracy), battery level</th><td>Child's phone</td></tr>
+            <tr><th scope="row">App list, icons and usage time</th><td>Child's phone</td></tr>
+            <tr><th scope="row">Chat messages</th><td>Parent and child</td></tr>
+            <tr><th scope="row">Safe places, schedules and rules</th><td>Parent</td></tr>
+            <tr><th scope="row">Time requests, SOS and notifications</th><td>Child and server</td></tr>
+            <tr><th scope="row">IP address, browser type and page opened</th><td>Website visitors</td></tr>
+            <tr><th scope="row">Contact form messages</th><td>Anyone who writes to us</td></tr>
+          </tbody>
+        </table></div>
+        <h3>What we don't collect</h3>
+        <ul>
+          <li>Your child's messages in other apps (Telegram, WhatsApp, etc.).</li>
+          <li>Photos, videos, contacts or passwords from your child's phone.</li>
+          <li>Voice call recordings. Calls go directly between the phones and aren't recorded.</li>
+        </ul>
+      </section>
+
+      <section id="why">
+        <h2>3. Why</h2>
+        <ul>
+          <li><strong>Location</strong> — to show where your child is, their 24-hour history and safe-place alerts.</li>
+          <li><strong>Apps and time</strong> — limits, blocking, schedules and weekly reports.</li>
+          <li><strong>Chat and notifications</strong> — family communication, SOS and requests for more time.</li>
+          <li><strong>Battery and connection status</strong> — alerts when the battery is low or the phone goes offline.</li>
+          <li><strong>Website statistics</strong> — to understand which pages are useful. We don't share these statistics with anyone.</li>
+        </ul>
+      </section>
+
+      <section id="access">
+        <h2>4. Who can see it</h2>
+        <p>Only the parent who linked the child's phone with a one-time pairing code can see the child's data. Children can see their own rules under “My rules.” The server administrator may have access to the database, but uses it only to fix errors and respond to your request.</p>
+        <p>We don't sell data or give it to advertisers, and we disclose it only when legally required by the authorities of the Republic of Tajikistan.</p>
+      </section>
+
+      <section id="third">
+        <h2>5. Third-party services</h2>
+        <ul>
+          <li><strong>Google, GitHub, Apple</strong> — only if you sign in with one of these services. We receive your email and name from them.</li>
+          <li><strong>OpenStreetMap</strong> — map images on the parent's phone are loaded from OpenStreetMap servers.</li>
+          <li><strong>Google STUN servers</strong> — to establish a voice call connection. Voice does not pass through them.</li>
+          <li><strong>Google Fonts</strong> — the website font.</li>
+        </ul>
+      </section>
+
+      <section id="retention">
+        <h2>6. How long we keep it</h2>
+        <div class="table-scroll"><table class="meta-table">
+          <thead><tr><th scope="col">Data</th><th scope="col">Retention period</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Location history</th><td>30 days, then deleted automatically</td></tr>
+            <tr><th scope="row">Chat, rules, safe places</th><td>While the child is linked</td></tr>
+            <tr><th scope="row">Sign-in session on the phone</th><td>Up to 180 days or until sign-out</td></tr>
+            <tr><th scope="row">Website statistics (IP, browser)</th><td>180 days</td></tr>
+            <tr><th scope="row">Parent account</th><td>Until you ask us to delete it</td></tr>
+          </tbody>
+        </table></div>
+        <p>When a parent removes a child, that child's location, chat, safe places, notifications, requests and call history are deleted immediately.</p>
+      </section>
+
+      <section id="rights">
+        <h2>7. Your rights</h2>
+        <ul>
+          <li><strong>Access</strong> — all of your child's data is visible in the parent app.</li>
+          <li><strong>Correction</strong> — change the name, photo and rules in settings.</li>
+          <li><strong>Remove a child</strong> — remove your child using the parent PIN; their history will be deleted.</li>
+          <li><strong>Delete your account</strong> — write to us using the <a href="{{ lang_prefix }}/contact">contact form</a>. The account and its data will be deleted within 30 days.</li>
+          <li><strong>Withdraw permissions</strong> — you can turn off any permission in Android settings, but some features will stop working.</li>
+        </ul>
+      </section>
+
+      <section id="children">
+        <h2>8. Children</h2>
+        <p>NIGOH Family is made for parents. The child app is installed only with a parent's consent and on a phone they manage. The app isn't hidden: its icon is visible and every permission is explained during setup. We recommend talking to your child before installing it — see our <a href="{{ lang_prefix }}/tips">tips for parents</a>.</p>
+      </section>
+
+      <section id="security">
+        <h2>9. Data protection</h2>
+        <p>All connections are encrypted with HTTPS. Passwords and session tokens are stored in the database only as a hash. Read more on the <a href="{{ lang_prefix }}/security">Security</a> page.</p>
+      </section>
+
+      <section id="changes">
+        <h2>10. Changes</h2>
+        <p>If this policy changes, the new date will appear above and the change will be noted under <a href="{{ lang_prefix }}/changelog">“What's new”</a>. We'll also notify you in the app about important changes.</p>
+      </section>
+
+      <section id="contact">
+        <h2>11. Contact</h2>
+        <p>Questions about privacy: use the <a href="{{ lang_prefix }}/contact">contact form</a> or email <a href="mailto:anisrajabzoda09@gmail.com">anisrajabzoda09@gmail.com</a>.</p>
+      </section>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Next page"><a href="{{ lang_prefix }}/terms"><span>Next</span><strong>Terms of Use</strong></a></nav>
+{% endblock %}
+{% block scripts %}<script src="/static/js/info.js?v={{ app_version }}" defer></script>{% endblock %}
