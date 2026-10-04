@@ -1,0 +1,161 @@
+{#- Файл: сиёсати махфияти NIGOH Family ба забони тоҷикӣ — чӣ ҷамъ мешавад, барои чӣ, то кай ва ҳуқуқҳои корбар. -#}
+{% extends "site/base.html" %}
+
+{% block title %}Сиёсати махфият — NIGOH Family{% endblock %}
+{% block description %}Сиёсати махфияти NIGOH Family: кадом маълумот ҷамъ мешавад, барои чӣ, кӣ онро мебинад, то кай нигоҳ дошта мешавад ва чӣ гуна онро нест кардан мумкин аст.{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Саҳифаи асосӣ","item":"https://nigohfamily.qobus.tj/"},{"@type":"ListItem","position":2,"name":"Сиёсати махфият","item":"https://nigohfamily.qobus.tj/privacy"}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Ҳуқуқӣ</span>
+    <h1>Сиёсати махфият</h1>
+    <p class="lead">Мо бо забони содда менависем, ки NIGOH Family кадом маълумотро ҷамъ мекунад, барои чӣ ва чӣ гуна шумо онро идора мекунед.</p>
+    <div class="doc-meta">
+      <span>Нашр: 4 октябри 2026</span>
+      <span>Барои: барномаи Android ва сайти nigohfamily.qobus.tj</span>
+    </div>
+    <div class="summary-box">
+      <h2>Кӯтоҳ</h2>
+      <ul>
+        <li>Маълумот танҳо барои кори барнома ҷамъ мешавад ва дар сервери худии NIGOH нигоҳ дошта мешавад.</li>
+        <li>Мо реклама нишон намедиҳем ва маълумоти шуморо намефурӯшем.</li>
+        <li>Макон ва барномаҳои фарзандро танҳо волидайни пайвастшуда мебинанд.</li>
+        <li>Таърихи макон 30 рӯз нигоҳ дошта мешавад. Вақте фарзандро хориҷ мекунед, таърихи ӯ пурра нест мешавад.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap prose-layout">
+    <nav class="prose-toc" aria-label="Мундариҷа">
+      <h2>Мундариҷа</h2>
+      <ol>
+        <li><a href="#who">Мо кистем</a></li>
+        <li><a href="#data">Чӣ ҷамъ мекунем</a></li>
+        <li><a href="#why">Барои чӣ</a></li>
+        <li><a href="#access">Кӣ мебинад</a></li>
+        <li><a href="#third">Хидматҳои беруна</a></li>
+        <li><a href="#retention">То кай нигоҳ медорем</a></li>
+        <li><a href="#rights">Ҳуқуқҳои шумо</a></li>
+        <li><a href="#children">Кӯдакон</a></li>
+        <li><a href="#security">Ҳифзи маълумот</a></li>
+        <li><a href="#changes">Тағйирот</a></li>
+        <li><a href="#contact">Тамос</a></li>
+      </ol>
+    </nav>
+
+    <div class="prose">
+      <section id="who">
+        <h2>1. Мо кистем</h2>
+        <p>NIGOH Family барномаи назорати волидайн барои Android аст, ки дар Тоҷикистон сохта шудааст. Барнома ва сайт ба сервери худии NIGOH пайваст мешаванд. Мо Firebase ё дигар анбори абрии бегонаро барои маълумоти оила истифода намебарем.</p>
+      </section>
+
+      <section id="data">
+        <h2>2. Чӣ ҷамъ мекунем</h2>
+        <div class="table-scroll"><table class="meta-table">
+          <thead><tr><th scope="col">Маълумот</th><th scope="col">Аз кӣ</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Почта, ном, парол (танҳо ҳамчун hash), акси профил</th><td>Волидайн ва фарзанд ҳангоми сабти ном</td></tr>
+            <tr><th scope="row">Рақами ҳисоби Google, GitHub ё Apple</th><td>Танҳо агар бо онҳо ворид шавед</td></tr>
+            <tr><th scope="row">Макон (арз, тӯл, дақиқӣ), фоизи батарея</th><td>Телефони фарзанд</td></tr>
+            <tr><th scope="row">Рӯйхати барномаҳо, иконкаҳо ва вақти истифода</th><td>Телефони фарзанд</td></tr>
+            <tr><th scope="row">Паёмҳои чат</th><td>Волидайн ва фарзанд</td></tr>
+            <tr><th scope="row">Ҷойҳои бехатар, ҷадвалҳо ва қоидаҳо</th><td>Волидайн</td></tr>
+            <tr><th scope="row">Дархостҳои вақт, SOS ва огоҳиномаҳо</th><td>Фарзанд ва сервер</td></tr>
+            <tr><th scope="row">Суроғаи IP, навъи браузер ва саҳифаи кушодашуда</th><td>Боздидкунандагони сайт</td></tr>
+            <tr><th scope="row">Паёмҳои формаи тамос</th><td>Ҳар касе, ки ба мо менависад</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Чӣ ҷамъ намекунем</h3>
+        <ul>
+          <li>Паёмҳои фарзанд дар дигар барномаҳо (Telegram, WhatsApp ва ғ.).</li>
+          <li>Аксҳо, видеоҳо, контактҳо ва паролҳои телефони фарзанд.</li>
+          <li>Сабти зангҳои овозӣ. Занг мустақим байни телефонҳо меравад ва сабт намешавад.</li>
+        </ul>
+      </section>
+
+      <section id="why">
+        <h2>3. Барои чӣ</h2>
+        <ul>
+          <li><strong>Макон</strong> — нишон додани ҷои фарзанд, таърихи 24 соат ва огоҳӣ дар бораи ҷойҳои бехатар.</li>
+          <li><strong>Барномаҳо ва вақт</strong> — лимитҳо, бастан, ҷадвалҳо ва ҳисоботи ҳафтаина.</li>
+          <li><strong>Чат ва огоҳиномаҳо</strong> — тамоси оила, SOS ва дархостҳои вақт.</li>
+          <li><strong>Батарея ва ҳолати пайваст</strong> — огоҳӣ, вақте батарея кам аст ё телефон офлайн мешавад.</li>
+          <li><strong>Омори сайт</strong> — фаҳмидани он ки кадом саҳифаҳо фоиданоканд. Мо онро бо касе мубодила намекунем.</li>
+        </ul>
+      </section>
+
+      <section id="access">
+        <h2>4. Кӣ мебинад</h2>
+        <p>Маълумоти фарзандро танҳо волидайне мебинад, ки телефони ӯро бо рамзи якдафъаина пайваст кардааст. Фарзанд қоидаҳои худро дар «Қоидаҳои ман» мебинад. Маъмури сервер метавонад ба база дастрасӣ дошта бошад, вале онро танҳо барои ислоҳи хатоҳо ва ҷавоб ба муроҷиати шумо истифода мебарад.</p>
+        <p>Мо маълумотро намефурӯшем, ба рекламачиён намедиҳем ва танҳо бо талаби қонунии мақомоти Ҷумҳурии Тоҷикистон ошкор мекунем.</p>
+      </section>
+
+      <section id="third">
+        <h2>5. Хидматҳои беруна</h2>
+        <ul>
+          <li><strong>Google, GitHub, Apple</strong> — танҳо агар шумо бо онҳо ворид шавед. Мо почта ва номро аз онҳо мегирем.</li>
+          <li><strong>OpenStreetMap</strong> — тасвирҳои харита дар телефони волидайн аз серверҳои OpenStreetMap бор мешаванд.</li>
+          <li><strong>Серверҳои STUN-и Google</strong> — барои пайвастани занги овозӣ. Овоз аз онҳо намегузарад.</li>
+          <li><strong>Google Fonts</strong> — шрифти сайт.</li>
+        </ul>
+      </section>
+
+      <section id="retention">
+        <h2>6. То кай нигоҳ медорем</h2>
+        <div class="table-scroll"><table class="meta-table">
+          <thead><tr><th scope="col">Маълумот</th><th scope="col">Мӯҳлат</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Таърихи макон</th><td>30 рӯз, баъд худкор нест мешавад</td></tr>
+            <tr><th scope="row">Чат, қоидаҳо, ҷойҳои бехатар</th><td>То вақте фарзанд пайваст аст</td></tr>
+            <tr><th scope="row">Сессияи воридшавӣ дар телефон</th><td>То 180 рӯз ё то баромадан</td></tr>
+            <tr><th scope="row">Омори сайт (IP, браузер)</th><td>180 рӯз</td></tr>
+            <tr><th scope="row">Ҳисоби волидайн</th><td>То вақте ки нест кардани онро талаб кунед</td></tr>
+          </tbody>
+        </table></div>
+        <p>Вақте волидайн фарзандро хориҷ мекунанд, макон, чат, ҷойҳои бехатар, огоҳиномаҳо, дархостҳо ва таърихи зангҳои ӯ фавран нест мешаванд.</p>
+      </section>
+
+      <section id="rights">
+        <h2>7. Ҳуқуқҳои шумо</h2>
+        <ul>
+          <li><strong>Дидан</strong> — ҳамаи маълумоти фарзанд дар барномаи волидайн намоён аст.</li>
+          <li><strong>Ислоҳ кардан</strong> — ном, акс ва қоидаҳоро дар танзимот иваз кунед.</li>
+          <li><strong>Хориҷ кардан</strong> — фарзандро бо PIN-и волидайн хориҷ кунед; таърихи ӯ нест мешавад.</li>
+          <li><strong>Нест кардани ҳисоб</strong> — ба мо тавассути <a href="{{ lang_prefix }}/contact">формаи тамос</a> нависед. Ҳисоб ва маълумоти он дар давоми 30 рӯз нест карда мешавад.</li>
+          <li><strong>Рад кардани иҷозатҳо</strong> — ҳар иҷозатро дар танзимоти Android хомӯш кардан мумкин аст, вале баъзе имкониятҳо кор намекунанд.</li>
+        </ul>
+      </section>
+
+      <section id="children">
+        <h2>8. Кӯдакон</h2>
+        <p>NIGOH Family барои волидайн сохта шудааст. Барномаи фарзанд танҳо бо розигии волидайн ва дар телефоне насб мешавад, ки онҳо идора мекунанд. Барнома пинҳон нест: иконка намоён аст ва ҳар иҷозат ҳангоми насб шарҳ дода мешавад. Мо тавсия медиҳем, ки пеш аз насб бо фарзанд гап занед — нигаред <a href="{{ lang_prefix }}/tips">маслиҳатҳо барои волидайн</a>.</p>
+      </section>
+
+      <section id="security">
+        <h2>9. Ҳифзи маълумот</h2>
+        <p>Ҳамаи пайвастҳо бо HTTPS рамзгузорӣ мешаванд. Паролҳо ва токенҳои сессия дар база танҳо ҳамчун hash нигоҳ дошта мешаванд. Тафсилот дар саҳифаи <a href="{{ lang_prefix }}/security">Амният</a>.</p>
+      </section>
+
+      <section id="changes">
+        <h2>10. Тағйирот</h2>
+        <p>Агар ин сиёсат тағйир ёбад, санаи нав дар боло навишта мешавад ва дар <a href="{{ lang_prefix }}/changelog">«Чӣ нав аст»</a> қайд мегардад. Тағйироти муҳимро дар барнома ҳам хабар медиҳем.</p>
+      </section>
+
+      <section id="contact">
+        <h2>11. Тамос</h2>
+        <p>Саволҳо дар бораи махфият: <a href="{{ lang_prefix }}/contact">формаи тамос</a> ё почтаи <a href="mailto:anisrajabzoda09@gmail.com">anisrajabzoda09@gmail.com</a>.</p>
+      </section>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Саҳифаи баъдӣ"><a href="{{ lang_prefix }}/terms"><span>Баъдӣ</span><strong>Шартҳои истифода</strong></a></nav>
+{% endblock %}
+{% block scripts %}<script src="/static/js/info.js?v={{ app_version }}" defer></script>{% endblock %}
