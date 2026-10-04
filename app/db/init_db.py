@@ -15,6 +15,7 @@ from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.contact import ContactMessage  # noqa: F401  (create_all)
+from app.models.email_code import EmailCode  # noqa: F401  (create_all)
 from app.models.mobile_session import MobileSession  # noqa: F401  (create_all)
 from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace  # noqa: F401  (create_all)
 from app.crud.crud_bundle import ensure_initial_bundle
@@ -46,6 +47,17 @@ def init_db():
             conn.execute(text("ALTER TABLE users ADD COLUMN github_id TEXT"))
             conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_github_id ON users (github_id)"))
             conn.commit()
+        for column, ddl in (
+            ("totp_secret_enc", "TEXT"),
+            ("totp_enabled", "INTEGER NOT NULL DEFAULT 0"),
+            ("totp_last_step", "INTEGER"),
+            ("recovery_codes_json", "TEXT"),
+            ("otp_failed", "INTEGER NOT NULL DEFAULT 0"),
+            ("otp_locked_until", "DATETIME"),
+        ):
+            if column not in user_cols:
+                conn.execute(text(f"ALTER TABLE users ADD COLUMN {column} {ddl}"))
+                conn.commit()
         if "apple_id" not in user_cols:
             conn.execute(text("ALTER TABLE users ADD COLUMN apple_id TEXT"))
             conn.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS ix_users_apple_id ON users (apple_id)"))

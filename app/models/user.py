@@ -20,6 +20,14 @@ class User(Base):
     apple_id = Column(String, nullable=True, unique=True, index=True)
     firebase_uid = Column(String, nullable=True, unique=True, index=True)
     avatar = Column(String, nullable=True)
+    # Ҳимояи дуқабата: калиди Authenticator (рамзгузоришуда), қадами охирини истифодашуда
+    # (зидди такрор), рамзҳои эҳтиётӣ (танҳо hash) ва қулф пас аз кӯшишҳои нодуруст.
+    totp_secret_enc = Column(String, nullable=True)
+    totp_enabled = Column(Integer, nullable=False, default=0)
+    totp_last_step = Column(Integer, nullable=True)
+    recovery_codes_json = Column(String, nullable=True)
+    otp_failed = Column(Integer, nullable=False, default=0)
+    otp_locked_until = Column(DateTime, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
@@ -33,5 +41,6 @@ class User(Base):
             "google_id": self.google_id,
             "firebase_uid": self.firebase_uid,
             "avatar": self.avatar,
+            "totp_enabled": bool(self.totp_enabled),
             "created_at": str(self.created_at) if self.created_at else None
         }
