@@ -238,3 +238,9 @@
   .segmented-indicator, .alert-slot, .alert, .control input, .segmented button { transition: none; }
   .spinner { animation-duration: 1.6s; }
 }
+
+/* Қадами дуюми воридшавӣ (OTP) ва рамз ба почта. */
+.otp-title { font-size: 18px; margin: 4px 0 2px; }
+.otp-hint { color: var(--muted, #5d6676); font-size: 14px; line-height: 1.5; margin-bottom: 6px; }
+.otp-input { font-size: 22px !important; letter-spacing: .25em; font-variant-numeric: tabular-nums; text-align: center; }
+.email-code-link { margin-top: 10px; text-align: center; }

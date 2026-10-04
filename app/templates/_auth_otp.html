@@ -1,0 +1,58 @@
+{#- Файл: формаҳои қадами дуюми воридшавӣ — рамзи Authenticator ва воридшавӣ бо рамз ба почта.
+    Ба auth.html, auth_ru.html ва auth_en.html дохил мешавад; рафтор дар /static/js/auth-otp.js. -#}
+{%- set O = {
+  'tg': {'otp_t': 'Рамзи тасдиқ', 'otp_h': 'Рамзи 6-рақамаро аз барномаи Authenticator ё рамзи эҳтиётиро ворид кунед.', 'code': 'Рамз', 'verify': 'Тасдиқ',
+         'back': 'Бозгашт', 'email_link': 'Ворид шудан бо рамз ба почта', 'email_t': 'Рамз ба почта', 'email_h': 'Почтаи худро нависед — мо рамзи 6-рақама мефиристем. Он 10 дақиқа эътибор дорад.',
+         'email': 'Почта', 'send': 'Фиристодани рамз', 'sent': 'Агар ин почта сабт шуда бошад, рамз фиристода шуд. Почтаро санҷед (ҳамчунин «Спам»).',
+         'resend': 'Рамзи нав', 'ok': 'Хуш омадед! Ворид шуда истодаед...', 'fail': 'Рамз нодуруст аст', 'net': 'Хатогии пайвастшавӣ ба сервер'},
+  'ru': {'otp_t': 'Код подтверждения', 'otp_h': 'Введите 6-значный код из приложения Authenticator или резервный код.', 'code': 'Код', 'verify': 'Подтвердить',
+         'back': 'Назад', 'email_link': 'Войти по коду на почту', 'email_t': 'Код на почту', 'email_h': 'Введите вашу почту — мы пришлём 6-значный код. Он действует 10 минут.',
+         'email': 'Почта', 'send': 'Отправить код', 'sent': 'Если эта почта зарегистрирована, код отправлен. Проверьте почту (и «Спам»).',
+         'resend': 'Новый код', 'ok': 'Добро пожаловать! Выполняем вход...', 'fail': 'Неверный код', 'net': 'Ошибка подключения к серверу'},
+  'en': {'otp_t': 'Verification code', 'otp_h': 'Enter the 6-digit code from your authenticator app or a recovery code.', 'code': 'Code', 'verify': 'Verify',
+         'back': 'Back', 'email_link': 'Sign in with a code by email', 'email_t': 'Code by email', 'email_h': 'Enter your email — we will send a 6-digit code. It is valid for 10 minutes.',
+         'email': 'Email', 'send': 'Send code', 'sent': 'If this email is registered, a code has been sent. Check your inbox (and spam).',
+         'resend': 'New code', 'ok': 'Welcome! Signing you in...', 'fail': 'Wrong code', 'net': 'Could not connect to the server'},
+}[lang if lang in ('ru', 'en') else 'tg'] -%}
+        <div id="otpStrings" hidden data-lang="{{ lang if lang in ('ru', 'en') else 'tg' }}" data-ok="{{ O.ok }}" data-fail="{{ O.fail }}" data-net="{{ O.net }}" data-sent="{{ O.sent }}"></div>
+
+        <form id="otpForm" class="auth-form" novalidate hidden>
+          <h3 class="otp-title">{{ O.otp_t }}</h3>
+          <p class="otp-hint">{{ O.otp_h }}</p>
+          <div class="field">
+            <label for="otpCode">{{ O.code }}</label>
+            <div class="control">
+              <input type="text" id="otpCode" name="code" class="otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="12" required>
+            </div>
+          </div>
+          <button type="submit" id="otpSubmitBtn" class="btn btn-submit">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">{{ O.verify }}</span>
+          </button>
+          <p class="form-foot"><button type="button" data-otp-back>{{ O.back }}</button></p>
+        </form>
+
+        {% if email_code_enabled %}
+        <p class="form-foot email-code-link" id="emailCodeLink"><button type="button" data-email-code>{{ O.email_link }}</button></p>
+        <form id="emailCodeForm" class="auth-form" novalidate hidden>
+          <h3 class="otp-title">{{ O.email_t }}</h3>
+          <p class="otp-hint">{{ O.email_h }}</p>
+          <div class="field">
+            <label for="ecEmail">{{ O.email }}</label>
+            <div class="control">
+              <input type="email" id="ecEmail" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" required>
+            </div>
+          </div>
+          <div class="field" id="ecCodeField" hidden>
+            <label for="ecCode">{{ O.code }}</label>
+            <div class="control">
+              <input type="text" id="ecCode" name="code" class="otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+            </div>
+          </div>
+          <button type="submit" id="ecSubmitBtn" class="btn btn-submit" data-send="{{ O.send }}" data-verify="{{ O.verify }}">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="label">{{ O.send }}</span>
+          </button>
+          <p class="form-foot"><button type="button" id="ecResend" hidden>{{ O.resend }}</button> <button type="button" data-otp-back>{{ O.back }}</button></p>
+        </form>
+        {% endif %}

@@ -159,6 +159,9 @@
           <p class="form-foot">Don't have an account? <button type="button" data-switch="register">Sign up</button></p>
         </form>
 
+{# Қадами дуюм: рамзи Authenticator ва воридшавӣ бо рамз ба почта. #}
+{% include "_auth_otp.html" %}
+
 {# Form-и англисии бақайдгирӣ ҳисоби нави корбар месозад. #}
         <form id="registerForm" class="auth-form" role="tabpanel" aria-labelledby="tabRegister" novalidate hidden>
           <div class="field">
@@ -354,11 +357,16 @@
       try {
         var res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-NIGOH-Lang': 'en' },
           body: JSON.stringify(payload)
         });
         var data = null;
         try { data = await res.json(); } catch (e) { data = null; }
+        if (res.ok && data && data.status === 'otp_required' && window.NigohAuthOtp) {
+          setLoading(btn, false);
+          window.NigohAuthOtp.show(data.ticket);
+          return;
+        }
         if (res.ok && data && data.status === 'success') {
           showAlert(okMsg, false);
           setTimeout(function () { window.location.href = data.redirect || '/get'; }, 800);
@@ -462,5 +470,6 @@
 
   })();
   </script>
+  <script src="/static/js/auth-otp.js?v={{ app_version }}" defer></script>
 </body>
 </html>
