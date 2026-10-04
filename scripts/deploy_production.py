@@ -65,7 +65,28 @@ def verify_apk_signature(apk_path: Path) -> None:
         raise RuntimeError(f"APK signature verification failed; refusing to deploy:\n{result.stdout}{result.stderr}")
     if "Android Debug" in result.stdout:
         raise RuntimeError("APK is signed with a debug certificate; refusing to deploy")
+    check_release_certificate(result.stdout)
     print(f"APK signature OK: {apk_path.name}")
+
+
+# SHA-256-и сертификати имзои релизӣ. Агар APK бо калиди дигар имзо шавад,
+# телефонҳо онро ҳамчун навсозӣ насб карда наметавонанд — бинобар ин нашр манъ аст.
+RELEASE_CERT_SHA256 = "d4d3e4fac3d70d6b4d881b7f73f7e798ccf04f109ff6f8bbd0504dfb79df08df"
+
+
+def check_release_certificate(apksigner_output: str) -> None:
+    """Месанҷад, ки APK маҳз бо сертификати релизии NIGOH имзо шудааст."""
+    expected = os.environ.get("NIGOH_RELEASE_CERT_SHA256", RELEASE_CERT_SHA256).lower()
+    digests = {
+        line.rsplit(":", 1)[1].strip().lower()
+        for line in apksigner_output.splitlines()
+        if "certificate SHA-256 digest:" in line
+    }
+    if digests != {expected}:
+        raise RuntimeError(
+            "APK is not signed with the NIGOH release certificate; refusing to deploy "
+            f"(expected {expected}, got {', '.join(sorted(digests)) or 'none'})"
+        )
 
 
 def find_jdk(env: dict) -> None:
