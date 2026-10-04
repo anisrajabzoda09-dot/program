@@ -94,6 +94,7 @@
         <li><a href="#children">{{ icon('users') }}Фарзандон</a></li>
         <li><a href="#users">{{ icon('user') }}Корбарон</a></li>
         <li><a href="#downloads">{{ icon('download') }}Боргириҳо</a></li>
+        <li><a href="#messages">{{ icon('inbox') }}Паёмҳо{% if unread_messages %} <span class="pill blue">{{ unread_messages }}</span>{% endif %}</a></li>
       </ul>
       <div class="a-side-note">Ҳамаи рақамҳо аз пойгоҳи додаҳо гирифта шудаанд.</div>
     </aside>
@@ -375,6 +376,38 @@
           </ul>
           {% else %}
           {{ empty() }}
+          {% endif %}
+        </div>
+      </section>
+
+{# Паёмҳои формаи «Тамос бо мо»-и сайт; ҷавоб тавассути почта дода мешавад. #}
+      {%- set TOPIC = {'question': 'Савол', 'problem': 'Мушкил', 'privacy': 'Махфият', 'delete_account': 'Нест кардани ҳисоб', 'other': 'Дигар'} %}
+      <section id="messages" class="a-sec">
+        <div class="a-sec-head rise" style="--d:18">
+          <h2>Паёмҳо</h2>
+          <p>Охирин {{ messages|length }} · нахонда {{ unread_messages }}</p>
+        </div>
+        <div class="panel rise" style="--d:19">
+          {% if messages %}
+          <ul class="feed">
+            {% for m in messages %}
+            <li>
+              <span class="icon{% if m.topic == 'delete_account' or m.topic == 'privacy' %} teal{% endif %}">{{ icon('inbox') }}</span>
+              <div class="feed-main">
+                <div class="pills">
+                  <span class="pill {{ 'blue' if not m.is_read else 'plain' }}">{{ TOPIC.get(m.topic, m.topic) }}</span>
+                  <span class="pill plain">{{ m.lang|upper }}</span>
+                  <b>{{ m.name }}</b>
+                  <a href="mailto:{{ m.email }}?subject=NIGOH%20Family">{{ m.email }}</a>
+                </div>
+                <div class="feed-meta" style="white-space:pre-wrap">{{ m.message }}</div>
+              </div>
+              <div class="feed-time"><b>{{ m.created_at[11:16] if m.created_at and m.created_at|length >= 16 else '—' }}</b>{{ fdate(m.created_at) }}</div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          {{ empty('Ҳоло паём нест') }}
           {% endif %}
         </div>
       </section>
