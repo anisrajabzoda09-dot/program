@@ -1,0 +1,161 @@
+{#- Файл: сиёсати махфияти NIGOH Family ба забони русӣ — чӣ ҷамъ мешавад, барои чӣ, то кай ва ҳуқуқҳои корбар. -#}
+{% extends "site/base.html" %}
+
+{% block title %}Политика конфиденциальности — NIGOH Family{% endblock %}
+{% block description %}Политика конфиденциальности NIGOH Family: какие данные мы собираем, зачем, кто их видит, как долго они хранятся и как их удалить.{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://nigohfamily.qobus.tj/ru/"},{"@type":"ListItem","position":2,"name":"Политика конфиденциальности","item":"https://nigohfamily.qobus.tj/ru/privacy"}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Правовая информация</span>
+    <h1>Политика конфиденциальности</h1>
+    <p class="lead">Мы простыми словами объясняем, какие данные собирает NIGOH Family, зачем и как вы можете ими управлять.</p>
+    <div class="doc-meta">
+      <span>Опубликовано: 4 октября 2026</span>
+      <span>Для: приложения Android и сайта nigohfamily.qobus.tj</span>
+    </div>
+    <div class="summary-box">
+      <h2>Кратко</h2>
+      <ul>
+        <li>Данные собираются только для работы приложения и хранятся на собственном сервере NIGOH.</li>
+        <li>Мы не показываем рекламу и не продаём ваши данные.</li>
+        <li>Местоположение и приложения ребёнка видит только привязанный родитель.</li>
+        <li>История местоположения хранится 30 дней. Когда вы удаляете ребёнка, вся его история удаляется.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap prose-layout">
+    <nav class="prose-toc" aria-label="Содержание">
+      <h2>Содержание</h2>
+      <ol>
+        <li><a href="#who">Кто мы</a></li>
+        <li><a href="#data">Что мы собираем</a></li>
+        <li><a href="#why">Зачем</a></li>
+        <li><a href="#access">Кто видит</a></li>
+        <li><a href="#third">Сторонние сервисы</a></li>
+        <li><a href="#retention">Как долго мы храним данные</a></li>
+        <li><a href="#rights">Ваши права</a></li>
+        <li><a href="#children">Дети</a></li>
+        <li><a href="#security">Защита данных</a></li>
+        <li><a href="#changes">Изменения</a></li>
+        <li><a href="#contact">Контакты</a></li>
+      </ol>
+    </nav>
+
+    <div class="prose">
+      <section id="who">
+        <h2>1. Кто мы</h2>
+        <p>NIGOH Family — приложение родительского контроля для Android, созданное в Таджикистане. Приложение и сайт подключаются к собственному серверу NIGOH. Мы не используем Firebase или другие сторонние облачные хранилища для данных семьи.</p>
+      </section>
+
+      <section id="data">
+        <h2>2. Что мы собираем</h2>
+        <div class="table-scroll"><table class="meta-table">
+          <thead><tr><th scope="col">Данные</th><th scope="col">От кого</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Email, имя, пароль (только в виде hash), фото профиля</th><td>Родитель и ребёнок при регистрации</td></tr>
+            <tr><th scope="row">Идентификатор аккаунта Google, GitHub или Apple</th><td>Только если вы входите через один из этих сервисов</td></tr>
+            <tr><th scope="row">Местоположение (широта, долгота, точность), уровень заряда</th><td>Телефон ребёнка</td></tr>
+            <tr><th scope="row">Список приложений, иконки и время использования</th><td>Телефон ребёнка</td></tr>
+            <tr><th scope="row">Сообщения чата</th><td>Родитель и ребёнок</td></tr>
+            <tr><th scope="row">Безопасные места, расписания и правила</th><td>Родитель</td></tr>
+            <tr><th scope="row">Запросы времени, SOS и уведомления</th><td>Ребёнок и сервер</td></tr>
+            <tr><th scope="row">IP-адрес, тип браузера и открытая страница</th><td>Посетители сайта</td></tr>
+            <tr><th scope="row">Сообщения из формы обратной связи</th><td>Каждый, кто нам пишет</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Что мы не собираем</h3>
+        <ul>
+          <li>Сообщения ребёнка в других приложениях (Telegram, WhatsApp и т. д.).</li>
+          <li>Фотографии, видео, контакты и пароли с телефона ребёнка.</li>
+          <li>Записи голосовых звонков. Звонок идёт напрямую между телефонами и не записывается.</li>
+        </ul>
+      </section>
+
+      <section id="why">
+        <h2>3. Зачем</h2>
+        <ul>
+          <li><strong>Местоположение</strong> — показывать, где находится ребёнок, историю за 24 часа и уведомления о безопасных местах.</li>
+          <li><strong>Приложения и время</strong> — лимиты, блокировка, расписания и еженедельные отчёты.</li>
+          <li><strong>Чат и уведомления</strong> — общение в семье, SOS и запросы дополнительного времени.</li>
+          <li><strong>Заряд и состояние подключения</strong> — уведомлять, когда заряд низкий или телефон переходит в офлайн.</li>
+          <li><strong>Статистика сайта</strong> — понимать, какие страницы полезны. Мы ни с кем ею не делимся.</li>
+        </ul>
+      </section>
+
+      <section id="access">
+        <h2>4. Кто видит</h2>
+        <p>Данные ребёнка видит только родитель, который привязал его телефон с помощью одноразового кода. Ребёнок видит свои правила в разделе «Мои правила». Администратор сервера может иметь доступ к базе данных, но использует его только для исправления ошибок и ответа на ваше обращение.</p>
+        <p>Мы не продаём данные, не передаём их рекламодателям и раскрываем их только по законному требованию органов Республики Таджикистан.</p>
+      </section>
+
+      <section id="third">
+        <h2>5. Сторонние сервисы</h2>
+        <ul>
+          <li><strong>Google, GitHub, Apple</strong> — только если вы входите через один из этих сервисов. Мы получаем от них email и имя.</li>
+          <li><strong>OpenStreetMap</strong> — изображения карты на телефоне родителя загружаются с серверов OpenStreetMap.</li>
+          <li><strong>STUN-серверы Google</strong> — для установки голосового соединения. Голос через них не передаётся.</li>
+          <li><strong>Google Fonts</strong> — шрифт сайта.</li>
+        </ul>
+      </section>
+
+      <section id="retention">
+        <h2>6. Как долго мы храним данные</h2>
+        <div class="table-scroll"><table class="meta-table">
+          <thead><tr><th scope="col">Данные</th><th scope="col">Срок</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">История местоположения</th><td>30 дней, затем удаляется автоматически</td></tr>
+            <tr><th scope="row">Чат, правила, безопасные места</th><td>Пока ребёнок привязан</td></tr>
+            <tr><th scope="row">Сеанс входа на телефоне</th><td>До 180 дней или до выхода</td></tr>
+            <tr><th scope="row">Статистика сайта (IP, браузер)</th><td>180 дней</td></tr>
+            <tr><th scope="row">Аккаунт родителя</th><td>Пока вы не попросите его удалить</td></tr>
+          </tbody>
+        </table></div>
+        <p>Когда родитель удаляет ребёнка, его местоположение, чат, безопасные места, уведомления, запросы и история звонков удаляются сразу.</p>
+      </section>
+
+      <section id="rights">
+        <h2>7. Ваши права</h2>
+        <ul>
+          <li><strong>Просмотр</strong> — все данные ребёнка видны в приложении родителя.</li>
+          <li><strong>Исправление</strong> — имя, фото и правила можно изменить в настройках.</li>
+          <li><strong>Удаление ребёнка</strong> — удалите ребёнка с помощью PIN-кода родителя; его история будет удалена.</li>
+          <li><strong>Удаление аккаунта</strong> — напишите нам через <a href="{{ lang_prefix }}/contact">форму обратной связи</a>. Аккаунт и его данные будут удалены в течение 30 дней.</li>
+          <li><strong>Отзыв разрешений</strong> — любое разрешение можно отключить в настройках Android, но некоторые функции перестанут работать.</li>
+        </ul>
+      </section>
+
+      <section id="children">
+        <h2>8. Дети</h2>
+        <p>NIGOH Family создано для родителей. Приложение ребёнка устанавливается только с согласия родителя и на телефон, которым он управляет. Приложение не скрыто: иконка видна, а каждое разрешение объясняется при установке. Советуем поговорить с ребёнком перед установкой — прочитайте <a href="{{ lang_prefix }}/tips">советы для родителей</a>.</p>
+      </section>
+
+      <section id="security">
+        <h2>9. Защита данных</h2>
+        <p>Все соединения шифруются с помощью HTTPS. Пароли и токены сеансов хранятся в базе данных только в виде hash. Подробнее на странице <a href="{{ lang_prefix }}/security">Безопасность</a>.</p>
+      </section>
+
+      <section id="changes">
+        <h2>10. Изменения</h2>
+        <p>Если эта политика изменится, новая дата появится вверху, а запись об изменении — в разделе <a href="{{ lang_prefix }}/changelog">«Что нового»</a>. О важных изменениях мы также сообщим в приложении.</p>
+      </section>
+
+      <section id="contact">
+        <h2>11. Контакты</h2>
+        <p>Вопросы о конфиденциальности: <a href="{{ lang_prefix }}/contact">форма обратной связи</a> или email <a href="mailto:anisrajabzoda09@gmail.com">anisrajabzoda09@gmail.com</a>.</p>
+      </section>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Следующая страница"><a href="{{ lang_prefix }}/terms"><span>Далее</span><strong>Условия использования</strong></a></nav>
+{% endblock %}
+{% block scripts %}<script src="/static/js/info.js?v={{ app_version }}" defer></script>{% endblock %}
