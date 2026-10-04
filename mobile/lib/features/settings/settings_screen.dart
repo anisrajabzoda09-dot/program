@@ -17,6 +17,7 @@ import 'app_update.dart';
 import 'parent_pin.dart';
 import 'profile_photo.dart';
 import 'theme_mode.dart';
+import 'two_step_screen.dart';
 import '../../l10n/l10n.dart';
 
 /// Экрани SettingsScreen-ро барои танзимоти ҳисоб, забон, theme ва амният месозад.
@@ -289,6 +290,27 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                   ),
                   onTap: pinError != null ? loadPin : editPin,
+                ),
+                const Divider(height: 1),
+                _Tile(
+                  key: const ValueKey('settings-two-step'),
+                  icon: Icons.phonelink_lock_rounded,
+                  color: NigohDesign.blue,
+                  title: tr('Ҳимояи дуқабата'),
+                  subtitle: tr('Рамзи Authenticator ҳангоми воридшавӣ'),
+                  trailing: Text(
+                    tr('Танзим'),
+                    style: TextStyle(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) =>
+                          TwoStepScreen(api: SessionScope.read(context).api),
+                    ),
+                  ),
                 ),
                 const Divider(height: 1),
                 _Tile(
