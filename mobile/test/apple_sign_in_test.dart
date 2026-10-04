@@ -64,6 +64,10 @@ void main() {
               'callback_scheme': null,
             });
           }
+          // The two-step config call is covered by two_step_test.dart.
+          if (request.url.path == '/api/mobile/v3/auth/otp/config') {
+            return json({'totp': false, 'email': false});
+          }
           requests.add(request);
           if (request.url.path == '/api/mobile/v3/auth/apple/config') {
             return json(config, configStatus);

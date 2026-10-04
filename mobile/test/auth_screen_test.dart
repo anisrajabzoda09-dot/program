@@ -24,7 +24,8 @@ void main() {
           // The Apple/GitHub configs fetched on screen open are covered by
           // apple_sign_in_test.dart and github_sign_in_test.dart.
           if (!request.url.path.endsWith('/auth/apple/config') &&
-              !request.url.path.endsWith('/auth/github/config')) {
+              !request.url.path.endsWith('/auth/github/config') &&
+              !request.url.path.endsWith('/auth/otp/config')) {
             requests.add(request);
           }
           return handler(request);
