@@ -1,0 +1,100 @@
+{#- Файл: аниматсияи «Насб дар 3 қадам» — телефони хурд, ки боргирӣ, рамзи фарзанд ва пайвастшавиро нишон медиҳад.
+    Матнҳо дар луғати IA вобаста ба забон; услуб install-anim.css, рафтор install-anim.js. Бе JS ҳар 3 қадам ҳамчун рӯйхат намоёнанд. -#}
+{%- set IA = {
+  'tg': {
+    'eyebrow': 'Бинед, чӣ қадар осон аст', 'h': 'Насб дар 3 қадам', 'lead': 'Тақрибан 5 дақиқа. Як файл барои ҳарду телефон.',
+    's1': 'Боргирӣ ва насб', 's1d': 'APK-ро аз сайт гиред ва «Насб»-ро пахш кунед.',
+    's2': 'Телефони фарзанд', 's2d': 'Нақши «Фарзанд»-ро интихоб кунед — рамзи 6-рақама пайдо мешавад.',
+    's3': 'Телефони волидайн', 's3d': 'Рамзро ворид кунед — фарзанд пайваст шуд.',
+    'file': 'NIGOH_Family.apk', 'downloading': 'Боргирӣ…', 'install_q': 'Ин барномаро насб кунед?', 'cancel': 'Бекор', 'install': 'Насб',
+    'installed': 'Барнома насб шуд', 'open': 'Кушодан',
+    'who': 'Ин телефони кист?', 'parent': 'Волидайн', 'child': 'Фарзанд', 'code_t': 'Рамзи пайвастшавӣ', 'code_h': 'Онро дар телефони волидайн ворид кунед',
+    'add': 'Илова кардани фарзанд', 'enter': 'Рамзи 6-рақамаро ворид кунед', 'connect': 'Пайваст кардан', 'done': 'Алиҷон пайваст шуд', 'done_h': 'Ҳоло макон ва барномаҳои ӯ намоёнанд',
+    'play': 'Аз нав', 'pause': 'Таваққуф', 'resume': 'Давом', 'region': 'Аниматсияи насб', 'step': 'Қадам'},
+  'ru': {
+    'eyebrow': 'Смотрите, как просто', 'h': 'Установка за 3 шага', 'lead': 'Около 5 минут. Один файл для обоих телефонов.',
+    's1': 'Скачать и установить', 's1d': 'Скачайте APK с сайта и нажмите «Установить».',
+    's2': 'Телефон ребёнка', 's2d': 'Выберите роль «Ребёнок» — появится 6-значный код.',
+    's3': 'Телефон родителя', 's3d': 'Введите код — ребёнок подключён.',
+    'file': 'NIGOH_Family.apk', 'downloading': 'Загрузка…', 'install_q': 'Установить это приложение?', 'cancel': 'Отмена', 'install': 'Установить',
+    'installed': 'Приложение установлено', 'open': 'Открыть',
+    'who': 'Чей это телефон?', 'parent': 'Родитель', 'child': 'Ребёнок', 'code_t': 'Код подключения', 'code_h': 'Введите его на телефоне родителя',
+    'add': 'Добавить ребёнка', 'enter': 'Введите 6-значный код', 'connect': 'Подключить', 'done': 'Алиджон подключён', 'done_h': 'Теперь видны его местоположение и приложения',
+    'play': 'Сначала', 'pause': 'Пауза', 'resume': 'Продолжить', 'region': 'Анимация установки', 'step': 'Шаг'},
+  'en': {
+    'eyebrow': 'See how simple it is', 'h': 'Set up in 3 steps', 'lead': 'About 5 minutes. One file for both phones.',
+    's1': 'Download and install', 's1d': 'Get the APK from the site and tap “Install”.',
+    's2': "Child's phone", 's2d': 'Choose the “Child” role — a 6-digit code appears.',
+    's3': "Parent's phone", 's3d': 'Enter the code — your child is connected.',
+    'file': 'NIGOH_Family.apk', 'downloading': 'Downloading…', 'install_q': 'Do you want to install this app?', 'cancel': 'Cancel', 'install': 'Install',
+    'installed': 'App installed', 'open': 'Open',
+    'who': 'Whose phone is this?', 'parent': 'Parent', 'child': 'Child', 'code_t': 'Pairing code', 'code_h': "Enter it on the parent's phone",
+    'add': 'Add a child', 'enter': 'Enter the 6-digit code', 'connect': 'Connect', 'done': 'Alijon is connected', 'done_h': 'You can now see his location and apps',
+    'play': 'Replay', 'pause': 'Pause', 'resume': 'Resume', 'region': 'Installation animation', 'step': 'Step'},
+}[lang | default('tg')] -%}
+<section class="section install-anim-section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">{{ IA.eyebrow }}</span>
+      <h2>{{ IA.h }}</h2>
+      <p class="lead">{{ IA.lead }}</p>
+    </div>
+    <div class="install-anim" data-install-anim role="region" aria-label="{{ IA.region }}">
+      <ol class="ia-steps">
+        {% for n in (1, 2, 3) %}
+        <li>
+          <button type="button" class="ia-step{% if n == 1 %} is-active{% endif %}" data-step="{{ n }}" aria-pressed="{{ 'true' if n == 1 else 'false' }}">
+            <span class="ia-num">{{ n }}</span>
+            <span class="ia-text"><strong>{{ IA['s' ~ n] }}</strong><span>{{ IA['s' ~ n ~ 'd'] }}</span></span>
+            <span class="ia-bar" aria-hidden="true"><span></span></span>
+          </button>
+        </li>
+        {% endfor %}
+      </ol>
+
+      <div class="ia-stage">
+        <div class="ia-phone" aria-hidden="true">
+          <div class="ia-screen">
+            <div class="ia-status"><span>09:41</span><span class="ia-island"></span><span class="ia-icons"></span></div>
+
+            <div class="ia-scene is-active" data-scene="1">
+              <div class="ia-dl">
+                <span class="ia-file-icon"></span>
+                <div class="ia-dl-main"><b>{{ IA.file }}</b><small>{{ IA.downloading }} 43 MB</small><span class="ia-progress"><span></span></span></div>
+              </div>
+              <div class="ia-dialog">
+                <img src="/static/images/nigoh_logo.png" alt="" width="36" height="36">
+                <b>NIGOH Family</b>
+                <p>{{ IA.install_q }}</p>
+                <div class="ia-dialog-btns"><span>{{ IA.cancel }}</span><span class="ia-tap">{{ IA.install }}</span></div>
+              </div>
+              <div class="ia-ok"><span class="ia-check"></span><b>{{ IA.installed }}</b><span class="ia-btn">{{ IA.open }}</span></div>
+            </div>
+
+            <div class="ia-scene" data-scene="2">
+              <p class="ia-title">{{ IA.who }}</p>
+              <div class="ia-roles"><span>{{ IA.parent }}</span><span class="ia-tap ia-role-child">{{ IA.child }}</span></div>
+              <div class="ia-code-card">
+                <small>{{ IA.code_t }}</small>
+                <div class="ia-qr"></div>
+                <b class="ia-code">482 913</b>
+                <small>{{ IA.code_h }}</small>
+              </div>
+            </div>
+
+            <div class="ia-scene" data-scene="3">
+              <p class="ia-title">{{ IA.add }}</p>
+              <small class="ia-sub">{{ IA.enter }}</small>
+              <div class="ia-digits">{% for d in '482913' %}<span style="--i:{{ loop.index0 }}">{{ d }}</span>{% endfor %}</div>
+              <span class="ia-btn ia-tap ia-connect">{{ IA.connect }}</span>
+              <div class="ia-done"><span class="ia-check"></span><b>{{ IA.done }}</b><small>{{ IA.done_h }}</small></div>
+            </div>
+
+            <span class="ia-finger"></span>
+          </div>
+        </div>
+        <button type="button" class="ia-toggle" data-ia-toggle data-label-pause="{{ IA.pause }}" data-label-resume="{{ IA.resume }}" hidden>{{ IA.pause }}</button>
+      </div>
+    </div>
+  </div>
+</section>
