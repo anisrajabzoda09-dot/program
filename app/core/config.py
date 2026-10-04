@@ -59,6 +59,23 @@ class Settings:
     GITHUB_API: str = "https://api.github.com"
     GITHUB_TICKET_MAX_AGE: int = 120
 
+    # Ҳимояи дуқабата (OTP). OTP_ENCRYPTION_KEY — калиди Fernet барои рамзгузории калидҳои
+    # Authenticator дар база; бе он TOTP хомӯш аст. Рамз ба почта танҳо бо SMTP кор мекунад.
+    OTP_ENCRYPTION_KEY: str = os.getenv("OTP_ENCRYPTION_KEY", "")
+    OTP_ISSUER: str = os.getenv("OTP_ISSUER", "NIGOH Family")
+    OTP_MAX_ATTEMPTS: int = 5            # кӯшишҳои нодуруст то қулф
+    OTP_LOCK_MINUTES: int = 15           # мӯҳлати қулф
+    OTP_TICKET_SECONDS: int = 300        # вақт барои ворид кардани рамз пас аз парол
+    EMAIL_CODE_TTL_SECONDS: int = 600    # рамзи почта 10 дақиқа эътибор дорад
+    EMAIL_CODE_PER_HOUR: int = 3         # ҳадди аксар рамзҳо ба як почта дар як соат
+    EMAIL_CODE_COOLDOWN_SECONDS: int = 60
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587") or 587)
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM: str = os.getenv("SMTP_FROM", "")
+    SMTP_SSL: bool = os.getenv("SMTP_SSL", "").lower() in ("1", "true", "yes")
+
     # Sign in with Apple (all empty = the Apple button is hidden and the routes refuse).
     # APPLE_CLIENT_ID is the Services ID; the private key is the .p8 key text
     # (newlines may be written as \n) or a path in APPLE_PRIVATE_KEY_PATH.
