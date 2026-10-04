@@ -489,6 +489,23 @@ class NigohApi {
     body: {'study': study},
   );
 
+  /// Сатҳи филтри сайтҳо ва рӯйхати сайтҳои манъшударо барои фарзанд нигоҳ медорад.
+  Future<Map<String, dynamic>> setWebFilter(
+    int childId,
+    Map<String, dynamic> webFilter,
+  ) => _send(
+    'PUT',
+    '/api/mobile/v2/children/$childId/settings',
+    body: {'web_filter': webFilter},
+  );
+
+  /// Телефони фарзанд хабар медиҳад, ки филтр кор мекунад ё не.
+  Future<void> reportWebFilterState(int childId, String state) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/web-filter/state',
+    body: {'state': state},
+  );
+
   // Огоҳиномаи воридшударо дар NigohApi ба амали мувофиқ равона мекунад.
 
   /// events мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
@@ -525,9 +542,11 @@ class NigohApi {
   /// acceptCall мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   Future<void> acceptCall(int callId) =>
       _send('POST', '/api/mobile/v3/calls/$callId/accept');
+
   /// declineCall раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> declineCall(int callId) =>
       _send('POST', '/api/mobile/v3/calls/$callId/decline');
+
   /// endCall раванди фаъолро қатъ карда, захираҳои онро озод мекунад.
   Future<void> endCall(int callId) =>
       _send('POST', '/api/mobile/v3/calls/$callId/end');
