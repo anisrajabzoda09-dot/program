@@ -10,6 +10,7 @@ from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.contact import ContactMessage
+from app.models.email_code import EmailCode
 
 __all__ = [
     "User",
@@ -22,6 +23,7 @@ __all__ = [
     "ChatMessage",
     "SiteAnalytics",
     "ContactMessage",
+    "EmailCode",
 ]
 from app.models.mobile_session import MobileSession
 from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace
