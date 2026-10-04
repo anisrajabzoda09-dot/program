@@ -7,6 +7,7 @@ from app.models.child import Child
 from app.models.app_rule import AppRule
 from app.models.chat import ChatMessage
 from app.core.config import settings
+from app.crud.crud_privacy import delete_child_data
 
 def ensure_default_child_apps(db: Session, child_id: int):
     """Маълумоти ёрирасони ensure default фарзанд app-ҳо-ро омода карда, ба caller бармегардонад."""
@@ -139,9 +140,8 @@ def delete_child(db: Session, child_id: int) -> bool:
     child = db.query(Child).filter(Child.id == child_id).first()
     if not child:
         return False
-    # delete rules and chat
-    db.query(AppRule).filter(AppRule.child_id == child_id).delete()
-    db.query(ChatMessage).filter(ChatMessage.child_id == child_id).delete()
+    # Ҳамаи маълумоти фарзанд: қоидаҳо, вақти истифода, макон, чат ва ғайра.
+    delete_child_data(db, child_id)
     db.delete(child)
     db.commit()
     return True
