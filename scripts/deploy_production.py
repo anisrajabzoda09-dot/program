@@ -29,7 +29,7 @@ REMOTE_USER = os.environ.get("NIGOH_DEPLOY_USER", "dev")
 REMOTE_HOST = os.environ.get("NIGOH_DEPLOY_HOST", "37.27.245.216")
 REMOTE_PASS = os.environ.get("NIGOH_DEPLOY_PASSWORD", "")
 ANDROID_PROJECT = Path(os.environ.get("NIGOH_ANDROID_PROJECT", str(PROJECT_ROOT / "mobile")))
-APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.19.0.apk")
+APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.20.0.apk")
 DOWNLOADS = PROJECT_ROOT / "app" / "static" / "downloads"
 SSH_OPTS = "ssh -F /dev/null -o StrictHostKeyChecking=accept-new"
 

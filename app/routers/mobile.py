@@ -299,7 +299,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.19.0: воридшавӣ бо GitHub, корти «App info» дар устоди иҷозатҳо ва шарҳи код бо забони тоҷикӣ.",
+        "release_notes": "v2.20.0: филтри сайтҳо аз рӯи синну сол, ҳимояи дуқабата (Authenticator ва рамз ба почта), аксҳои профил дигар гум намешаванд.",
         "download_url": download_url
     }
 
