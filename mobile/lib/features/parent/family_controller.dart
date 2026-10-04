@@ -452,6 +452,8 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     parentName: c.parentName,
     bedtime: bedtime ?? c.bedtime,
     study: study ?? c.study,
+    childAvatar: c.childAvatar,
+    parentAvatar: c.parentAvatar,
     batteryLevel: c.batteryLevel,
     unreadFromChild: c.unreadFromChild,
     unreadFromParent: c.unreadFromParent,
