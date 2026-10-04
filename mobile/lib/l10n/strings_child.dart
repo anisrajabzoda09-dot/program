@@ -394,4 +394,16 @@ const Map<String, List<String>> childStrings = {
     'Сегодня приложения ещё не использовались.',
     'No apps used today yet.',
   ],
+  // Филтри сайтҳо аз рӯи синну сол.
+  'Волидайн филтри сайтҳоро фаъол карданд. «Иҷозат додан»-ро пахш кунед ва дар тирезаи Android «OK»-ро интихоб кунед.':
+      [
+        'Родители включили фильтр сайтов. Нажмите «Разрешить» и выберите «OK» в окне Android.',
+        'Your parent turned on the site filter. Tap “Allow” and choose “OK” in the Android window.',
+      ],
+  'Иҷозат лозим аст': ['Нужно разрешение', 'Permission needed'],
+  'Сайтҳое, ки барои синну соли шумо нестанд, кушода намешаванд.': [
+    'Сайты, не подходящие для вашего возраста, не откроются.',
+    'Sites that aren\'t right for your age won\'t open.',
+  ],
+  'Фаъол: {level}': ['Включён: {level}', 'On: {level}'],
 };
