@@ -521,6 +521,7 @@ class NotifyService : Service() {
                 else s.lowBatteryTitle(child, data.optInt("battery")) to s.lowBatteryBody
             }
             "offline" -> child?.let { s.offlineTitle(it) to s.offlineBody }
+            "web_filter_off" -> child?.let { s.webFilterOffTitle(it) to s.webFilterOffBody }
             "new_app" -> {
                 val apps = data.optJSONArray("apps")
                 if (child == null || apps == null || apps.length() == 0) null else {

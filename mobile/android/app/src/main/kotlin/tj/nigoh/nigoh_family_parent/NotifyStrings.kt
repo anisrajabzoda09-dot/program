@@ -81,6 +81,16 @@ class NotifyStrings(val lang: String) {
         "Телефон ребёнка уже 20 минут не подключён к интернету.",
         "Your child's phone has been offline for 20 minutes.")
 
+    /** Сарлавҳаи огоҳӣ, вақте филтри сайтҳо дар телефони фарзанд хомӯш шуд. */
+    fun webFilterOffTitle(child: String) = t(
+        "$child: филтри сайтҳо хомӯш шуд",
+        "$child: фильтр сайтов выключен",
+        "$child: site filter turned off")
+    val webFilterOffBody get() = t(
+        "Дар телефони фарзанд VPN-и филтр қатъ шуд. Барномаро дар он кушоед.",
+        "На телефоне ребёнка остановлен VPN фильтра. Откройте на нём приложение.",
+        "The filter VPN was stopped on your child's phone. Open the app there.")
+
     /** Сарлавҳаи насби барномаи навро месозад. */
     fun newAppTitle(child: String) = t(
         "$child барномаи нав насб кард",
