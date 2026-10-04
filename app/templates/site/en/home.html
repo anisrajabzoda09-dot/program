@@ -5,7 +5,7 @@
 
 {% block description %}NIGOH Family is a free parental control app for Android. See your child's location on a map, block apps, limit screen time and chat with your child in the family chat.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/phone.css?v={{ app_version }}"><link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/phone.css?v={{ app_version }}"><link rel="stylesheet" href="/static/css/demo.css?v={{ app_version }}"><link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">{% endblock %}
 
 {% block content %}
 
@@ -29,7 +29,7 @@
       </div>
     </div>
     <div class="hero-visual">
-      {% include "site/_phone.html" %}
+      {% include "site/_demo_phone.html" %}
     </div>
   </div>
 </section>
@@ -231,4 +231,4 @@
 </section>
 
 {% endblock %}
-{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script><script src="/static/js/demo.js?v={{ app_version }}" defer></script>{% endblock %}
