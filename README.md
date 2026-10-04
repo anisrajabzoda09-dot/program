@@ -8,13 +8,13 @@
 
 Барномаи мобилӣ (Flutter + Kotlin) · Сервер (FastAPI) · Сайт бо се забон · Панели админ
 
-[![Version](https://img.shields.io/badge/version-2.19.0-2563eb)](CHANGELOG.md)
-[![Releases](https://img.shields.io/badge/releases-24-14b8a6)](#-роҳи-лоиҳа-24-версия-дар-14-рӯз)
-[![Commits](https://img.shields.io/badge/commits-560%2B-7c3aed)](https://github.com/anisrajabzoda09-dot/program/commits/main)
-[![Tests](https://img.shields.io/badge/tests-230%2B%20Flutter%20%7C%207%20server%20suites-16a34a)](#-санҷишҳо)
+[![Version](https://img.shields.io/badge/version-2.20.0-2563eb)](CHANGELOG.md)
+[![Releases](https://img.shields.io/badge/releases-25-14b8a6)](#-роҳи-лоиҳа-25-версия-дар-14-рӯз)
+[![Commits](https://img.shields.io/badge/commits-680%2B-7c3aed)](https://github.com/anisrajabzoda09-dot/program/commits/main)
+[![Tests](https://img.shields.io/badge/tests-365%20Flutter%20%7C%201000%2B%20server%20checks-16a34a)](#-санҷишҳо)
 [![Live](https://img.shields.io/badge/live-nigohfamily.qobus.tj-0ea5e9)](https://nigohfamily.qobus.tj)
 
-[**Сайт**](https://nigohfamily.qobus.tj) · [**Боргирии Android**](https://nigohfamily.qobus.tj/get) · [**Ҳолати сервер**](https://nigohfamily.qobus.tj/health) · [**Тағйирот**](CHANGELOG.md) · [**API**](docs/MOBILE_API.md) · [English](#-in-english)
+[**Сайт**](https://nigohfamily.qobus.tj) · [**Боргирии Android**](https://nigohfamily.qobus.tj/get) · [**Ҳолати сервер**](https://nigohfamily.qobus.tj/health) · [**Тағйирот**](CHANGELOG.md) · [**Чӣ гуна кор мекунад**](docs/HOW_IT_WORKS.md) · [**Ҳамаи функсияҳо**](docs/FUNCTIONS.md) · [**API**](docs/MOBILE_API.md) · [English](#-in-english)
 
 </div>
 
@@ -36,16 +36,16 @@ NIGOH Family ба волидайн нишон медиҳад, ки фарзан�
 
 | | |
 |---|---|
-| **560+ коммит** | дар 14 рӯз (21.09 – 04.10.2026), 213 коммит танҳо дар як рӯз |
-| **24 версияи нашршуда** | аз v1.0.0 то v2.19.0, ҳар яке бо APK-и имзошуда |
-| **~23 600 сатр Dart** | барномаи Flutter (97 файл) |
-| **~3 300 сатр Kotlin** | қисми native: бастани барномаҳо, хидмати огоҳиномаҳо, навсозӣ |
-| **~5 600 сатр Python** | сервер: 131 роут дар 8 router |
-| **~15 000 сатр HTML/CSS/JS** | сайт бо 3 забон, режими рӯз/шаб, аниматсия, демо |
-| **42 файли санҷиши Flutter** | 230+ санҷиш (~7 600 сатр) |
-| **7 файли санҷиши сервер** | 200+ санҷиш: API-и мобилӣ, OAuth, амният, кэш |
+| **680+ коммит** | дар 14 рӯз (21.09 – 04.10.2026), 213 коммит танҳо дар як рӯз |
+| **25 версияи нашршуда** | аз v1.0.0 то v2.20.0, ҳар яке бо APK-и имзошуда |
+| **~25 400 сатр Dart** | барномаи Flutter (100+ файл) |
+| **~3 900 сатр Kotlin** | қисми native: бастани барномаҳо, огоҳиномаҳо, VPN-и филтри сайтҳо, навсозӣ |
+| **~7 500 сатр Python** | сервер: 160 роут дар 11 router |
+| **~18 500 сатр HTML/CSS/JS** | сайт бо 3 забон ва 12 саҳифа, режими рӯз/шаб, аниматсия, демо |
+| **44 файли санҷиши Flutter** | 365 санҷиш, инчунин 9 санҷиши JUnit барои Kotlin |
+| **15 файли санҷиши сервер** | 1000+ санҷиш: API, OAuth, OTP, филтр, махфият, амният, ҳамаи саҳифаҳо |
 | **3 забон** | тоҷикӣ, русӣ, англисӣ — дар барнома, сайт ва ҳатто паёмҳои хатои сервер |
-| **4 роҳи воридшавӣ** | почта/парол, Google, GitHub, Apple |
+| **5 роҳи воридшавӣ** | почта/парол, рамз ба почта, Google, GitHub, Apple — ва ҳимояи дуқабата (Authenticator) |
 
 <p align="center">
   <img src="docs/screenshots/mobile_site.jpg" width="24%" alt="Сайт дар телефон">
@@ -60,6 +60,7 @@ NIGOH Family ба волидайн нишон медиҳад, ки фарзан�
 - **Харита:** макони зинда, таърихи 24 соат, ҷойҳои бехатар (мактаб, хона).
 - **Огоҳиномаҳо ҳатто вақте барнома пӯшида аст:** SOS бо занги хатар то хомӯш кардан, батареяи кам (<15%), телефон 20 дақ офлайн, барномаи нав, дархости вақт, занги аз даст рафта.
 - **Ҳисоботи ҳафтаина**, дархостҳои вақти иловагӣ, батарея ва ҳолати дастгоҳ.
+- **Филтри сайтҳо аз рӯи синну сол:** «То 12 сола» ё «13–17 сола» (аз синну сол пешниҳод мешавад), SafeSearch дар Google, сайтҳои иловагии манъшуда; агар фарзанд филтрро хомӯш кунад — огоҳӣ.
 
 ### 🧒 Фарзанд
 - «Қоидаҳои ман» — фарзанд мебинад, ки чӣ баста аст ва чаро.
@@ -70,12 +71,14 @@ NIGOH Family ба волидайн нишон медиҳад, ки фарзан�
 - Чат бо «Хонда шуд», **занги овозӣ (WebRTC)** бо экрани пурра, акси профил.
 - Навсозӣ бо як тугма — бо санҷиши имзо, маълумот ва иҷозатҳо нигоҳ дошта мешаванд.
 - Устоди иҷозатҳо (permissions wizard) — қадам ба қадам, бо тугма ба экрани дақиқи танзимот.
+- **Ҳимояи дуқабата:** рамзи Authenticator бо QR, 8 рамзи эҳтиётӣ, воридшавӣ бо рамз ба почта; қулф пас аз 5 кӯшиши нодуруст.
 
 ### 🌐 Сайт ва панели админ
 - 3 забон (`/`, `/ru`, `/en`) бо `hreflang`, SEO, JSON-LD, sitemap.
 - Режими рӯз/шаб, системаи аниматсия (бо эҳтироми `prefers-reduced-motion`), ҷустуҷӯи зинда дар FAQ, саҳифаи боргирии вобаста ба дастгоҳ бо QR.
-- **Демои интерактивии барнома** дар саҳифаи аввал — 5 экран бо маълумоти намунавӣ.
-- Панели админ: корбарон, дастгоҳҳо, омори боздид ва боргирӣ.
+- **Демои интерактивии барнома** дар саҳифаи аввал — 5 экран бо маълумоти намунавӣ; аниматсияи «Насб дар 3 қадам».
+- Саҳифаҳо: сиёсати махфият, шартҳои истифода, тамос (форма бо ҳифз аз спам), маслиҳат барои волидайн (вақти экран аз рӯи синну сол), муқоисаи ростқавлона бо Google Family Link, «Чӣ нав аст».
+- Панели админ: корбарон, дастгоҳҳо, омори боздид ва боргирӣ, паёмҳои формаи тамос, ҳимояи дуқабата.
 
 ## 🏗 Меъморӣ
 
@@ -122,12 +125,12 @@ flowchart LR
 | [`mobile/test/`](mobile/test/) | Санҷишҳои Flutter |
 | [`scripts/`](scripts/) | Нашр ба сервер (`deploy_production.py`) |
 | [`deploy/`](deploy/) | nginx ва HTTPS |
-| [`docs/`](docs/) | API-и мобилӣ, танзими Google / GitHub / Apple |
+| [`docs/`](docs/) | [Чӣ гуна кор мекунад](docs/HOW_IT_WORKS.md), [ҳамаи функсияҳо](docs/FUNCTIONS.md), API-и мобилӣ, танзими Google / GitHub / Apple |
 | [`design/`](design/) | Тарҳҳои экран, презентатсия |
 
 Ҳар файли сервер, барнома ва сайт дар аввал шарҳи тоҷикӣ дорад, ки барои чӣ аст, ва ҳар функсия — шарҳи кӯтоҳ.
 
-## 🛣 Роҳи лоиҳа: 24 версия дар 14 рӯз
+## 🛣 Роҳи лоиҳа: 25 версия дар 14 рӯз
 
 | Версия | Сана | Чӣ илова шуд |
 |---|---|---|
@@ -146,6 +149,7 @@ flowchart LR
 | **2.17.0** | 03.10 | Интерфейси равшан ва аниматсия дар ҳар экран; ҳимояи нест кардан бо PIN |
 | **2.18.0** | 03.10 | Sign in with Apple; системаи ҳаракати сайт; FAQ бо ҷустуҷӯ |
 | **2.19.0** | 04.10 | Sign in with GitHub; корти «App info» дар устоди иҷозатҳо; демои интерактивӣ дар саҳифаи аввал |
+| **2.20.0** | 04.10 | **Филтри сайтҳо аз рӯи синну сол** (VPN-и DNS); **ҳимояи дуқабата** (TOTP, рамзҳои эҳтиётӣ, рамз ба почта); қулфи ҳисоб; CSP ва ҳимоя аз CSRF; мӯҳлати 15-дақиқаии рамзи пайвастшавӣ; нигоҳдории маҳдуди маълумот; 6 саҳифаи нав бо 3 забон |
 
 Тафсилоти ҳар версия: [CHANGELOG.md](CHANGELOG.md).
 
@@ -171,6 +175,11 @@ flowchart LR
 | **Analyzer-и Dart дар роҳҳои ғайри-ASCII (кириллӣ) вайрон мешавад** | Таҳлил аз нусхаи ASCII иҷро мешавад (дар mobile/README навишта шуд) |
 | **Санҷишҳои «Вақти хоб» аз соати компютер вобаста буданд** | Санҷишҳо ҳолати воқеиро аз `activeAt(now)` ҳисоб мекунанд |
 | **Омори сайт ҳар саҳифаро суст мекард** (навиштан ба база дар event loop) | Омор акнун пас аз ҷавоб дар thread-и алоҳида навишта мешавад; `/ru` ва `/en` ҳам ҳисоб мешаванд |
+| **Рамзи 6-рақамаи пайвастшавӣ мӯҳлат надошт ва `/pair` маҳдуд набуд** — 900 000 рамзро санҷида, ба фарзанди бегона пайваст шудан мумкин буд | Рамз 15 дақиқа эътибор дорад ва худкор нав мешавад; 10 кӯшиш дар 15 дақиқа барои ҳар IP ва ҳар аккаунт |
+| **Филтри сайтҳо бояд дар ҳама браузерҳо кор кунад, бе root ва бе фиристодани ҳамаи трафик** | VPN-и маҳаллӣ танҳо як роҳ дорад — ба DNS; пакетҳои DNS дар Kotlin хонда мешаванд, серверҳои DoH баста мешаванд |
+| **Хориҷ кардани фарзанд таърихи макон ва чатро нест намекард** — волидайни навбатӣ онро медид | `purge_child_history` ҳамаи таърихро нест мекунад; макон пас аз 30 рӯз худкор нест мешавад |
+| **Пас аз тағйири қоида акси профил аз экран гум мешуд** | `_copyChild` аксҳоро нусха намекард — ислоҳ шуд ва санҷиш илова шуд |
+| **Пароли сайт бе қулфи ҳисоб, админ бе 2FA, сайт бе CSP** | Қулф пас аз 5 хато, TOTP барои ҳама, CSP, тафтиши `Origin` барои POST/PUT/DELETE, `no-store` |
 
 ## 🔐 Амният
 
@@ -180,6 +189,10 @@ flowchart LR
 - Apple: client secret бо ES256, санҷиши identity token бо RS256 ва калидҳои ҷамъиятии Apple.
 - Сарлавҳаҳои амниятӣ: HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, COOP/CORP.
 - Навсозӣ танҳо бо ҳамон калиди имзо насб мешавад.
+- **Ҳимояи дуқабата (TOTP, RFC 6238)** — калид бо Fernet рамзгузорӣ шудааст, зидди такрор, 8 рамзи эҳтиётии якдафъаина; рамз ба почта бо маҳдудият (10 дақ, 5 кӯшиш, 3 дар соат).
+- **Қулфи ҳисоб** пас аз 5 пароли ё рамзи нодуруст (15 дақиқа); рамзи пайвастшавӣ 15 дақиқа ва 10 кӯшиш.
+- **Content-Security-Policy**, ҳимоя аз CSRF (тафтиши `Origin`), `no-store` барои саҳифаҳои ҳассос.
+- Нигоҳдории маҳдуд: макон 30 рӯз, IP дар омор 180 рӯз; хориҷ кардани фарзанд таърихро нест мекунад.
 
 ## 🧪 Санҷишҳо
 
@@ -194,18 +207,25 @@ flowchart LR
 | `test_apple_auth.py` | 25 санҷиш: ES256, RS256, пайвасти аккаунт |
 | `test_perf_middleware.py` | 42 санҷиш: омор дар замина, кэши static, 3 забон |
 | `test_bundle_sync.py` | ҳамоҳангсозии бастаҳо |
+| `test_otp.py` | 70 санҷиш: векторҳои RFC 6238, зидди такрор, рамзҳои эҳтиётӣ, қулф, рамз ба почта |
+| `test_web_filter.py` | 41 санҷиш: доменҳо, танзими волидайн, ҳолати телефон, огоҳӣ |
+| `test_site_pages.py` | 680+ санҷиш: ҳар саҳифа бо 3 забон — ҷавоб, hreflang, canonical, footer, sitemap |
+| `test_security_headers.py` | 48 санҷиш: CSP, CSRF, no-store |
+| `test_contact.py` | 49 санҷиш: форма, спам, маҳдудият, панели админ |
+| `test_privacy_retention.py` | 34 санҷиш: нигоҳдории маҳдуд ва нест кардани таърих |
+| `test_pairing.py` | 12 санҷиш: мӯҳлати рамз ва маҳдудияти кӯшишҳо |
 
 ```bash
 for t in tests/test_*.py; do venv/bin/python "$t" || break; done
 ```
 
-**Барнома** (`mobile/test/`, 42 файл, 230+ санҷиш): устоди иҷозатҳо, чат, занг, харита, қоидаҳои фарзанд, ҳамоҳангсозӣ, PIN, навсозӣ, ҳар 3 забон, layout дар 360px, воридшавии GitHub/Apple.
+**Барнома** (`mobile/test/`, 44 файл, 365 санҷиш): устоди иҷозатҳо, чат, занг, харита, қоидаҳои фарзанд, ҳамоҳангсозӣ, PIN, навсозӣ, филтри сайтҳо, ҳимояи дуқабата, ҳар 3 забон, layout дар 360px, воридшавии GitHub/Apple. **Kotlin:** 9 санҷиши JUnit барои пакетҳои DNS (`./gradlew :app:testDebugUnitTest`).
 
 ```bash
 cd mobile && flutter test
 ```
 
-Илова бар ин, сайт пеш аз ҳар нашр дар браузери headless (Chrome DevTools Protocol) дар 360 / 390 / 1440px ва дар ҳарду мавзӯъ санҷида мешавад: на scroll-и уфуқӣ, на хатои JavaScript.
+Илова бар ин, сайт пеш аз ҳар нашр дар браузери headless (`scripts/qa/page_qa.mjs`, Chrome DevTools Protocol) дар 360 / 390 / 1440px ва дар ҳарду мавзӯъ санҷида мешавад: на scroll-и уфуқӣ, на хатои JavaScript, на вайронкунии CSP.
 
 ## 🚀 Оғози маҳаллӣ
 
@@ -234,7 +254,7 @@ NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
 
 Базаи `nigoh.db`-и сервер ҳеҷ гоҳ иваз карда намешавад. Пас аз версияи нав `APP_VERSION` ва `APP_VERSION_CODE`-ро дар [`app/core/config.py`](app/core/config.py) нав кунед — барнома навсозиро ба корбарон худаш пешниҳод мекунад.
 
-Ҳуҷҷатҳо: [API-и мобилӣ](docs/MOBILE_API.md) · [Google OAuth](docs/GOOGLE_OAUTH_SETUP.md) · [GitHub](docs/GITHUB_SIGNIN_SETUP.md) · [Apple](docs/APPLE_SIGNIN_SETUP.md)
+Ҳуҷҷатҳо: **[Чӣ гуна кор мекунад](docs/HOW_IT_WORKS.md)** · **[Ҳамаи функсияҳо](docs/FUNCTIONS.md)** · [API-и мобилӣ](docs/MOBILE_API.md) · [Google OAuth](docs/GOOGLE_OAUTH_SETUP.md) · [GitHub](docs/GITHUB_SIGNIN_SETUP.md) · [Apple](docs/APPLE_SIGNIN_SETUP.md)
 
 ---
 
@@ -242,11 +262,14 @@ NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
 
 **NIGOH Family** is a complete, self-hosted parental-control system for Android, built from scratch: a Flutter + Kotlin app (one APK, parent or child role chosen after sign-in), a FastAPI server with 131 routes, a trilingual website (Tajik / Russian / English) and an admin panel. It runs in production at [nigohfamily.qobus.tj](https://nigohfamily.qobus.tj) with no Firebase or third-party push service.
 
-- **Scale:** 560+ commits and 24 signed releases (v1.0.0 → v2.19.0) in 14 days; ~23.6k lines of Dart, ~3.3k Kotlin, ~5.6k Python, ~15k HTML/CSS/JS.
+- **Scale:** 680+ commits and 25 signed releases (v1.0.0 → v2.20.0) in 14 days; ~25k lines of Dart, ~3.9k Kotlin, ~7.5k Python, ~18k HTML/CSS/JS.
 - **Parents:** per-app limits and blocking, categories, school/bedtime/focus schedules, live map with 24 h history and safe places, weekly reports, extra-time requests, SOS alarm, battery/offline alerts.
 - **Children:** "My rules", extra-time requests, SOS, quick messages; uninstalling needs the parent PIN.
 - **Both:** chat with read receipts, WebRTC voice calls, one-tap signature-checked self-update.
 - **Engineering highlights:** replaced Firebase with own long-poll notification service; worked around Android 13+ "restricted settings"; offline-first on-device blocking; Google / GitHub / Apple sign-in with CSRF state and single-use nonce-bound mobile tickets; SHA-256 session tokens; signing-certificate pinning in the deploy pipeline.
-- **Tests:** 230+ Flutter tests in 42 files, server end-to-end and OAuth suites, headless-browser QA of the website at three widths in light and dark themes.
+- **Age-based site filter:** a local DNS-only VPN on the child phone (CleanBrowsing Family/Adult, SafeSearch, DoH bypass blocked, parent alert when switched off).
+- **Two-step verification:** TOTP with QR and recovery codes, email codes, account lock after 5 failures; CSP, CSRF origin checks, expiring rate-limited pairing codes, data retention limits.
+- **Tests:** 365 Flutter tests, 9 JUnit tests, 1000+ server checks in 15 suites, headless-browser QA of every page at three widths in light and dark themes.
+- **Docs:** [How it works](docs/HOW_IT_WORKS.md) and an auto-generated index of [every function](docs/FUNCTIONS.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for every release.
