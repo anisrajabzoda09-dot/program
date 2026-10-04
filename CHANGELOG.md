@@ -1,5 +1,11 @@
 # Changelog
 
+## Server — 2026-10-04
+- Faster pages: visit statistics are written in the background after the page is sent, instead of blocking every request; Russian and English pages are now counted too.
+- Browser caching: versioned CSS/JS files are cached for a year, others for an hour (APK downloads are never cached).
+- Deploy refuses any APK that is not signed with the NIGOH release certificate (SHA-256 pinned), so phones can always update in place.
+- README rewritten: project history, numbers, architecture, problems solved, tests, screenshots.
+
 ## 2.19.0 — 2026-10-04
 - Sign in with GitHub on the website and in the Android app (appears once GitHub keys are set on the server; see docs/GITHUB_SIGNIN_SETUP.md).
 - Permissions wizard: an «App info» card on the three restricted-setting steps (usage access, display over other apps, Accessibility) with a button to the app page and four numbered steps to turn off Android 13+'s "restricted setting".
