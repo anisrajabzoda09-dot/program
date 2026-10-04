@@ -23,6 +23,7 @@ from app.routers.mobile_family import router as mobile_family_router
 from app.routers.mobile_realtime import router as mobile_realtime_router
 from app.routers.download import router as download_router
 from app.routers.contact import router as contact_router
+from app.routers.otp import router as otp_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -178,3 +179,4 @@ app.include_router(mobile_family_router)
 app.include_router(mobile_realtime_router)
 app.include_router(download_router)
 app.include_router(contact_router)
+app.include_router(otp_router)
