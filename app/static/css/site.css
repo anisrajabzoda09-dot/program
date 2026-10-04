@@ -330,6 +330,12 @@ p { margin: 0; text-wrap: pretty; }
 .footer-grid a:hover { color: var(--ink); }
 .footer-grid ul a:hover { background-size: 100% 1px; }
 .footer-bottom { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--faint); }
+/* Матн танҳо барои хонандаҳои экран (screen reader), дар экран пинҳон. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+/* Пайвандҳои ҳуқуқӣ дар поёни footer: махфият, шартҳо, амният. */
+.footer-legal { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.footer-legal a { color: var(--faint); text-decoration: none; }
+.footer-legal a:hover, .footer-legal a:focus-visible { color: var(--ink); text-decoration: underline; }
 
 /* Тарҳро ба планшет ва телефон мутобиқ мекунад. */
 @media (max-width: 960px) {
