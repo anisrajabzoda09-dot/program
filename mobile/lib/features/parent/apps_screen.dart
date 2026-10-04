@@ -10,6 +10,7 @@ import 'family_controller.dart';
 import 'parent_logic.dart';
 import 'parent_sheets.dart';
 import 'study_sheet.dart';
+import 'web_filter_sheet.dart';
 import 'weekly_report.dart';
 import '../../l10n/l10n.dart';
 
@@ -222,6 +223,17 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Равзанаи «Филтри сайтҳо»-ро барои фарзанд мекушояд.
+  void _openWebFilter(FamilyChild child) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) =>
+          WebFilterSheet(controller: widget.controller, child: child),
+    );
+  }
+
   /// openStudy экран, dialog ё танзимоти мувофиқро мекушояд.
   void _openStudy(FamilyChild child) {
     showModalBottomSheet<bool>(
@@ -340,6 +352,11 @@ class _AppsScreenState extends State<AppsScreen> {
               study: child.study,
               onTap: () => _openStudy(child),
             ),
+          ),
+          const SizedBox(height: 10),
+          _WebFilterTile(
+            filter: child.webFilter,
+            onTap: () => _openWebFilter(child),
           ),
           const SizedBox(height: 12),
           _PauseCard(
@@ -583,6 +600,77 @@ class _StudyButton extends StatelessWidget {
           ? '${studyLabel(study)}${active ? ' · ${tr('Ҳозир фаъол')}' : ''}'
           : tr('Тамаркузи дарс хомӯш аст'),
       onTap: onTap,
+    );
+  }
+}
+
+/// Корти «Филтри сайтҳо»: сатҳ ва ҳолати филтр дар телефони фарзанд; пахш — танзим.
+class _WebFilterTile extends StatelessWidget {
+  const _WebFilterTile({required this.filter, required this.onTap});
+
+  final WebFilter filter;
+  final VoidCallback onTap;
+
+  /// Кортро бо нишонаи сипар, сатҳ ва ҳолат месозад.
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final warn = filter.enabled && filter.state != WebFilter.stateActive;
+    final color = !filter.enabled
+        ? scheme.outline
+        : (warn ? NigohDesign.amber : NigohDesign.mint);
+    return Material(
+      color: scheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        key: const ValueKey('open-web-filter'),
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .14),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  filter.enabled ? Icons.shield_rounded : Icons.shield_outlined,
+                  color: color,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tr('Филтри сайтҳо: {level}', {
+                        'level': webFilterLevelLabel(filter.level),
+                      }),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      webFilterStateLabel(filter),
+                      style: TextStyle(
+                        color: warn
+                            ? NigohDesign.amber
+                            : scheme.onSurfaceVariant,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: scheme.outline),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
