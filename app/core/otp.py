@@ -40,6 +40,7 @@ class OtpError(Exception):
     """Хатои OTP бо калиди кӯтоҳ (масалан «locked», «invalid») ва вақти боқимонда."""
 
     def __init__(self, code: str, retry_after: int = 0):
+        """Калиди хато ва сонияҳо то кӯшиши навбатиро нигоҳ медорад."""
         super().__init__(code)
         self.code = code
         self.retry_after = retry_after
