@@ -15,6 +15,8 @@ class Settings:
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
     APP_VERSION: str = "2.19.0"
     APP_VERSION_CODE: int = 47
+    # Санаи охирини навсозии матни сайт (барои <lastmod> дар sitemap.xml).
+    SITE_UPDATED: str = "2026-10-04"
 
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR: str = os.path.join(BASE_DIR, "static")

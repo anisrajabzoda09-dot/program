@@ -45,158 +45,70 @@ Host: https://nigohfamily.qobus.tj
 """
     return Response(content=content, media_type="text/plain; charset=utf-8")
 
+SITE_LANGS = ("tg", "ru", "en")
+_SITE = "https://nigohfamily.qobus.tj"
+
+# Саҳифаҳои сайт, ки бо се забон ҳастанд: (роҳ, афзалият, басомади тағйир).
+_SITEMAP_PAGES = (
+    ("/", "1.0", "weekly"),
+    ("/features", "0.9", "weekly"),
+    ("/how-it-works", "0.8", "monthly"),
+    ("/get", "0.9", "weekly"),
+    ("/security", "0.7", "monthly"),
+    ("/faq", "0.8", "weekly"),
+    ("/tips", "0.8", "monthly"),
+    ("/compare", "0.7", "monthly"),
+    ("/changelog", "0.6", "weekly"),
+    ("/contact", "0.5", "yearly"),
+    ("/privacy", "0.4", "yearly"),
+    ("/terms", "0.4", "yearly"),
+)
+
+# Саҳифаҳое, ки танҳо як версия доранд.
+_SITEMAP_SINGLE = (
+    ("/download/android", "0.9", "weekly"),
+    ("/auth", "0.5", "monthly"),
+)
+
+
+def _lang_url(lang: str, path: str) -> str:
+    """Суроғаи пурраи саҳифаро барои забони додашуда месозад (тоҷикӣ бе пешванд)."""
+    if lang == "tg":
+        return _SITE + path
+    return _SITE + f"/{lang}" + ("" if path == "/" else path)
+
+
+def build_sitemap(lastmod: str) -> str:
+    """XML-и sitemap-ро бо ҳамаи саҳифаҳо ва пайвандҳои hreflang байни забонҳо месозад."""
+    parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+        'xmlns:xhtml="http://www.w3.org/1999/xhtml">',
+    ]
+    for path, priority, freq in _SITEMAP_PAGES:
+        alternates = "".join(
+            f'\n    <xhtml:link rel="alternate" hreflang="{code}" href="{_lang_url(code, path)}"/>'
+            for code in SITE_LANGS
+        ) + f'\n    <xhtml:link rel="alternate" hreflang="x-default" href="{_lang_url("tg", path)}"/>'
+        for lang in SITE_LANGS:
+            parts.append(
+                f"  <url>\n    <loc>{_lang_url(lang, path)}</loc>\n    <lastmod>{lastmod}</lastmod>"
+                f"\n    <changefreq>{freq}</changefreq>\n    <priority>{priority}</priority>{alternates}\n  </url>"
+            )
+    for path, priority, freq in _SITEMAP_SINGLE:
+        parts.append(
+            f"  <url>\n    <loc>{_SITE}{path}</loc>\n    <lastmod>{lastmod}</lastmod>"
+            f"\n    <changefreq>{freq}</changefreq>\n    <priority>{priority}</priority>\n  </url>"
+        )
+    parts.append("</urlset>")
+    return "\n".join(parts) + "\n"
+
+
 @router.head("/sitemap.xml", include_in_schema=False)
 @router.get("/sitemap.xml", response_class=Response)
 def get_sitemap_xml():
-    """Дархости `GET /sitemap.xml`-ро барои get sitemap xml коркард мекунад."""
-
-    xml = """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <url>
-    <loc>https://nigohfamily.qobus.tj/</loc>
-    <lastmod>2026-09-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://nigohfamily.qobus.tj/static/images/nigoh_family_icon.png</image:loc>
-      <image:title>NIGOH Family Parental Control</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/ru</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/ru/features</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/ru/how-it-works</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/ru/security</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/ru/faq</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/ru/get</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/en</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/en/features</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/en/how-it-works</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/en/security</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/en/faq</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/en/get</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/get</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/features</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/how-it-works</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/security</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/faq</loc>
-    <lastmod>2026-10-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/download/android</loc>
-    <lastmod>2026-09-27</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.95</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/qr</loc>
-    <lastmod>2026-09-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/auth</loc>
-    <lastmod>2026-09-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/3d</loc>
-    <lastmod>2026-09-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://nigohfamily.qobus.tj/weevolve</loc>
-    <lastmod>2026-09-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-</urlset>"""
+    """Дархости `GET /sitemap.xml`: харитаи сайт бо се забон барои Google ва Yandex."""
+    xml = build_sitemap(settings.SITE_UPDATED)
     return Response(content=xml, media_type="application/xml; charset=utf-8")
 
 @router.head("/health", include_in_schema=False)
@@ -232,7 +144,6 @@ def health_check(db: Session = Depends(get_db)):
         "active_apk": active_apk_name
     }
 
-SITE_LANGS = ("tg", "ru", "en")
 
 
 def _site_page(request: Request, name: str, active: str, lang: str = "tg", **context):
@@ -290,6 +201,7 @@ def _register_translated(lang: str) -> None:
 
 for _lang in ("ru", "en"):
     _register_translated(_lang)
+
 
 
 @router.head("/", include_in_schema=False)
