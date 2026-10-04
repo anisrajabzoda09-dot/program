@@ -3,6 +3,7 @@
 import os
 import time
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.background import BackgroundTask
@@ -90,6 +91,40 @@ def _attach_background(response, task: BackgroundTask) -> None:
     response.background = BackgroundTask(_both)
 
 
+# Сиёсати манбаъҳо (CSP): танҳо манбаъҳое, ки сайт воқеан истифода мебарад.
+# 'unsafe-inline' барои скрипти хурди мавзӯъ ва JSON-LD лозим аст; object-src ва frame-ancestors пӯшидаанд.
+CONTENT_SECURITY_POLICY = "; ".join([
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
+    "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+    "img-src 'self' data: blob: https:",
+    "connect-src 'self'",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "form-action 'self' https://github.com https://appleid.apple.com https://accounts.google.com",
+])
+
+_NO_STORE_PREFIXES = ("/admin", "/api/admin", "/account", "/ru/account", "/en/account",
+                      "/api/account", "/api/auth", "/api/mobile")
+
+# Ҳимоя аз CSRF: дархости тағйирдиҳанда аз сайти бегона (сарлавҳаи Origin) рад мешавад.
+# Бозгашти Apple (form_post аз appleid.apple.com) истисно аст.
+_CSRF_EXEMPT = ("/auth/apple/callback",)
+_UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
+
+
+def _origin_allowed(request: Request) -> bool:
+    """Агар Origin набошад (барнома, curl) ё аз ҳамин сайт бошад, True."""
+    origin = request.headers.get("origin")
+    if not origin or origin == "null" and request.url.path in _CSRF_EXEMPT:
+        return True
+    own = f"{request.url.scheme}://{request.headers.get('host', '')}"
+    allowed = {settings.OFFICIAL_DOMAIN, own, "http://localhost:8080", "http://127.0.0.1:8080"}
+    return origin in allowed or request.url.path in _CSRF_EXEMPT
+
+
 # 2. Advanced Security Headers & Analytics Tracking Middleware
 @app.middleware("http")
 async def security_and_analytics_middleware(request: Request, call_next):
@@ -105,6 +140,8 @@ async def security_and_analytics_middleware(request: Request, call_next):
         client_ip = "127.0.0.1"
 
     path = request.url.path
+    if request.method in _UNSAFE_METHODS and not _origin_allowed(request):
+        return JSONResponse({"detail": "Дархост аз сайти бегона рад шуд"}, status_code=403)
     response = await call_next(request)
 
     # Омор пас аз фиристодани ҷавоб дар thread-и алоҳида навишта мешавад,
@@ -126,10 +163,17 @@ async def security_and_analytics_middleware(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Permissions-Policy"] = "camera=(self), microphone=(), geolocation=(self)"
+    # Филтри XSS-и кӯҳнаи браузерҳо худаш хатарнок буд; OWASP тавсия медиҳад, ки хомӯш бошад.
+    response.headers["X-XSS-Protection"] = "0"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
     response.headers["Cross-Origin-Resource-Policy"] = "same-site"
+    response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
+    if "text/html" in response.headers.get("content-type", ""):
+        response.headers.setdefault("Content-Security-Policy", CONTENT_SECURITY_POLICY)
+    # Саҳифаҳо ва ҷавобҳои ҳассос дар кэши браузер ё прокси нигоҳ дошта намешаванд.
+    if path.startswith(_NO_STORE_PREFIXES):
+        response.headers["Cache-Control"] = "no-store"
     if request.url.scheme == "https":
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
