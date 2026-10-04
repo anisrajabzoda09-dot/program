@@ -1,0 +1,119 @@
+{#- Файл: шартҳои истифодаи NIGOH Family ба забони англисӣ — кӣ ва чӣ гуна метавонад барномаро истифода барад. -#}
+{% extends "site/base.html" %}
+
+{% block title %}Terms of Use — NIGOH Family{% endblock %}
+{% block description %}NIGOH Family Terms of Use: who may use the app, what is prohibited, parents' responsibilities and service limitations.{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/info.css?v={{ app_version }}">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"Terms of Use","item":"https://nigohfamily.qobus.tj/en/terms"}]}</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="wrap">
+    <span class="eyebrow">Legal</span>
+    <h1>Terms of Use</h1>
+    <p class="lead">By installing or using NIGOH Family, you agree to these terms. They are short and written in plain language.</p>
+    <div class="doc-meta">
+      <span>Published: October 4, 2026</span>
+    </div>
+    <div class="summary-box">
+      <h2>In brief</h2>
+      <ul>
+        <li>The app is free and made for parents and guardians.</li>
+        <li>Install it only on your child's phone and with their knowledge.</li>
+        <li>Secretly monitoring adults is prohibited.</li>
+        <li>The app helps parents, but it doesn't replace their attention or conversations with their child.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap prose-layout">
+    <nav class="prose-toc" aria-label="Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#service">The service</a></li>
+        <li><a href="#who">Who may use it</a></li>
+        <li><a href="#allowed">Proper use</a></li>
+        <li><a href="#forbidden">What is prohibited</a></li>
+        <li><a href="#account">Account and PIN</a></li>
+        <li><a href="#limits">Limitations</a></li>
+        <li><a href="#emergency">Emergencies</a></li>
+        <li><a href="#end">Stopping use</a></li>
+        <li><a href="#law">Law and changes</a></li>
+      </ol>
+    </nav>
+
+    <div class="prose">
+      <section id="service">
+        <h2>1. The service</h2>
+        <p>NIGOH Family consists of the Android app, the nigohfamily.qobus.tj website and the NIGOH server. It lets parents see their child's location, limit screen time, block apps and stay in touch with their child. The app is free and has no ads.</p>
+      </section>
+
+      <section id="who">
+        <h2>2. Who may use it</h2>
+        <ul>
+          <li>Only an adult (18+) who is a parent or legal guardian may create a parent account.</li>
+          <li>Install the child app only on a phone that belongs to your minor child or that you manage.</li>
+        </ul>
+      </section>
+
+      <section id="allowed">
+        <h2>3. Proper use</h2>
+        <ul>
+          <li>Before installing, tell your child what the app does and why.</li>
+          <li>Set age-appropriate rules and discuss them with your child.</li>
+          <li>Don't share your child's data with strangers.</li>
+        </ul>
+      </section>
+
+      <section id="forbidden">
+        <h2>4. What is prohibited</h2>
+        <ul>
+          <li>Secretly installing the app on an adult's phone — whether a spouse, relative or employee — without their consent.</li>
+          <li>Using it for stalking, intimidation or any illegal activity.</li>
+          <li>Trying to break into the server, obtain other families' data or overload the server with pointless requests.</li>
+          <li>Modifying and distributing a modified APK under the NIGOH Family name.</li>
+        </ul>
+        <p>If we discover such use, we will block the account without warning.</p>
+      </section>
+
+      <section id="account">
+        <h2>5. Account and PIN</h2>
+        <p>You are responsible for keeping your password, pairing code and parent PIN private. The pairing code is for one-time use and expires after 15 minutes. If you think someone has accessed your account, change your password and write to us.</p>
+      </section>
+
+      <section id="limits">
+        <h2>6. Limitations</h2>
+        <ul>
+          <li>The service is provided “as is.” We try to keep it working at all times, but the internet, server or phone may become unavailable.</li>
+          <li>Location depends on GPS and the network, so it may be inaccurate or delayed.</li>
+          <li>A technically skilled child may find ways around some restrictions. The parent will be notified when this happens, but not always.</li>
+          <li>The app doesn't replace parental attention, conversation or trust.</li>
+        </ul>
+      </section>
+
+      <section id="emergency">
+        <h2>7. Emergencies</h2>
+        <p>The SOS button sends an alert to the parent, but it isn't an emergency service. If there is real danger, immediately call <strong>112</strong> (general emergency), <strong>101</strong> (fire), <strong>102</strong> (police) or <strong>103</strong> (ambulance).</p>
+      </section>
+
+      <section id="end">
+        <h2>8. Stopping use</h2>
+        <p>You may remove a child, uninstall the app and request account deletion at any time — see the <a href="{{ lang_prefix }}/privacy#rights">Privacy Policy</a>.</p>
+      </section>
+
+      <section id="law">
+        <h2>9. Law and changes</h2>
+        <p>These terms are governed by the laws of the Republic of Tajikistan. If the terms change, the new date will appear above. Continued use means that you agree to the new terms. Questions: <a href="{{ lang_prefix }}/contact">contact us</a>.</p>
+      </section>
+    </div>
+  </div>
+</section>
+<nav class="next-page" aria-label="Next page"><a href="{{ lang_prefix }}/contact"><span>Next</span><strong>Contact us</strong></a></nav>
+{% endblock %}
+{% block scripts %}<script src="/static/js/info.js?v={{ app_version }}" defer></script>{% endblock %}
