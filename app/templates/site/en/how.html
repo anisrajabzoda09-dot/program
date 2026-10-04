@@ -7,6 +7,7 @@
 {% block head %}
 <link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"How it works","item":"https://nigohfamily.qobus.tj/en/how-it-works"}]}</script>
+<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}">
 {% endblock %}
 
 {% block content %}
@@ -46,6 +47,8 @@
     </div>
   </div>
 </section>
+
+{% include "site/_install_anim.html" %}
 
 <section class="section soft">
   <div class="wrap">
@@ -190,4 +193,4 @@
 </section>
 <nav class="next-page" aria-label="Next page"><a href="{{ lang_prefix }}/security"><span>Next</span><strong>Security and privacy</strong></a></nav>
 {% endblock %}
-{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/js/pages.js?v={{ app_version }}" defer></script><script src="/static/js/install-anim.js?v={{ app_version }}" defer></script>{% endblock %}
