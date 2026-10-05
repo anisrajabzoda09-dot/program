@@ -4,6 +4,7 @@ import os
 import shutil
 import stat
 import subprocess
+import time
 import tempfile
 from pathlib import Path
 
@@ -31,7 +32,9 @@ REMOTE_PASS = os.environ.get("NIGOH_DEPLOY_PASSWORD", "")
 ANDROID_PROJECT = Path(os.environ.get("NIGOH_ANDROID_PROJECT", str(PROJECT_ROOT / "mobile")))
 APK_FILENAME = os.environ.get("NIGOH_APK_FILENAME", "NIGOH_Family_Android_v2.21.0.apk")
 DOWNLOADS = PROJECT_ROOT / "app" / "static" / "downloads"
-SSH_OPTS = "ssh -F /dev/null -o StrictHostKeyChecking=accept-new"
+# ServerAlive: пайвасти суст ҳангоми фиристодани APK-и калон худ аз худ канда нашавад.
+SSH_OPTS = ("ssh -F /dev/null -o StrictHostKeyChecking=accept-new "
+            "-o ServerAliveInterval=15 -o ServerAliveCountMax=8 -o ConnectTimeout=20")
 
 
 def find_apksigner() -> str:
@@ -143,10 +146,17 @@ def askpass_env() -> dict:
     return env
 
 
-def run(cmd: str, env: dict) -> None:
-    """Маълумоти ёрирасони run-ро омода карда, ба caller бармегардонад."""
-    print(f"-> {cmd}")
-    subprocess.run(cmd, shell=True, check=True, env=env, cwd=PROJECT_ROOT, stdin=subprocess.DEVNULL)
+def run(cmd: str, env: dict, attempts: int = 1) -> None:
+    """Фармонро иҷро мекунад; бо attempts > 1 пас аз хатои шабака аз нав кӯшиш мекунад."""
+    for attempt in range(1, attempts + 1):
+        print(f"-> {cmd}" + (f"  (кӯшиши {attempt})" if attempt > 1 else ""))
+        try:
+            subprocess.run(cmd, shell=True, check=True, env=env, cwd=PROJECT_ROOT, stdin=subprocess.DEVNULL)
+            return
+        except subprocess.CalledProcessError:
+            if attempt == attempts:
+                raise
+            time.sleep(5 * attempt)
 
 
 def deploy() -> None:
@@ -159,7 +169,7 @@ def deploy() -> None:
         # App code, templates and static files. -L uploads the APKs behind the
         # downloads symlink. The live database and backups stay on the server.
         run(f'rsync -azL --exclude "__pycache__" --exclude "*.pyc" --exclude "nigoh.db" '
-            f'--exclude "*.bak" -e "{SSH_OPTS}" app/ {target}:{REMOTE_PATH}/app/', env)
+            f'--exclude "*.bak" --partial --timeout=180 -e "{SSH_OPTS}" app/ {target}:{REMOTE_PATH}/app/', env, attempts=3)
         run(f'rsync -az -e "{SSH_OPTS}" requirements.txt TECH_STACK.md {target}:{REMOTE_PATH}/', env)
         run(f'rsync -az -e "{SSH_OPTS}" deploy/ {target}:{REMOTE_PATH}/deploy/', env)
         run(f'{SSH_OPTS} {target} "{REMOTE_PATH}/venv/bin/pip install -q -r {REMOTE_PATH}/requirements.txt"', env)
