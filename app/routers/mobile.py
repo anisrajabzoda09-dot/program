@@ -303,7 +303,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.20.0: филтри сайтҳо аз рӯи синну сол, ҳимояи дуқабата (Authenticator ва рамз ба почта), аксҳои профил дигар гум намешаванд.",
+        "release_notes": "v2.21.0: қоидаҳо аз рӯи ҷой (дар мактаб бозиҳо баста, лимит ё ҳамеша кушода) ва огоҳии «ба мактаб расид / аз хона баромад».",
         "download_url": download_url
     }
 
