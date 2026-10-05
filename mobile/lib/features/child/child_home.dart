@@ -612,6 +612,11 @@ class _PairedView extends StatelessWidget {
                 FadeIn(child: StudyNotice(study: child!.study)),
                 const SizedBox(height: 12),
               ],
+              if (sync.activePlace case final place?
+                  when place.rules.isNotEmpty) ...[
+                FadeIn(child: _PlaceNotice(place: place)),
+                const SizedBox(height: 12),
+              ],
               if (sync.lastError != null) ...[
                 FadeIn(
                   child: _ErrorCard(
@@ -938,6 +943,55 @@ class _ErrorCardState extends State<_ErrorCard> {
                         )
                       : const Icon(Icons.refresh_rounded),
                   label: Text(tr('Аз нав кӯшиш')),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Хабари «Ҳоло дар: Мактаб» — чанд барнома дар ин ҷой баста ё маҳдуданд.
+class _PlaceNotice extends StatelessWidget {
+  const _PlaceNotice({required this.place});
+
+  final SafePlace place;
+
+  /// Кортро бо номи ҷой ва шумораи қоидаҳо месозад.
+  @override
+  Widget build(BuildContext context) {
+    final blocked = place.rules.values
+        .where((r) => r.mode == PlaceAppRule.block)
+        .length;
+    final limited = place.rules.values
+        .where((r) => r.mode == PlaceAppRule.limit)
+        .length;
+    return Container(
+      key: const ValueKey('child-place-notice'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: NigohDesign.blue.withValues(alpha: .10),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.place_rounded, color: NigohDesign.blue),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tr('Ҳоло дар: {place}', {'place': place.name}),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  tr(
+                    'Дар ин ҷой қоидаҳои волидайн амал мекунанд: {blocked} баста, {limited} бо лимит.',
+                    {'blocked': blocked, 'limited': limited},
+                  ),
                 ),
               ],
             ),
