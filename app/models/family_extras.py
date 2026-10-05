@@ -40,17 +40,23 @@ class SafePlace(Base):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     radius_meters = Column(Integer, nullable=False, default=150)
+    # Қоидаҳои барномаҳо дар ин ҷой ва огоҳии омадан/рафтан: {"apps": {...}, "notify": bool}.
+    rules_json = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
     def to_dict(self):
         """Сабти model-ро ба dict-и муносиб барои ҷавоби API табдил медиҳад."""
+        from app.core.place_rules import load_rules
 
+        rules = load_rules(self)
         return {
             "id": self.id,
             "name": self.name,
             "latitude": self.latitude,
             "longitude": self.longitude,
             "radius_meters": self.radius_meters,
+            "rules": rules["apps"],
+            "notify": rules["notify"],
         }
 
 

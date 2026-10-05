@@ -78,6 +78,10 @@ def init_db():
             if column not in app_rule_cols:
                 conn.execute(text(f"ALTER TABLE app_rules ADD COLUMN {column} {ddl}"))
                 conn.commit()
+        place_cols = [r[1] for r in conn.execute(text("PRAGMA table_info(safe_places)")).fetchall()]
+        if place_cols and "rules_json" not in place_cols:
+            conn.execute(text("ALTER TABLE safe_places ADD COLUMN rules_json TEXT"))
+            conn.commit()
         if "bedtime_json" not in cols:
             conn.execute(text("ALTER TABLE children ADD COLUMN bedtime_json TEXT"))
             conn.commit()
@@ -87,6 +91,7 @@ def init_db():
             ("web_filter_state", "TEXT"),
             ("web_filter_reported_at", "DATETIME"),
             ("pairing_code_expires_at", "DATETIME"),
+            ("current_place_id", "INTEGER"),
             ("low_battery_notified", "INTEGER DEFAULT 0"),
             ("offline_notified", "INTEGER DEFAULT 0"),
         ):
