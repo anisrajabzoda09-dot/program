@@ -522,6 +522,14 @@ class NotifyService : Service() {
             }
             "offline" -> child?.let { s.offlineTitle(it) to s.offlineBody }
             "web_filter_off" -> child?.let { s.webFilterOffTitle(it) to s.webFilterOffBody }
+            "place_arrive" -> {
+                val place = data.str("place")
+                if (child == null || place == null) null else s.placeArriveTitle(child, place) to ""
+            }
+            "place_leave" -> {
+                val place = data.str("place")
+                if (child == null || place == null) null else s.placeLeaveTitle(child, place) to ""
+            }
             "new_app" -> {
                 val apps = data.optJSONArray("apps")
                 if (child == null || apps == null || apps.length() == 0) null else {

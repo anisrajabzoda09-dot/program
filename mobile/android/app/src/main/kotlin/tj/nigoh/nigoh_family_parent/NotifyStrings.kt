@@ -91,6 +91,18 @@ class NotifyStrings(val lang: String) {
         "На телефоне ребёнка остановлен VPN фильтра. Откройте на нём приложение.",
         "The filter VPN was stopped on your child's phone. Open the app there.")
 
+    /** Сарлавҳаи огоҳӣ, вақте фарзанд ба ҷойи бехатар расид. */
+    fun placeArriveTitle(child: String, place: String) = t(
+        "$child ба «$place» расид",
+        "$child: прибыл(а) в «$place»",
+        "$child arrived at «$place»")
+
+    /** Сарлавҳаи огоҳӣ, вақте фарзанд аз ҷойи бехатар баромад. */
+    fun placeLeaveTitle(child: String, place: String) = t(
+        "$child аз «$place» баромад",
+        "$child: покинул(а) «$place»",
+        "$child left «$place»")
+
     /** Сарлавҳаи насби барномаи навро месозад. */
     fun newAppTitle(child: String) = t(
         "$child барномаи нав насб кард",
