@@ -406,4 +406,13 @@ const Map<String, List<String>> childStrings = {
     'Sites that aren\'t right for your age won\'t open.',
   ],
   'Фаъол: {level}': ['Включён: {level}', 'On: {level}'],
+  // Қоидаҳо аз рӯи ҷой.
+  'Дар ин ҷой қоидаҳои волидайн амал мекунанд: {blocked} баста, {limited} бо лимит.': [
+    'Здесь действуют правила родителей: {blocked} закрыто, {limited} с лимитом.',
+    'Your parent\'s rules apply here: {blocked} blocked, {limited} limited.',
+  ],
+  'Ҳоло дар: {place}': [
+    'Сейчас в: {place}',
+    'Now at: {place}',
+  ],
 };
