@@ -10,7 +10,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core import events as family_events
-from app.core import web_filter
+from app.core import place_rules, web_filter
 from app.core.mobile_auth import require_mobile_user
 from app.db.session import get_db
 from app.models.app_rule import AppRule
@@ -368,6 +368,50 @@ def add_place(child_id: int, payload: SafePlaceCreate, request: Request, db: Ses
     row = SafePlace(child_id=child.id, **payload.model_dump())
     row.name = row.name.strip()
     db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {"status": "success", "place": row.to_dict()}
+
+
+class PlaceAppRule(BaseModel):
+    """Қоидаи як барнома дар ҷой: баста, бо лимит ё ҳамеша кушода."""
+
+    mode: Literal["block", "limit", "allow"]
+    minutes: Optional[int] = Field(default=None, ge=5, le=720)
+
+
+class PlaceRules(BaseModel):
+    """Қоидаҳои ҷой: барномаҳо ва огоҳии омадан/рафтан."""
+
+    apps: dict[str, PlaceAppRule] = Field(default_factory=dict, max_length=300)
+    notify: bool = False
+
+
+class SafePlaceUpdate(BaseModel):
+    """Тағйири ҷой: ном, радиус ва/ё қоидаҳо (майдонҳои холӣ иваз намешаванд)."""
+
+    name: Optional[str] = Field(default=None, min_length=1, max_length=80)
+    radius_meters: Optional[int] = Field(default=None, ge=50, le=2000)
+    rules: Optional[PlaceRules] = None
+
+
+@router.put("/places/{place_id}")
+def update_place(child_id: int, place_id: int, payload: SafePlaceUpdate, request: Request, db: Session = Depends(get_db)):
+    """Дархости `PUT /places/{place_id}`: ном, радиус ва қоидаҳои барномаҳоро дар ин ҷой иваз мекунад."""
+
+    user = require_mobile_user(request, db)
+    _parent_only(user)
+    child = _child(db, user, child_id)
+    row = db.query(SafePlace).filter(SafePlace.id == place_id, SafePlace.child_id == child.id).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Ҷой ёфт нашуд")
+    if payload.name is not None:
+        row.name = payload.name.strip() or row.name
+    if payload.radius_meters is not None:
+        row.radius_meters = payload.radius_meters
+    if payload.rules is not None:
+        rules = place_rules.normalize_rules(payload.rules.model_dump())
+        row.rules_json = json.dumps(rules, ensure_ascii=False)
     db.commit()
     db.refresh(row)
     return {"status": "success", "place": row.to_dict()}
