@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
+import 'place_rules_sheet.dart';
 import 'parent_logic.dart';
 import '../../l10n/l10n.dart';
 
@@ -236,6 +237,22 @@ class PlacesSheet extends StatefulWidget {
 
 /// Ҳолат ва рафтори PlacesSheetState-ро барои навсозии интерфейс идора мекунад.
 class _PlacesSheetState extends State<PlacesSheet> {
+  /// Равзанаи «Қоидаҳои ин ҷой»-ро мекушояд.
+  void _openRules(SafePlace place) {
+    final child = widget.controller.childById(widget.childId);
+    if (child == null) return;
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => PlaceRulesSheet(
+        controller: widget.controller,
+        child: child,
+        place: place,
+      ),
+    );
+  }
+
   /// delete маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> _delete(SafePlace place) async {
     final ok = await showDialog<bool>(
@@ -342,6 +359,7 @@ class _PlacesSheetState extends State<PlacesSheet> {
                               place.longitude,
                             ),
                       onTap: () => widget.onShow(place),
+                      onRules: () => _openRules(place),
                       onDelete: () => _delete(place),
                     ),
                   ),
@@ -367,12 +385,16 @@ class _PlaceTile extends StatelessWidget {
     required this.place,
     required this.distance,
     required this.onTap,
+    required this.onRules,
     required this.onDelete,
   });
 
   final SafePlace place;
   final double? distance;
   final VoidCallback onTap;
+
+  /// Кушодани «Қоидаҳои ин ҷой».
+  final VoidCallback onRules;
   final VoidCallback onDelete;
 
   /// Widget-и PlaceTile-ро барои ҷойҳои бехатар ва таърихи ҳаракат месозад.
@@ -415,12 +437,29 @@ class _PlaceTile extends StatelessWidget {
               d >= 1000
                   ? tr('{km} км дур', {'km': (d / 1000).toStringAsFixed(1)})
                   : tr('{meters} м дур', {'meters': d.round()}),
+            placeRulesSummary(place),
           ].join(' · '),
         ),
-        trailing: IconButton(
-          tooltip: tr('Нест кардан'),
-          onPressed: onDelete,
-          icon: const Icon(Icons.delete_outline_rounded),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              key: ValueKey('place-rules-${place.id}'),
+              tooltip: tr('Қоидаҳои ин ҷой'),
+              onPressed: onRules,
+              icon: Icon(
+                Icons.rule_rounded,
+                color: place.rules.isNotEmpty || place.notify
+                    ? NigohDesign.blue
+                    : null,
+              ),
+            ),
+            IconButton(
+              tooltip: tr('Нест кардан'),
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete_outline_rounded),
+            ),
+          ],
         ),
       ),
     );
