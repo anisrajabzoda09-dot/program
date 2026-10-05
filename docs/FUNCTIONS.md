@@ -840,7 +840,7 @@ deploy кардани website, API ва APK-и release ба production.
 | `build_release_apk()` |  | Маълумоти ёрирасони build release apk-ро омода карда, ба caller бармегардонад. |
 | `prepare_apk()` |  | Маълумоти ёрирасони prepare apk-ро омода карда, ба caller бармегардонад. |
 | `askpass_env()` |  | askpass env-ро коркард карда, тағйиротро дар пойгоҳи додаҳо сабт мекунад. |
-| `run()` |  | Маълумоти ёрирасони run-ро омода карда, ба caller бармегардонад. |
+| `run()` |  | Фармонро иҷро мекунад; бо attempts > 1 пас аз хатои шабака аз нав кӯшиш мекунад. |
 | `deploy()` |  | Ҷараёни асосии deploy-ро иҷро карда, хатоҳоро назорат мекунад. |
 
 ### `scripts/gen_function_docs.py`
