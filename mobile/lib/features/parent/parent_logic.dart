@@ -1,52 +1,13 @@
 // Файл: ҳисобҳо ва қарорҳои интерфейси волид.
 
-import 'dart:math' as math;
-
 import '../../core/models.dart';
 
 export '../../core/app_categories.dart';
+export '../../core/geo.dart' show distanceMeters, placeContaining;
+import '../../core/geo.dart';
 import '../../l10n/l10n.dart';
 
 // Қадами дохилии ҳисобҳо ва қарорҳои интерфейси волид.
-
-/// distanceMeters қимати заруриро аз додаҳои ҷорӣ ҳисоб мекунад.
-double distanceMeters(double lat1, double lng1, double lat2, double lng2) {
-  const r = 6371000.0;
-  /// rad мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
-  double rad(double d) => d * math.pi / 180;
-  final dLat = rad(lat2 - lat1);
-  final dLng = rad(lng2 - lng1);
-  final a =
-      math.sin(dLat / 2) * math.sin(dLat / 2) +
-      math.cos(rad(lat1)) *
-          math.cos(rad(lat2)) *
-          math.sin(dLng / 2) *
-          math.sin(dLng / 2);
-  return 2 * r * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-}
-
-/// placeContaining мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
-SafePlace? placeContaining(
-  double latitude,
-  double longitude,
-  List<SafePlace> places,
-) {
-  SafePlace? best;
-  var bestDistance = double.infinity;
-  for (final place in places) {
-    final d = distanceMeters(
-      latitude,
-      longitude,
-      place.latitude,
-      place.longitude,
-    );
-    if (d <= place.radiusMeters && d < bestDistance) {
-      best = place;
-      bestDistance = d;
-    }
-  }
-  return best;
-}
 
 /// placeStatus мантиқи зарурии ҳисобҳо ва қарорҳои интерфейси волидро иҷро мекунад.
 String? placeStatus(ChildLocation? location, List<SafePlace> places) {
