@@ -6,6 +6,8 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import 'models.dart';
+
 import '../l10n/l10n.dart';
 
 /// Қимати nigohApiBaseUrl-ро барои муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳо нигоҳ медорад.
@@ -519,6 +521,31 @@ class NigohApi {
       'latitude': latitude,
       'longitude': longitude,
       'radius_meters': radiusMeters,
+    },
+  );
+
+  /// Ном, радиус ё қоидаҳои ҷойро иваз мекунад.
+  Future<Map<String, dynamic>> updateSafePlace(
+    int childId,
+    int placeId, {
+    String? name,
+    int? radiusMeters,
+    Map<String, PlaceAppRule>? rules,
+    bool? notify,
+  }) => _send(
+    'PUT',
+    '/api/mobile/v2/children/$childId/places/$placeId',
+    body: {
+      'name': ?name,
+      'radius_meters': ?radiusMeters,
+      if (rules != null || notify != null)
+        'rules': {
+          'apps': {
+            for (final e in (rules ?? const <String, PlaceAppRule>{}).entries)
+              e.key: e.value.toJson(),
+          },
+          'notify': notify ?? false,
+        },
     },
   );
 

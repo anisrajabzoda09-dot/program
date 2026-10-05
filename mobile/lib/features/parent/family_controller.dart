@@ -321,6 +321,43 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     await loadPlaces(childId);
   }
 
+  /// Қоидаҳои барномаҳо ва огоҳии ҷойро нигоҳ медорад (бо бозгашт ҳангоми хато).
+  Future<void> setPlaceRules(
+    int childId,
+    SafePlace place, {
+    required Map<String, PlaceAppRule> rules,
+    required bool notify,
+  }) async {
+    final before = placesFor(childId);
+    places[childId] = [
+      for (final p in before)
+        p.id == place.id ? p.copyWith(rules: rules, notify: notify) : p,
+    ];
+    _notify();
+    try {
+      final res = await _guard(
+        () => api.updateSafePlace(
+          childId,
+          place.id,
+          rules: rules,
+          notify: notify,
+        ),
+      );
+      final saved = res['place'];
+      if (saved is Map) {
+        final fresh = SafePlace.fromJson(Map<String, dynamic>.from(saved));
+        places[childId] = [
+          for (final p in placesFor(childId)) p.id == fresh.id ? fresh : p,
+        ];
+        _notify();
+      }
+    } catch (_) {
+      places[childId] = before;
+      _notify();
+      rethrow;
+    }
+  }
+
   /// deletePlace маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> deletePlace(int childId, SafePlace place) async {
     final before = placesFor(childId);
