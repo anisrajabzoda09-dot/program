@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../core/api.dart';
 import '../../core/child_profile.dart';
+import '../../core/geo.dart';
 import '../../core/models.dart';
 import '../../l10n/l10n.dart';
 
@@ -260,6 +261,11 @@ class ChildSync extends ChangeNotifier {
         ? null
         : child.parentName!.trim();
     if (paired && !wasPaired) _appsDirty = true;
+    // Ҷойи ҳозираро бо қоидаҳои навтарин иваз мекунад (ё пок мекунад, агар ҷой нест шуда бошад).
+    final placeId = activePlace?.id;
+    activePlace = !paired || placeId == null
+        ? null
+        : child.places.where((p) => p.id == placeId).firstOrNull;
     // Қоидаҳои навгирифтаро фавран ба blocker-и Android мефиристад.
     await pushRules(
       paired ? child.apps : const [],
@@ -325,6 +331,30 @@ class ChildSync extends ChangeNotifier {
     }
   }
 
+  /// Ҷойи бехатаре, ки фарзанд ҳоло дар он аст (аз GPS-и ҳамин телефон, бо фосилаи эҳтиётӣ).
+  SafePlace? activePlace;
+
+  /// Ҷойи ҳозираро аз мавқеи охирин нав мекунад; агар иваз шуд, қоидаҳоро аз нав мефиристад.
+  Future<void> updateActivePlace() async {
+    final c = child;
+    final p = _lastPosition;
+    if (c == null || !paired || p == null) return;
+    if (p.accuracy > placeMaxAccuracyMeters) return;
+    final next = placeAt(
+      p.latitude,
+      p.longitude,
+      c.places,
+      currentId: activePlace?.id,
+    );
+    final placeChanged = next?.id != activePlace?.id;
+    // Қоидаҳои ҳамин ҷой ҳам метавонанд дар сервер иваз шуда бошанд.
+    activePlace = next;
+    if (placeChanged) {
+      await pushRules(c.apps, bedtime: c.bedtime, study: c.study);
+      _notify();
+    }
+  }
+
   /// pushRules мантиқи зарурии ҳамоҳангсозии заминавии барномаҳо, ҷойгиршавӣ ва event-ҳоро иҷро мекунад.
   Future<void> pushRules(
     List<ChildApp> apps, {
@@ -335,6 +365,7 @@ class ChildSync extends ChangeNotifier {
     final bedtimeActive = bedtime.activeAt(at);
     final studyActive = study.activeAt(at);
     _pushedWindows = (bedtimeActive, studyActive);
+    final placeRules = activePlace?.rules ?? const <String, PlaceAppRule>{};
     try {
       await device.invokeMethod<void>('setAppControlRules', {
         'rules': apps
@@ -342,6 +373,7 @@ class ChildSync extends ChangeNotifier {
               (a) => a.toNativeRule(
                 bedtimeActive: bedtimeActive,
                 studyActive: studyActive,
+                placeRule: placeRules[a.packageName],
               ),
             )
             .toList(),
@@ -679,6 +711,7 @@ class ChildSync extends ChangeNotifier {
           .timeout(locationFixTimeLimit + const Duration(seconds: 5));
       _lastPosition = p;
       _lastPositionSent = false;
+      await updateActivePlace();
       await _post(p);
     } on MissingPluginException {
       // Дар муҳити бе plugin ҷойгиршавии якдафъаина гирифта намешавад.
@@ -693,6 +726,7 @@ class ChildSync extends ChangeNotifier {
   void onPosition(Position p) {
     _lastPosition = p;
     _lastPositionSent = false;
+    unawaited(updateActivePlace());
     _maybePostLocation();
   }
 
