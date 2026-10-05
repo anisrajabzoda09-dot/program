@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.21.0 — 2026-10-05
+- Rules by place: for every safe place (school, home, a club) parents choose which apps are blocked, limited (10–120 min) or always open there; a quick «school» button blocks games, video and social apps. The child's phone works out the place from GPS and applies the rules even offline; calls and SMS are never blocked.
+- «Arrived at / left» alerts for each place (optional), with a 40 m margin so GPS jitter at the edge does not spam parents; inaccurate fixes are ignored.
+- The comparison page no longer claimed place alerts that did not exist — they exist now.
+
 ## 2.20.0 — 2026-10-04
 - Age-based site filter: parents choose «Up to 12» or «Ages 13–17» (suggested from the child's age) and can block extra sites. It works in every browser through a local DNS-only VPN on the child's phone (CleanBrowsing Family / Adult filters with SafeSearch); parents are alerted if it is turned off.
 - Two-step verification: authenticator app (TOTP) with QR setup and 8 recovery codes, on the website, the admin panel and in the app; sign-in with a one-time email code when SMTP is configured. 5 wrong codes lock the account for 15 minutes.
