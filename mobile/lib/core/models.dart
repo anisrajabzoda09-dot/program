@@ -1,5 +1,7 @@
 // Файл: model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ.
 
+import 'dart:math' as math;
+
 import '../ui/widgets.dart' show parseServerTime;
 import 'app_categories.dart';
 import '../l10n/l10n.dart';
@@ -94,8 +96,10 @@ class ChildApp {
   Map<String, dynamic> toNativeRule({
     bool bedtimeActive = false,
     bool studyActive = false,
+    PlaceAppRule? placeRule,
   }) {
-    if (alwaysAllowed) {
+    // «Ҳамеша кушода» дар ҷой мисли «Ҳамеша иҷозат» кор мекунад.
+    if (alwaysAllowed || placeRule?.mode == PlaceAppRule.allow) {
       return {
         'packageName': packageName,
         'blocked': false,
@@ -108,10 +112,21 @@ class ChildApp {
         studyActive &&
         !essential &&
         studyBlockedCategories.contains(categoryOf(this));
+    // Дар ҷой: «баста» (ба ғайр аз занг ва SMS) ё лимити хурдтар аз лимити муқаррарӣ.
+    final placeBlocks = placeRule?.mode == PlaceAppRule.block && !essential;
+    var limit = effectiveLimitMinutes;
+    if (placeRule?.mode == PlaceAppRule.limit) {
+      final placeLimit = placeRule!.minutes + bonusMinutesToday;
+      limit = limit <= 0 ? placeLimit : math.min(limit, placeLimit);
+    }
     return {
       'packageName': packageName,
-      'blocked': blocked || (bedtimeActive && !essential) || studyBlocks,
-      'dailyLimitMinutes': effectiveLimitMinutes,
+      'blocked':
+          blocked ||
+          (bedtimeActive && !essential) ||
+          studyBlocks ||
+          placeBlocks,
+      'dailyLimitMinutes': limit,
       'schedule': schedule.enabled ? schedule.toJson() : null,
     };
   }
@@ -166,6 +181,8 @@ class FamilyChild {
     this.bedtime = const Bedtime(),
     this.study = const StudyMode(),
     this.webFilter = const WebFilter(),
+    this.places = const [],
+    this.currentPlaceId,
     this.childAvatar,
     this.parentAvatar,
     this.batteryLevel,
@@ -180,6 +197,12 @@ class FamilyChild {
 
   /// Филтри сайтҳо аз рӯи синну сол ва ҳолати охирини он дар телефони фарзанд.
   final WebFilter webFilter;
+
+  /// Ҷойҳои бехатар бо қоидаҳо (дар snapshot меоянд; телефон онҳоро бе интернет иҷро мекунад).
+  final List<SafePlace> places;
+
+  /// Ҷойе, ки сервер охирин бор фарзандро дар он дид.
+  final int? currentPlaceId;
 
   /// Қимати childAvatar-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   final String? childAvatar;
@@ -239,6 +262,11 @@ class FamilyChild {
     bedtime: Bedtime.fromJson(j['bedtime']),
     study: StudyMode.fromJson(j['study']),
     webFilter: WebFilter.fromJson(j['web_filter']),
+    places: (j['places'] as List? ?? const [])
+        .whereType<Map>()
+        .map((p) => SafePlace.fromJson(Map<String, dynamic>.from(p)))
+        .toList(),
+    currentPlaceId: (j['current_place_id'] as num?)?.toInt(),
     childAvatar: j['child_avatar']?.toString(),
     parentAvatar: j['parent_avatar']?.toString(),
     batteryLevel: (j['battery_level'] as num?)?.toInt(),
@@ -368,6 +396,43 @@ class TimeRequest {
   );
 }
 
+/// Қоидаи як барнома дар як ҷой: баста, бо лимит ё ҳамеша кушода.
+class PlaceAppRule {
+  const PlaceAppRule(this.mode, {this.minutes = 0});
+
+  static const block = 'block';
+  static const limit = 'limit';
+  static const allow = 'allow';
+
+  final String mode;
+  final int minutes;
+
+  /// Аз JSON-и сервер; навъи номаълум — null.
+  static PlaceAppRule? fromJson(Object? raw) {
+    if (raw is! Map) return null;
+    final mode = raw['mode']?.toString();
+    if (mode != block && mode != limit && mode != allow) return null;
+    final minutes = (raw['minutes'] as num?)?.toInt() ?? 0;
+    if (mode == limit && minutes <= 0) return null;
+    return PlaceAppRule(mode!, minutes: mode == limit ? minutes : 0);
+  }
+
+  /// Барои фиристодан ба сервер.
+  Map<String, dynamic> toJson() => {
+    'mode': mode,
+    if (mode == limit) 'minutes': minutes,
+  };
+
+  /// Ду қоида баробаранд, агар навъ ва дақиқаҳо як бошанд.
+  @override
+  bool operator ==(Object other) =>
+      other is PlaceAppRule && other.mode == mode && other.minutes == minutes;
+
+  /// Hash-и мувофиқ бо ==.
+  @override
+  int get hashCode => Object.hash(mode, minutes);
+}
+
 /// SafePlace додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
 class SafePlace {
   const SafePlace({
@@ -376,6 +441,8 @@ class SafePlace {
     required this.latitude,
     required this.longitude,
     required this.radiusMeters,
+    this.rules = const {},
+    this.notify = false,
   });
 
   final int id;
@@ -384,6 +451,12 @@ class SafePlace {
   final double longitude;
   final int radiusMeters;
 
+  /// Қоидаҳои барномаҳо дар ин ҷой: package → қоида.
+  final Map<String, PlaceAppRule> rules;
+
+  /// Волидайн ҳангоми омадан ва рафтан огоҳӣ мегиранд.
+  final bool notify;
+
   /// SafePlace-ро аз JSON-и сервер месозад.
   factory SafePlace.fromJson(Map<String, dynamic> j) => SafePlace(
     id: (j['id'] as num).toInt(),
@@ -391,7 +464,24 @@ class SafePlace {
     latitude: (j['latitude'] as num).toDouble(),
     longitude: (j['longitude'] as num).toDouble(),
     radiusMeters: (j['radius_meters'] as num?)?.toInt() ?? 150,
+    rules: {
+      for (final e in ((j['rules'] as Map?) ?? const {}).entries)
+        e.key.toString(): ?PlaceAppRule.fromJson(e.value),
+    },
+    notify: j['notify'] == true,
   );
+
+  /// Нусхаи ҷой бо қоидаҳои нав.
+  SafePlace copyWith({Map<String, PlaceAppRule>? rules, bool? notify}) =>
+      SafePlace(
+        id: id,
+        name: name,
+        latitude: latitude,
+        longitude: longitude,
+        radiusMeters: radiusMeters,
+        rules: rules ?? this.rules,
+        notify: notify ?? this.notify,
+      );
 }
 
 /// StudyMode додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.
