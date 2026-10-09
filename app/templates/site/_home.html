@@ -1,0 +1,169 @@
+{% extends "site/base.html" %}
+{% set H = {
+  'tg': {
+    'title': 'NIGOH Family — оромӣ барои шумо, қоидаҳои равшан барои фарзанд',
+    'description': 'NIGOH Family барои Android. Ҷойгиршавӣ, вақти экран ва чати оилавӣ дар як барнома. APK-ро аз сомонаи расмӣ боргирӣ кунед.',
+    'eyebrow': 'ДАР ТОҶИКИСТОН СОХТА ШУДААСТ',
+    'heading': 'Наздик бошед.', 'heading_accent': 'Ҳатто аз дур.',
+    'intro': 'Донед, ки фарзанд дар куҷост. Барои телефон қоидаҳои фаҳмо гузоред. Ва барои сӯҳбат ҳамеша роҳ дошта бошед.',
+    'download': 'Боргирӣ барои Android', 'how': 'Чӣ тавр кор мекунад', 'free': 'Ройгон · Бе реклама',
+    'release': 'Нашри Android', 'version': 'Версия', 'size': 'Андозаи файл', 'unavailable': 'Файл ҳоло дастрас нест',
+    'qr': 'Бо камераи телефон скан кунед', 'qr_alt': 'Рамзи QR барои боргирии NIGOH Family',
+    'scan_note': 'Барномаро дар телефони худ ва телефони фарзанд насб кунед.', 'install': 'Дастури насб',
+    'parent': 'Телефони волидайн', 'child': 'Телефони фарзанд', 'one_app': 'Як барнома. Ду нақш.',
+    'principles': ['Бо забони худатон', 'Қоидаҳои фаҳмо барои фарзанд', 'Маълумот танҳо барои оилаи шумо'],
+    'features_label': 'БАРОИ ҲАР РӮЗИ ОИЛА', 'features_heading': 'Камтар хавотирӣ.\nБештар ҳамдигарфаҳмӣ.',
+    'features_intro': 'Ҷойгиршавӣ, вақти экран ва муошират — ҳама дар як ҷой, дар телефони шумо.',
+    'features': [
+      ['location', 'Ҷойгиршавӣ', 'Аз роҳаш бохабар бошед', 'Ҷойгиршавӣ ва вақти навсозии охиринро бинед. Барои хона, мактаб ва дигар ҷойҳои муҳим ҳудуди бехатар гузоред.'],
+      ['time', 'Вақти экран', 'Барои телефон ҳам вақт ҳаст', 'Лимити барномаҳо, вақти дарс ва вақти хобро мувофиқи реҷаи оила танзим кунед. Фарзанд қоидаҳои худро дар барнома мебинад.'],
+      ['chat', 'Чати оилавӣ', 'Як паём дуртар', 'Бо фарзанд паём ва занги овозӣ дошта бошед. Тугмаи SOS барои фиристодани дархости ёрӣ пешбинӣ шудааст.'],
+      ['shield', 'Ҳимоя', 'Дастрасӣ бо иҷозати шумо', 'PIN-и волидайн, ҳимояи дуқабата ва филтри сайтҳоро аз танзимоти барнома идора кунед.']
+    ],
+    'more': 'Муфассал', 'setup_label': 'ОҒОЗИ КОР', 'setup_heading': 'Аз ду телефон\nяк оила созед.',
+    'setup_intro': 'APK-и якхела барои ҳарду телефон. Нақшро ҳангоми кушодани барнома интихоб мекунед.',
+    'steps': [
+      ['Насб кунед', 'Барномаро аз ҳамин сомона дар ҳарду телефони Android боргирӣ ва насб кунед.'],
+      ['Пайваст кунед', 'Дар телефони фарзанд иҷозатҳоро фаъол кунед. Рамзи пайвастшавии ӯро дар телефони волидайн ворид кунед.'],
+      ['Бо ҳам мувофиқа кунед', 'Лимитҳо ва ҷадвалро интихоб кунед. Ба фарзанд фаҳмонед, ки ҳар қоида барои чӣ лозим аст.']
+    ],
+    'privacy_label': 'ЭЪТИМОД АЗ ШАФФОФИЯТ ОҒОЗ МЕШАВАД', 'privacy_heading': 'Оилаи шумо.\nМаълумоти шумо.',
+    'privacy_text': 'Пеш аз пайваст кардани телефон, бо фарзанд дар бораи иҷозатҳо сӯҳбат кунед. Дар сиёсати махфият мефаҳмонем, ки кадом маълумот ҷамъ мешавад ва чӣ тавр онро ҳазф кардан мумкин аст.',
+    'privacy_link': 'Сиёсати махфият', 'security_link': 'Амнияти ҳисоб',
+    'release_label': 'НАВИГАРИҲО', 'release_link': 'Таърихи версияҳо',
+    'review_label': 'ФИКРИ ИСТИФОДАБАРАНДАГОН', 'review_heading': 'Аз таҷрибаи волидайн',
+    'cta_heading': 'Қадами аввал —\nяк боргирӣ.', 'cta_text': 'NIGOH Family-ро насб кунед ва телефонҳоро пайваст намоед.', 'contact': 'Дар насб ёрӣ лозим аст?'
+  },
+  'ru': {
+    'title': 'NIGOH Family — спокойствие для вас, понятные правила для ребёнка',
+    'description': 'NIGOH Family для Android. Местоположение, экранное время и семейный чат в одном приложении. Скачайте APK с официального сайта.',
+    'eyebrow': 'СОЗДАНО В ТАДЖИКИСТАНЕ', 'heading': 'Будьте рядом.', 'heading_accent': 'Даже на расстоянии.',
+    'intro': 'Знайте, где ребёнок. Договоритесь о понятных правилах для телефона. И оставайтесь на связи, когда это нужно.',
+    'download': 'Скачать для Android', 'how': 'Как это работает', 'free': 'Бесплатно · Без рекламы',
+    'release': 'Выпуск для Android', 'version': 'Версия', 'size': 'Размер файла', 'unavailable': 'Файл пока недоступен',
+    'qr': 'Сканируйте камерой телефона', 'qr_alt': 'QR-код для скачивания NIGOH Family',
+    'scan_note': 'Установите приложение на свой телефон и телефон ребёнка.', 'install': 'Инструкция по установке',
+    'parent': 'Телефон родителя', 'child': 'Телефон ребёнка', 'one_app': 'Одно приложение. Две роли.',
+    'principles': ['На вашем языке', 'Понятные ребёнку правила', 'Данные только для вашей семьи'],
+    'features_label': 'ДЛЯ КАЖДОГО ДНЯ СЕМЬИ', 'features_heading': 'Меньше тревоги.\nБольше понимания.',
+    'features_intro': 'Местоположение, экранное время и общение — всё рядом, в вашем телефоне.',
+    'features': [
+      ['location', 'Местоположение', 'Знайте, как проходит дорога', 'Проверяйте местоположение и время его обновления. Создавайте безопасные зоны для дома, школы и других важных мест.'],
+      ['time', 'Экранное время', 'Для телефона тоже есть время', 'Настраивайте лимиты приложений, время учёбы и сна под ритм семьи. Ребёнок видит свои правила в приложении.'],
+      ['chat', 'Семейный чат', 'На расстоянии сообщения', 'Общайтесь с ребёнком в чате и по голосовой связи. Кнопка SOS помогает отправить просьбу о помощи.'],
+      ['shield', 'Защита', 'Доступ с вашего разрешения', 'Управляйте родительским PIN, двухфакторной защитой и фильтром сайтов в настройках приложения.']
+    ],
+    'more': 'Подробнее', 'setup_label': 'НАЧАЛО РАБОТЫ', 'setup_heading': 'Два телефона.\nОдна семья.',
+    'setup_intro': 'Один и тот же APK для обоих телефонов. Выберите роль при первом запуске.',
+    'steps': [
+      ['Установите', 'Скачайте приложение с этого сайта и установите его на оба Android-телефона.'],
+      ['Подключите', 'Включите разрешения на телефоне ребёнка. Введите его код подключения на телефоне родителя.'],
+      ['Договоритесь', 'Выберите лимиты и расписание. Объясните ребёнку, для чего нужно каждое правило.']
+    ],
+    'privacy_label': 'ДОВЕРИЕ НАЧИНАЕТСЯ С ПРОЗРАЧНОСТИ', 'privacy_heading': 'Ваша семья.\nВаши данные.',
+    'privacy_text': 'Прежде чем подключать телефон, обсудите разрешения с ребёнком. В политике конфиденциальности объясняем, какие данные собираются и как их удалить.',
+    'privacy_link': 'Политика конфиденциальности', 'security_link': 'Безопасность аккаунта',
+    'release_label': 'ОБНОВЛЕНИЯ', 'release_link': 'История версий',
+    'review_label': 'ОТЗЫВЫ ПОЛЬЗОВАТЕЛЕЙ', 'review_heading': 'Из опыта родителей',
+    'cta_heading': 'Первый шаг —\nскачать приложение.', 'cta_text': 'Установите NIGOH Family и подключите телефоны.', 'contact': 'Нужна помощь с установкой?'
+  },
+  'en': {
+    'title': 'NIGOH Family — peace of mind, clear rules for your child',
+    'description': 'NIGOH Family for Android. Location, screen time and family chat in one app. Download the APK from the official website.',
+    'eyebrow': 'MADE IN TAJIKISTAN', 'heading': 'Stay close.', 'heading_accent': 'Even from afar.',
+    'intro': 'Know where your child is. Agree on clear rules for their phone. And keep a conversation within reach.',
+    'download': 'Download for Android', 'how': 'How it works', 'free': 'Free · No ads',
+    'release': 'Android release', 'version': 'Version', 'size': 'File size', 'unavailable': 'File currently unavailable',
+    'qr': 'Scan with your phone camera', 'qr_alt': 'QR code to download NIGOH Family',
+    'scan_note': 'Install the app on your phone and your child’s phone.', 'install': 'Installation guide',
+    'parent': 'Parent’s phone', 'child': 'Child’s phone', 'one_app': 'One app. Two roles.',
+    'principles': ['In your language', 'Rules your child can understand', 'Your family’s data stays private'],
+    'features_label': 'FOR EVERYDAY FAMILY LIFE', 'features_heading': 'Less worry.\nMore understanding.',
+    'features_intro': 'Location, screen time and conversations — together, on your phone.',
+    'features': [
+      ['location', 'Location', 'Keep up with their journey', 'See your child’s location and when it was updated. Set safe zones for home, school and other important places.'],
+      ['time', 'Screen time', 'Make room for life beyond a screen', 'Set app limits, study hours and bedtime around your family’s routine. Your child can see their rules in the app.'],
+      ['chat', 'Family chat', 'Just a message away', 'Talk to your child through messages and voice calls. The SOS button lets them send a request for help.'],
+      ['shield', 'Protection', 'Access with your permission', 'Manage your parent PIN, two-step verification and website filter in the app’s settings.']
+    ],
+    'more': 'Learn more', 'setup_label': 'GETTING STARTED', 'setup_heading': 'Two phones.\nOne family.',
+    'setup_intro': 'The same APK works on both phones. Choose your role when you first open the app.',
+    'steps': [
+      ['Install', 'Download the app from this website and install it on both Android phones.'],
+      ['Connect', 'Enable permissions on your child’s phone. Enter their pairing code on the parent’s phone.'],
+      ['Agree together', 'Choose limits and a schedule. Talk to your child about what each rule is for.']
+    ],
+    'privacy_label': 'TRUST STARTS WITH TRANSPARENCY', 'privacy_heading': 'Your family.\nYour data.',
+    'privacy_text': 'Before connecting a phone, talk about permissions with your child. Our privacy policy explains which data is collected and how to delete it.',
+    'privacy_link': 'Privacy policy', 'security_link': 'Account security',
+    'release_label': 'PRODUCT UPDATES', 'release_link': 'Release history',
+    'review_label': 'USER FEEDBACK', 'review_heading': 'From parents’ experience',
+    'cta_heading': 'Start with\none download.', 'cta_text': 'Install NIGOH Family and connect your phones.', 'contact': 'Need help getting started?'
+  }
+}[lang | default('tg')] %}
+{% from "site/_icons.html" import icon %}
+{% block title %}{{ H.title }}{% endblock %}
+{% block description %}{{ H.description }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/home.css?v={{ app_version }}-2">{% endblock %}
+{% block content %}
+<div class="family-home">
+  <section class="family-hero">
+    <div class="wrap family-hero-grid">
+      <div class="family-intro">
+        <p class="family-kicker"><span aria-hidden="true"></span>{{ H.eyebrow }}</p>
+        <h1>{{ H.heading }} <span>{{ H.heading_accent }}</span></h1>
+        <p class="lead">{{ H.intro }}</p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="{{ P }}/get">{{ icon('download') }}{{ H.download }}</a>
+          <a class="family-text-link" href="{{ P }}/how-it-works">{{ H.how }}<span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="family-free">{{ icon('check') }}{{ H.free }}<span>Android 8.0+</span></p>
+      </div>
+      <aside class="release-card" aria-label="{{ H.release }}">
+        <div class="release-card-head"><span>{{ H.release }}</span><span>APK</span></div>
+        <div class="release-identity"><img src="/static/images/nigoh_logo.png" width="64" height="64" alt=""><div><strong>NIGOH <span>Family</span></strong><p>{{ H.one_app }}</p></div></div>
+        <div class="release-qr"><img src="/api/qr/download" width="180" height="180" alt="{{ H.qr_alt }}"><div><strong>{{ H.qr }}</strong><p>{{ H.scan_note }}</p></div></div>
+        <dl class="release-facts"><div><dt>{{ H.version }}</dt><dd>{{ (apk.version or '—') if apk and apk.available else '—' }}</dd></div><div><dt>{{ H.size }}</dt><dd>{{ apk.size_label if apk and apk.available else '—' }}</dd></div><div><dt>Android</dt><dd>8.0+</dd></div></dl>
+        {% if apk and apk.available %}<a class="release-download" href="/download/android">{{ H.download }}{{ icon('download') }}</a>{% else %}<p class="release-unavailable">{{ H.unavailable }}</p>{% endif %}
+        <a class="release-guide" href="{{ P }}/get">{{ H.install }}<span aria-hidden="true">↗</span></a>
+      </aside>
+    </div>
+    <div class="wrap family-principles">{% for principle in H.principles %}<span>{{ icon('check') }}{{ principle }}</span>{% endfor %}</div>
+  </section>
+
+  <section class="family-section family-features">
+    <div class="wrap">
+      <div class="family-section-head"><div><p class="family-kicker">{{ H.features_label }}</p><h2>{{ H.features_heading }}</h2></div><p>{{ H.features_intro }}</p></div>
+      <div class="family-feature-grid">
+        {% for feature in H.features %}
+        <a class="family-feature family-feature-{{ feature[0] }}" href="{{ P }}/features#{{ {'location':'location', 'time':'apps', 'chat':'chat', 'shield':'protection'}[feature[0]] }}">
+          <div class="family-feature-top"><span class="family-feature-icon">{{ icon(feature[0]) }}</span><span>{{ feature[1] }}</span><span class="family-feature-arrow" aria-hidden="true">↗</span></div>
+          <h3>{{ feature[2] }}</h3><p>{{ feature[3] }}</p><span class="family-feature-more">{{ H.more }}<span aria-hidden="true">→</span></span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="family-section family-setup">
+    <div class="wrap family-setup-grid">
+      <div><p class="family-kicker">{{ H.setup_label }}</p><h2>{{ H.setup_heading }}</h2><p class="lead">{{ H.setup_intro }}</p><a class="family-text-link" href="{{ P }}/how-it-works">{{ H.install }}<span aria-hidden="true">↗</span></a></div>
+      <ol class="family-steps">{% for step in H.steps %}<li><span class="family-step-number" aria-hidden="true">0{{ loop.index }}</span><div><h3>{{ step[0] }}</h3><p>{{ step[1] }}</p></div></li>{% endfor %}</ol>
+    </div>
+  </section>
+
+  <section class="family-section family-privacy">
+    <div class="wrap family-privacy-grid"><div class="family-seal" aria-hidden="true">{{ icon('shield') }}<span>NIGOH FAMILY</span></div><div><p class="family-kicker">{{ H.privacy_label }}</p><h2>{{ H.privacy_heading }}</h2><p>{{ H.privacy_text }}</p><div class="btn-row"><a class="family-text-link" href="{{ P }}/privacy">{{ H.privacy_link }}<span aria-hidden="true">↗</span></a><a class="family-text-link" href="{{ P }}/security">{{ H.security_link }}<span aria-hidden="true">↗</span></a></div></div></div>
+  </section>
+
+  {% if latest_release %}
+  <section class="family-section family-update"><div class="wrap"><div class="family-update-inner"><div><p class="family-kicker">{{ H.release_label }}</p><h2>{{ latest_release.title[lang] }}</h2><p>v{{ latest_release.version }} <span aria-hidden="true">/</span> <time datetime="{{ latest_release.date }}">{{ latest_release.date }}</time></p></div><a class="family-text-link" href="{{ P }}/changelog">{{ H.release_link }}<span aria-hidden="true">↗</span></a></div></div></section>
+  {% endif %}
+
+  {% if reviews %}
+  <section class="family-section"><div class="wrap"><div class="family-section-head"><div><p class="family-kicker">{{ H.review_label }}</p><h2>{{ H.review_heading }}</h2></div></div><div class="grid-3">{% for review in reviews[:3] %}<figure class="family-review"><blockquote>{{ review.comment }}</blockquote><figcaption>{{ review.author_name }}{% if review.role_title %}<span>{{ review.role_title }}</span>{% endif %}</figcaption></figure>{% endfor %}</div></div></section>
+  {% endif %}
+
+  <section class="family-section family-final"><div class="wrap"><div class="family-final-inner"><div><p class="family-kicker">NIGOH FAMILY / ANDROID</p><h2>{{ H.cta_heading }}</h2><p>{{ H.cta_text }}</p></div><div class="family-final-actions"><a class="btn btn-primary" href="{{ P }}/get">{{ icon('download') }}{{ H.download }}</a><a href="{{ P }}/contact">{{ H.contact }}<span aria-hidden="true">↗</span></a></div></div></div></section>
+</div>
+{% endblock %}

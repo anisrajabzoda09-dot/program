@@ -1,0 +1,54 @@
+{% from '_admin_ui.html' import icon, empty, fdate, ftime, mask_ip %}
+{% set s = stats %}
+{% set totals = s.period_totals %}
+{% set pct_paired = ((s.total_paired / s.total_children * 100) if s.total_children else 0)|round(1) %}
+{% macro trend(metric) %}
+  {% set change = s.changes[metric] %}
+  <span class="trend {% if change is not none and change > 0 %}positive{% elif change is not none and change < 0 %}negative{% endif %}">{% if change is none %}Бе муқоиса{% elif change > 0 %}↗ +{{ change }}%{% elif change < 0 %}↘ {{ change }}%{% else %}— 0%{% endif %}</span><span class="trend-note">аз {{ s.period.days }} рӯзи пешин</span>
+{% endmacro %}
+<div class="snapshot" data-days="{{ s.period.days }}" data-generated-at="{{ s.generated_at }}" data-unread="{{ unread_messages }}">
+  <div class="snapshot-meta"><span>{{ fdate(s.period.start_date) }} — {{ fdate(s.period.end_date) }} <span class="period-note">· имрӯз ҳанӯз идома дорад</span></span><span>Нав шуд: <time data-local-time="{{ s.generated_at }}" data-time-only>{{ ftime(s.generated_at) }}</time></span></div>
+  <section id="overview" class="a-sec overview-section" aria-label="Шарҳи умумӣ">
+    <div class="kpis">
+      <article class="kpi kpi-featured"><div class="kpi-top"><span class="kpi-label">Боздиди саҳифаҳо</span><span class="icon">{{ icon('eye') }}</span></div><div class="kpi-value">{{ '{:,}'.format(totals.page_views).replace(',', ' ') }}</div><div class="kpi-change">{{ trend('page_views') }}</div><div class="kpi-bottom">Имрӯз <b>{{ s.today_views }}</b><span>Ҳамагӣ {{ s.total_page_views }}</span></div></article>
+      <article class="kpi"><div class="kpi-top"><span class="kpi-label">Меҳмонони нодир</span><span class="icon">{{ icon('users') }}</span></div><div class="kpi-value">{{ '{:,}'.format(totals.visitors).replace(',', ' ') }}</div><div class="kpi-change">{{ trend('visitors') }}</div><div class="kpi-bottom"><span>Аз рӯи IP-и боздидҳо</span></div></article>
+      <article class="kpi"><div class="kpi-top"><span class="kpi-label">Боргирии Android</span><span class="icon">{{ icon('download') }}</span></div><div class="kpi-value">{{ '{:,}'.format(totals.downloads).replace(',', ' ') }}</div><div class="kpi-change">{{ trend('downloads') }}</div><div class="kpi-bottom">Имрӯз <b>{{ s.today_downloads }}</b><span>Ҳамагӣ {{ s.total_downloads }}</span></div></article>
+      <article class="kpi"><div class="kpi-top"><span class="kpi-label">Ҳисобҳои нав</span><span class="icon">{{ icon('user') }}</span></div><div class="kpi-value">{{ '{:,}'.format(totals.registrations).replace(',', ' ') }}</div><div class="kpi-change">{{ trend('registrations') }}</div><div class="kpi-bottom">Ҳамагӣ <b>{{ s.total_users }}</b><span>{{ s.total_families }} волидайн</span></div></article>
+    </div>
+    <div class="operations-strip">
+      <div><span class="operation-icon">{{ icon('activity') }}</span><div><b>{{ s.total_online }} <small>/ {{ s.total_children }}</small></b><span>Фаъол дар 15 дақиқа</span></div></div>
+      <div><span class="operation-icon">{{ icon('link') }}</span><div><b>{{ s.total_paired }} <small>дастгоҳ</small></b><span>Бо волидайн пайваст</span></div></div>
+      <div><span class="operation-icon">{{ icon('package') }}</span><div><b>{{ s.children_with_apps }} <small>/ {{ s.total_children }}</small></b><span>Барномаҳо ҳамоҳанг</span></div></div>
+      <a href="#messages"><span class="operation-icon">{{ icon('inbox') }}</span><div><b>{{ unread_messages }} <small>паём</small></b><span>Интизори хондан</span></div><span class="operation-arrow" aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+  {% if not totp_enabled %}<div class="security-notice">{{ icon('shield') }}<div><b>Ҳисоби маъмурро муҳофизат кунед</b><span>Тасдиқи дуқабата ҳанӯз фаъол нест.</span></div><a href="/account/security">Фаъол кардан <span aria-hidden="true">↗</span></a></div>{% endif %}
+  <section id="traffic" class="a-sec">
+    <div class="a-sec-head"><div><p class="admin-eyebrow">01 / ФАЪОЛИЯТИ САЙТ</p><h2>Аз боздид то боргирӣ</h2></div><span class="section-note">{{ s.period.days }} рӯзи охир</span></div>
+    <div class="grid-traffic">
+      <div class="panel traffic-panel">
+        <div class="panel-title"><div><h3>Боздид ва боргирӣ</h3><p class="small">Ҳар сутун — як рӯз, бо вақти Душанбе</p></div><div class="chart-legend"><span>Боздид</span><span class="dl">Боргирӣ</span></div></div>
+        {% set chart = s.daily_chart %}
+        {% set maximum = [(chart|map(attribute='page_views')|max), (chart|map(attribute='downloads')|max), 4]|max %}
+        {% set top = (((maximum / 4)|round(0, 'ceil')) * 4)|int %}
+        <div class="chart" role="group" aria-label="Боздид ва боргирӣ дар {{ s.period.days }} рӯз">
+          <div class="chart-axis" aria-hidden="true"><span>{{ top }}</span><span>{{ top // 2 }}</span><span>0</span></div>
+          <div class="chart-scroll"><div class="chart-plot" style="--days:{{ s.period.days }}"><div class="chart-grid" aria-hidden="true"><i></i><i></i><i></i></div><div class="bars">
+            {% for day in chart %}<div class="bar-col{% if loop.last %} today{% endif %}"><div class="bar-area" tabindex="0" aria-label="{{ day.label }}: боздид {{ day.page_views }}, боргирӣ {{ day.downloads }}, меҳмон {{ day.visitors }}"><span class="bar{% if not day.page_views %} zero{% endif %}" style="--h:{{ day.page_views / top * 100 }}%"></span><span class="bar dl{% if not day.downloads %} zero{% endif %}" style="--h:{{ day.downloads / top * 100 }}%"></span><span class="bar-tip"><b>{{ day.weekday }}, {{ day.label }}{% if loop.last %} · имрӯз{% endif %}</b><br>Боздид: {{ day.page_views }}<br>Боргирӣ: {{ day.downloads }}<br>Меҳмон: {{ day.visitors }}</span></div><div class="bar-label"><b>{{ day.label }}</b></div></div>{% endfor %}
+          </div></div></div>
+        </div>
+        {% if not totals.page_views and not totals.downloads %}<p class="chart-empty">Дар ин давра боздид ё боргирӣ сабт нашудааст.</p>{% endif %}
+        <div class="chart-foot"><span>Боздид <b>{{ totals.page_views }}</b></span><span>Боргирӣ <b>{{ totals.downloads }}</b></span><span>Меҳмонон <b>{{ totals.visitors }}</b></span></div>
+      </div>
+      <div class="panel"><div class="panel-title"><div><h3>Саҳифаҳои маъмул</h3><p class="small">Дар давраи интихобшуда</p></div>{{ icon('chart') }}</div>
+        {% if s.top_pages %}<ol class="rank">{% set highest = (s.top_pages|map(attribute='views')|max) or 1 %}{% for page in s.top_pages %}<li><div class="rank-row"><span class="rank-number">{{ '%02d'|format(loop.index) }}</span><code title="{{ page.path }}">{{ page.path }}</code><b>{{ page.views }}</b></div><div class="rank-track"><i style="--w:{{ page.views / highest * 100 }}%"></i></div></li>{% endfor %}</ol>{% else %}{{ empty('Ҳоло боздид нест', 'Боздидҳои сайт дар ин ҷо пайдо мешаванд.') }}{% endif %}
+      </div>
+    </div>
+    <div class="insight-grid">
+      <div class="panel source-panel"><div class="panel-title"><h3>Роҳи боргирӣ</h3><span class="small">{{ totals.downloads }} дархост</span></div>{% set direct_pct = (totals.direct_downloads / totals.downloads * 100) if totals.downloads else 0 %}{% set qr_pct = (totals.qr_downloads / totals.downloads * 100) if totals.downloads else 0 %}<div class="source-meter" aria-label="Мустақим {{ totals.direct_downloads }}, QR {{ totals.qr_downloads }}"><span style="width:{{ direct_pct }}%"></span><span style="width:{{ qr_pct }}%"></span></div><div class="source-labels"><span><i></i>Мустақим <b>{{ totals.direct_downloads }}</b></span><span><i></i>QR <b>{{ totals.qr_downloads }}</b></span></div><p class="metric-note">Дархости боргирии файл ҳисоб мешавад; насби муваффақ дар телефонро тасдиқ намекунад.</p></div>
+      <div class="panel"><div class="panel-title"><h3>Версияҳои боргирифта</h3><span class="small">Android</span></div>{% if s.download_versions %}<div class="version-list">{% for release in s.download_versions %}<div><span class="version-label">{{ icon('package') }}{{ release.version or 'Номаълум' }}</span><b>{{ release.downloads }}</b></div>{% endfor %}</div>{% else %}{{ empty('Ҳоло боргирӣ нест') }}{% endif %}</div>
+      <div class="panel device-summary"><div class="panel-title"><h3>Пайвасти дастгоҳҳо</h3><a href="#children" aria-label="Дидани дастгоҳҳо">↗</a></div><div class="device-meter"><strong>{{ pct_paired|int }}<small>%</small></strong><span>{{ s.total_paired }} аз {{ s.total_children }}<br>бо волидайн пайваст</span></div><div class="meter"><i style="--w:{{ pct_paired }}%"></i></div><p class="metric-note">Фаъолият аз сессия, ҳамоҳангсозии барномаҳо ё навсозии макон муайян мешавад.</p></div>
+    </div>
+  </section>
+  {% include '_admin_records.html' %}
+</div>

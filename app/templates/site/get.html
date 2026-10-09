@@ -7,7 +7,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="/static/css/get.css?v={{ app_version }}">
-<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}-2">
 {% endblock %}
 
 {% block content %}
@@ -25,7 +25,7 @@
       </a>
       <button class="btn btn-ghost copy-download" type="button" data-copy-success="Нусха шуд">Нусхаи пайванди боргирӣ</button>
       <button class="btn btn-ghost share-page" type="button" data-share-title="NIGOH Family барои Android" data-share-text="Ин саҳифаро дар телефони фарзанд кушоед, то NIGOH Family-ро боргирӣ кунед." data-copy-success="Пайванди саҳифа нусха шуд">Ба телефони фарзанд фиристодан</button>
-      <span class="tag blue version-badge">Версияи {{ app_version }}</span>
+      <span class="tag blue version-badge">{{ 'Версияи ' ~ (apk.version or '—') if apk.available else 'Файл ҳоло дастрас нест' }}</span>
     </div>
   </div>
 </section>
@@ -42,8 +42,9 @@
     <div>
       <h2>Маълумот дар бораи файл</h2>
       <table class="meta-table" style="margin-top:24px">
-        <tr><th>Версия</th><td>{{ app_version }}</td></tr>
-        <tr><th>Андоза</th><td>~77 МБ</td></tr>
+        <tr><th>Версия</th><td>{{ (apk.version or '—') if apk.available else '—' }}</td></tr>
+        <tr><th>Андоза</th><td>{{ apk.size_label or '—' }}</td></tr>
+        <tr><th>Ҳолати файл</th><td>{{ 'Барои боргирӣ дастрас аст' if apk.available else 'Муваққатан дастрас нест' }}</td></tr>
         <tr><th>Система</th><td>Android 8.0 ва навтар</td></tr>
         <tr><th>Нарх</th><td>Ройгон</td></tr>
         <tr><th>Package</th><td style="word-break:break-all">tj.nigoh.nigoh_family_parent</td></tr>
@@ -113,9 +114,8 @@
       <p class="lead" style="margin-top:16px">Барнома худаш версияи навро месанҷад ва боргирии онро пешниҳод мекунад.</p>
     </div>
     <ul class="feature-list" style="margin-top:0">
-      <li>Воридшавӣ бо GitHub (пас аз фаъол шудан дар сервер).</li>
-      <li>Дар устоди иҷозатҳо корти «App info» барои иҷозатҳои душвор.</li>
-      <li>Воридшавӣ бо Apple ва тарҳи нави сайт аз версияҳои пештара.</li>
+      {% if latest_release %}{% for item in latest_release['items'][lang] %}<li>{{ item }}</li>{% endfor %}{% endif %}
+      <li><a href="{{ P }}/changelog">Таърихи ҳамаи версияҳо</a></li>
     </ul>
   </div>
 </section>
@@ -152,12 +152,12 @@
 </section>
 
 <div class="download-toast" role="status" aria-live="polite" aria-atomic="true" hidden>
-  <strong>Боргирӣ оғоз шуд</strong>
+  <strong>Дархости боргирӣ фиристода шуд</strong>
   <span>Пас аз анҷом ёфтан файли APK-ро кушоед, то насбро идома диҳед.</span>
 </div>
 <p class="get-live" aria-live="polite" aria-atomic="true"></p>
 <div class="sticky-download" hidden>
-  <span>Версияи {{ app_version }}</span>
+  <span>{{ 'Версияи ' ~ (apk.version or '—') if apk.available else 'Файл ҳоло дастрас нест' }}</span>
   <a class="btn btn-primary" href="/download/android" data-download-action aria-label="Боргирии NIGOH Family версияи {{ app_version }} барои Android">Боргирии APK</a>
 </div>
 <dialog class="qr-dialog" aria-labelledby="qr-dialog-title-tg">
@@ -172,5 +172,5 @@
 
 {% block scripts %}
   <script src="/static/js/get.js?v={{ app_version }}" defer></script>
-  <script src="/static/js/install-anim.js?v={{ app_version }}" defer></script>
+  <script src="/static/js/install-anim.js?v={{ app_version }}-2" defer></script>
 {% endblock %}

@@ -1,0 +1,193 @@
+{# Бахши барномаҳо ва омори онҳоро ҷудо мекунад. #}
+      <section id="apps" class="a-sec">
+        <div class="a-sec-head">
+          <h2>Барномаҳо</h2>
+          <p>Аз телефонҳои фарзандон синхрон шудаанд</p>
+        </div>
+        <div class="panel">
+          {% if s.top_apps %}
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>Барнома</th><th class="num">Фарзандон</th><th class="num">Манъ</th><th class="num">Маҳдуд</th><th class="num">Имрӯз, дақ.</th></tr></thead>
+              <tbody>
+                {% for a in s.top_apps %}
+                <tr>
+                  <td><div class="who"><div><b>{{ a.app_name }}</b><small class="mono">{{ a.package_name }}</small></div></div></td>
+                  <td class="num">{{ a.children }}</td>
+                  <td class="num">{% if a.blocked %}<span class="pill red plain">{{ a.blocked }}</span>{% else %}0{% endif %}</td>
+                  <td class="num">{% if a.limited %}<span class="pill amber plain">{{ a.limited }}</span>{% else %}0{% endif %}</td>
+                  <td class="num">{{ a.minutes_today }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          {{ empty(hint='Вақте телефони фарзанд рӯйхати барномаҳоро фиристад, онҳо дар ин ҷо пайдо мешаванд.') }}
+          {% endif %}
+        </div>
+      </section>
+
+{# Бахши профилҳои фарзандонро ҷудо мекунад. #}
+      <section id="children" class="a-sec">
+        <div class="a-sec-head">
+          <h2>Фарзандон</h2>
+          <p>{{ s.total_children }} профил · {{ s.total_paired }} пайваст</p>
+        </div>
+        <div class="panel">
+          {% if s.children_list %}
+          <div class="toolbar">
+            <label class="search">{{ icon('search') }}<input type="search" placeholder="Ҷустуҷӯ: ном, почта, дастгоҳ" data-filter="children-tbody" aria-label="Ҷустуҷӯи фарзандон"></label>
+            <label class="filter-select"><span class="sr-only">Ҳолати дастгоҳ</span><select data-status-filter="children-tbody"><option value="">Ҳамаи дастгоҳҳо</option value="online">Фаъол дар 15 дақиқа</option value="offline">Бефаъолияти нав</option value="paired">Пайваст</option value="unpaired">Нопайваст</option></select></label>
+            <span class="count" data-count-for="children-tbody">{{ s.children_list|length }} аз {{ s.children_list|length }}</span>
+          </div>
+          <div class="table-wrap tall">
+            <table class="tbl">
+              <thead><tr><th>Ном</th><th>Ҳолат</th><th>Волидайн</th><th>Дастгоҳ</th><th>Фаъолияти охирин</th><th class="num">Амал</th></tr></thead>
+              <tbody id="children-tbody">
+                {% for c in s.children_list %}
+                <tr data-id="{{ c.id }}" data-name="{{ c.name or '' }}" data-gender="{{ c.gender or '' }}" data-age="{{ c.age if c.age is not none else '' }}" data-device="{{ c.device_name or '' }}"
+                    data-status="{{ 'online' if c.is_online else 'offline' }}" data-paired="{{ 'paired' if c.is_paired else 'unpaired' }}" data-search="{{ ((c.name or '') ~ ' ' ~ (c.parent_email or '') ~ ' ' ~ (c.device_name or ''))|lower }}">
+                  <td>
+                    <div class="who">
+                      <span class="avatar {{ 'girl' if c.gender == 'girl' else 'boy' }}" data-f="avatar">{{ (c.name or '?')[:1]|upper }}</span>
+                      <div><b data-f="name">{{ c.name or '—' }}</b><small><span data-f="age">{% if c.age is not none %}{{ c.age }} сола{% else %}—{% endif %}</span> · #{{ c.id }}</small></div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="pills">
+                      {% if c.is_paired %}<span class="pill blue">Пайваст</span>{% else %}<span class="pill">Не</span>{% endif %}
+                      {% if c.is_online %}<span class="pill teal live">Онлайн</span>{% endif %}
+                      {% if c.apps_synced %}<span class="pill amber">Барномаҳо синхрон</span>{% endif %}
+                    </div>
+                  </td>
+                  <td class="nowrap">{{ c.parent_email or '—' }}</td>
+                  <td class="nowrap" data-f="device">{{ c.device_name or '—' }}</td>
+                  <td class="nowrap" title="{{ c.last_seen_source or '' }}"><time data-local-time="{{ c.last_seen_at or '' }}">{{ ftime(c.last_seen_at) }}</time></td>
+                  <td class="num">
+                    <div class="row-actions">
+                      <button class="icon-btn" type="button" data-act="edit" title="Таҳрир" aria-label="Таҳрир">{{ icon('edit') }}</button>
+                      <button class="icon-btn danger" type="button" data-act="delete" title="Нест кардан" aria-label="Нест кардан">{{ icon('trash') }}</button>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="no-match" data-empty-for="children-tbody">{{ empty('Ҳеҷ чиз ёфт нашуд') }}</div>
+          {% else %}
+          {{ empty() }}
+          {% endif %}
+        </div>
+      </section>
+
+{# Бахши корбаронро ҷудо мекунад. #}
+      <section id="users" class="a-sec">
+        <div class="a-sec-head">
+          <h2>Корбарон</h2>
+          <p>{{ s.total_users }} ҳисоб</p>
+        </div>
+        <div class="panel">
+          {% if s.registered_users %}
+          <div class="toolbar">
+            <label class="search">{{ icon('search') }}<input type="search" placeholder="Ҷустуҷӯ: ном ё почта" data-filter="users-tbody" aria-label="Ҷустуҷӯи корбарон"></label>
+            <label class="filter-select"><span class="sr-only">Нақши корбар</span><select data-role-filter="users-tbody"><option value="">Ҳамаи нақшҳо</option value="parent">Волидайн</option value="child">Фарзанд</option value="unassigned">Номуайян</option></select></label>
+            <span class="count" data-count-for="users-tbody">{{ s.registered_users|length }} аз {{ s.registered_users|length }}</span>
+          </div>
+          <div class="table-wrap tall">
+            <table class="tbl">
+              <thead><tr><th>Корбар</th><th>Нақш</th><th>Почта</th><th>Ворид</th><th class="num">Сана</th></tr></thead>
+              <tbody id="users-tbody">
+                {% for u in s.registered_users %}
+                <tr data-role="{{ u.role or 'unassigned' }}" data-search="{{ ((u.full_name or '') ~ ' ' ~ (u.email or '') ~ ' ' ~ (u.role or ''))|lower }}">
+                  <td>
+                    <div class="who">
+                      {% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" alt="" width="30" height="30" loading="lazy" referrerpolicy="no-referrer">
+                      {% else %}<span class="avatar">{{ (u.full_name or u.email or '?')[:1]|upper }}</span>{% endif %}
+                      <div><b>{{ u.full_name or '—' }}</b><small>#{{ u.id }}</small></div>
+                    </div>
+                  </td>
+                  <td>{% if u.role == 'parent' %}<span class="pill blue">Волидайн</span>{% elif u.role == 'child' %}<span class="pill teal">Фарзанд</span>{% else %}<span class="pill">Номуайян</span>{% endif %}</td>
+                  <td class="nowrap">{{ u.email or '—' }}</td>
+                  <td>
+                    <div class="pills">
+                      {% for provider in u.auth_providers %}<span class="pill plain">{{ provider }}</span>{% else %}<span class="pill plain">Почта</span>{% endfor %}
+                    </div>
+                  </td>
+                  <td class="num">{{ fdate(u.created_at) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="no-match" data-empty-for="users-tbody">{{ empty('Ҳеҷ чиз ёфт нашуд') }}</div>
+          {% else %}
+          {{ empty() }}
+          {% endif %}
+        </div>
+      </section>
+
+{# Қисми боргирии барномаи Android-ро ҷойгир мекунад. #}
+      <section id="downloads" class="a-sec">
+        <div class="a-sec-head">
+          <h2>Боргириҳо</h2>
+          <p>Охирин {{ s.recent_downloads|length }} аз ҳамаи давраҳо · Android {{ s.android_downloads }} аз {{ s.total_downloads }}</p>
+        </div>
+        <div class="panel">
+          {% if s.recent_downloads %}
+          <ul class="feed">
+            {% for d in s.recent_downloads %}
+            {%- set ua = (d.user_agent or '')|lower -%}
+            {%- set is_qr = d.event_type == 'qr_scan' -%}
+            <li>
+              <span class="icon{% if is_qr %} teal{% endif %}">{{ icon('qr' if is_qr else 'download') }}</span>
+              <div class="feed-main">
+                <div class="pills">
+                  {% if is_qr %}<span class="pill teal">QR</span>{% else %}<span class="pill blue">Мустақим</span>{% endif %}
+                  {% if 'android' in ua %}<span class="pill plain teal">Android</span>{% else %}<span class="pill plain">Дигар</span>{% endif %}
+                  {% if d.version %}<span class="pill plain">{{ d.version }}</span>{% endif %}
+                </div>
+                <div class="feed-meta" title="{{ d.user_agent or '' }}">{{ mask_ip(d.ip) }} · {{ (d.user_agent or '—')[:80] }}</div>
+              </div>
+              <div class="feed-time"><time data-local-time="{{ d.created_at or '' }}">{{ ftime(d.created_at) }}</time></div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          {{ empty() }}
+          {% endif %}
+        </div>
+      </section>
+
+{# Паёмҳои формаи «Тамос бо мо»-и сайт; ҷавоб тавассути почта дода мешавад. #}
+      {%- set TOPIC = {'question': 'Савол', 'problem': 'Мушкил', 'privacy': 'Махфият', 'delete_account': 'Нест кардани ҳисоб', 'other': 'Дигар'} %}
+      <section id="messages" class="a-sec">
+        <div class="a-sec-head">
+          <h2>Паёмҳо</h2>
+          <p>Охирин {{ messages|length }} · нахонда {{ unread_messages }}</p>
+        </div>
+        <div class="panel">
+          {% if messages %}
+          <ul class="feed">
+            {% for m in messages %}
+            <li>
+              <span class="icon{% if m.topic == 'delete_account' or m.topic == 'privacy' %} teal{% endif %}">{{ icon('inbox') }}</span>
+              <div class="feed-main">
+                <div class="pills">
+                  <span class="pill {{ 'blue' if not m.is_read else 'plain' }}">{{ TOPIC.get(m.topic, m.topic) }}</span>
+                  <span class="pill plain">{{ m.lang|upper }}</span>
+                  <b>{{ m.name }}</b>
+                  <a href="mailto:{{ m.email }}?subject=NIGOH%20Family">{{ m.email }}</a>
+                </div>
+                <div class="feed-meta message-text">{{ m.message }}</div>
+              </div>
+              <div class="feed-time"><time data-local-time="{{ m.created_at or '' }}">{{ ftime(m.created_at) }}</time></div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          {{ empty('Ҳоло паём нест') }}
+          {% endif %}
+        </div>
+      </section>

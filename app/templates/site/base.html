@@ -85,6 +85,7 @@
   <link rel="stylesheet" href="/static/css/site.css?v={{ app_version }}">
   <link rel="stylesheet" href="/static/css/theme-switch.css?v={{ app_version }}">
   <link rel="stylesheet" href="/static/css/motion.css?v={{ app_version }}">
+  <link rel="stylesheet" href="/static/css/site-refine.css?v={{ app_version }}-2">
   <noscript><style>
     @media (max-width: 1180px) {
       .nav-toggle { display: none; }
@@ -102,8 +103,8 @@
         <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
         <span>NIGOH Family</span>
       </a>
-      <button class="nav-toggle" type="button" aria-label="{{ L.menu }}" aria-expanded="false"><span></span></button>
-      <ul class="nav-links">
+      <button class="nav-toggle" type="button" aria-label="{{ L.menu }}" aria-expanded="false" aria-controls="site-navigation site-actions"><span></span></button>
+      <ul class="nav-links" id="site-navigation">
         {% for href, key in [
           ('/features', 'features'),
           ('/how-it-works', 'how'),
@@ -114,7 +115,7 @@
         <li><a href="{{ P }}{{ href }}"{% if active == key %} aria-current="page"{% endif %}>{{ label }}</a></li>
         {% endfor %}
       </ul>
-      <div class="nav-actions">
+      <div class="nav-actions" id="site-actions">
         {% if user %}
           {% if user.role == 'admin' %}<a class="btn btn-ghost btn-sm" href="/admin">{{ L.panel }}</a>{% endif %}
           <a class="btn btn-ghost btn-sm" href="/logout">{{ L.logout }}</a>
@@ -218,6 +219,19 @@
         toggle.addEventListener('click', function () {
           var open = header.classList.toggle('open');
           toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        header.addEventListener('keydown', function (event) {
+          if (event.key === 'Escape' && header.classList.contains('open')) {
+            header.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.focus();
+          }
+        });
+        header.addEventListener('click', function (event) {
+          if (event.target.closest('a') && header.classList.contains('open')) {
+            header.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+          }
         });
       }
       if (document.readyState === 'loading') {

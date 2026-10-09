@@ -10,7 +10,6 @@ import threading
 import time
 
 from fastapi.testclient import TestClient
-
 import app.main as main
 from app.core.config import settings
 
@@ -42,7 +41,8 @@ def run_checks() -> None:
         client = TestClient(main.app)
 
         # 1. Саҳифаҳои се забон ҳисоб мешаванд.
-        for path in ("/", "/ru", "/en", "/features", "/ru/faq", "/en/security"):
+        for path in ("/", "/ru", "/en", "/features", "/ru/faq", "/en/security",
+                     "/tips", "/ru/compare", "/en/changelog", "/privacy", "/ru/terms", "/en/contact"):
             calls.clear()
             r = client.get(path, headers={"User-Agent": "perf-test"})
             check(f"{path} -> 200", r.status_code == 200, str(r.status_code))
@@ -58,10 +58,16 @@ def run_checks() -> None:
               bool(calls) and calls[0]["thread"].startswith("AnyIO worker"), str(calls))
 
         # 3. API ва static ҳисоб намешаванд.
-        for path in ("/health", "/static/css/site.css", "/api/docs"):
+        for path in ("/health", "/static/css/site.css", "/api/docs", "/auth", "/admin"):
             calls.clear()
             client.get(path)
             check(f"{path} not counted", calls == [], str(calls))
+
+        for method, path in (("HEAD", "/"), ("HEAD", "/en/contact"),
+                             ("POST", "/features"), ("GET", "/features/"), ("GET", "/not-found")):
+            calls.clear()
+            client.request(method, path, follow_redirects=False)
+            check(f"{method} {path} not counted", calls == [], str(calls))
 
         # 4. Хатои омор ҷавобро вайрон намекунад.
         def broken_log(*a, **k):

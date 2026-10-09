@@ -1,6 +1,5 @@
 """Файл: саҳифаҳои оммавӣ, SEO, health ва endpoint-ҳои verification."""
 
-import os
 from fastapi import APIRouter, Request, Response, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -12,6 +11,7 @@ from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.review import Review
 from app.core.releases import RELEASES
+from app.routers.download import get_android_release
 
 router = APIRouter(tags=["Public & SEO"])
 templates = Jinja2Templates(directory=settings.TEMPLATES_DIR)
@@ -123,26 +123,17 @@ def health_check(db: Session = Depends(get_db)):
     except Exception:
         db_ok = False
 
-    apk_exists = False
-    apk_size = 0
-    active_apk_name = settings.APK_CANDIDATES[0]
-    for candidate in settings.APK_CANDIDATES:
-        cand_path = os.path.join(settings.STATIC_DIR, "downloads", candidate)
-        if os.path.exists(cand_path) and os.path.getsize(cand_path) > 1000000:
-            apk_exists = True
-            apk_size = os.path.getsize(cand_path)
-            active_apk_name = candidate
-            break
+    release = get_android_release()
 
     return {
-        "status": "healthy" if (db_ok and apk_exists) else "degraded",
+        "status": "healthy" if (db_ok and release["available"]) else "degraded",
         "domain": settings.OFFICIAL_DOMAIN,
         "version": settings.APP_VERSION,
         "version_code": settings.APP_VERSION_CODE,
         "database_connected": db_ok,
-        "apk_available": apk_exists,
-        "apk_bytes": apk_size,
-        "active_apk": active_apk_name
+        "apk_available": release["available"],
+        "apk_bytes": release["bytes"],
+        "active_apk": release["filename"]
     }
 
 
@@ -161,6 +152,8 @@ def _site_page(request: Request, name: str, active: str, lang: str = "tg", **con
         context={
             "user": get_current_user(request),
             "app_version": settings.APP_VERSION,
+            "apk": get_android_release(),
+            "latest_release": next((release for release in RELEASES if release["version"] == settings.APP_VERSION), None),
             "active": active,
             "lang": lang,
             "lang_prefix": "" if lang == "tg" else f"/{lang}",
@@ -291,21 +284,14 @@ def favicon():
 
 @router.head("/3d", include_in_schema=False)
 @router.head("/nigoh3d", include_in_schema=False)
-@router.get("/3d", response_class=HTMLResponse)
-@router.get("/nigoh3d", response_class=HTMLResponse)
-def nigoh_3d_presentation(request: Request):
-    """Дархости `GET /3d`-ро барои nigoh 3d presentation коркард мекунад."""
-
-    return templates.TemplateResponse(request=request, name="nigoh3d.html", context={})
-
+@router.get("/3d", include_in_schema=False)
+@router.get("/nigoh3d", include_in_schema=False)
 @router.head("/weevolve", include_in_schema=False)
 @router.head("/evolve", include_in_schema=False)
-@router.get("/weevolve", response_class=HTMLResponse)
-@router.get("/evolve", response_class=HTMLResponse)
-def weevolve_showcase_page(request: Request):
-    """Дархости `GET /weevolve`-ро барои weevolve showcase саҳифа коркард мекунад."""
-
-    return templates.TemplateResponse(request=request, name="weevolve.html", context={})
+@router.get("/weevolve", include_in_schema=False)
+@router.get("/evolve", include_in_schema=False)
+def legacy_showcase_redirect():
+    return RedirectResponse("/", status_code=301)
 
 # Google Search Console EXACT file verification (strict matching to pass security anti-hacking probe)
 @router.head("/googleee0fc42c18bef62a.html", include_in_schema=False)

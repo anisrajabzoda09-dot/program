@@ -1,654 +1,74 @@
-{#- Файл: панели маъмурӣ барои дидани омор ва идора кардани маълумоти фарзандон. -#}
-{# Нишонаи SVG-и мувофиқро аз рӯи номи додашуда месозад. #}
-{%- macro icon(name) -%}
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-{%- if name == 'grid' -%}<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
-{%- elif name == 'chart' -%}<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
-{%- elif name == 'package' -%}<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
-{%- elif name == 'phone' -%}<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
-{%- elif name == 'users' -%}<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-{%- elif name == 'user' -%}<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
-{%- elif name == 'download' -%}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>
-{%- elif name == 'eye' -%}<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
-{%- elif name == 'home' -%}<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>
-{%- elif name == 'logout' -%}<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>
-{%- elif name == 'link' -%}<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-{%- elif name == 'activity' -%}<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-{%- elif name == 'search' -%}<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-{%- elif name == 'edit' -%}<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-{%- elif name == 'trash' -%}<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-{%- elif name == 'x' -%}<path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-{%- elif name == 'check' -%}<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
-{%- elif name == 'alert' -%}<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>
-{%- elif name == 'qr' -%}<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M21 21h-4v-4"/><path d="M21 14v.01"/><path d="M14 21h.01"/>
-{%- elif name == 'inbox' -%}<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
-{%- elif name == 'shield' -%}<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-{%- endif -%}
-</svg>
-{%- endmacro -%}
-
-{# Санаи ISO-ро ба шакли кӯтоҳи рӯз.моҳ.сол табдил медиҳад. #}
-{%- macro fdate(s) -%}{% if s and s|length >= 10 %}{{ s[8:10] }}.{{ s[5:7] }}.{{ s[:4] }}{% else %}—{% endif %}{%- endmacro -%}
-{# Сана ва вақти ISO-ро ба шакли хонданбоби маҳаллӣ табдил медиҳад. #}
-{%- macro ftime(s) -%}{% if s and s|length >= 16 %}{{ s[8:10] }}.{{ s[5:7] }} {{ s[11:16] }}{% else %}—{% endif %}{%- endmacro -%}
-{# Қисми ҳассоси суроғаи IPv4 ё IPv6-ро пинҳон мекунад. #}
-{%- macro mask_ip(ip) -%}
-{%- if ip and ip.count('.') == 3 -%}{% set p = ip.split('.') %}{{ p[0] }}.{{ p[1] }}.x.x
-{%- elif ip and ':' in ip -%}{{ ip.split(':')[0] }}:…
-{%- else -%}—{%- endif -%}
-{%- endmacro -%}
-{# Барои ҷадвал ё бахши холӣ паёми ягонаи иттилоотӣ месозад. #}
-{%- macro empty(title='Ҳоло маълумот нест', hint='') -%}
-<div class="empty">{{ icon('inbox') }}<p>{{ title }}</p>{% if hint %}<p>{{ hint }}</p>{% endif %}</div>
-{%- endmacro -%}
-
-{%- set s = stats -%}
-{%- set pct_paired = ((s.total_paired / s.total_children * 100) if s.total_children else 0)|round(1) -%}
-{%- set pct_synced = ((s.children_with_apps / s.total_children * 100) if s.total_children else 0)|round(1) -%}
-{%- set pct_qr = ((s.total_qr_downloads / s.total_downloads * 100) if s.total_downloads else 0)|round(1) -%}
-{%- set display_name = (user.full_name if user and user.full_name else (user.email if user and user.email else 'Admin')) -%}
+{% from '_admin_ui.html' import icon %}
+{% set s = stats %}
+{% set display_name = user.full_name or user.email or 'Admin' %}
 <!DOCTYPE html>
 <html lang="tg">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#ffffff">
-  <title>NIGOH Admin</title>
-  <script>document.documentElement.className += ' js';</script>
-  <link rel="icon" type="image/png" href="/static/images/nigoh_logo.png">
+  <meta name="theme-color" content="#132e2c">
+  <title>Панели идоракунӣ · NIGOH Family</title>
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('nigoh-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (error) {}</script>
+  <link rel="icon" type="image/png" href="/static/images/nigoh_family_icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/site.css?v={{ s.current_version }}">
-  <link rel="stylesheet" href="/static/css/admin.css?v={{ s.current_version }}">
+  <link rel="stylesheet" href="/static/css/admin.css?v={{ s.current_version }}-3">
+  <script src="/static/js/admin.js?v={{ s.current_version }}-3" defer></script>
 </head>
 <body class="admin">
-
-  <header class="a-top">
-    <div class="a-top-in">
-      <a class="brand" href="/admin">
-        <img src="/static/images/nigoh_logo.png" alt="" width="30" height="30">
-        <span>NIGOH <b>Admin</b></span>
-      </a>
-      <div class="a-top-actions">
-        <a class="a-link" href="/" title="Сайт">{{ icon('home') }}<span class="hide-sm">Сайт</span></a>
-        <span class="tag blue hide-sm" title="Версияи ҷорӣ">{{ s.current_version }}</span>
-        <span class="a-user hide-md">
-          {% if user and user.avatar %}<img class="avatar" src="{{ user.avatar }}" alt="" width="30" height="30" referrerpolicy="no-referrer">
-          {% else %}<span class="avatar">{{ display_name[:1]|upper }}</span>{% endif %}
-          <span class="name">{{ display_name }}</span>
-        </span>
-        <a class="a-link" href="/account/security" title="Ҳимояи ҳисоб">{{ icon('shield') }}<span class="hide-sm">Ҳимоя</span></a>
-        <a class="a-link out" href="/logout" title="Баромад">{{ icon('logout') }}<span class="hide-sm">Баромад</span></a>
-      </div>
-    </div>
-  </header>
-
+  <a class="skip-link" href="#main">Ба муҳтаво</a>
   <div class="a-shell">
     <aside class="a-side">
-      <div class="a-side-label">Бахшҳо</div>
-      <ul class="a-nav" id="a-nav">
-        <li><a href="#overview" class="on">{{ icon('grid') }}Шарҳи умумӣ</a></li>
-        <li><a href="#traffic">{{ icon('chart') }}Трафик</a></li>
-        <li><a href="#apps">{{ icon('package') }}Барномаҳо</a></li>
-        <li><a href="#children">{{ icon('users') }}Фарзандон</a></li>
-        <li><a href="#users">{{ icon('user') }}Корбарон</a></li>
-        <li><a href="#downloads">{{ icon('download') }}Боргириҳо</a></li>
-        <li><a href="#messages">{{ icon('inbox') }}Паёмҳо{% if unread_messages %} <span class="pill blue">{{ unread_messages }}</span>{% endif %}</a></li>
-      </ul>
-      <div class="a-side-note">Ҳамаи рақамҳо аз пойгоҳи додаҳо гирифта шудаанд.</div>
+      <a class="admin-brand" href="/admin"><img src="/static/images/nigoh_family_icon.png" alt="" width="40" height="40"><span>NIGOH<span>FAMILY · ADMIN</span></span></a>
+      <div class="a-side-label">ИДОРАКУНӢ</div>
+      <nav aria-label="Бахшҳои панели админ">
+        <ul class="a-nav" id="a-nav">
+          <li><a href="#overview" class="on" aria-current="location">{{ icon('grid') }}Шарҳи умумӣ</a></li>
+          <li><a href="#traffic">{{ icon('chart') }}Омори сайт</a></li>
+          <li><a href="#children">{{ icon('phone') }}Дастгоҳҳо</a></li>
+          <li><a href="#users">{{ icon('users') }}Корбарон</a></li>
+          <li><a href="#apps">{{ icon('package') }}Барномаҳо</a></li>
+          <li><a href="#downloads">{{ icon('download') }}Боргириҳо</a></li>
+          <li><a href="#messages">{{ icon('inbox') }}Паёмҳо <span class="nav-badge" id="message-count" {% if not unread_messages %}hidden{% endif %}>{{ unread_messages }}</span></a></li>
+        </ul>
+      </nav>
+      <div class="side-bottom">
+        <div class="side-release"><span class="release-dot"></span><div><b>NIGOH Family</b><span>Android · {{ s.current_version }}</span></div></div>
+        <a href="/account/security">{{ icon('shield') }}Ҳимояи ҳисоб</a>
+        <a href="/">{{ icon('home') }}Кушодани сайт<span aria-hidden="true">↗</span></a>
+        <div class="side-account"><span class="avatar">{{ display_name[:1]|upper }}</span><div><b>{{ display_name }}</b><small>Маъмур</small></div><a href="/logout" aria-label="Баромад" title="Баромад">{{ icon('logout') }}</a></div>
+      </div>
     </aside>
-
-    <main class="a-main">
-      {% if not totp_enabled %}
-      <div class="panel" role="status" style="margin-bottom:16px;border-color:#f0b54a">
-        <b>Ҳимояи дуқабата хомӯш аст.</b> Ҳисоби админ ҳамаи маълумотро мебинад — <a href="/account/security">Authenticator-ро фаъол кунед</a>.
-      </div>
-      {% endif %}
-
-{# Бахши шарҳи умумиро ҷудо мекунад. #}
-      <section id="overview" class="a-sec" style="margin-top:0">
-        <div class="a-head rise" style="--d:0">
-          <div>
-            <h1>Шарҳи умумӣ</h1>
-            <p>Сайт, боргириҳо ва оилаҳо — танҳо маълумоти воқеӣ.</p>
-          </div>
-          <a class="btn btn-ghost btn-sm" href="/admin" title="Навсозӣ">Навсозӣ</a>
-        </div>
-
-        <div class="kpis">
-          <div class="kpi rise" style="--d:1">
-            <div class="kpi-top"><span class="kpi-label">Боргириҳо</span><span class="icon">{{ icon('download') }}</span></div>
-            <div class="kpi-value" data-count="{{ s.total_downloads }}">{{ s.total_downloads }}</div>
-            <div class="kpi-sub"><span>Мустақим <b>{{ s.total_direct_downloads }}</b></span><span>QR <b>{{ s.total_qr_downloads }}</b></span><span>Имрӯз <b>{{ s.today_downloads }}</b></span></div>
-            <div class="meter" title="QR: {{ pct_qr }}%"><i style="--w:{{ 100 - pct_qr if s.total_downloads else 0 }}%"></i><i class="teal" style="--w:{{ pct_qr }}%"></i></div>
-          </div>
-
-          <div class="kpi rise" style="--d:2">
-            <div class="kpi-top"><span class="kpi-label">Тамошо имрӯз</span><span class="icon teal">{{ icon('eye') }}</span></div>
-            <div class="kpi-value" data-count="{{ s.today_views }}">{{ s.today_views }}</div>
-            <div class="kpi-sub"><span>Ҳамагӣ <b>{{ s.total_page_views }}</b></span><span>Меҳмонон <b>{{ s.total_visitors }}</b></span></div>
-          </div>
-
-          <div class="kpi rise" style="--d:3">
-            <div class="kpi-top"><span class="kpi-label">Оилаҳо</span><span class="icon">{{ icon('users') }}</span></div>
-            <div class="kpi-value" data-count="{{ s.role_counts.parent }}">{{ s.role_counts.parent }}</div>
-            <div class="kpi-sub"><span>Корбарон <b>{{ s.total_families }}</b></span><span>Фарзанд <b>{{ s.role_counts.child }}</b></span>{% if s.role_counts.unassigned %}<span>Номуайян <b>{{ s.role_counts.unassigned }}</b></span>{% endif %}</div>
-          </div>
-
-          <div class="kpi rise" style="--d:4">
-            <div class="kpi-top"><span class="kpi-label">Фарзандон</span><span class="icon teal">{{ icon('link') }}</span></div>
-            <div class="kpi-value"><span data-count="{{ s.total_paired }}">{{ s.total_paired }}</span> <small>/ {{ s.total_children }}</small></div>
-            <div class="kpi-sub"><span>Пайваст <b>{{ pct_paired }}%</b></span></div>
-            <div class="meter"><i class="teal" style="--w:{{ pct_paired }}%"></i></div>
-          </div>
-
-          <div class="kpi rise" style="--d:5">
-            <div class="kpi-top"><span class="kpi-label">Онлайн ҳозир</span><span class="icon teal">{{ icon('activity') }}</span></div>
-            <div class="kpi-value" data-count="{{ s.total_online }}">{{ s.total_online }}</div>
-            <div class="kpi-sub"><span>Ҷойгиршавӣ дар 15 дақиқаи охир</span></div>
-          </div>
-
-          <div class="kpi rise" style="--d:6">
-            <div class="kpi-top"><span class="kpi-label">Барномаҳо синхрон</span><span class="icon amber">{{ icon('package') }}</span></div>
-            <div class="kpi-value"><span data-count="{{ s.children_with_apps }}">{{ s.children_with_apps }}</span> <small>/ {{ s.total_children }}</small></div>
-            <div class="kpi-sub"><span>Қоидаҳои манъ <b>{{ s.blocked_rules }}</b></span></div>
-            <div class="meter"><i style="--w:{{ pct_synced }}%"></i></div>
+    <div class="a-workspace">
+      <header class="a-top">
+        <div class="a-top-in">
+          <span class="workspace-title">Фазои корӣ <span>/</span> Панели идоракунӣ</span>
+          <div class="a-top-actions">
+            <span class="sync-state" id="sync-state" role="status"><span class="status-dot"></span><span id="sync-label">Маълумот гирифта шуд</span></span>
+            <button class="icon-btn theme-button" id="theme-toggle" type="button" aria-label="Иваз кардани мавзӯъ" title="Мавзӯи рӯз / шаб"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 13.1A9 9 0 0 1 10.9 3.2 9 9 0 1 0 20.8 13.1Z"/></svg></button>
           </div>
         </div>
-      </section>
-
-{# Бахши омори боздидро ҷудо мекунад. #}
-      <section id="traffic" class="a-sec">
-        <div class="a-sec-head rise" style="--d:7">
-          <h2>Трафик</h2>
-          <p>14 рӯзи охир</p>
+      </header>
+      <main class="a-main" id="main">
+        <div class="a-head">
+          <div><p class="admin-eyebrow">NIGOH FAMILY / ОМОР ВА ИДОРАКУНӢ</p><h1>Ҳама чиз дар назар.</h1><p>Боздидҳо, корбарон ва дастгоҳҳои пайвастшудаи шумо.</p></div>
+          <a class="btn btn-ghost btn-sm export-button" id="export-link" href="/api/admin/stats/export?days={{ s.period.days }}">{{ icon('download') }}Ҳисоботи CSV</a>
         </div>
-        <div class="grid-traffic">
-          <div class="panel rise" style="--d:8">
-            <div class="panel-title">
-              <h3>Тамошо ва боргирӣ</h3>
-              <div class="chart-legend"><span>Тамошо</span><span class="dl">Боргирӣ</span></div>
-            </div>
-            {%- set chart = s.daily_chart or [] -%}
-            {%- set mx_v = (chart|map(attribute='page_views')|max) if chart else 0 -%}
-            {%- set mx_d = (chart|map(attribute='downloads')|max) if chart else 0 -%}
-            {%- set mx = [mx_v, mx_d]|max -%}
-            {%- set top = [2, mx + mx % 2]|max -%}
-            {% if chart %}
-            <div class="chart">
-              <div class="chart-axis" aria-hidden="true"><span>{{ top }}</span><span>{{ top // 2 }}</span><span>0</span></div>
-              <div class="chart-plot">
-                <div class="chart-grid" aria-hidden="true"><i></i><i></i><i></i></div>
-                <div class="bars">
-                  {% for d in chart %}
-                  <div class="bar-col{% if loop.last %} today{% endif %}">
-                    <div class="bar-area" tabindex="0" aria-label="{{ d.label }}: тамошо {{ d.page_views }}, боргирӣ {{ d.downloads }}, меҳмон {{ d.visitors }}">
-                      <span class="bar{% if not d.page_views %} zero{% endif %}" style="--h:{{ (d.page_views / top * 100)|round(1) }}%;--i:{{ loop.index0 }}"></span>
-                      {% if d.downloads %}<span class="bar dl" style="--h:{{ (d.downloads / top * 100)|round(1) }}%;--i:{{ loop.index0 }}"></span>{% endif %}
-                      <span class="bar-tip"><b>{{ d.weekday }}, {{ d.label }}{% if loop.last %} · имрӯз{% endif %}</b><br>Тамошо: {{ d.page_views }}<br>Боргирӣ: {{ d.downloads }}<br>Меҳмон: {{ d.visitors }}</span>
-                    </div>
-                    <div class="bar-label"><b>{{ d.label[:2] }}</b><span>{{ d.weekday }}</span></div>
-                  </div>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-            <div class="chart-foot">
-              <span>Тамошо: <b>{{ chart|sum(attribute='page_views') }}</b></span>
-              <span>Боргирӣ: <b>{{ chart|sum(attribute='downloads') }}</b></span>
-              <span>Ҳамагӣ меҳмонон: <b>{{ s.total_visitors }}</b></span>
-            </div>
-            {% else %}
-            {{ empty() }}
-            {% endif %}
-          </div>
-
-          <div class="panel rise" style="--d:9">
-            <div class="panel-title"><h3>Саҳифаҳои маъмул</h3><span class="small">тамошо</span></div>
-            {% if s.top_pages %}
-            {%- set pmax = (s.top_pages|map(attribute='views')|max) or 1 -%}
-            <ul class="rank">
-              {% for p in s.top_pages %}
-              <li>
-                <div class="rank-row"><code title="{{ p.path }}">{{ p.path }}</code><b>{{ p.views }}</b></div>
-                <div class="rank-track"><i style="--w:{{ (p.views / pmax * 100)|round(1) }}%;--i:{{ loop.index0 }}"></i></div>
-              </li>
-              {% endfor %}
-            </ul>
-            {% else %}
-            {{ empty() }}
-            {% endif %}
-          </div>
+        <div class="dashboard-toolbar">
+          <nav class="period-control" aria-label="Давраи ҳисобот">
+            {% for days in [7, 14, 30, 90] %}<a href="/admin?days={{ days }}" data-period="{{ days }}" {% if days == s.period.days %}aria-current="true"{% endif %}>{{ days }} рӯз</a>{% endfor %}
+          </nav>
+          <div class="refresh-controls"><label class="auto-refresh"><input id="auto-refresh" type="checkbox" checked><span>Худкор · 60 с</span></label><button class="btn btn-ghost btn-sm" type="button" id="refresh-dashboard" title="Нав кардани маълумот">{{ icon('activity') }}<span>Навсозӣ</span></button></div>
         </div>
-      </section>
-
-{# Бахши барномаҳо ва омори онҳоро ҷудо мекунад. #}
-      <section id="apps" class="a-sec">
-        <div class="a-sec-head rise" style="--d:10">
-          <h2>Барномаҳо</h2>
-          <p>Аз телефонҳои фарзандон синхрон шудаанд</p>
-        </div>
-        <div class="panel rise" style="--d:11">
-          {% if s.top_apps %}
-          <div class="table-wrap">
-            <table class="tbl">
-              <thead><tr><th>Барнома</th><th class="num">Фарзандон</th><th class="num">Манъ</th><th class="num">Маҳдуд</th><th class="num">Имрӯз, дақ.</th></tr></thead>
-              <tbody>
-                {% for a in s.top_apps %}
-                <tr>
-                  <td><div class="who"><div><b>{{ a.app_name }}</b><small class="mono">{{ a.package_name }}</small></div></div></td>
-                  <td class="num">{{ a.children }}</td>
-                  <td class="num">{% if a.blocked %}<span class="pill red plain">{{ a.blocked }}</span>{% else %}0{% endif %}</td>
-                  <td class="num">{% if a.limited %}<span class="pill amber plain">{{ a.limited }}</span>{% else %}0{% endif %}</td>
-                  <td class="num">{{ a.minutes_today }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          {% else %}
-          {{ empty(hint='Вақте телефони фарзанд рӯйхати барномаҳоро фиристад, онҳо дар ин ҷо пайдо мешаванд.') }}
-          {% endif %}
-        </div>
-      </section>
-
-{# Бахши профилҳои фарзандонро ҷудо мекунад. #}
-      <section id="children" class="a-sec">
-        <div class="a-sec-head rise" style="--d:12">
-          <h2>Фарзандон</h2>
-          <p>{{ s.total_children }} профил · {{ s.total_paired }} пайваст</p>
-        </div>
-        <div class="panel rise" style="--d:13">
-          {% if s.children_list %}
-          <div class="toolbar">
-            <label class="search">{{ icon('search') }}<input type="search" placeholder="Ҷустуҷӯ: ном, почта, дастгоҳ" data-filter="children-tbody" aria-label="Ҷустуҷӯи фарзандон"></label>
-            <span class="count" data-count-for="children-tbody">{{ s.children_list|length }} аз {{ s.children_list|length }}</span>
-          </div>
-          <div class="table-wrap tall">
-            <table class="tbl">
-              <thead><tr><th>Ном</th><th>Ҳолат</th><th>Волидайн</th><th>Дастгоҳ</th><th>Ҷойгиршавӣ</th><th class="num">Амал</th></tr></thead>
-              <tbody id="children-tbody">
-                {% for c in s.children_list %}
-                <tr data-id="{{ c.id }}" data-name="{{ c.name or '' }}" data-gender="{{ c.gender or '' }}" data-age="{{ c.age if c.age is not none else '' }}" data-device="{{ c.device_name or '' }}"
-                    data-search="{{ ((c.name or '') ~ ' ' ~ (c.parent_email or '') ~ ' ' ~ (c.device_name or ''))|lower }}">
-                  <td>
-                    <div class="who">
-                      <span class="avatar {{ 'girl' if c.gender == 'girl' else 'boy' }}" data-f="avatar">{{ (c.name or '?')[:1]|upper }}</span>
-                      <div><b data-f="name">{{ c.name or '—' }}</b><small><span data-f="age">{% if c.age is not none %}{{ c.age }} сола{% else %}—{% endif %}</span> · #{{ c.id }}</small></div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="pills">
-                      {% if c.is_paired %}<span class="pill blue">Пайваст</span>{% else %}<span class="pill">Не</span>{% endif %}
-                      {% if c.is_online %}<span class="pill teal live">Онлайн</span>{% endif %}
-                      {% if c.apps_synced %}<span class="pill amber">Барномаҳо синхрон</span>{% endif %}
-                    </div>
-                  </td>
-                  <td class="nowrap">{{ c.parent_email or '—' }}</td>
-                  <td class="nowrap" data-f="device">{{ c.device_name or '—' }}</td>
-                  <td class="nowrap" title="{{ c.location_updated_at or '' }}">{{ ftime(c.location_updated_at|replace('T', ' ') if c.location_updated_at else None) }}</td>
-                  <td class="num">
-                    <div class="row-actions">
-                      <button class="icon-btn" type="button" data-act="edit" title="Таҳрир" aria-label="Таҳрир">{{ icon('edit') }}</button>
-                      <button class="icon-btn danger" type="button" data-act="delete" title="Нест кардан" aria-label="Нест кардан">{{ icon('trash') }}</button>
-                    </div>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          <div class="no-match" data-empty-for="children-tbody">{{ empty('Ҳеҷ чиз ёфт нашуд') }}</div>
-          {% else %}
-          {{ empty() }}
-          {% endif %}
-        </div>
-      </section>
-
-{# Бахши корбаронро ҷудо мекунад. #}
-      <section id="users" class="a-sec">
-        <div class="a-sec-head rise" style="--d:14">
-          <h2>Корбарон</h2>
-          <p>{{ s.total_families }} ҳисоб</p>
-        </div>
-        <div class="panel rise" style="--d:15">
-          {% if s.registered_users %}
-          <div class="toolbar">
-            <label class="search">{{ icon('search') }}<input type="search" placeholder="Ҷустуҷӯ: ном ё почта" data-filter="users-tbody" aria-label="Ҷустуҷӯи корбарон"></label>
-            <span class="count" data-count-for="users-tbody">{{ s.registered_users|length }} аз {{ s.registered_users|length }}</span>
-          </div>
-          <div class="table-wrap tall">
-            <table class="tbl">
-              <thead><tr><th>Корбар</th><th>Нақш</th><th>Почта</th><th>Ворид</th><th class="num">Сана</th></tr></thead>
-              <tbody id="users-tbody">
-                {% for u in s.registered_users %}
-                <tr data-search="{{ ((u.full_name or '') ~ ' ' ~ (u.email or '') ~ ' ' ~ (u.role or ''))|lower }}">
-                  <td>
-                    <div class="who">
-                      {% if u.avatar %}<img class="avatar" src="{{ u.avatar }}" alt="" width="30" height="30" loading="lazy" referrerpolicy="no-referrer">
-                      {% else %}<span class="avatar">{{ (u.full_name or u.email or '?')[:1]|upper }}</span>{% endif %}
-                      <div><b>{{ u.full_name or '—' }}</b><small>#{{ u.id }}</small></div>
-                    </div>
-                  </td>
-                  <td>{% if u.role == 'parent' %}<span class="pill blue">Волидайн</span>{% elif u.role == 'child' %}<span class="pill teal">Фарзанд</span>{% else %}<span class="pill">Номуайян</span>{% endif %}</td>
-                  <td class="nowrap">{{ u.email or '—' }}</td>
-                  <td>
-                    <div class="pills">
-                      {% if u.google_id %}<span class="pill plain blue">Google</span>{% endif %}
-                      {% if u.firebase_uid %}<span class="pill plain amber">Firebase</span>{% endif %}
-                      {% if not u.google_id and not u.firebase_uid %}<span class="pill plain">Почта</span>{% endif %}
-                    </div>
-                  </td>
-                  <td class="num">{{ fdate(u.created_at) }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          <div class="no-match" data-empty-for="users-tbody">{{ empty('Ҳеҷ чиз ёфт нашуд') }}</div>
-          {% else %}
-          {{ empty() }}
-          {% endif %}
-        </div>
-      </section>
-
-{# Қисми боргирии барномаи Android-ро ҷойгир мекунад. #}
-      <section id="downloads" class="a-sec">
-        <div class="a-sec-head rise" style="--d:16">
-          <h2>Боргириҳо</h2>
-          <p>Охирин {{ s.recent_downloads|length }} · Android {{ s.android_downloads }} аз {{ s.total_downloads }}</p>
-        </div>
-        <div class="panel rise" style="--d:17">
-          {% if s.recent_downloads %}
-          <ul class="feed">
-            {% for d in s.recent_downloads %}
-            {%- set ua = (d.user_agent or '')|lower -%}
-            {%- set is_qr = d.event_type == 'qr_scan' -%}
-            <li>
-              <span class="icon{% if is_qr %} teal{% endif %}">{{ icon('qr' if is_qr else 'download') }}</span>
-              <div class="feed-main">
-                <div class="pills">
-                  {% if is_qr %}<span class="pill teal">QR</span>{% else %}<span class="pill blue">Мустақим</span>{% endif %}
-                  {% if 'android' in ua %}<span class="pill plain teal">Android</span>{% else %}<span class="pill plain">Дигар</span>{% endif %}
-                  {% if d.version %}<span class="pill plain">{{ d.version }}</span>{% endif %}
-                </div>
-                <div class="feed-meta" title="{{ d.user_agent or '' }}">{{ mask_ip(d.ip) }} · {{ (d.user_agent or '—')[:80] }}</div>
-              </div>
-              <div class="feed-time"><b>{{ d.created_at[11:16] if d.created_at and d.created_at|length >= 16 else '—' }}</b>{{ fdate(d.created_at) }}</div>
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          {{ empty() }}
-          {% endif %}
-        </div>
-      </section>
-
-{# Паёмҳои формаи «Тамос бо мо»-и сайт; ҷавоб тавассути почта дода мешавад. #}
-      {%- set TOPIC = {'question': 'Савол', 'problem': 'Мушкил', 'privacy': 'Махфият', 'delete_account': 'Нест кардани ҳисоб', 'other': 'Дигар'} %}
-      <section id="messages" class="a-sec">
-        <div class="a-sec-head rise" style="--d:18">
-          <h2>Паёмҳо</h2>
-          <p>Охирин {{ messages|length }} · нахонда {{ unread_messages }}</p>
-        </div>
-        <div class="panel rise" style="--d:19">
-          {% if messages %}
-          <ul class="feed">
-            {% for m in messages %}
-            <li>
-              <span class="icon{% if m.topic == 'delete_account' or m.topic == 'privacy' %} teal{% endif %}">{{ icon('inbox') }}</span>
-              <div class="feed-main">
-                <div class="pills">
-                  <span class="pill {{ 'blue' if not m.is_read else 'plain' }}">{{ TOPIC.get(m.topic, m.topic) }}</span>
-                  <span class="pill plain">{{ m.lang|upper }}</span>
-                  <b>{{ m.name }}</b>
-                  <a href="mailto:{{ m.email }}?subject=NIGOH%20Family">{{ m.email }}</a>
-                </div>
-                <div class="feed-meta" style="white-space:pre-wrap">{{ m.message }}</div>
-              </div>
-              <div class="feed-time"><b>{{ m.created_at[11:16] if m.created_at and m.created_at|length >= 16 else '—' }}</b>{{ fdate(m.created_at) }}</div>
-            </li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          {{ empty('Ҳоло паём нест') }}
-          {% endif %}
-        </div>
-      </section>
-
-    </main>
+        <div class="refresh-error" id="refresh-error" role="alert" hidden></div>
+        <div id="dashboard-content">{% include '_admin_content.html' %}</div>
+        <footer class="admin-footer"><span>NIGOH Family · Фазои маъмурӣ</span><span>Вақти ҳисобот: Душанбе (UTC+5)</span></footer>
+      </main>
+    </div>
   </div>
-
-  <dialog class="modal" id="edit-modal" aria-labelledby="edit-title">
-    <form id="edit-form" method="dialog" novalidate>
-      <div class="modal-head">
-        <div><h3 id="edit-title">Таҳрири фарзанд</h3><p id="edit-sub"></p></div>
-        <button class="icon-btn" type="button" data-close aria-label="Пӯшидан">{{ icon('x') }}</button>
-      </div>
-      <input type="hidden" name="child_id">
-      <div class="field"><label for="f-name">Ном</label><input id="f-name" name="name" type="text" maxlength="80" required autocomplete="off"></div>
-      <div class="field-row">
-        <div class="field"><label for="f-gender">Ҷинс</label>
-          <select id="f-gender" name="gender"><option value="boy">Писар</option><option value="girl">Духтар</option></select>
-        </div>
-        <div class="field"><label for="f-age">Синну сол</label><input id="f-age" name="age" type="number" min="1" max="25" inputmode="numeric"></div>
-      </div>
-      <div class="field"><label for="f-device">Дастгоҳ</label><input id="f-device" name="device_name" type="text" maxlength="80" placeholder="Масалан, Redmi Note 12" autocomplete="off"></div>
-      <div class="modal-actions">
-        <button class="btn btn-ghost btn-sm" type="button" data-close>Бекор</button>
-        <button class="btn btn-blue btn-sm" type="submit" id="edit-save">Захира</button>
-      </div>
-    </form>
-  </dialog>
-
-  <div class="toasts" id="toasts" aria-live="polite"></div>
-
-  <template id="tpl-ok">{{ icon('check') }}</template>
-  <template id="tpl-err">{{ icon('alert') }}</template>
-
-  <script>
-  (function () {
-    'use strict';
-    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var body = document.documentElement;
-
-    /* Пайдоиши саҳифа ва афзоиши сутунҳои диаграммаро оғоз мекунад. */
-    requestAnimationFrame(function () { requestAnimationFrame(function () { body.classList.add('ready'); }); });
-
-    /* Рақамҳои KPI-ро аз сифр то қимати ниҳоӣ мешуморад. */
-    if (!reduce) {
-      document.querySelectorAll('[data-count]').forEach(function (el) {
-        var target = parseInt(el.getAttribute('data-count'), 10) || 0;
-        if (target <= 0) return;
-        var start = null, dur = Math.min(1200, 500 + target * 8);
-        el.textContent = '0';
-        /* Қимати KPI-ро дар ҳар animation frame нав мекунад. */
-        function step(t) {
-          if (start === null) start = t;
-          var p = Math.min(1, (t - start) / dur);
-          var e = 1 - Math.pow(1 - p, 3);
-          el.textContent = String(Math.round(target * e));
-          if (p < 1) requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-      });
-    }
-
-    /* Паёми муваққатии муваффақият ё хаторо ба саҳифа меафзояд. */
-    var toasts = document.getElementById('toasts');
-    /* Паёмро сохта, пас аз муҳлати кӯтоҳ аз DOM хориҷ мекунад. */
-    function toast(msg, ok) {
-      var t = document.createElement('div');
-      t.className = 'toast' + (ok ? '' : ' err');
-      t.setAttribute('role', ok ? 'status' : 'alert');
-      t.innerHTML = document.getElementById(ok ? 'tpl-ok' : 'tpl-err').innerHTML;
-      var span = document.createElement('span');
-      span.textContent = msg;
-      t.appendChild(span);
-      toasts.appendChild(t);
-      requestAnimationFrame(function () { t.classList.add('show'); });
-      setTimeout(function () {
-        t.classList.remove('show');
-        setTimeout(function () { t.remove(); }, 300);
-      }, ok ? 2800 : 4500);
-    }
-
-    /* Сатрҳои ҷадвалро дар браузер аз рӯи матни воридшуда филтр мекунад. */
-    document.querySelectorAll('[data-filter]').forEach(function (input) {
-      var id = input.getAttribute('data-filter');
-      var tbody = document.getElementById(id);
-      var counter = document.querySelector('[data-count-for="' + id + '"]');
-      var none = document.querySelector('[data-empty-for="' + id + '"]');
-      /* Намоёнии сатрҳо ва шумориши натиҷаҳоро нав мекунад. */
-      function apply() {
-        var q = input.value.trim().toLowerCase();
-        var rows = tbody.querySelectorAll('tr'), shown = 0;
-        rows.forEach(function (r) {
-          var hit = !q || (r.getAttribute('data-search') || '').indexOf(q) !== -1;
-          r.hidden = !hit;
-          if (hit) shown++;
-        });
-        if (counter) counter.textContent = shown + ' аз ' + rows.length;
-        if (none) none.classList.toggle('show', rows.length > 0 && shown === 0);
-      }
-      input.addEventListener('input', apply);
-      tbody._refilter = apply;
-    });
-
-    /* Дархости POST-и JSON мефиристад ва хатои API-ро ба Error табдил медиҳад. */
-    function post(url, payload) {
-      return fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(function (res) {
-        return res.json().catch(function () { return {}; }).then(function (data) {
-          if (!res.ok) {
-            var d = data && data.detail;
-            throw new Error(typeof d === 'string' ? d : 'Хатогӣ (' + res.status + ')');
-          }
-          return data;
-        });
-      });
-    }
-
-    /* Dialog-и таҳрири профили фарзандро омода мекунад. */
-    var modal = document.getElementById('edit-modal');
-    var form = document.getElementById('edit-form');
-    var saveBtn = document.getElementById('edit-save');
-    var currentRow = null;
-
-    /* Dialog-ро бо маълумоти сатри интихобшуда пур карда мекушояд. */
-    function openModal(row) {
-      currentRow = row;
-      form.child_id.value = row.dataset.id;
-      form.name.value = row.dataset.name || '';
-      form.gender.value = row.dataset.gender === 'girl' ? 'girl' : 'boy';
-      form.age.value = row.dataset.age || '';
-      form.device_name.value = row.dataset.device || '';
-      document.getElementById('edit-sub').textContent = 'ID #' + row.dataset.id;
-      if (typeof modal.showModal === 'function') modal.showModal(); else modal.setAttribute('open', '');
-      requestAnimationFrame(function () { modal.classList.add('shown'); });
-      setTimeout(function () { form.name.focus(); }, 30);
-    }
-    /* Dialog-и таҳрирро бо гузариши кӯтоҳ мепӯшонад. */
-    function closeModal() {
-      modal.classList.remove('shown');
-      setTimeout(function () { if (modal.open) modal.close(); }, reduce ? 0 : 200);
-    }
-    modal.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', closeModal); });
-    modal.addEventListener('cancel', function (e) { e.preventDefault(); closeModal(); });
-    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var name = form.name.value.trim();
-      if (!name) { form.name.focus(); toast('Номро ворид кунед', false); return; }
-      var ageVal = form.age.value.trim();
-      var payload = {
-        child_id: parseInt(form.child_id.value, 10),
-        name: name,
-        gender: form.gender.value,
-        age: ageVal === '' ? null : parseInt(ageVal, 10),
-        device_name: form.device_name.value.trim() || null
-      };
-      saveBtn.disabled = true;
-      post('/api/admin/child/update', payload).then(function (data) {
-        var row = currentRow;
-        if (row) {
-          row.dataset.name = payload.name;
-          row.dataset.gender = payload.gender;
-          row.dataset.age = payload.age == null ? '' : String(payload.age);
-          row.dataset.device = payload.device_name || '';
-          var email = row.children[2] ? row.children[2].textContent.trim() : '';
-          row.dataset.search = (payload.name + ' ' + (email === '—' ? '' : email) + ' ' + (payload.device_name || '')).toLowerCase();
-          row.querySelector('[data-f="name"]').textContent = payload.name;
-          row.querySelector('[data-f="age"]').textContent = payload.age == null ? '—' : payload.age + ' сола';
-          row.querySelector('[data-f="device"]').textContent = payload.device_name || '—';
-          var av = row.querySelector('[data-f="avatar"]');
-          av.textContent = payload.name.charAt(0).toUpperCase();
-          av.className = 'avatar ' + (payload.gender === 'girl' ? 'girl' : 'boy');
-          row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
-        }
-        closeModal();
-        toast((data && data.message) || 'Захира шуд', true);
-      }).catch(function (err) {
-        toast(err.message || 'Хатогӣ рух дод', false);
-      }).then(function () { saveBtn.disabled = false; });
-    });
-
-    /* Амалҳои таҳрир ва несткунии сатрро идора карда, ба database менависад. */
-    var childBody = document.getElementById('children-tbody');
-    if (childBody) {
-      childBody.addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-act]');
-        if (!btn) return;
-        var row = btn.closest('tr');
-        if (btn.dataset.act === 'edit') { openModal(row); return; }
-        if (btn.dataset.act === 'delete') {
-          if (!confirm('Профили «' + (row.dataset.name || row.dataset.id) + '» нест карда шавад? Ин амалро бекор кардан ғайриимкон аст.')) return;
-          btn.disabled = true;
-          post('/api/admin/child/delete', { child_id: parseInt(row.dataset.id, 10) }).then(function (data) {
-            row.classList.add('removing');
-            setTimeout(function () {
-              row.remove();
-              if (childBody._refilter) childBody._refilter();
-              if (!childBody.querySelector('tr')) location.reload();
-            }, reduce ? 0 : 300);
-            toast((data && data.message) || 'Нест карда шуд', true);
-          }).catch(function (err) {
-            btn.disabled = false;
-            toast(err.message || 'Хатогӣ рух дод', false);
-          });
-        }
-      });
-    }
-
-    /* Пайванди бахши дар viewport бударо дар паймоиш фаъол мекунад. */
-    var links = Array.prototype.slice.call(document.querySelectorAll('#a-nav a'));
-    if ('IntersectionObserver' in window) {
-      var map = {};
-      links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (!en.isIntersecting) return;
-          links.forEach(function (a) { a.classList.remove('on'); });
-          var a = map[en.target.id];
-          if (a) {
-            a.classList.add('on');
-            if (a.scrollIntoView && window.innerWidth < 1024) {
-              var nav = a.parentNode.parentNode;
-              nav.scrollTo({ left: a.offsetLeft - 16, behavior: reduce ? 'auto' : 'smooth' });
-            }
-          }
-        });
-      }, { rootMargin: '-30% 0px -60% 0px' });
-      document.querySelectorAll('.a-sec').forEach(function (sec) { io.observe(sec); });
-    }
-  })();
-  </script>
+  {% include '_admin_dialogs.html' %}
 </body>
 </html>

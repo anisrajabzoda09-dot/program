@@ -7,7 +7,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="/static/css/get.css?v={{ app_version }}">
-<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}-2">
 {% endblock %}
 
 {% block content %}
@@ -25,7 +25,7 @@
       </a>
       <button class="btn btn-ghost copy-download" type="button" data-copy-success="Скопировано">Копировать ссылку</button>
       <button class="btn btn-ghost share-page" type="button" data-share-title="NIGOH Family для Android" data-share-text="Откройте эту страницу на телефоне ребёнка, чтобы скачать NIGOH Family." data-copy-success="Ссылка на страницу скопирована">Отправить на телефон ребёнка</button>
-      <span class="tag blue version-badge">Версия {{ app_version }}</span>
+      <span class="tag blue version-badge">{{ 'Версия ' ~ (apk.version or '—') if apk.available else 'Файл пока недоступен' }}</span>
     </div>
   </div>
 </section>
@@ -42,8 +42,9 @@
     <div>
       <h2>О файле</h2>
       <table class="meta-table" style="margin-top:24px">
-        <tr><th>Версия</th><td>{{ app_version }}</td></tr>
-        <tr><th>Размер</th><td>~77 МБ</td></tr>
+        <tr><th>Версия</th><td>{{ (apk.version or '—') if apk.available else '—' }}</td></tr>
+        <tr><th>Размер</th><td>{{ apk.size_label or '—' }}</td></tr>
+        <tr><th>Статус файла</th><td>{{ 'Доступен для скачивания' if apk.available else 'Временно недоступен' }}</td></tr>
         <tr><th>Система</th><td>Android 8.0 и новее</td></tr>
         <tr><th>Цена</th><td>Бесплатно</td></tr>
         <tr><th>Package</th><td style="word-break:break-all">tj.nigoh.nigoh_family_parent</td></tr>
@@ -113,9 +114,8 @@
       <p class="lead" style="margin-top:16px">Приложение само проверяет наличие новой версии и предлагает её скачать.</p>
     </div>
     <ul class="feature-list" style="margin-top:0">
-      <li>Вход через GitHub (после включения на сервере).</li>
-      <li>В мастере разрешений — карточка «О приложении» для сложных разрешений.</li>
-      <li>Вход через Apple и новый дизайн сайта из прошлых версий.</li>
+      {% if latest_release %}{% for item in latest_release['items'][lang] %}<li>{{ item }}</li>{% endfor %}{% endif %}
+      <li><a href="{{ P }}/changelog">История всех версий</a></li>
     </ul>
   </div>
 </section>
@@ -152,12 +152,12 @@
 </section>
 
 <div class="download-toast" role="status" aria-live="polite" aria-atomic="true" hidden>
-  <strong>Скачивание началось</strong>
+  <strong>Запрос на скачивание отправлен</strong>
   <span>Когда оно завершится, откройте APK-файл, чтобы продолжить установку.</span>
 </div>
 <p class="get-live" aria-live="polite" aria-atomic="true"></p>
 <div class="sticky-download" hidden>
-  <span>Версия {{ app_version }}</span>
+  <span>{{ 'Версия ' ~ (apk.version or '—') if apk.available else 'Файл пока недоступен' }}</span>
   <a class="btn btn-primary" href="/download/android" data-download-action aria-label="Скачать NIGOH Family версии {{ app_version }} для Android">Скачать APK</a>
 </div>
 <dialog class="qr-dialog" aria-labelledby="qr-dialog-title-ru">
@@ -172,5 +172,5 @@
 
 {% block scripts %}
   <script src="/static/js/get.js?v={{ app_version }}" defer></script>
-  <script src="/static/js/install-anim.js?v={{ app_version }}" defer></script>
+  <script src="/static/js/install-anim.js?v={{ app_version }}-2" defer></script>
 {% endblock %}

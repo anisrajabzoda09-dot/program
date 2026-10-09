@@ -4,7 +4,7 @@
 {% block title %}Имкониятҳо — NIGOH Family{% endblock %}
 {% block description %}Ҳамаи имкониятҳои NIGOH Family: назорати барномаҳо ва вақти экран, ҷойгиршавии фарзанд дар харита, чати оилавӣ, ҳимоя бо PIN ва насби осон бо рамзи QR.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/phone.css?v={{ app_version }}">
+{% block head %}
 <link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Саҳифаи асосӣ","item":"https://nigohfamily.qobus.tj/"},{"@type":"ListItem","position":2,"name":"Имкониятҳо","item":"https://nigohfamily.qobus.tj/features"}]}</script>
 {% endblock %}
@@ -49,9 +49,7 @@
         <li>Ҳисоботи ҳафтаина: вақти экран барои 7 рӯз ва барномаҳои бештар истифодашуда.</li>
       </ul>
     </div>
-    <div class="screen">
-      {% set phone_size = 'compact' %}{% include "site/_phone.html" %}
-    </div>
+    {% set feature_kind = 'apps' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 
@@ -72,9 +70,7 @@
         <li>Сатҳи батареяи телефони фарзанд дар корти ӯ.</li>
       </ul>
     </div>
-    <div class="screen">
-      <img src="/static/images/mockup_map.png" width="335" height="210" loading="lazy" decoding="async" alt="Намунаи экрани харита бо нишони ҷойгиршавии фарзанд">
-    </div>
+    {% set feature_kind = 'location' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 
@@ -92,15 +88,7 @@
         <li>Танҳо номи сайтҳо санҷида мешавад — на мазмуни саҳифаҳо ва паёмҳо.</li>
       </ul>
     </div>
-    <div class="web-mock" role="img" aria-label="Намунаи браузер: сайти манъшуда ва ҷустуҷӯи бехатар">
-      <div class="web-mock-bar"><span></span><span></span><span></span><b>example-adult.com</b></div>
-      <div class="web-mock-body">
-        <div class="web-mock-shield" aria-hidden="true"></div>
-        <strong>Ин сайт кушода намешавад</strong>
-        <small>Филтри NIGOH: барои синну соли ту нест</small>
-      </div>
-      <div class="web-mock-search"><span class="web-mock-q">бозиҳо барои кӯдакон</span><span class="web-mock-safe">Ҷустуҷӯи бехатар</span></div>
-    </div>
+    {% set feature_kind = 'web' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 

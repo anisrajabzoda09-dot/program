@@ -4,7 +4,7 @@
 {% block title %}Возможности — NIGOH Family{% endblock %}
 {% block description %}Все возможности NIGOH Family: контроль приложений и экранного времени, местоположение ребёнка на карте, семейный чат, защита PIN-кодом и простая установка по QR-коду.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/phone.css?v={{ app_version }}">
+{% block head %}
 <link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Главная","item":"https://nigohfamily.qobus.tj/ru/"},{"@type":"ListItem","position":2,"name":"Возможности","item":"https://nigohfamily.qobus.tj/ru/features"}]}</script>
 {% endblock %}
@@ -49,9 +49,7 @@
         <li>Недельный отчёт: экранное время за 7 дней и самые используемые приложения.</li>
       </ul>
     </div>
-    <div class="screen">
-      {% set phone_size = 'compact' %}{% include "site/_phone.html" %}
-    </div>
+    {% set feature_kind = 'apps' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 
@@ -72,9 +70,7 @@
         <li>Уровень заряда телефона ребёнка — в его карточке.</li>
       </ul>
     </div>
-    <div class="screen">
-      <img src="/static/images/mockup_map.png" width="335" height="210" loading="lazy" decoding="async" alt="Экран карты с отметкой местоположения ребёнка">
-    </div>
+    {% set feature_kind = 'location' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 
@@ -92,15 +88,7 @@
         <li>Проверяются только названия сайтов — не содержимое страниц и сообщений.</li>
       </ul>
     </div>
-    <div class="web-mock" role="img" aria-label="Пример браузера: заблокированный сайт и безопасный поиск">
-      <div class="web-mock-bar"><span></span><span></span><span></span><b>example-adult.com</b></div>
-      <div class="web-mock-body">
-        <div class="web-mock-shield" aria-hidden="true"></div>
-        <strong>Этот сайт не открывается</strong>
-        <small>Фильтр NIGOH: не для твоего возраста</small>
-      </div>
-      <div class="web-mock-search"><span class="web-mock-q">игры для детей</span><span class="web-mock-safe">Безопасный поиск</span></div>
-    </div>
+    {% set feature_kind = 'web' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 

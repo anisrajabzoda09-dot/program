@@ -7,7 +7,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="/static/css/get.css?v={{ app_version }}">
-<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/install-anim.css?v={{ app_version }}-2">
 {% endblock %}
 
 {% block content %}
@@ -25,7 +25,7 @@
       </a>
       <button class="btn btn-ghost copy-download" type="button" data-copy-success="Copied">Copy download link</button>
       <button class="btn btn-ghost share-page" type="button" data-share-title="NIGOH Family for Android" data-share-text="Open this page on your child's phone to download NIGOH Family." data-copy-success="Page link copied">Send to child's phone</button>
-      <span class="tag blue version-badge">Version {{ app_version }}</span>
+      <span class="tag blue version-badge">{{ 'Version ' ~ (apk.version or '—') if apk.available else 'File currently unavailable' }}</span>
     </div>
   </div>
 </section>
@@ -42,8 +42,9 @@
     <div>
       <h2>File details</h2>
       <table class="meta-table" style="margin-top:24px">
-        <tr><th>Version</th><td>{{ app_version }}</td></tr>
-        <tr><th>Size</th><td>~77 MB</td></tr>
+        <tr><th>Version</th><td>{{ (apk.version or '—') if apk.available else '—' }}</td></tr>
+        <tr><th>Size</th><td>{{ apk.size_label or '—' }}</td></tr>
+        <tr><th>File status</th><td>{{ 'Available to download' if apk.available else 'Temporarily unavailable' }}</td></tr>
         <tr><th>System</th><td>Android 8.0 and later</td></tr>
         <tr><th>Price</th><td>Free</td></tr>
         <tr><th>Package</th><td style="word-break:break-all">tj.nigoh.nigoh_family_parent</td></tr>
@@ -113,9 +114,8 @@
       <p class="lead" style="margin-top:16px">The app checks for new versions itself and offers to download them.</p>
     </div>
     <ul class="feature-list" style="margin-top:0">
-      <li>Sign in with GitHub (once enabled on the server).</li>
-      <li>An "App info" card in the permissions wizard for the hard permissions.</li>
-      <li>Sign in with Apple and the refreshed website from earlier versions.</li>
+      {% if latest_release %}{% for item in latest_release['items'][lang] %}<li>{{ item }}</li>{% endfor %}{% endif %}
+      <li><a href="{{ P }}/changelog">All release notes</a></li>
     </ul>
   </div>
 </section>
@@ -152,12 +152,12 @@
 </section>
 
 <div class="download-toast" role="status" aria-live="polite" aria-atomic="true" hidden>
-  <strong>Download started</strong>
+  <strong>Download requested</strong>
   <span>When it finishes, open the APK file to continue installation.</span>
 </div>
 <p class="get-live" aria-live="polite" aria-atomic="true"></p>
 <div class="sticky-download" hidden>
-  <span>Version {{ app_version }}</span>
+  <span>{{ 'Version ' ~ (apk.version or '—') if apk.available else 'File currently unavailable' }}</span>
   <a class="btn btn-primary" href="/download/android" data-download-action aria-label="Download NIGOH Family version {{ app_version }} for Android">Download APK</a>
 </div>
 <dialog class="qr-dialog" aria-labelledby="qr-dialog-title-en">
@@ -172,5 +172,5 @@
 
 {% block scripts %}
   <script src="/static/js/get.js?v={{ app_version }}" defer></script>
-  <script src="/static/js/install-anim.js?v={{ app_version }}" defer></script>
+  <script src="/static/js/install-anim.js?v={{ app_version }}-2" defer></script>
 {% endblock %}

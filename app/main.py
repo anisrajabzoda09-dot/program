@@ -53,8 +53,9 @@ app.add_middleware(
 _TRACKED_PATHS = frozenset(
     prefix + page
     for prefix in ("", "/ru", "/en")
-    for page in ("/", "/features", "/how-it-works", "/security", "/faq", "/get")
-) | {"/ru", "/en", "/auth", "/admin"}
+    for page in ("/", "/features", "/how-it-works", "/security", "/faq", "/get",
+                 "/tips", "/compare", "/changelog", "/privacy", "/terms", "/contact")
+) | {"/ru", "/en"}
 
 
 # Вақти охирини пок кардани IP-ҳои кӯҳна; дар як рӯз як бор кифоя аст.
@@ -146,7 +147,7 @@ async def security_and_analytics_middleware(request: Request, call_next):
 
     # Омор пас аз фиристодани ҷавоб дар thread-и алоҳида навишта мешавад,
     # то навиштан ба база саҳифаро суст накунад ва event loop-ро манъ накунад.
-    if path in _TRACKED_PATHS:
+    if request.method == "GET" and response.status_code == 200 and path in _TRACKED_PATHS:
         _attach_background(response, BackgroundTask(
             _log_page_view, client_ip, path, request.headers.get("user-agent", ""),
         ))

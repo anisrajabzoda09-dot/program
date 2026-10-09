@@ -1,0 +1,29 @@
+{% from "site/_icons.html" import icon %}
+{% set feature_copy = {
+  'tg': {
+    'apps': ['time', 'Қоидаҳо барои реҷаи оила', 'Танзимотро дар телефони волидайн интихоб кунед. Фарзанд қоидаҳои худро дар барнома мебинад.', ['Лимити рӯзонаи ҳар барнома', 'Ҷадвали дарс ва вақти хоб', 'Дархости вақти иловагӣ']],
+    'location': ['location', 'Ҷойгиршавӣ бо вақти навсозӣ', 'Ҷойгиршавӣ баъд аз пайваст кардани телефонҳо ва додани иҷозат намоён мешавад. Дақиқӣ аз GPS ва пайвасти телефон вобаста аст.', ['Ҷои охирини фиристодаи телефон', 'Таърихи ҷойгиршавӣ', 'Ҷойҳои бехатар ва огоҳиномаҳо']],
+    'web': ['shield', 'Филтр мувофиқи синну сол', 'Сатҳи филтрро дар ҳисоби волидайн интихоб кунед ва сайтҳои иловагиро ба рӯйхати манъшуда илова намоед.', ['Профилҳои синну сол', 'Ҷустуҷӯи бехатар', 'Рӯйхати сайтҳои манъшуда']],
+    'link': 'Чӣ тавр насб кардан'
+  },
+  'ru': {
+    'apps': ['time', 'Правила под ритм семьи', 'Выберите настройки на телефоне родителя. Ребёнок видит свои правила в приложении.', ['Дневной лимит для каждого приложения', 'Расписание учёбы и сна', 'Запрос дополнительного времени']],
+    'location': ['location', 'Местоположение со временем обновления', 'Данные появляются после подключения телефонов и выдачи разрешений. Точность зависит от GPS и связи телефона.', ['Последнее переданное местоположение', 'История перемещений', 'Безопасные зоны и уведомления']],
+    'web': ['shield', 'Фильтр с учётом возраста', 'Выберите уровень фильтра в аккаунте родителя и добавьте отдельные сайты в список заблокированных.', ['Возрастные профили', 'Безопасный поиск', 'Список заблокированных сайтов']],
+    'link': 'Как установить'
+  },
+  'en': {
+    'apps': ['time', 'Rules for your family’s routine', 'Choose settings on the parent’s phone. Your child can see their rules in the app.', ['A daily limit for each app', 'Study and bedtime schedules', 'Requests for extra time']],
+    'location': ['location', 'Location with an update time', 'Location appears after pairing phones and granting permissions. Accuracy depends on GPS and the phone’s connection.', ['Last location sent by the phone', 'Location history', 'Safe zones and notifications']],
+    'web': ['shield', 'Filtering based on age', 'Choose a filter level in the parent account and add individual websites to the block list.', ['Age profiles', 'SafeSearch', 'Blocked website list']],
+    'link': 'How to install'
+  }
+}[lang] %}
+{% set note = feature_copy[feature_kind] %}
+<aside class="feature-note">
+  {{ icon(note[0]) }}
+  <h3>{{ note[1] }}</h3>
+  <p>{{ note[2] }}</p>
+  <ul>{% for item in note[3] %}<li>{{ icon('check') }}{{ item }}</li>{% endfor %}</ul>
+  <a class="link-arrow" href="{{ P }}/get">{{ feature_copy.link }}</a>
+</aside>

@@ -4,7 +4,7 @@
 {% block title %}Features — NIGOH Family{% endblock %}
 {% block description %}All NIGOH Family features: app and screen time control, your child's location on a map, family chat, PIN protection and easy setup with a QR code.{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/phone.css?v={{ app_version }}">
+{% block head %}
 <link rel="stylesheet" href="/static/css/pages.css?v={{ app_version }}">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://nigohfamily.qobus.tj/en/"},{"@type":"ListItem","position":2,"name":"Features","item":"https://nigohfamily.qobus.tj/en/features"}]}</script>
 {% endblock %}
@@ -49,9 +49,7 @@
         <li>Weekly report: screen time for the past 7 days and the most-used apps.</li>
       </ul>
     </div>
-    <div class="screen">
-      {% set phone_size = 'compact' %}{% include "site/_phone.html" %}
-    </div>
+    {% set feature_kind = 'apps' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 
@@ -72,9 +70,7 @@
         <li>Your child's phone battery level on their card.</li>
       </ul>
     </div>
-    <div class="screen">
-      <img src="/static/images/mockup_map.png" width="335" height="210" loading="lazy" decoding="async" alt="Map screen marking the child's location">
-    </div>
+    {% set feature_kind = 'location' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 
@@ -92,15 +88,7 @@
         <li>Only site names are checked — never page content or messages.</li>
       </ul>
     </div>
-    <div class="web-mock" role="img" aria-label="Example browser: a blocked site and safe search">
-      <div class="web-mock-bar"><span></span><span></span><span></span><b>example-adult.com</b></div>
-      <div class="web-mock-body">
-        <div class="web-mock-shield" aria-hidden="true"></div>
-        <strong>This site can't be opened</strong>
-        <small>NIGOH filter: not for your age</small>
-      </div>
-      <div class="web-mock-search"><span class="web-mock-q">games for kids</span><span class="web-mock-safe">SafeSearch</span></div>
-    </div>
+    {% set feature_kind = 'web' %}{% include "site/_feature_note.html" %}
   </div>
 </section>
 

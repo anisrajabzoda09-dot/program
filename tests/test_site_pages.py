@@ -7,6 +7,7 @@ _sys.path.insert(0, _ROOT)
 _os.chdir(_ROOT)
 
 import re
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
@@ -55,10 +56,29 @@ def run_checks() -> None:
             for footer in ("/privacy", "/terms", "/contact", "/tips", "/compare", "/changelog"):
                 check(f"{path} footer {footer}", f'href="{LANGS[lang]}{footer}"' in html, f"{path} {footer}")
             check(f"{path} one h1", html.count("<h1") == 1, f"{path} {html.count('<h1')}")
+            for removed_content in ("demo.js", "demo.css", "mockup_map.png", 'class="nphone', 'class="web-mock', '482 913', 'Alijon is connected'):
+                check(f"{path} no fabricated interface {removed_content}", removed_content not in html, path)
             check(f"{path} HEAD", c.head(path).status_code == 200, path)
     # Ҳар забон сарлавҳаи худро дорад (тарҷума фаромӯш нашудааст).
     for page in PAGES:
         check(f"{page} titles differ by language", len({titles[(page, l)] for l in LANGS}) == 3, str([titles[(page, l)] for l in LANGS]))
+
+    for available in (True, False):
+        release = {"available": available, "version": "2.18.0" if available else None,
+                   "size_label": "72.4 MB" if available else None}
+        with patch("app.routers.public.get_android_release", return_value=release):
+            for lang in LANGS:
+                home = c.get(url(lang, "/")).text
+                download = c.get(url(lang, "/get")).text
+                check(f"{lang} download control reflects availability {available}", ('class="release-download"' in home) == available)
+                check(f"{lang} download status reflects availability {available}", ('class="release-unavailable"' in home) != available)
+                check(f"{lang} real download QR", 'src="/api/qr/download"' in home)
+                for page_html in (home, download):
+                    check(f"{lang} actual APK size {available}", ("72.4 MB" in page_html) == available)
+                    check(f"{lang} no guessed APK size {available}", "~77" not in page_html)
+                    check(f"{lang} no null metadata {available}", ">None<" not in page_html)
+                if available:
+                    check(f"{lang} fallback APK version", ">2.18.0<" in home and ">2.18.0<" in download)
 
     # «Чӣ нав аст» ҳамаи версияҳоро нишон медиҳад.
     for lang in LANGS:
@@ -82,6 +102,11 @@ def run_checks() -> None:
         status = c.get(path, follow_redirects=False).status_code
         check(f"sitemap {path}", status in (200, 302, 307), f"{path} {status}")
     check("sitemap hreflang links", xml.count('hreflang="x-default"') == len(PAGES) * 3)
+
+    for path in ("/3d", "/nigoh3d", "/weevolve", "/evolve"):
+        for method in (c.get, c.head):
+            response = method(path, follow_redirects=False)
+            check(f"{path} archived showcase redirects", response.status_code == 301 and response.headers.get("location") == "/")
 
     # Саҳифаи нодуруст 404 медиҳад.
     check("unknown page 404", c.get("/ru/nope").status_code == 404)

@@ -1,0 +1,26 @@
+  <dialog class="modal" id="edit-modal" aria-labelledby="edit-title">
+    <form id="edit-form" method="dialog" novalidate>
+      <div class="modal-head">
+        <div><h3 id="edit-title">Таҳрири фарзанд</h3><p id="edit-sub"></p></div>
+        <button class="icon-btn" type="button" data-close aria-label="Пӯшидан">{{ icon('x') }}</button>
+      </div>
+      <input type="hidden" name="child_id">
+      <div class="field"><label for="f-name">Ном</label><input id="f-name" name="name" type="text" maxlength="80" required autocomplete="off"></div>
+      <div class="field-row">
+        <div class="field"><label for="f-gender">Ҷинс</label>
+          <select id="f-gender" name="gender"><option value="boy">Писар</option><option value="girl">Духтар</option></select>
+        </div>
+        <div class="field"><label for="f-age">Синну сол</label><input id="f-age" name="age" type="number" min="1" max="25" inputmode="numeric"></div>
+      </div>
+      <div class="field"><label for="f-device">Дастгоҳ</label><input id="f-device" name="device_name" type="text" maxlength="80" placeholder="Масалан, Redmi Note 12" autocomplete="off"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-sm" type="button" data-close>Бекор</button>
+        <button class="btn btn-blue btn-sm" type="submit" id="edit-save">Захира</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <template id="tpl-ok">{{ icon('check') }}</template>
+  <template id="tpl-err">{{ icon('alert') }}</template>
