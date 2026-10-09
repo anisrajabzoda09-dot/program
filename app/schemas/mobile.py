@@ -156,6 +156,7 @@ class InstalledAppsSyncRequest(BaseModel):
     """Маълумоти `InstalledAppsSyncRequest`-ро барои санҷиш ва коркарди request нигоҳ медорад."""
 
     apps: List[InstalledAppReportItem] = Field(default_factory=list)
+    snapshot_complete: bool = False
 
 
 class MobilePairCodeRequest(BaseModel):

@@ -361,7 +361,7 @@ class NigohApi {
   ) => _send(
     'POST',
     '/api/mobile/v2/children/$childId/apps/sync',
-    body: {'apps': apps},
+    body: {'apps': apps, 'snapshot_complete': true},
   );
 
   /// updateRule ҳолатро тағйир дода, интерфейс ё server-ро нав мекунад.

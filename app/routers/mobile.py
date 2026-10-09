@@ -186,7 +186,7 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
     usage_by_package = {row.package_name: row for row in usage_rows}
     rules = db.query(AppRule).filter(
         AppRule.child_id == child.id,
-        AppRule.last_synced_at.isnot(None),
+        AppRule.is_installed == 1,
     ).order_by(AppRule.app_name.asc()).all()
     child_user = db.query(User).filter(User.id == child.user_id).first() if child.user_id else None
     parent_user = db.query(User).filter(User.id == child.parent_id).first() if child.parent_id else None
@@ -569,7 +569,12 @@ def sync_mobile_apps_v2(
         raise HTTPException(status_code=403, detail="Танҳо телефони фарзанд метавонад рӯйхати барномаҳоро фиристад")
     child = _mobile_child(db, user, child_id)
     today = date.today()
-    had_synced = db.query(AppRule.id).filter(AppRule.child_id == child.id, AppRule.last_synced_at.isnot(None)).first() is not None
+    had_synced = db.query(AppRule.id).filter(
+        AppRule.child_id == child.id,
+        AppRule.last_synced_at.isnot(None),
+    ).first() is not None
+    synced_at = datetime.now(timezone.utc)
+    reported_packages = {item.package_name for item in payload.apps}
     new_names = []
     for item in payload.apps:
         rule = db.query(AppRule).filter(
@@ -590,9 +595,14 @@ def sync_mobile_apps_v2(
             # A seeded placeholder rule: the parent never chose it.
             rule.is_blocked = 0
             rule.daily_limit_minutes = 0
+        was_installed = bool(rule.is_installed)
         rule.app_name = item.app_name or rule.app_name
         rule.app_icon = item.icon_base64 or rule.app_icon
-        rule.last_synced_at = datetime.now(timezone.utc)
+        rule.last_synced_at = synced_at
+        rule.is_installed = 1
+        reported_name = item.app_name or item.package_name
+        if not was_installed and rule.first_seen_at is not None and reported_name not in new_names:
+            new_names.append(reported_name)
         usage = db.query(AppUsageDaily).filter(
             AppUsageDaily.child_id == child.id,
             AppUsageDaily.package_name == item.package_name,
@@ -607,6 +617,16 @@ def sync_mobile_apps_v2(
             db.add(usage)
         usage.minutes = item.usage_minutes
         usage.last_used_at = item.last_used_at
+    if payload.snapshot_complete and reported_packages:
+        installed_query = db.query(AppRule).filter(
+            AppRule.child_id == child.id,
+            AppRule.is_installed == 1,
+        )
+        installed_query = installed_query.filter(
+            ~AppRule.package_name.in_(reported_packages)
+        )
+        for missing_rule in installed_query.all():
+            missing_rule.is_installed = 0
     child.is_online = 1
     family_events.on_seen(child)
     if had_synced and new_names and child.parent_id:
@@ -634,6 +654,7 @@ def update_mobile_app_rule_v2(
     rule = db.query(AppRule).filter(
         AppRule.child_id == child.id,
         AppRule.package_name == package_name,
+        AppRule.is_installed == 1,
     ).first()
     if rule is None:
         raise HTTPException(status_code=404, detail="Барнома ҳоло аз телефони фарзанд синхрон нашудааст")
@@ -645,7 +666,6 @@ def update_mobile_app_rule_v2(
         rule.schedule_json = payload.schedule.model_dump_json()
     if payload.always_allowed is not None:
         rule.always_allowed = 1 if payload.always_allowed else 0
-    rule.last_synced_at = datetime.now(timezone.utc)
     db.commit()
     return {"status": "success", "child": _mobile_child_payload(db, child)}
 
@@ -769,7 +789,10 @@ def list_child_apps_v1(child_id: int, request: Request, db: Session = Depends(ge
         AppUsageDaily.usage_date == today,
     ).all()
     usage_by_package = {row.package_name: row for row in usage_rows}
-    rules = db.query(AppRule).filter(AppRule.child_id == child.id).order_by(AppRule.app_name.asc()).all()
+    rules = db.query(AppRule).filter(
+        AppRule.child_id == child.id,
+        AppRule.is_installed == 1,
+    ).order_by(AppRule.app_name.asc()).all()
     return {
         "status": "success",
         "child": child.to_dict(),
@@ -795,6 +818,7 @@ def update_child_app_limit_v1(
     rule = db.query(AppRule).filter(
         AppRule.child_id == child.id,
         AppRule.package_name == package_name,
+        AppRule.is_installed == 1,
     ).first()
     if not rule:
         raise HTTPException(status_code=404, detail="Барнома дар рӯйхати фарзанд ёфт нашуд")
@@ -804,12 +828,14 @@ def update_child_app_limit_v1(
         rule.daily_limit_minutes = payload.daily_limit_minutes
     if payload.schedule is not None:
         rule.schedule_json = payload.schedule.model_dump_json()
-    rule.last_synced_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(rule)
     # This command is deliberately returned as a complete snapshot. An FCM/WebSocket
     # adapter can forward it, while the existing Firebase listener remains compatible.
-    rules = db.query(AppRule).filter(AppRule.child_id == child.id).all()
+    rules = db.query(AppRule).filter(
+        AppRule.child_id == child.id,
+        AppRule.is_installed == 1,
+    ).all()
     return {
         "status": "success",
         "app": _rule_payload(rule),

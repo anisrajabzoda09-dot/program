@@ -13,10 +13,10 @@ class Settings:
 
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
-    APP_VERSION: str = "2.21.0"
-    APP_VERSION_CODE: int = 49
+    APP_VERSION: str = "2.22.0"
+    APP_VERSION_CODE: int = 50
     # Санаи охирини навсозии матни сайт (барои <lastmod> дар sitemap.xml).
-    SITE_UPDATED: str = "2026-10-04"
+    SITE_UPDATED: str = "2026-10-09"
 
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR: str = os.path.join(BASE_DIR, "static")
@@ -120,6 +120,7 @@ class Settings:
     ]
 
     APK_CANDIDATES = [
+        "NIGOH_Family_Android_v2.22.0.apk",
         "NIGOH_Family_Android_v2.21.0.apk",
         "NIGOH_Family_Android_v2.20.0.apk",
         "NIGOH_Family_Android_v2.19.0.apk",

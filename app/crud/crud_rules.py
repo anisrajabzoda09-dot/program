@@ -7,7 +7,10 @@ from app.models.app_rule import AppRule
 def get_child_app_rules(db: Session, child_id: int) -> List[dict]:
     """Барои гирифтан ё санҷидани get фарзанд app қоидаҳо истифода мешавад."""
 
-    rules = db.query(AppRule).filter(AppRule.child_id == child_id).order_by(AppRule.id.asc()).all()
+    rules = db.query(AppRule).filter(
+        AppRule.child_id == child_id,
+        AppRule.is_installed == 1,
+    ).order_by(AppRule.id.asc()).all()
     return [r.to_dict() for r in rules]
 
 def toggle_app_rule(db: Session, child_id: int, package_name: str, is_blocked: bool) -> bool:

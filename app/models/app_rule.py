@@ -1,6 +1,6 @@
 """Файл: model-и SQLAlchemy барои маълумоти `app_rule` ва табдили он ба ҷавоби API."""
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, func
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint, func, text
 from app.db.base import Base
 
 class AppRule(Base):
@@ -18,6 +18,7 @@ class AppRule(Base):
     daily_limit_minutes = Column(Integer, default=60)
     schedule_json = Column(String, nullable=True)
     last_synced_at = Column(DateTime, nullable=True)
+    is_installed = Column(Integer, nullable=False, default=0, server_default=text("0"))
     first_seen_at = Column(DateTime, nullable=True)
     always_allowed = Column(Integer, default=0)
     bonus_minutes = Column(Integer, default=0)
@@ -42,5 +43,6 @@ class AppRule(Base):
             "daily_limit_minutes": self.daily_limit_minutes,
             "schedule": self.schedule_json,
             "last_synced_at": str(self.last_synced_at) if self.last_synced_at else None,
+            "is_installed": bool(self.is_installed),
             "updated_at": str(self.updated_at) if self.updated_at else None
         }

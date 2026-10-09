@@ -393,11 +393,7 @@ class _AppsScreenState extends State<AppsScreen> {
               children: [
                 _chip(tr('Ҳама ({count})', {'count': child.apps.length}), null),
                 if (newCount > 0)
-                  _chip(
-                    tr('Нав ({newCount})', {'newCount': newCount}),
-                    'new',
-                    color: NigohDesign.mint,
-                  ),
+                  _chip(tr('Нав ({newCount})', {'newCount': newCount}), 'new'),
                 for (final c in AppCategory.values)
                   if ((counts[c] ?? 0) > 0)
                     _chip('${tr(c.label)} (${counts[c]})', c),
@@ -502,16 +498,13 @@ class _AppsScreenState extends State<AppsScreen> {
   }
 
   /// chip мантиқи зарурии рӯйхат, филтр ва қоидаҳои барномаҳои фарзандро иҷро мекунад.
-  Widget _chip(String label, Object? value, {Color? color}) => Padding(
+  Widget _chip(String label, Object? value) => Padding(
     padding: const EdgeInsets.only(right: 8),
     child: ChoiceChip(
       key: ValueKey('filter-$label'),
       label: Text(label),
       selected: _filter == value,
       showCheckmark: false,
-      avatar: color == null
-          ? null
-          : Icon(Icons.fiber_new_rounded, size: 18, color: color),
       onSelected: (_) => setState(() => _filter = value),
     ),
   );
@@ -544,7 +537,6 @@ class _ToolsRow extends StatelessWidget {
             child: _ToolTile(
               tileKey: const ValueKey('open-report'),
               icon: Icons.bar_chart_rounded,
-              color: NigohDesign.blue,
               label: tr('Ҳисобот'),
               value: tr('7 рӯзи охир'),
               tooltip: tr('Вақти экран дар 7 рӯзи охир'),
@@ -556,7 +548,6 @@ class _ToolsRow extends StatelessWidget {
             child: _ToolTile(
               tileKey: const ValueKey('open-bedtime'),
               icon: active ? Icons.bedtime_rounded : Icons.bedtime_outlined,
-              color: NigohDesign.violet,
               label: tr('Вақти хоб'),
               value: bedtime.enabled
                   ? '${bedtime.start}–${bedtime.end}'
@@ -591,7 +582,6 @@ class _StudyButton extends StatelessWidget {
     return _ToolTile(
       tileKey: const ValueKey('open-study'),
       icon: active ? Icons.school_rounded : Icons.school_outlined,
-      color: NigohDesign.mint,
       label: tr('Тамаркузи дарс'),
       value: study.enabled ? '${study.start}–${study.end}' : tr('хомӯш'),
       on: study.enabled,
@@ -618,7 +608,7 @@ class _WebFilterTile extends StatelessWidget {
     final warn = filter.enabled && filter.state != WebFilter.stateActive;
     final color = !filter.enabled
         ? scheme.outline
-        : (warn ? NigohDesign.amber : NigohDesign.mint);
+        : (warn ? scheme.error : scheme.primary);
     return Material(
       color: scheme.surfaceContainerLow,
       borderRadius: BorderRadius.circular(16),
@@ -657,9 +647,7 @@ class _WebFilterTile extends StatelessWidget {
                     Text(
                       webFilterStateLabel(filter),
                       style: TextStyle(
-                        color: warn
-                            ? NigohDesign.amber
-                            : scheme.onSurfaceVariant,
+                        color: warn ? scheme.error : scheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                     ),
@@ -680,7 +668,6 @@ class _ToolTile extends StatelessWidget {
   const _ToolTile({
     required this.tileKey,
     required this.icon,
-    required this.color,
     required this.label,
     required this.value,
     required this.tooltip,
@@ -691,7 +678,6 @@ class _ToolTile extends StatelessWidget {
 
   final Key tileKey;
   final IconData icon;
-  final Color color;
   final String label;
   final String value;
   final String tooltip;
@@ -707,7 +693,7 @@ class _ToolTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final fg = on ? color : scheme.onSurfaceVariant;
+    final fg = on ? scheme.primary : scheme.onSurfaceVariant;
     return Tooltip(
       message: tooltip,
       child: TapScale(
@@ -716,10 +702,12 @@ class _ToolTile extends StatelessWidget {
           duration: Duration(milliseconds: reducedMotion(context) ? 0 : 220),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            color: on ? color.withValues(alpha: .10) : scheme.surface,
+            color: on ? scheme.primary.withValues(alpha: .06) : scheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: on ? color.withValues(alpha: .35) : scheme.outlineVariant,
+              color: on
+                  ? scheme.primary.withValues(alpha: .28)
+                  : scheme.outlineVariant,
             ),
           ),
           child: Material(
@@ -747,7 +735,7 @@ class _ToolTile extends StatelessWidget {
                             width: 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: color,
+                              color: scheme.primary,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -852,24 +840,11 @@ class _ScreenTimeSummary extends StatelessWidget {
     final progress = limitMinutes > 0
         ? (usedMinutes / limitMinutes).clamp(0.0, 1.0)
         : 0.0;
-    final ringColor = progress >= 1
-        ? NigohDesign.coral
-        : progress >= .75
-        ? NigohDesign.amber
-        : NigohDesign.blue;
+    final ringColor = progress >= 1 ? scheme.error : scheme.primary;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: scheme.surface,
-        gradient: LinearGradient(
-          colors: [
-            NigohDesign.blue.withValues(alpha: .08),
-            NigohDesign.violet.withValues(alpha: .05),
-            NigohDesign.mint.withValues(alpha: .06),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: scheme.outlineVariant),
       ),
@@ -941,7 +916,7 @@ class _ScreenTimeSummary extends StatelessWidget {
                       tooltip: tr('{count} барнома баста аст', {
                         'count': blockedCount,
                       }),
-                      color: NigohDesign.coral,
+                      color: scheme.error,
                       icon: Icons.lock_outline_rounded,
                     ),
                     Pill(
@@ -949,7 +924,7 @@ class _ScreenTimeSummary extends StatelessWidget {
                       tooltip: tr('Ҳамагӣ {count} барнома дар телефон', {
                         'count': appCount,
                       }),
-                      color: NigohDesign.blue,
+                      color: scheme.primary,
                       icon: Icons.apps_rounded,
                     ),
                   ],
@@ -995,12 +970,12 @@ class _PauseCard extends StatelessWidget {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: NigohDesign.amber.withValues(alpha: .12),
+                    color: scheme.primary.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.pause_circle_outline_rounded,
-                    color: NigohDesign.amber,
+                    color: scheme.primary,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -1116,15 +1091,13 @@ class AppRuleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final blocked = app.blocked;
-    final accent = blocked
-        ? NigohDesign.coral
-        : NigohDesign.accentFor(app.packageName);
+    final accent = blocked ? scheme.error : scheme.primary;
     final minutes = app.usageMinutesToday;
     final progress = UserJourneyLogic.usageProgress(
       minutes,
       app.dailyLimitMinutes,
     );
-    final barColor = progress >= 1 ? NigohDesign.coral : accent;
+    final barColor = progress >= 1 ? scheme.error : accent;
     final count = UserJourneyLogic.limitChoices.length;
     final limitText = limitLabelText(shownLimit);
     return AnimatedContainer(
@@ -1132,16 +1105,11 @@ class AppRuleCard extends StatelessWidget {
       curve: Curves.easeOut,
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: blocked
-            ? Color.alphaBlend(
-                NigohDesign.coral.withValues(alpha: .05),
-                scheme.surface,
-              )
-            : scheme.surface,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: blocked
-              ? NigohDesign.coral.withValues(alpha: .35)
+              ? scheme.error.withValues(alpha: .35)
               : scheme.outlineVariant,
         ),
       ),
@@ -1177,7 +1145,7 @@ class AppRuleCard extends StatelessWidget {
                         ),
                         if (app.isNew) ...[
                           const SizedBox(width: 6),
-                          Pill(tr('Нав'), color: NigohDesign.mint),
+                          Pill(tr('Нав'), color: scheme.primary),
                         ],
                       ],
                     ),
@@ -1185,7 +1153,7 @@ class AppRuleCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Pill(
                         tr('Ҳамеша иҷозат'),
-                        color: NigohDesign.mint,
+                        color: scheme.primary,
                         icon: Icons.verified_user_rounded,
                       ),
                     ],
@@ -1211,14 +1179,14 @@ class AppRuleCard extends StatelessWidget {
                 child: Pill(
                   key: ValueKey(blocked),
                   blocked ? tr('Баста') : tr('Кушода'),
-                  color: blocked ? NigohDesign.coral : NigohDesign.mint,
+                  color: blocked ? scheme.error : scheme.primary,
                   icon: blocked ? Icons.lock_rounded : Icons.lock_open_rounded,
                 ),
               ),
               Switch(
                 key: ValueKey('block-${app.packageName}'),
                 value: blocked,
-                activeTrackColor: NigohDesign.coral,
+                activeTrackColor: scheme.error,
                 onChanged: onBlocked,
               ),
             ],
@@ -1321,14 +1289,8 @@ class AppRuleCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onSchedule,
                   style: TextButton.styleFrom(
-                    foregroundColor: scheduleLabel != null
-                        ? NigohDesign.violet
-                        : scheme.primary,
-                    backgroundColor:
-                        (scheduleLabel != null
-                                ? NigohDesign.violet
-                                : scheme.primary)
-                            .withValues(alpha: .08),
+                    foregroundColor: scheme.primary,
+                    backgroundColor: scheme.primary.withValues(alpha: .08),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

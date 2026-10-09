@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.22.0 — 2026-10-09
+- Uninstalled apps disappear from the parent's list after a verified complete device sync. Empty or failed Android scans never erase the list, and saved rules remain available if an app is installed again.
+- Daily limits now count only real foreground use while the screen is on. Background time and Android's approximate aggregate usage no longer consume a child's limit; a 60-minute limit closes the app after 60 minutes of actual use.
+- The parent Apps screen has a calmer minimalist visual system: neutral surfaces, one primary accent, and error color only for blocked or exceeded states.
+
 ## 2.21.0 — 2026-10-05
 - Rules by place: for every safe place (school, home, a club) parents choose which apps are blocked, limited (10–120 min) or always open there; a quick «school» button blocks games, video and social apps. The child's phone works out the place from GPS and applies the rules even offline; calls and SMS are never blocked.
 - «Arrived at / left» alerts for each place (optional), with a 40 m margin so GPS jitter at the edge does not spam parents; inaccurate fixes are ignored.

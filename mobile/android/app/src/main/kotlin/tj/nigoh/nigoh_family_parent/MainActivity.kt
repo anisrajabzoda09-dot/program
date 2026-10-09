@@ -31,6 +31,8 @@ import java.net.URL
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.text.SimpleDateFormat
+import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -345,10 +347,19 @@ class MainActivity : FlutterActivity() {
     /** Барномаҳои launcher-ро берун аз main thread хонда, ба Dart бармегардонад. */
     private fun getInstalledAppsAsync(result: MethodChannel.Result) {
         activityScope.launch {
-            val apps = withContext(Dispatchers.IO) {
-                runCatching { installedLauncherApps() }.getOrDefault(emptyList())
+            val appsResult = withContext(Dispatchers.IO) {
+                runCatching { installedLauncherApps() }
             }
-            result.success(apps)
+            appsResult.fold(
+                onSuccess = result::success,
+                onFailure = {
+                    result.error(
+                        "installed_apps_unavailable",
+                        "Installed apps could not be read safely",
+                        null,
+                    )
+                },
+            )
         }
     }
 
@@ -396,8 +407,12 @@ class MainActivity : FlutterActivity() {
         }.also { bitmap.recycle() }
     }
 
-    /** Дақиқаҳои истифодаи имрӯзаи ҳар барномаро аз Android мегирад. */
+    /** Дақиқаҳои воқеан foreground-ро аз ҳисобкунаки NIGOH бармегардонад. */
     private fun todayUsageStats(): List<Map<String, Any>> {
+        val prefs = getSharedPreferences(AppBlockMonitorService.PREFS_NAME, MODE_PRIVATE)
+        val today = SimpleDateFormat(AppBlockMonitorService.DATE_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+        if (prefs.getString(AppBlockMonitorService.USAGE_DATE_KEY, null) != today) return emptyList()
         val manager = getSystemService(USAGE_STATS_SERVICE) as UsageStatsManager
         val calendar = java.util.Calendar.getInstance().apply {
             set(java.util.Calendar.HOUR_OF_DAY, 0)
@@ -405,22 +420,28 @@ class MainActivity : FlutterActivity() {
             set(java.util.Calendar.SECOND, 0)
             set(java.util.Calendar.MILLISECOND, 0)
         }
-        // Query-и ҷамъбастӣ барои ҳар барнома танҳо як сабти имрӯза медиҳад.
-        val stats = runCatching {
+        val lastUsedByPackage = runCatching {
             manager.queryAndAggregateUsageStats(
                 calendar.timeInMillis,
                 System.currentTimeMillis()
-            )
-        }.getOrNull() ?: return emptyList()
-        return stats.values
-            .filter { it.totalTimeInForeground > 0L && it.packageName != packageName }
-            .map {
+            ).mapValues { it.value.lastTimeUsed }
+        }.getOrDefault(emptyMap())
+        return prefs.all.entries
+            .asSequence()
+            .filter { it.key.startsWith(AppBlockMonitorService.USAGE_SECONDS_PREFIX) }
+            .mapNotNull { entry ->
+                val appPackage = entry.key.removePrefix(AppBlockMonitorService.USAGE_SECONDS_PREFIX)
+                val seconds = entry.value as? Long ?: return@mapNotNull null
+                if (appPackage.isBlank() || appPackage == packageName || seconds <= 0L) {
+                    return@mapNotNull null
+                }
                 mapOf(
-                    "packageName" to it.packageName,
-                    "minutes" to (it.totalTimeInForeground / 60000L).toInt().coerceIn(0, 1440),
-                    "lastUsedAt" to it.lastTimeUsed
+                    "packageName" to appPackage,
+                    "minutes" to (seconds / 60L).toInt().coerceIn(0, 1440),
+                    "lastUsedAt" to (lastUsedByPackage[appPackage] ?: 0L),
                 )
             }
+            .toList()
     }
 
     /** map ва list-и қоидаҳои Dart-ро барои blocker ба JSON табдил медиҳад. */

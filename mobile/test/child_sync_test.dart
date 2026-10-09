@@ -188,13 +188,16 @@ void main() {
 
   test('app upload clamps usage and nulls missing last-used time', () async {
     List<dynamic>? uploaded;
+    bool? snapshotComplete;
     final sync = makeSync(
       MockClient((req) async {
         if (req.url.path == '/api/mobile/v2/snapshot') {
           return json({'child': serverChild()});
         }
         if (req.url.path == '/api/mobile/v2/children/5/apps/sync') {
-          uploaded = (jsonDecode(req.body) as Map)['apps'] as List;
+          final body = jsonDecode(req.body) as Map;
+          uploaded = body['apps'] as List;
+          snapshotComplete = body['snapshot_complete'] as bool?;
           return json({'status': 'success'});
         }
         return json({}, 404);
@@ -211,9 +214,33 @@ void main() {
     expect(video['usage_minutes'], 0);
     expect(video['last_used_at'], isNull);
     expect(sync.appsCount, 2);
+    expect(snapshotComplete, isTrue);
     expect(sync.lastAppsSync, isNotNull);
     expect(ChildSync.clampUsage(-1), 0);
     expect(ChildSync.clampUsage(99999), 1440);
+    sync.dispose();
+  });
+
+  test('a verified empty installed-app snapshot is uploaded', () async {
+    installedApps = [];
+    Map<String, dynamic>? uploaded;
+    final sync = makeSync(
+      MockClient((req) async {
+        if (req.url.path == '/api/mobile/v2/snapshot') {
+          return json({'child': serverChild()});
+        }
+        if (req.url.path == '/api/mobile/v2/children/5/apps/sync') {
+          uploaded = jsonDecode(req.body) as Map<String, dynamic>;
+          return json({'status': 'success'});
+        }
+        return json({}, 404);
+      }),
+    );
+    await sync.ensureChild();
+    await sync.syncApps();
+    expect(uploaded?['apps'], isEmpty);
+    expect(uploaded?['snapshot_complete'], isTrue);
+    expect(sync.lastError, isNull);
     sync.dispose();
   });
 

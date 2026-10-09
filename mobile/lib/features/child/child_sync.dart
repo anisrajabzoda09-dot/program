@@ -487,9 +487,6 @@ class ChildSync extends ChangeNotifier {
     if (id == null) return;
     try {
       final apps = await buildAppsPayload();
-      if (apps.isEmpty) {
-        throw ApiException(tr('Рӯйхати барномаҳои телефон гирифта нашуд.'));
-      }
       await api.syncApps(id, apps);
       appsCount = apps.length;
       lastAppsSync = DateTime.now();

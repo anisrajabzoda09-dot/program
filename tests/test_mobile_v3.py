@@ -49,13 +49,18 @@ def main():
         code = check("child creates pairing code", c.post("/api/mobile/v2/pair/code", json={"child_name": "Али", "gender": "boy", "age": 11}, headers=H(ct, "child")), 200)
         cid = code["child_id"]
         check("parent pairs", c.post("/api/mobile/v2/pair", json={"pairing_code": code["pairing_code"]}, headers=H(pt, "parent")), 200)
-        check("apps sync", c.post(f"/api/mobile/v2/children/{cid}/apps/sync", json={"apps": [{"package_name": "com.whatsapp", "app_name": "WhatsApp", "usage_minutes": 12}]}, headers=H(ct, "child")), 200)
+        check("apps sync", c.post(f"/api/mobile/v2/children/{cid}/apps/sync", json={"snapshot_complete": True, "apps": [{"package_name": "com.whatsapp", "app_name": "WhatsApp", "usage_minutes": 12}, {"package_name": "com.old.app", "app_name": "Old App"}]}, headers=H(ct, "child")), 200)
         kids = check("parent snapshot", c.get("/api/mobile/v2/snapshot", headers=H(pt, "parent")), 200)["children"]
         kid = next(k for k in kids if k["id"] == cid)
-        assert [a["package_name"] for a in kid["apps"]] == ["com.whatsapp"], kid["apps"]
+        assert [a["package_name"] for a in kid["apps"]] == ["com.old.app", "com.whatsapp"], kid["apps"]
         check("parent blocks app", c.put(f"/api/mobile/v2/children/{cid}/apps/com.whatsapp", json={"is_blocked": True}, headers=H(pt, "parent")), 200)
+        check("parent sets old app limit", c.put(f"/api/mobile/v2/children/{cid}/apps/com.old.app", json={"daily_limit_minutes": 75}, headers=H(pt, "parent")), 200)
+        check("complete sync removes old app", c.post(f"/api/mobile/v2/children/{cid}/apps/sync", json={"snapshot_complete": True, "apps": [{"package_name": "com.whatsapp", "app_name": "WhatsApp", "usage_minutes": 12}]}, headers=H(ct, "child")), 200)
         child_apps = c.get("/api/mobile/v2/snapshot", headers=H(ct, "child")).json()["child"]["apps"]
-        assert child_apps[0]["is_blocked"] in (1, True)
+        assert [app["package_name"] for app in child_apps] == ["com.whatsapp"], child_apps
+        check("empty snapshot is ignored safely", c.post(f"/api/mobile/v2/children/{cid}/apps/sync", json={"snapshot_complete": True, "apps": []}, headers=H(ct, "child")), 200)
+        child_apps = c.get("/api/mobile/v2/snapshot", headers=H(ct, "child")).json()["child"]["apps"]
+        assert len(child_apps) == 1 and child_apps[0]["is_blocked"] in (1, True)
         check("chat from parent", c.post(f"/api/mobile/v2/children/{cid}/chat", json={"content": "Салом"}, headers=H(pt, "parent")), 200)
         check("chat from child", c.post(f"/api/mobile/v2/children/{cid}/chat", json={"content": "Салом падар"}, headers=H(ct, "child")), 200)
         msgs = check("chat history", c.get(f"/api/mobile/v2/children/{cid}/chat", headers=H(pt, "parent")), 200)["messages"]

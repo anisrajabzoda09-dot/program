@@ -69,6 +69,13 @@ def init_db():
         if "last_synced_at" not in app_rule_cols:
             conn.execute(text("ALTER TABLE app_rules ADD COLUMN last_synced_at DATETIME"))
             conn.commit()
+        if "is_installed" not in app_rule_cols:
+            conn.execute(text("ALTER TABLE app_rules ADD COLUMN is_installed INTEGER NOT NULL DEFAULT 0"))
+            conn.execute(text(
+                "UPDATE app_rules SET is_installed = CASE "
+                "WHEN last_synced_at IS NOT NULL THEN 1 ELSE 0 END"
+            ))
+            conn.commit()
         for column, ddl in (
             ("first_seen_at", "DATETIME"),
             ("always_allowed", "INTEGER DEFAULT 0"),

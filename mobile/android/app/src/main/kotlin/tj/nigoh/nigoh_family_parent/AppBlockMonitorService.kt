@@ -304,29 +304,17 @@ class AppBlockMonitorService : Service() {
         }.getOrNull()
     }
 
-    /**
-     * Истифодаи имрӯзаи барномаро аз қимати калонтарини Android ва ҳисобкунаки NIGOH мегирад.
-     */
+    /** Истифодаи имрӯзаро танҳо аз session-и воқеан foreground ҳисоб мекунад. */
     private fun todayUsageMillis(
         prefs: android.content.SharedPreferences,
         packageName: String,
-    ): Long {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        val systemMillis = usageStats.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY,
-            calendar.timeInMillis,
-            System.currentTimeMillis()
-        ).firstOrNull { it.packageName == packageName }?.let {
-            it.totalTimeInForeground
-        } ?: 0L
-        val localMillis = prefs.getLong(USAGE_SECONDS_PREFIX + packageName, 0L) * 1000L
-        return maxOf(systemMillis, localMillis)
-    }
+    ): Long = AppUsageCounter.totalMillis(
+        storedSeconds = prefs.getLong(USAGE_SECONDS_PREFIX + packageName, 0L),
+        activePersistedSeconds = activeSessionPersistedSeconds,
+        activeSessionStartedAt = activeSessionStartedAt,
+        nowElapsedRealtime = SystemClock.elapsedRealtime(),
+        isActive = activePackage == packageName,
+    )
 
     /** Корбарро ба экрани Home-и Android мебарад. */
     private fun goHome() {
@@ -536,12 +524,12 @@ class AppBlockMonitorService : Service() {
         const val RULES_KEY = "app_control_rules_json"
         const val EXTRA_OVERLAY_PACKAGE = "overlay_package"
         const val EXTRA_OVERLAY_REASON = "overlay_reason"
-        private const val USAGE_DATE_KEY = "usage_date"
-        private const val USAGE_SECONDS_PREFIX = "usage_seconds:"
-        private const val USED_MINUTES_PREFIX = "used_today_minutes:"
-        private const val DATE_FORMAT = "yyyy-MM-dd"
+        const val USAGE_DATE_KEY = "usage_date"
+        const val USAGE_SECONDS_PREFIX = "usage_seconds:"
+        const val USED_MINUTES_PREFIX = "used_today_minutes:"
+        const val DATE_FORMAT = "yyyy-MM-dd"
         private const val POLL_INTERVAL_MS = 1_200L
-        private const val USAGE_FLUSH_INTERVAL_MS = 60_000L
+        private const val USAGE_FLUSH_INTERVAL_MS = 15_000L
         private const val LAST_WALL_CLOCK_KEY = "last_wall_clock_millis"
         private const val CLOCK_ROLLBACK_TOLERANCE_MS = 5_000L
         private const val CHANNEL_ID = "nigoh_protection"
