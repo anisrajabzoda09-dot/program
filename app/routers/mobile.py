@@ -303,7 +303,7 @@ def get_app_version(request: Request, current_version_code: int = 0):
         "version_code": latest_version_code,
         "channel": "stable",
         "update_available": latest_version_code > current_version_code,
-        "release_notes": "v2.21.0: қоидаҳо аз рӯи ҷой (дар мактаб бозиҳо баста, лимит ё ҳамеша кушода) ва огоҳии «ба мактаб расид / аз хона баромад».",
+        "release_notes": f"v{settings.APP_VERSION}: {settings.APP_RELEASE_NOTES}",
         "download_url": download_url
     }
 

@@ -134,6 +134,15 @@ class InstalledAppSnapshotTests(unittest.TestCase):
         self.assertEqual(self.sync([], complete=False).status_code, 200)
         self.assertEqual(len(self.parent_apps()), 1)
 
+    def test_update_metadata_matches_current_release(self):
+        update = self.client.get(
+            "/api/mobile/version?current_version_code=49"
+        ).json()
+        self.assertEqual(update["version"], "2.22.0")
+        self.assertEqual(update["version_code"], 50)
+        self.assertTrue(update["update_available"])
+        self.assertTrue(update["release_notes"].startswith("v2.22.0:"))
+
 
 if __name__ == "__main__":
     unittest.main()

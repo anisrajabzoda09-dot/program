@@ -15,6 +15,11 @@ class Settings:
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
     APP_VERSION: str = "2.22.0"
     APP_VERSION_CODE: int = 50
+    APP_RELEASE_NOTES: str = (
+        "барномаҳои uninstall-шуда аз рӯйхат нест; "
+        "лимит танҳо вақти воқеии foreground-ро меҳисобад; "
+        "дизайни Apps минималӣ шуд."
+    )
     # Санаи охирини навсозии матни сайт (барои <lastmod> дар sitemap.xml).
     SITE_UPDATED: str = "2026-10-09"
 
