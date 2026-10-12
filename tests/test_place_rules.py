@@ -49,14 +49,17 @@ def unit_checks() -> None:
         "bad": {"mode": "explode"},
         "nolimit": {"mode": "limit"},
         "": {"mode": "block"},
-    }, "notify": 1})
+    }, "notify": 1, "alert_child": 1, "vibrate_child": True})
     check("block kept", n["apps"]["com.tiktok"] == {"mode": "block"})
     check("limit raised to 5", n["apps"]["org.telegram"] == {"mode": "limit", "minutes": 5})
     check("limit capped at 720", n["apps"]["com.youtube"]["minutes"] == 720)
     check("allow drops minutes", n["apps"]["com.duolingo"] == {"mode": "allow"})
     check("unknown mode, empty name and missing minutes dropped", set(n["apps"]) == {"com.tiktok", "org.telegram", "com.youtube", "com.duolingo"})
     check("notify as bool", n["notify"] is True)
-    check("garbage -> empty", pr.normalize_rules("x") == {"apps": {}, "notify": False})
+    check("child alert flags as bool", n["alert_child"] is True and n["vibrate_child"] is True)
+    check("garbage -> empty", pr.normalize_rules("x") == {
+        "apps": {}, "notify": False, "alert_child": False, "vibrate_child": False,
+    })
     check("distance ~100 m", abs(pr.distance_meters(*SCHOOL, *north(100)) - 100) < 1)
 
     school = SimpleNamespace(id=1, latitude=SCHOOL[0], longitude=SCHOOL[1], radius_meters=150, name="Мактаб", rules_json='{"notify": true}')
@@ -98,12 +101,13 @@ def api_checks() -> None:
         cid = code["child_id"]
         c.post("/api/mobile/v2/pair", json={"pairing_code": code["pairing_code"]}, headers=H(pt, "parent"))
         place = c.post(f"/api/mobile/v2/children/{cid}/places", json={"name": "Мактаб", "latitude": SCHOOL[0], "longitude": SCHOOL[1], "radius_meters": 150}, headers=H(pt, "parent")).json()["place"]
-        check("new place has empty rules", place["rules"] == {} and place["notify"] is False, str(place))
+        check("new place has empty rules", place["rules"] == {} and place["notify"] is False and place["alert_child"] is False, str(place))
 
-        rules = {"apps": {"com.zhiliaoapp.musically": {"mode": "block"}, "org.telegram.messenger": {"mode": "limit", "minutes": 20}, "com.duolingo": {"mode": "allow"}}, "notify": True}
+        rules = {"apps": {"com.zhiliaoapp.musically": {"mode": "block"}, "org.telegram.messenger": {"mode": "limit", "minutes": 20}, "com.duolingo": {"mode": "allow"}}, "notify": True, "alert_child": True, "vibrate_child": True}
         r = c.put(f"/api/mobile/v2/children/{cid}/places/{place['id']}", json={"rules": rules}, headers=H(pt, "parent"))
         check("parent saves place rules", r.status_code == 200 and r.json()["place"]["rules"]["org.telegram.messenger"] == {"mode": "limit", "minutes": 20}, r.text)
         check("notify saved", r.json()["place"]["notify"] is True)
+        check("child alert flags saved", r.json()["place"]["alert_child"] is True and r.json()["place"]["vibrate_child"] is True)
         r = c.put(f"/api/mobile/v2/children/{cid}/places/{place['id']}", json={"rules": {"apps": {"a": {"mode": "nuke"}}}}, headers=H(pt, "parent"))
         check("bad mode -> 422", r.status_code == 422)
         r = c.put(f"/api/mobile/v2/children/{cid}/places/{place['id']}", json={"rules": {"apps": {"a": {"mode": "limit", "minutes": 1}}}}, headers=H(pt, "parent"))

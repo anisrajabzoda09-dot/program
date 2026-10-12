@@ -4,6 +4,9 @@
 package tj.nigoh.nigoh_family_parent
 
 import android.app.AppOpsManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.usage.UsageStatsManager
 import android.app.admin.DevicePolicyManager
 import android.content.BroadcastReceiver
@@ -12,6 +15,9 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.os.Process
 import android.provider.Settings
 import android.content.pm.ApplicationInfo
@@ -143,6 +149,16 @@ class MainActivity : FlutterActivity() {
                         result.success(enabled)
                     }
                     "getProtectionStatus" -> result.success(protectionStatus())
+                    "showPlaceTransition" -> {
+                        showPlaceTransition(
+                            placeName = call.argument<String>("placeName") ?: "",
+                            arrived = call.argument<Boolean>("arrived") ?: false,
+                            showNotification = call.argument<Boolean>("showNotification") ?: true,
+                            vibrate = call.argument<Boolean>("vibrate") ?: false,
+                            rulesCount = call.argument<Int>("rulesCount") ?: 0,
+                        )
+                        result.success(true)
+                    }
                     "getBatteryLevel" -> {
                         val manager = getSystemService(BATTERY_SERVICE) as android.os.BatteryManager
                         val level = manager.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -533,7 +549,9 @@ class MainActivity : FlutterActivity() {
             "notifications" to androidx.core.app.NotificationManagerCompat.from(this).areNotificationsEnabled(),
             "androidVersion" to Build.VERSION.RELEASE,
             "manufacturer" to Build.MANUFACTURER,
-            "sdk" to Build.VERSION.SDK_INT
+            "sdk" to Build.VERSION.SDK_INT,
+            "appVersion" to versionName(),
+            "versionCode" to versionCode()
         )
     }
 
@@ -545,6 +563,71 @@ class MainActivity : FlutterActivity() {
         } else {
             startService(intent)
         }
+    }
+
+    /** Ҳангоми гузаштани сарҳади ҷой огоҳии маҳаллӣ ва ларзиши якдафъаина медиҳад. */
+    private fun showPlaceTransition(
+        placeName: String,
+        arrived: Boolean,
+        showNotification: Boolean,
+        vibrate: Boolean,
+        rulesCount: Int,
+    ) {
+        if (placeName.isBlank()) return
+        if (vibrate) {
+            val pattern = longArrayOf(0, 180, 90, 260)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                getSystemService(VibratorManager::class.java).defaultVibrator.vibrate(
+                    VibrationEffect.createWaveform(pattern, -1)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                (getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).vibrate(pattern, -1)
+            }
+        }
+        if (!showNotification) return
+        val channelId = "nigoh_places"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Ҷойҳои бехатар",
+                NotificationManager.IMPORTANCE_DEFAULT,
+            ).apply {
+                description = "Огоҳӣ ҳангоми расидан ё баромадан аз ҷой"
+                enableVibration(false)
+            }
+            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        }
+        val title = if (arrived) "Ба «$placeName» расидед" else "Аз «$placeName» баромадед"
+        val body = if (arrived) {
+            if (rulesCount > 0) "$rulesCount қоидаи ин ҷой фаъол шуд." else "Шумо дохили ҳудуди ин ҷой ҳастед."
+        } else {
+            if (rulesCount > 0) "Қоидаҳои ин ҷой хомӯш шуданд." else "Шумо аз ҳудуди ин ҷой берун шудед."
+        }
+        val launch = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+        val contentIntent = launch?.let {
+            PendingIntent.getActivity(
+                this,
+                91_000 + (placeName.hashCode() and 0x7fff),
+                it,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+        val notification = androidx.core.app.NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_stat_nigoh)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(body))
+            .setCategory(androidx.core.app.NotificationCompat.CATEGORY_STATUS)
+            .setAutoCancel(true)
+            .setContentIntent(contentIntent)
+            .build()
+        androidx.core.app.NotificationManagerCompat.from(this).notify(
+            91_000 + (placeName.hashCode() and 0x7fff),
+            notification,
+        )
     }
 
     /** Ҳангоми сохтани Activity муҳофизатро оғоз ва intent-и огоҳиномаро сабт мекунад. */

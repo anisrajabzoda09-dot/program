@@ -7,6 +7,7 @@ import '../../core/user_journey_logic.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/widgets.dart';
 import 'family_controller.dart';
+import 'ai_rules_sheet.dart';
 import 'parent_logic.dart';
 import 'parent_sheets.dart';
 import 'study_sheet.dart';
@@ -244,6 +245,26 @@ class _AppsScreenState extends State<AppsScreen> {
     );
   }
 
+  /// Ёвари AI-ро барои сохтани preview-и қоидаҳо мекушояд.
+  void _openAiRules(FamilyChild child) {
+    showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => AiRulesSheet(controller: controller, child: child),
+    );
+  }
+
+  /// Ҳолати ҳамаи қабатҳои муҳофизати телефони фарзандро нишон медиҳад.
+  void _openProtection(FamilyChild child) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => _ProtectionSheet(child: child),
+    );
+  }
+
   /// matchesFilter иҷро шудани шарти вобастаро муайян мекунад.
   bool _matchesFilter(ChildApp app) {
     final filter = _filter;
@@ -400,6 +421,10 @@ class _AppsScreenState extends State<AppsScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          _ProtectionTile(child: child, onTap: () => _openProtection(child)),
+          const SizedBox(height: 10),
+          _AiRulesTile(onTap: () => _openAiRules(child)),
           if (category != null && (counts[category] ?? 0) > 0) ...[
             const SizedBox(height: 10),
             _CategoryActions(
@@ -508,6 +533,155 @@ class _AppsScreenState extends State<AppsScreen> {
       onSelected: (_) => setState(() => _filter = value),
     ),
   );
+}
+
+/// Корти кӯтоҳи ҳолати муҳофизати телефони фарзанд.
+class _ProtectionTile extends StatelessWidget {
+  const _ProtectionTile({required this.child, required this.onTap});
+
+  final FamilyChild child;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    const required = [
+      'usage',
+      'overlay',
+      'accessibility',
+      'location',
+      'notifications',
+    ];
+    final known = child.protection.isNotEmpty;
+    final missing = required
+        .where((key) => child.protection[key] != true)
+        .length;
+    final ok = known && missing == 0;
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: ListTile(
+        key: const ValueKey('open-protection-center'),
+        leading: Icon(
+          ok ? Icons.verified_user_rounded : Icons.shield_outlined,
+          color: ok ? NigohDesign.mint : scheme.error,
+        ),
+        title: Text(tr('Маркази муҳофизат')),
+        subtitle: Text(
+          !known
+              ? tr('Телефони фарзанд ҳоло ҳолатро нафиристодааст')
+              : ok
+              ? tr('Ҳамаи муҳофизатҳо фаъоланд')
+              : tr('{count} иҷозати муҳим хомӯш аст', {'count': missing}),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+/// Даромадгоҳи минималии ёвари қоидаҳои NIGOH AI.
+class _AiRulesTile extends StatelessWidget {
+  const _AiRulesTile({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: ListTile(
+      key: const ValueKey('open-ai-rules'),
+      leading: const Icon(
+        Icons.auto_awesome_rounded,
+        color: NigohDesign.violet,
+      ),
+      title: Text(tr('NIGOH AI')),
+      subtitle: Text(
+        tr('Қоидаро бо забони оддӣ нависед ва пеш аз татбиқ санҷед'),
+      ),
+      trailing: const Icon(Icons.chevron_right_rounded),
+      onTap: onTap,
+    ),
+  );
+}
+
+/// Рӯйхати муфассали қабатҳои муҳофизат ва вақти санҷиши охирин.
+class _ProtectionSheet extends StatelessWidget {
+  const _ProtectionSheet({required this.child});
+
+  final FamilyChild child;
+
+  @override
+  Widget build(BuildContext context) {
+    final checks = <(String, String, IconData)>[
+      ('usage', tr('Ҳисоби вақти истифода'), Icons.timer_outlined),
+      ('overlay', tr('Экрани бастани барнома'), Icons.layers_outlined),
+      (
+        'accessibility',
+        tr('Назорати барномаҳо'),
+        Icons.admin_panel_settings_outlined,
+      ),
+      ('location', tr('Ҷойгиршавӣ'), Icons.location_on_outlined),
+      (
+        'backgroundLocation',
+        tr('Ҷойгиршавӣ дар замина'),
+        Icons.my_location_rounded,
+      ),
+      ('gps', tr('GPS'), Icons.gps_fixed_rounded),
+      ('notifications', tr('Огоҳиномаҳо'), Icons.notifications_outlined),
+      ('deviceAdmin', tr('Ҳимоя аз ҳазф'), Icons.security_rounded),
+    ];
+    final scheme = Theme.of(context).colorScheme;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              tr('Маркази муҳофизат · {name}', {'name': child.name}),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              child.protectionReportedAt == null
+                  ? tr('Ҳолат ҳанӯз аз телефон наомадааст.')
+                  : tr('Санҷиши охирин: {time}', {
+                      'time': child.protectionReportedAt!
+                          .toLocal()
+                          .toString()
+                          .substring(0, 16),
+                    }),
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 10),
+            for (final item in checks)
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(item.$3),
+                title: Text(item.$2),
+                trailing: Icon(
+                  child.protection[item.$1] == true
+                      ? Icons.check_circle_rounded
+                      : Icons.error_rounded,
+                  color: child.protection[item.$1] == true
+                      ? NigohDesign.mint
+                      : scheme.error,
+                ),
+              ),
+            if ((child.protection['appVersion']?.toString() ?? '').isNotEmpty)
+              Text(
+                tr('Версияи телефон: {version}', {
+                  'version': child.protection['appVersion'],
+                }),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// Widget-и ToolsRow-ро барои рӯйхат, филтр ва қоидаҳои барномаҳои фарзанд месозад.

@@ -36,7 +36,7 @@ class AddPlaceSheet extends StatefulWidget {
 /// Ҳолат ва рафтори AddPlaceSheetState-ро барои навсозии интерфейс идора мекунад.
 class _AddPlaceSheetState extends State<AddPlaceSheet> {
   final _name = TextEditingController();
-  double _radius = 150;
+  double _radius = 100;
   late bool _useChild = widget.tapped == null;
   bool _saving = false;
 

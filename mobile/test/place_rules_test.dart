@@ -54,6 +54,8 @@ Map<String, dynamic> app(
 Map<String, dynamic> schoolJson({
   Map<String, Object> rules = const {},
   bool notify = false,
+  bool alertChild = false,
+  bool vibrateChild = false,
 }) => {
   'id': 3,
   'name': 'Мактаб',
@@ -62,6 +64,8 @@ Map<String, dynamic> schoolJson({
   'radius_meters': 150,
   'rules': rules,
   'notify': notify,
+  'alert_child': alertChild,
+  'vibrate_child': vibrateChild,
 };
 
 void main() {
@@ -99,10 +103,14 @@ void main() {
             'bad': {'mode': '?'},
           },
           notify: true,
+          alertChild: true,
+          vibrateChild: true,
         ),
       );
       expect(p.rules, {'a': const PlaceAppRule('block')});
       expect(p.notify, isTrue);
+      expect(p.alertChild, isTrue);
+      expect(p.vibrateChild, isTrue);
       final kid = FamilyChild.fromJson({
         ...(snapshotJson()['children'] as List).first as Map<String, dynamic>,
         'places': [schoolJson()],
@@ -236,6 +244,8 @@ void main() {
                           'com.zhiliaoapp.musically': {'mode': 'block'},
                           'com.google.android.dialer': {'mode': 'block'},
                         },
+                        alertChild: true,
+                        vibrateChild: true,
                       ),
                     ],
                   },
@@ -257,6 +267,16 @@ void main() {
       sync.onPosition(pos(north(80)));
       await Future<void>.delayed(Duration.zero);
       expect(sync.activePlace?.name, 'Мактаб');
+      expect(
+        calls.where((c) => c.method == 'showPlaceTransition').last.arguments,
+        {
+          'placeName': 'Мактаб',
+          'arrived': true,
+          'showNotification': true,
+          'vibrate': true,
+          'rulesCount': 2,
+        },
+      );
       expect(
         blocked()['com.zhiliaoapp.musically'],
         isTrue,
@@ -284,6 +304,10 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(sync.activePlace, isNull);
       expect(blocked()['com.zhiliaoapp.musically'], isFalse);
+      expect(
+        calls.where((c) => c.method == 'showPlaceTransition').last.arguments,
+        containsPair('arrived', false),
+      );
       sync.dispose();
     });
   });
@@ -340,6 +364,10 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('place-notify')));
       await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('place-alert-child')));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('place-vibrate-child')));
+      await tester.pump();
       await tester.tap(find.byKey(const ValueKey('place-save')));
       await tester.runAsync(() => Future<void>.delayed(Duration.zero));
       await tester.pump();
@@ -352,6 +380,8 @@ void main() {
               'org.telegram.messenger': {'mode': 'limit', 'minutes': 20},
             },
             'notify': true,
+            'alert_child': true,
+            'vibrate_child': true,
           },
         },
       ));

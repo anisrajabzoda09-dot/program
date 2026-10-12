@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.23.0 — 2026-10-12
+- Safe places default to a precise 100 m radius and can independently notify the parent, notify the child, and vibrate the child's phone when entering or leaving. Place app rules still switch immediately and work offline.
+- Protection Center reports the child's real Android protection state (usage access, overlay, Accessibility, location, notifications, GPS, device admin and app version) and alerts the parent when an important layer is disabled.
+- NIGOH AI turns a parent's plain-language request into a validated rule preview for installed apps. It never changes controls without explicit parent confirmation, never blocks essential phone/system packages, and keeps the Gemini key on the server only.
+- Weekly reports can generate a short AI summary from aggregate screen-time data; names, messages and locations are not sent to Gemini.
+
 ## 2.22.0 — 2026-10-09
 - Uninstalled apps disappear from the parent's list after a verified complete device sync. Empty or failed Android scans never erase the list, and saved rules remain available if an app is installed again.
 - Daily limits now count only real foreground use while the screen is on. Background time and Android's approximate aggregate usage no longer consume a child's limit; a 60-minute limit closes the app after 60 minutes of actual use.

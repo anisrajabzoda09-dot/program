@@ -13,15 +13,14 @@ class Settings:
 
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
-    APP_VERSION: str = "2.22.0"
-    APP_VERSION_CODE: int = 50
+    APP_VERSION: str = "2.23.0"
+    APP_VERSION_CODE: int = 51
     APP_RELEASE_NOTES: str = (
-        "барномаҳои uninstall-шуда аз рӯйхат нест; "
-        "лимит танҳо вақти воқеии foreground-ро меҳисобад; "
-        "дизайни Apps минималӣ шуд."
+        "геозонаи 100м бо огоҳӣ ва ларзиш; Маркази муҳофизат; "
+        "NIGOH AI барои preview-и қоидаҳо ва хулосаи ҳафтаина."
     )
     # Санаи охирини навсозии матни сайт (барои <lastmod> дар sitemap.xml).
-    SITE_UPDATED: str = "2026-10-09"
+    SITE_UPDATED: str = "2026-10-12"
 
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR: str = os.path.join(BASE_DIR, "static")
@@ -111,6 +110,14 @@ class Settings:
         "FIREBASE_WEB_API_KEY", "AIzaSyAJyW9g2_r_arrDz9jpuemJVu6ZYzD50ao"
     )
 
+    # Gemini танҳо аз server истифода мешавад; калид ҳеҷ гоҳ ба APK ё ҷавоби API намеравад.
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+    GEMINI_API_URL: str = os.getenv(
+        "GEMINI_API_URL", "https://generativelanguage.googleapis.com/v1beta"
+    )
+    GEMINI_TIMEOUT_SECONDS: float = float(os.getenv("GEMINI_TIMEOUT_SECONDS", "20") or 20)
+
     DEFAULT_APPS = [
         {"package_name": "com.zhiliaoapp.musically", "app_name": "TikTok", "app_icon": "🎵", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1},
         {"package_name": "com.instagram.android", "app_name": "Instagram", "app_icon": "📸", "category": "Шабакаҳои иҷтимоӣ", "is_blocked": 1},
@@ -125,6 +132,7 @@ class Settings:
     ]
 
     APK_CANDIDATES = [
+        "NIGOH_Family_Android_v2.23.0.apk",
         "NIGOH_Family_Android_v2.22.0.apk",
         "NIGOH_Family_Android_v2.21.0.apk",
         "NIGOH_Family_Android_v2.20.0.apk",

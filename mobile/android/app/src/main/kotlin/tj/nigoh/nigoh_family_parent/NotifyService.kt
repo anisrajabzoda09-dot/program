@@ -126,7 +126,11 @@ class NotifyService : Service() {
             )
             val family = NotificationChannel(
                 CH_FAMILY, s.chFamily, NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = s.chFamilyDesc }
+            ).apply {
+                description = s.chFamilyDesc
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 180, 90, 260)
+            }
             // Садои SOS ва зангро худи service такрор мекунад; channel хомӯш мемонад.
             val sos = NotificationChannel(
                 CH_SOS, "SOS", NotificationManager.IMPORTANCE_HIGH
@@ -563,6 +567,7 @@ class NotifyService : Service() {
 
     /** Огоҳии оилавиро барои вақт, батарея, offline ё барномаи нав нишон медиҳад. */
     private fun showFamily(eventId: Int, kind: String, childId: Int?, title: String, body: String, childName: String?) {
+        if (kind == "place_arrive" || kind == "place_leave") vibratePlaceAlert()
         val notification = NotificationCompat.Builder(this, CH_FAMILY)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
             .setContentTitle(title)
@@ -573,9 +578,40 @@ class NotifyService : Service() {
                 if (kind == "missed_call") NotificationCompat.CATEGORY_MISSED_CALL
                 else NotificationCompat.CATEGORY_STATUS
             )
+            .setPriority(
+                if (kind == "place_arrive" || kind == "place_leave")
+                    NotificationCompat.PRIORITY_HIGH
+                else NotificationCompat.PRIORITY_DEFAULT
+            )
+            .setVibrate(
+                if (kind == "place_arrive" || kind == "place_leave")
+                    longArrayOf(0, 180, 90, 260)
+                else null
+            )
             .setContentIntent(launchIntent(200_000 + (eventId % 100_000), kind, childId, peerName = childName))
             .build()
         post(40_000 + (eventId % 100_000), notification)
+    }
+
+    /** Ларзиши кӯтоҳи геозонаро ҳатто барои channel-и аз версияи кӯҳна боқимонда медиҳад. */
+    private fun vibratePlaceAlert() {
+        val audio = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        if (audio.ringerMode == AudioManager.RINGER_MODE_SILENT) return
+        val alertVibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+        runCatching {
+            val pattern = longArrayOf(0, 180, 90, 260)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                alertVibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            } else {
+                @Suppress("DEPRECATION")
+                alertVibrator.vibrate(pattern, -1)
+            }
+        }
     }
 
     /** SOS-и full-screen-ро нишон дода, то хомӯш кардан alarm менавозад. */

@@ -39,8 +39,8 @@ class SafePlace(Base):
     name = Column(String(80), nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    radius_meters = Column(Integer, nullable=False, default=150)
-    # Қоидаҳои барномаҳо дар ин ҷой ва огоҳии омадан/рафтан: {"apps": {...}, "notify": bool}.
+    radius_meters = Column(Integer, nullable=False, default=100)
+    # Қоидаҳои барномаҳо ва огоҳиҳои волидайн/фарзанд дар ин ҷой.
     rules_json = Column(String, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
 
@@ -57,6 +57,8 @@ class SafePlace(Base):
             "radius_meters": self.radius_meters,
             "rules": rules["apps"],
             "notify": rules["notify"],
+            "alert_child": rules["alert_child"],
+            "vibrate_child": rules["vibrate_child"],
         }
 
 

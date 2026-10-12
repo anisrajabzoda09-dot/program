@@ -39,7 +39,12 @@ def normalize_rules(raw) -> dict:
                 continue
             item["minutes"] = max(MIN_LIMIT, min(MAX_LIMIT, minutes))
         apps[package] = item
-    return {"apps": apps, "notify": bool(raw.get("notify", False))}
+    return {
+        "apps": apps,
+        "notify": bool(raw.get("notify", False)),
+        "alert_child": bool(raw.get("alert_child", False)),
+        "vibrate_child": bool(raw.get("vibrate_child", False)),
+    }
 
 
 def load_rules(place) -> dict:

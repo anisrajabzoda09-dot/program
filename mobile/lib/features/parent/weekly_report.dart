@@ -26,6 +26,9 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   List<UsageDay>? _days;
   String? _error;
   int? _selected;
+  String? _aiSummary;
+  List<String> _aiTips = const [];
+  bool _aiLoading = false;
 
   /// Омори истифодаи ҳафт рӯзи фарзандро аз сервер бор мекунад.
   @override
@@ -52,6 +55,26 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
             ? e.message
             : tr('Ҳисобот гирифта нашуд: {e}', {'e': e}),
       );
+    }
+  }
+
+  /// Хулосаи махфиятдӯсти AI-ро аз омори ҷамъшуда мегирад.
+  Future<void> _loadAiSummary() async {
+    setState(() => _aiLoading = true);
+    try {
+      final response = await widget.api.aiWeeklySummary(widget.child.id);
+      if (!mounted) return;
+      setState(() {
+        _aiSummary = response['summary']?.toString();
+        _aiTips = (response['tips'] as List? ?? const [])
+            .map((item) => item.toString())
+            .where((item) => item.isNotEmpty)
+            .toList();
+      });
+    } catch (error) {
+      if (mounted) showMessage(context, error, error: true);
+    } finally {
+      if (mounted) setState(() => _aiLoading = false);
     }
   }
 
@@ -86,6 +109,13 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
           children: [
+            _AiWeeklyCard(
+              summary: _aiSummary,
+              tips: _aiTips,
+              loading: _aiLoading,
+              onLoad: _loadAiSummary,
+            ),
+            const SizedBox(height: 12),
             WeeklyReportView(
               days: days,
               selected: _selected ?? days.length - 1,
@@ -105,6 +135,81 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       body: AnimatedSwitcher(
         duration: Duration(milliseconds: reducedMotion(context) ? 0 : 220),
         child: body,
+      ),
+    );
+  }
+}
+
+/// Хулосаи ихтиёрии AI; танҳо омори ҷамъшудаи ҳафта истифода мешавад.
+class _AiWeeklyCard extends StatelessWidget {
+  const _AiWeeklyCard({
+    required this.summary,
+    required this.tips,
+    required this.loading,
+    required this.onLoad,
+  });
+
+  final String? summary;
+  final List<String> tips;
+  final bool loading;
+  final VoidCallback onLoad;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: NigohDesign.violet,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    tr('Хулосаи NIGOH AI'),
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (summary == null)
+              Text(
+                tr(
+                  'AI танҳо омори ҷамъшудаи 7 рӯзро мебинад — ном, макон ва паёмҳо фиристода намешаванд.',
+                ),
+                style: TextStyle(color: scheme.onSurfaceVariant),
+              )
+            else ...[
+              Text(summary!),
+              for (final tip in tips)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text('• $tip'),
+                ),
+            ],
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              key: const ValueKey('ai-weekly-summary'),
+              onPressed: loading ? null : onLoad,
+              icon: loading
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.auto_awesome_rounded),
+              label: Text(
+                summary == null ? tr('Хулоса сохтан') : tr('Аз нав сохтан'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

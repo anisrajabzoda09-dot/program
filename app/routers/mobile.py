@@ -212,6 +212,8 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
         "bedtime": _json_or_none(child.bedtime_json),
         "study": _json_or_none(child.study_json),
         "web_filter": web_filter.payload(child),
+        "protection": _json_or_none(child.protection_json) or {},
+        "protection_reported_at": child.protection_reported_at.isoformat() if child.protection_reported_at else None,
         # Ҷойҳо бо қоидаҳо: телефони фарзанд онҳоро бе интернет ҳам иҷро мекунад.
         "places": [p.to_dict() for p in db.query(SafePlace).filter(SafePlace.child_id == child.id).order_by(SafePlace.id.asc())],
         "current_place_id": child.current_place_id,

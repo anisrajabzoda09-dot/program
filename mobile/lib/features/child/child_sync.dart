@@ -106,6 +106,8 @@ class ChildSync extends ChangeNotifier {
   Position? _lastPosition;
   bool _lastPositionSent = true;
   DateTime? _lastLocationPost;
+  DateTime? _lastProtectionPost;
+  String? _lastProtectionSignature;
 
   Future<void>? _ensureInFlight;
   Future<void>? _tickInFlight;
@@ -346,12 +348,33 @@ class ChildSync extends ChangeNotifier {
       c.places,
       currentId: activePlace?.id,
     );
-    final placeChanged = next?.id != activePlace?.id;
+    final previous = activePlace;
+    final placeChanged = next?.id != previous?.id;
     // Қоидаҳои ҳамин ҷой ҳам метавонанд дар сервер иваз шуда бошанд.
     activePlace = next;
     if (placeChanged) {
       await pushRules(c.apps, bedtime: c.bedtime, study: c.study);
+      if (previous != null) await _showPlaceTransition(previous, false);
+      if (next != null) await _showPlaceTransition(next, true);
       _notify();
+    }
+  }
+
+  /// Дар худи телефони фарзанд гузаштани сарҳади ҷойро фавран хабар медиҳад.
+  Future<void> _showPlaceTransition(SafePlace place, bool arrived) async {
+    if (!place.alertChild && !place.vibrateChild) return;
+    try {
+      await device.invokeMethod<void>('showPlaceTransition', {
+        'placeName': place.name,
+        'arrived': arrived,
+        'showNotification': place.alertChild,
+        'vibrate': place.vibrateChild,
+        'rulesCount': place.rules.length,
+      });
+    } on MissingPluginException {
+      // Дар test/web plugin-и Android вуҷуд надорад.
+    } catch (e) {
+      debugPrint('showPlaceTransition: $e');
     }
   }
 
@@ -462,6 +485,25 @@ class ChildSync extends ChangeNotifier {
           if (protection[entry.key] != true) entry.value,
       ];
       _clearError('protection');
+      final id = childId;
+      if (id != null && protection.isNotEmpty) {
+        final signature = protection.entries
+            .map((entry) => '${entry.key}=${entry.value}')
+            .join('|');
+        final stale =
+            _lastProtectionPost == null ||
+            now().difference(_lastProtectionPost!) >=
+                const Duration(minutes: 5);
+        if (signature != _lastProtectionSignature || stale) {
+          try {
+            await api.reportProtection(id, protection);
+            _lastProtectionSignature = signature;
+            _lastProtectionPost = now();
+          } catch (e) {
+            debugPrint('reportProtection: $e');
+          }
+        }
+      }
     } on MissingPluginException {
       // Дар муҳити бе plugin вазъи муҳофизати Android дастнорас мемонад.
     } catch (e) {

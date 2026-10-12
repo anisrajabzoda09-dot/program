@@ -55,11 +55,13 @@ class ChildApp {
     this.alwaysAllowed = false,
     this.bonusMinutesToday = 0,
     this.firstSeenAt,
+    this.aiCategory,
   });
 
   final bool alwaysAllowed;
   final int bonusMinutesToday;
   final DateTime? firstSeenAt;
+  final String? aiCategory;
 
   /// Қимати effectiveLimitMinutes-ро барои model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣ нигоҳ медорад.
   int get effectiveLimitMinutes =>
@@ -90,6 +92,7 @@ class ChildApp {
     alwaysAllowed: j['always_allowed'] == true || j['always_allowed'] == 1,
     bonusMinutesToday: (j['bonus_minutes_today'] as num?)?.toInt() ?? 0,
     firstSeenAt: parseServerTime(j['first_seen_at']),
+    aiCategory: j['category']?.toString(),
   );
 
   /// toNativeRule мантиқи зарурии model-ҳои додаҳои фарзанд, қоидаҳо, chat ва ҷойгиршавӣро иҷро мекунад.
@@ -181,6 +184,8 @@ class FamilyChild {
     this.bedtime = const Bedtime(),
     this.study = const StudyMode(),
     this.webFilter = const WebFilter(),
+    this.protection = const {},
+    this.protectionReportedAt,
     this.places = const [],
     this.currentPlaceId,
     this.childAvatar,
@@ -197,6 +202,10 @@ class FamilyChild {
 
   /// Филтри сайтҳо аз рӯи синну сол ва ҳолати охирини он дар телефони фарзанд.
   final WebFilter webFilter;
+
+  /// Ҳолати воқеии иҷозатҳо ва хидматҳои телефони фарзанд.
+  final Map<String, dynamic> protection;
+  final DateTime? protectionReportedAt;
 
   /// Ҷойҳои бехатар бо қоидаҳо (дар snapshot меоянд; телефон онҳоро бе интернет иҷро мекунад).
   final List<SafePlace> places;
@@ -262,6 +271,12 @@ class FamilyChild {
     bedtime: Bedtime.fromJson(j['bedtime']),
     study: StudyMode.fromJson(j['study']),
     webFilter: WebFilter.fromJson(j['web_filter']),
+    protection: j['protection'] is Map
+        ? Map<String, dynamic>.from(j['protection'] as Map)
+        : const {},
+    protectionReportedAt: DateTime.tryParse(
+      j['protection_reported_at']?.toString() ?? '',
+    ),
     places: (j['places'] as List? ?? const [])
         .whereType<Map>()
         .map((p) => SafePlace.fromJson(Map<String, dynamic>.from(p)))
@@ -443,6 +458,8 @@ class SafePlace {
     required this.radiusMeters,
     this.rules = const {},
     this.notify = false,
+    this.alertChild = false,
+    this.vibrateChild = false,
   });
 
   final int id;
@@ -457,31 +474,45 @@ class SafePlace {
   /// Волидайн ҳангоми омадан ва рафтан огоҳӣ мегиранд.
   final bool notify;
 
+  /// Худи телефони фарзанд ҳангоми гузаштани сарҳад огоҳӣ нишон медиҳад.
+  final bool alertChild;
+
+  /// Худи телефони фарзанд ҳангоми гузаштани сарҳад меларзад.
+  final bool vibrateChild;
+
   /// SafePlace-ро аз JSON-и сервер месозад.
   factory SafePlace.fromJson(Map<String, dynamic> j) => SafePlace(
     id: (j['id'] as num).toInt(),
     name: j['name']?.toString() ?? '',
     latitude: (j['latitude'] as num).toDouble(),
     longitude: (j['longitude'] as num).toDouble(),
-    radiusMeters: (j['radius_meters'] as num?)?.toInt() ?? 150,
+    radiusMeters: (j['radius_meters'] as num?)?.toInt() ?? 100,
     rules: {
       for (final e in ((j['rules'] as Map?) ?? const {}).entries)
         e.key.toString(): ?PlaceAppRule.fromJson(e.value),
     },
     notify: j['notify'] == true,
+    alertChild: j['alert_child'] == true,
+    vibrateChild: j['vibrate_child'] == true,
   );
 
   /// Нусхаи ҷой бо қоидаҳои нав.
-  SafePlace copyWith({Map<String, PlaceAppRule>? rules, bool? notify}) =>
-      SafePlace(
-        id: id,
-        name: name,
-        latitude: latitude,
-        longitude: longitude,
-        radiusMeters: radiusMeters,
-        rules: rules ?? this.rules,
-        notify: notify ?? this.notify,
-      );
+  SafePlace copyWith({
+    Map<String, PlaceAppRule>? rules,
+    bool? notify,
+    bool? alertChild,
+    bool? vibrateChild,
+  }) => SafePlace(
+    id: id,
+    name: name,
+    latitude: latitude,
+    longitude: longitude,
+    radiusMeters: radiusMeters,
+    rules: rules ?? this.rules,
+    notify: notify ?? this.notify,
+    alertChild: alertChild ?? this.alertChild,
+    vibrateChild: vibrateChild ?? this.vibrateChild,
+  );
 }
 
 /// StudyMode додаҳо ва рафтори model-ҳои сервер-ро ифода мекунад.

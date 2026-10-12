@@ -33,6 +33,9 @@ class Child(Base):
     web_filter_json = Column(String, nullable=True)
     web_filter_state = Column(String, nullable=True)
     web_filter_reported_at = Column(DateTime, nullable=True)
+    # Ҳолати воқеии муҳофизати Android, ки телефони фарзанд даврӣ мефиристад.
+    protection_json = Column(String, nullable=True)
+    protection_reported_at = Column(DateTime, nullable=True)
     low_battery_notified = Column(Integer, default=0)
     offline_notified = Column(Integer, default=0)
     block_adult_content = Column(Integer, default=1)
@@ -58,5 +61,6 @@ class Child(Base):
             "address": self.address,
             "location_updated_at": str(self.location_updated_at) if self.location_updated_at else None,
             "block_adult_content": self.block_adult_content,
+            "protection_reported_at": str(self.protection_reported_at) if self.protection_reported_at else None,
             "created_at": str(self.created_at) if self.created_at else None
         }

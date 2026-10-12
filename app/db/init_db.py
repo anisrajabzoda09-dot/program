@@ -97,6 +97,8 @@ def init_db():
             ("web_filter_json", "TEXT"),
             ("web_filter_state", "TEXT"),
             ("web_filter_reported_at", "DATETIME"),
+            ("protection_json", "TEXT"),
+            ("protection_reported_at", "DATETIME"),
             ("pairing_code_expires_at", "DATETIME"),
             ("current_place_id", "INTEGER"),
             ("low_battery_notified", "INTEGER DEFAULT 0"),

@@ -3,6 +3,35 @@
 # Ҳар сабт: версия, сана (YYYY-MM-DD), сарлавҳаи кӯтоҳ ва рӯйхати тағйирот бо се забон.
 RELEASES = [
     {
+        "version": "2.23.0",
+        "date": "2026-10-12",
+        "highlight": True,
+        "title": {"tg": "Геозонаи қавӣ ва NIGOH AI", "ru": "Усиленные геозоны и NIGOH AI", "en": "Stronger geofences and NIGOH AI"},
+        "items": {
+            "tg": [
+                "Ҷойи бехатар акнун пешфарз 100 метр аст: ҳангоми расидан ё баромадан волидайн огоҳӣ мегиранд, телефони фарзанд метавонад огоҳӣ нишон диҳад ва ларзад.",
+                "Қоидаҳои барномаҳои ҷой фавран ва ҳатто бе интернет фаъол мешаванд; бозиҳо, видео ва шабакаҳоро дар мактаб бо як пахш бастан мумкин аст.",
+                "Маркази муҳофизат ҳолати воқеии иҷозатҳо, GPS, огоҳиномаҳо, ҳимоя аз ҳазф ва версияи телефони фарзандро нишон медиҳад.",
+                "NIGOH AI дастури оддии волидайнро ба пешниҳоди қоида табдил медиҳад ва танҳо пас аз санҷишу тасдиқи волидайн татбиқ мекунад.",
+                "Хулосаи AI-и ҳафтаина танҳо омори ҷамъшудаи вақти экранро истифода мекунад; ном, макон ва паёмҳо фиристода намешаванд.",
+            ],
+            "ru": [
+                "Безопасное место теперь по умолчанию имеет радиус 100 м: родитель получает уведомление, а телефон ребёнка может показать уведомление и вибрировать при входе или выходе.",
+                "Правила приложений по месту включаются сразу и работают без интернета; игры, видео и соцсети в школе можно закрыть одним нажатием.",
+                "Центр защиты показывает реальное состояние разрешений, GPS, уведомлений, защиты от удаления и версию приложения ребёнка.",
+                "NIGOH AI превращает обычное описание родителя в предварительный набор правил и применяет его только после проверки и подтверждения.",
+                "Недельная AI-сводка использует только агрегированное экранное время; имена, местоположение и сообщения не отправляются.",
+            ],
+            "en": [
+                "Safe places now default to a 100 m radius: parents are alerted, while the child's phone can show a notification and vibrate on entry or exit.",
+                "Place app rules switch immediately and work offline; games, video and social apps can be closed at school in one tap.",
+                "Protection Center shows the real permission, GPS, notification, uninstall protection and child app-version state.",
+                "NIGOH AI turns a parent's plain-language request into a rule preview and applies it only after review and confirmation.",
+                "The weekly AI summary uses aggregate screen-time only; names, locations and messages are not sent.",
+            ],
+        },
+    },
+    {
         "version": "2.21.0",
         "date": "2026-10-05",
         "highlight": True,

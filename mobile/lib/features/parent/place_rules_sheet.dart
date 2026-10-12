@@ -59,6 +59,8 @@ class PlaceRulesSheet extends StatefulWidget {
 class _PlaceRulesSheetState extends State<PlaceRulesSheet> {
   late Map<String, PlaceAppRule> rules = {...widget.place.rules};
   late bool notify = widget.place.notify;
+  late bool alertChild = widget.place.alertChild;
+  late bool vibrateChild = widget.place.vibrateChild;
   String query = '';
   bool saving = false;
 
@@ -106,6 +108,8 @@ class _PlaceRulesSheetState extends State<PlaceRulesSheet> {
         widget.place,
         rules: rules,
         notify: notify,
+        alertChild: alertChild,
+        vibrateChild: vibrateChild,
       );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -165,6 +169,32 @@ class _PlaceRulesSheetState extends State<PlaceRulesSheet> {
                     ),
                     value: notify,
                     onChanged: (v) => setState(() => notify = v),
+                  ),
+                  SwitchListTile(
+                    key: const ValueKey('place-alert-child'),
+                    contentPadding: EdgeInsets.zero,
+                    secondary: const Icon(Icons.phone_android_rounded),
+                    title: Text(tr('Огоҳӣ дар телефони фарзанд')),
+                    subtitle: Text(
+                      tr(
+                        'Ҳангоми расидан ё баромадан қоидаҳои фаъол нишон дода мешаванд.',
+                      ),
+                    ),
+                    value: alertChild,
+                    onChanged: (v) => setState(() => alertChild = v),
+                  ),
+                  SwitchListTile(
+                    key: const ValueKey('place-vibrate-child'),
+                    contentPadding: EdgeInsets.zero,
+                    secondary: const Icon(Icons.vibration_rounded),
+                    title: Text(tr('Ларзиш дар сарҳади ҷой')),
+                    subtitle: Text(
+                      tr(
+                        'Телефон ҳангоми ворид ё хориҷ шудан як бор меларзад.',
+                      ),
+                    ),
+                    value: vibrateChild,
+                    onChanged: (v) => setState(() => vibrateChild = v),
                   ),
                   Wrap(
                     spacing: 8,

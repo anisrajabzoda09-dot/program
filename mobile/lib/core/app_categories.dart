@@ -30,6 +30,7 @@ extension AppCategoryLabel on AppCategory {
 /// classifyApp мантиқи зарурии гурӯҳбандии барномаҳо аз рӯи package name-ро иҷро мекунад.
 AppCategory classifyApp(String packageName, [String name = '']) {
   final text = '${packageName.toLowerCase()} ${name.toLowerCase()}';
+
   /// any мантиқи зарурии гурӯҳбандии барномаҳо аз рӯи package name-ро иҷро мекунад.
   bool any(List<String> keys) => keys.any(text.contains);
 
@@ -165,7 +166,14 @@ AppCategory classifyApp(String packageName, [String name = '']) {
 }
 
 /// categoryOf мантиқи зарурии гурӯҳбандии барномаҳо аз рӯи package name-ро иҷро мекунад.
-AppCategory categoryOf(ChildApp app) => classifyApp(app.packageName, app.name);
+AppCategory categoryOf(ChildApp app) => switch (app.aiCategory) {
+  'games' => AppCategory.games,
+  'social' => AppCategory.social,
+  'education' => AppCategory.education,
+  'video' => AppCategory.video,
+  'other' => AppCategory.other,
+  _ => classifyApp(app.packageName, app.name),
+};
 
 /// Қимати studyBlockedCategories-ро барои гурӯҳбандии барномаҳо аз рӯи package name нигоҳ медорад.
 const studyBlockedCategories = {

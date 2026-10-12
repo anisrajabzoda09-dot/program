@@ -327,11 +327,20 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     SafePlace place, {
     required Map<String, PlaceAppRule> rules,
     required bool notify,
+    required bool alertChild,
+    required bool vibrateChild,
   }) async {
     final before = placesFor(childId);
     places[childId] = [
       for (final p in before)
-        p.id == place.id ? p.copyWith(rules: rules, notify: notify) : p,
+        p.id == place.id
+            ? p.copyWith(
+                rules: rules,
+                notify: notify,
+                alertChild: alertChild,
+                vibrateChild: vibrateChild,
+              )
+            : p,
     ];
     _notify();
     try {
@@ -341,6 +350,8 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
           place.id,
           rules: rules,
           notify: notify,
+          alertChild: alertChild,
+          vibrateChild: vibrateChild,
         ),
       );
       final saved = res['place'];
@@ -495,6 +506,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     alwaysAllowed: alwaysAllowed ?? app.alwaysAllowed,
     bonusMinutesToday: bonusMinutesToday ?? app.bonusMinutesToday,
     firstSeenAt: app.firstSeenAt,
+    aiCategory: app.aiCategory,
   );
 
   /// copyChild мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
@@ -517,6 +529,10 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
     bedtime: bedtime ?? c.bedtime,
     study: study ?? c.study,
     webFilter: webFilter ?? c.webFilter,
+    protection: c.protection,
+    protectionReportedAt: c.protectionReportedAt,
+    places: c.places,
+    currentPlaceId: c.currentPlaceId,
     childAvatar: c.childAvatar,
     parentAvatar: c.parentAvatar,
     batteryLevel: c.batteryLevel,

@@ -446,6 +446,49 @@ class NigohApi {
     return _list(data['days']);
   }
 
+  /// Аз дастури оддӣ preview-и қоидаҳои сохториро мегирад; худкор татбиқ намекунад.
+  Future<Map<String, dynamic>> previewAiRules(
+    int childId,
+    String instruction,
+  ) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/ai/rules/preview',
+    body: {'instruction': instruction},
+    timeout: const Duration(seconds: 30),
+  );
+
+  /// Хулосаи AI-и омори ҳафтаинаро мегирад.
+  Future<Map<String, dynamic>> aiWeeklySummary(int childId) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/ai/weekly-summary',
+    timeout: const Duration(seconds: 30),
+  );
+
+  /// Аз ёвари NIGOH AI ҷавоби кӯтоҳи бехатар мегирад.
+  Future<Map<String, dynamic>> aiHelp(int childId, String question) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/ai/help',
+    body: {'question': question},
+    timeout: const Duration(seconds: 30),
+  );
+
+  /// Категорияҳои барномаҳои насбшударо аз AI ҳамчун preview мегирад.
+  Future<Map<String, dynamic>> previewAiCategories(int childId) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/ai/categories/preview',
+    timeout: const Duration(seconds: 30),
+  );
+
+  /// Категорияҳои санҷида ва тасдиқшудаи волидайнро нигоҳ медорад.
+  Future<Map<String, dynamic>> applyAiCategories(
+    int childId,
+    List<Map<String, dynamic>> categories,
+  ) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/ai/categories/apply',
+    body: {'categories': categories},
+  );
+
   // Қадами дохилии requestTime барои API ва session.
 
   /// requestTime иҷозат ё маълумоти лозимро дархост мекунад.
@@ -512,7 +555,7 @@ class NigohApi {
     required String name,
     required double latitude,
     required double longitude,
-    int radiusMeters = 150,
+    int radiusMeters = 100,
   }) => _send(
     'POST',
     '/api/mobile/v2/children/$childId/places',
@@ -532,19 +575,26 @@ class NigohApi {
     int? radiusMeters,
     Map<String, PlaceAppRule>? rules,
     bool? notify,
+    bool? alertChild,
+    bool? vibrateChild,
   }) => _send(
     'PUT',
     '/api/mobile/v2/children/$childId/places/$placeId',
     body: {
       'name': ?name,
       'radius_meters': ?radiusMeters,
-      if (rules != null || notify != null)
+      if (rules != null ||
+          notify != null ||
+          alertChild != null ||
+          vibrateChild != null)
         'rules': {
           'apps': {
             for (final e in (rules ?? const <String, PlaceAppRule>{}).entries)
               e.key: e.value.toJson(),
           },
           'notify': notify ?? false,
+          'alert_child': alertChild ?? false,
+          'vibrate_child': vibrateChild ?? false,
         },
     },
   );
@@ -552,6 +602,14 @@ class NigohApi {
   /// deleteSafePlace маълумотро ҳазф карда, ҳолати вобастаро нав мекунад.
   Future<void> deleteSafePlace(int childId, int placeId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId/places/$placeId');
+
+  /// Ҳолати воқеии муҳофизати телефони фарзандро ба сервер мефиристад.
+  Future<void> reportProtection(int childId, Map<String, dynamic> protection) =>
+      _send(
+        'POST',
+        '/api/mobile/v2/children/$childId/protection',
+        body: protection,
+      );
 
   /// list мантиқи зарурии муштарии REST-и NIGOH барои воридшавӣ, оила, қоидаҳо, chat, ҷойгиршавӣ ва зангҳоро иҷро мекунад.
   static List<Map<String, dynamic>> _list(Object? raw) =>
