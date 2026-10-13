@@ -7,6 +7,7 @@ import '../../core/home_target.dart';
 import '../../core/models.dart';
 import '../../core/session.dart';
 import '../../ui/nigoh_design.dart';
+import '../../ui/nigoh_bottom_bar.dart';
 import '../../ui/widgets.dart';
 import '../chat/chat_screen.dart';
 import '../onboarding/permissions_wizard.dart';
@@ -167,21 +168,21 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
             : const Duration(milliseconds: 220),
         child: KeyedSubtree(key: ValueKey(_tab), child: page),
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: NigohBottomBar(
         selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: [
-          NavigationDestination(
+        onSelected: (i) => setState(() => _tab = i),
+        items: [
+          NigohBottomBarItem(
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home_rounded),
             label: tr('Асосӣ'),
           ),
-          NavigationDestination(
+          NigohBottomBarItem(
             icon: const Icon(Icons.rule_outlined),
             selectedIcon: const Icon(Icons.rule_rounded),
             label: tr('Қоидаҳо'),
           ),
-          NavigationDestination(
+          NigohBottomBarItem(
             icon: Badge(
               isLabelVisible: unread > 0,
               label: Text('$unread'),
@@ -190,7 +191,7 @@ class _ChildHomeState extends State<ChildHome> with WidgetsBindingObserver {
             selectedIcon: const Icon(Icons.chat_bubble_rounded),
             label: tr('Чат'),
           ),
-          NavigationDestination(
+          NigohBottomBarItem(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings_rounded),
             label: tr('Танзимот'),

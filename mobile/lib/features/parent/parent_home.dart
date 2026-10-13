@@ -9,6 +9,7 @@ import '../../core/models.dart';
 import '../../core/session.dart';
 import '../../ui/avatar.dart';
 import '../../ui/nigoh_design.dart';
+import '../../ui/nigoh_bottom_bar.dart';
 import '../../ui/widgets.dart';
 import '../call/call_screen.dart';
 import '../chat/chat_screen.dart';
@@ -298,8 +299,8 @@ class _ParentHomeState extends State<ParentHome> {
         final familyBadgeColor = controller.urgentChildren.isNotEmpty
             ? null
             : NigohDesign.amber;
-        final items = <_NavItem>[
-          _NavItem(
+        final items = <NigohBottomBarItem>[
+          NigohBottomBarItem(
             icon: Badge(
               isLabelVisible: familyBadge,
               backgroundColor: familyBadgeColor,
@@ -309,17 +310,17 @@ class _ParentHomeState extends State<ParentHome> {
             selectedIcon: const Icon(Icons.family_restroom_rounded),
             label: tr('Оила'),
           ),
-          _NavItem(
+          NigohBottomBarItem(
             icon: const Icon(Icons.apps_outlined),
             selectedIcon: const Icon(Icons.apps_rounded),
             label: tr('Барномаҳо'),
           ),
-          _NavItem(
+          NigohBottomBarItem(
             icon: const Icon(Icons.map_outlined),
             selectedIcon: const Icon(Icons.map_rounded),
             label: tr('Харита'),
           ),
-          _NavItem(
+          NigohBottomBarItem(
             key: const ValueKey('nav-chat'),
             icon: Badge.count(
               count: unread,
@@ -333,7 +334,7 @@ class _ParentHomeState extends State<ParentHome> {
             ),
             label: tr('Чат'),
           ),
-          _NavItem(
+          NigohBottomBarItem(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings_rounded),
             label: tr('Танзимот'),
@@ -384,7 +385,7 @@ class _ParentHomeState extends State<ParentHome> {
           body: SafeArea(top: _tab >= 3, bottom: false, child: content),
           bottomNavigationBar: wide
               ? null
-              : _ParentBottomNavigation(
+              : NigohBottomBar(
                   selectedIndex: _tab,
                   items: items,
                   onSelected: (i) => setState(() => _tab = i),
@@ -480,78 +481,6 @@ class _ParentHomeState extends State<ParentHome> {
           ),
         Expanded(child: content),
       ],
-    );
-  }
-}
-
-/// Widget-и NavItem-ро барои саҳифаи асосии волид ва бахшҳои назорат месозад.
-class _NavItem {
-  const _NavItem({
-    this.key,
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-  });
-
-  final Key? key;
-  final Widget icon;
-  final Widget selectedIcon;
-  final String label;
-}
-
-class _ParentBottomNavigation extends StatelessWidget {
-  const _ParentBottomNavigation({
-    required this.selectedIndex,
-    required this.items,
-    required this.onSelected,
-  });
-
-  final int selectedIndex;
-  final List<_NavItem> items;
-  final ValueChanged<int> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SafeArea(
-      top: false,
-      minimum: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: scheme.outlineVariant.withValues(alpha: .8),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .08),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(23),
-          child: NavigationBar(
-            height: 70,
-            backgroundColor: scheme.surface,
-            surfaceTintColor: Colors.transparent,
-            indicatorColor: scheme.primary.withValues(alpha: .12),
-            selectedIndex: selectedIndex,
-            onDestinationSelected: onSelected,
-            destinations: [
-              for (final item in items)
-                NavigationDestination(
-                  key: item.key,
-                  icon: item.icon,
-                  selectedIcon: item.selectedIcon,
-                  label: item.label,
-                ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

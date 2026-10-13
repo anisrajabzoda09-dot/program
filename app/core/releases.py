@@ -3,6 +3,36 @@
 # Ҳар сабт: версия, сана (YYYY-MM-DD), сарлавҳаи кӯтоҳ ва рӯйхати тағйирот бо се забон.
 RELEASES = [
     {
+        "version": "2.25.0",
+        "date": "2026-10-13",
+        "highlight": True,
+        "title": {
+            "tg": "Оғози фаҳмо ва navigation-и нав",
+            "ru": "Понятный старт и новая навигация",
+            "en": "A clearer start and new navigation",
+        },
+        "items": {
+            "tg": [
+                "Истифодабарандаи нав пеш аз интихоби нақш 5 дарси кӯтоҳи ҳаракаткунанда мебинад; он ба маълумоти демо такя намекунад.",
+                "Роҳнамо пайвасткунии оила, лимити вақти воқеӣ, минтақаи 100 метра, SOS ва NIGOH AI-ро бо тасвирҳои зинда мефаҳмонад.",
+                "Дарсҳо танҳо як бор ба аккаунти нав нишон дода мешаванд ва аз «Танзимот» боз кушода мешаванд.",
+                "Панели поёни волид ва фарзанд бо тугмаҳои калонтар, ҳолати фаъоли равшан ва тарҳи минималӣ аз нав сохта шуд.",
+            ],
+            "ru": [
+                "Новый пользователь до выбора роли видит 5 коротких анимированных уроков без демо-данных.",
+                "Живые иллюстрации объясняют связь семьи, реальный учёт лимита, зону 100 м, SOS и NIGOH AI.",
+                "Уроки показываются новому аккаунту один раз и повторно открываются из настроек.",
+                "Нижняя панель родителя и ребёнка получила более крупные цели, ясное активное состояние и новый минимальный вид.",
+            ],
+            "en": [
+                "Before role selection, a new user sees five short animated lessons that use no demo data.",
+                "Live illustrations explain family pairing, accurate app-time limits, a 100 m zone, SOS and NIGOH AI.",
+                "Lessons appear once for a new account and can be replayed at any time from Settings.",
+                "Parent and child bottom navigation now has larger targets, a clear active state and a new minimal layout.",
+            ],
+        },
+    },
+    {
         "version": "2.24.0",
         "date": "2026-10-12",
         "highlight": True,

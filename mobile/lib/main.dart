@@ -13,6 +13,7 @@ import 'features/call/call_screen.dart';
 import 'features/child/child_home.dart';
 import 'features/onboarding/child_setup_screen.dart';
 import 'features/onboarding/permissions_wizard.dart';
+import 'features/onboarding/product_tour_screen.dart';
 import 'features/onboarding/role_screen.dart';
 import 'features/parent/parent_home.dart';
 import 'features/parent/ai_assistant_overlay.dart';
@@ -125,6 +126,9 @@ class _RootGateState extends State<RootGate> {
   bool profileLoaded = false;
   bool profileLoading = false;
   bool updateChecked = false;
+  String? tourIdentity;
+  bool tourDone = false;
+  bool tourLoading = false;
 
   /// Қимати wizardRole-ро барои оғози барнома, session, notification ва экрани аввал нигоҳ медорад.
   String? wizardRole;
@@ -273,6 +277,29 @@ class _RootGateState extends State<RootGate> {
     setState(() => wizardDone = true);
   }
 
+  Future<void> loadTourFlag(String identity) async {
+    tourIdentity = identity;
+    tourLoading = true;
+    var done = false;
+    try {
+      done = await ProductTourScreen.isDone(identity);
+    } catch (_) {
+      done = false;
+    }
+    if (!mounted || tourIdentity != identity) return;
+    setState(() {
+      tourDone = done;
+      tourLoading = false;
+    });
+  }
+
+  String tourKey(Session session) {
+    final id = session.user?['id']?.toString().trim();
+    if (id != null && id.isNotEmpty) return 'user-$id';
+    if (session.email.isNotEmpty) return session.email;
+    return 'this-device';
+  }
+
   /// scheduleUpdateCheck раванди лозимро оғоз ва захираҳои вобастаро фаъол мекунад.
   void scheduleUpdateCheck(Session session) {
     if (updateChecked) return;
@@ -294,6 +321,17 @@ class _RootGateState extends State<RootGate> {
     final childHere = session.isChild;
     if (childHere && !profileLoaded && !profileLoading) loadProfile();
     final role = session.signedIn ? session.role : null;
+    final needsTour = session.signedIn && role == null;
+    final identity = needsTour ? tourKey(session) : null;
+    if (identity != tourIdentity) {
+      if (identity == null) {
+        tourIdentity = null;
+        tourDone = false;
+        tourLoading = false;
+      } else {
+        loadTourFlag(identity);
+      }
+    }
     if (role != wizardRole) {
       if (role == null) {
         wizardRole = null;
@@ -308,12 +346,21 @@ class _RootGateState extends State<RootGate> {
     final Widget screen;
     if (session.loading ||
         (childHere && !profileLoaded) ||
+        (needsTour && tourLoading) ||
         (role != null && wizardLoading)) {
       state = 'loading';
       screen = const _Splash();
     } else if (!session.signedIn) {
       state = 'auth';
       screen = const AuthScreen();
+    } else if (needsTour && !tourDone) {
+      state = 'product-tour';
+      screen = ProductTourScreen(
+        identity: identity!,
+        onDone: () async {
+          if (mounted) setState(() => tourDone = true);
+        },
+      );
     } else if (session.role == null) {
       state = 'role';
       screen = const RoleScreen();

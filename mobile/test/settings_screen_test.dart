@@ -6,6 +6,7 @@ import 'package:http/testing.dart';
 import 'package:nigoh_family_parent/core/api.dart';
 import 'package:nigoh_family_parent/core/session.dart';
 import 'package:nigoh_family_parent/features/onboarding/child_setup_screen.dart';
+import 'package:nigoh_family_parent/features/onboarding/product_tour_screen.dart';
 import 'package:nigoh_family_parent/features/onboarding/role_screen.dart';
 import 'package:nigoh_family_parent/features/settings/settings_screen.dart';
 import 'package:nigoh_family_parent/features/settings/theme_mode.dart';
@@ -233,7 +234,12 @@ void main() {
     final s = session();
     await s.load();
     await tester.pumpWidget(NigohApp(session: s));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byType(ProductTourScreen), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('tour-skip')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(RoleScreen), findsOneWidget);
     // Both choices say plainly what they mean.
     expect(find.text('Телефони ман'), findsOneWidget);
@@ -259,7 +265,12 @@ void main() {
       final s = session();
       await s.load();
       await tester.pumpWidget(NigohApp(session: s));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(ProductTourScreen), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('tour-skip')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(tester.takeException(), isNull);
 
       await tester.tap(find.text('Фарзанд'));

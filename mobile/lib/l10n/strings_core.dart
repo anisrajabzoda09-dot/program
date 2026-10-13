@@ -127,10 +127,11 @@ const Map<String, List<String>> coreStrings = {
     'Не удалось войти через GitHub. Попробуйте ещё раз.',
     'GitHub sign-in failed. Please try again.',
   ],
-  'GitHub почтаи тасдиқшударо надод. Почтаи худро дар GitHub тасдиқ кунед ва аз нав кӯшиш кунед.': [
-    'GitHub не передал подтверждённую почту. Подтвердите свою почту на GitHub и попробуйте ещё раз.',
-    'GitHub did not share a verified e-mail. Verify your e-mail on GitHub and try again.',
-  ],
+  'GitHub почтаи тасдиқшударо надод. Почтаи худро дар GitHub тасдиқ кунед ва аз нав кӯшиш кунед.':
+      [
+        'GitHub не передал подтверждённую почту. Подтвердите свою почту на GitHub и попробуйте ещё раз.',
+        'GitHub did not share a verified e-mail. Verify your e-mail on GitHub and try again.',
+      ],
   'Воридшавӣ бо Apple нашуд. {details}': [
     'Не удалось войти через Apple. {details}',
     'Apple sign-in failed. {details}',
@@ -832,6 +833,107 @@ const Map<String, List<String>> coreStrings = {
     'Next step: Android permissions.',
   ],
 
+  'Шиносоӣ бо NIGOH': ['Знакомство с NIGOH', 'Meet NIGOH'],
+  'Гузаштан': ['Пропустить', 'Skip'],
+  'Қафо': ['Назад', 'Back'],
+  'Баъдӣ': ['Дальше', 'Next'],
+  'Оғоз мекунем': ['Начать', 'Get started'],
+  'Дарси зинда': ['Живой урок', 'Live lesson'],
+  'Дарсҳои кӯтоҳи ҳаракаткунанда дар бораи имкониятҳо': [
+    'Короткие анимированные уроки о возможностях',
+    'Short animated lessons about the features',
+  ],
+  'Оилаатон — дар як нигоҳ': [
+    'Вся семья — одним взглядом',
+    'Your family at a glance',
+  ],
+  'Телефони волидайнро бо телефони фарзанд пайваст кунед. Ҳолати муҳим бе кофтуков намоён мешавад.':
+      [
+        'Свяжите телефон родителя с телефоном ребёнка. Всё важное видно сразу.',
+        "Link the parent's phone to the child's phone. Important details appear without searching.",
+      ],
+  'Як аккаунт барои тамоми оила': [
+    'Один аккаунт для всей семьи',
+    'One account for the whole family',
+  ],
+  'Батарея, онлайн будан ва огоҳиҳо': [
+    'Батарея, статус в сети и оповещения',
+    'Battery, online status and alerts',
+  ],
+  'Вақти барнома аниқ ҳисоб мешавад': [
+    'Время в приложениях считается точно',
+    'App time is counted accurately',
+  ],
+  'Барои бозӣ ё шабакаи иҷтимоӣ масалан 1 соат гузоред. Танҳо вақти истифода ҳисоб мешавад.':
+      [
+        'Задайте, например, 1 час на игру или соцсеть. Считается только реальное использование.',
+        'Set, for example, one hour for a game or social app. Only active use is counted.',
+      ],
+  'Вақти пасзамина ҳисоб намешавад': [
+    'Фоновое время не считается',
+    'Background time is not counted',
+  ],
+  'Бастан ва кушодан аз масофа': [
+    'Блокировка и разблокировка на расстоянии',
+    'Block and unblock remotely',
+  ],
+  'Минтақаи амн ва огоҳии фаврӣ': [
+    'Безопасные зоны и мгновенные оповещения',
+    'Safe zones and instant alerts',
+  ],
+  'Дар атрофи хона ё мактаб масалан 100 метр минтақа созед. Ҳангоми расидан ё баромадан паём мегиред.':
+      [
+        'Создайте, например, зону 100 метров вокруг дома или школы. При входе или выходе придёт сообщение.',
+        'Create a zone, for example 100 metres around home or school. You get a message on arrival or departure.',
+      ],
+  'Харитаи зинда ва таърихи макон': [
+    'Живая карта и история мест',
+    'Live map and location history',
+  ],
+  'Қоидаи барномаҳо дар ҳамон минтақа': [
+    'Правила приложений в этой зоне',
+    'App rules inside that zone',
+  ],
+  'Дар лаҳзаи муҳим канори ҳам': [
+    'Рядом в важный момент',
+    'Together when it matters',
+  ],
+  'SOS, занг ва чат мустақиман ба оила мерасанд. Огоҳии SOS ҳатто дар экрани қулфшуда намоён мешавад.':
+      [
+        'SOS, звонок и чат идут семье напрямую. SOS виден даже на заблокированном экране.',
+        'SOS, calls and chat reach the family directly. SOS appears even on the lock screen.',
+      ],
+  'Паём, занг ва SOS дар як ҷо': [
+    'Сообщения, звонки и SOS в одном месте',
+    'Messages, calls and SOS in one place',
+  ],
+  'Макони фарзанд бо огоҳии фаврӣ': [
+    'Местоположение ребёнка вместе с срочным сигналом',
+    "The child's location with the urgent alert",
+  ],
+  'NIGOH AI — ёрдамчии шумо': [
+    'NIGOH AI — ваш помощник',
+    'NIGOH AI — your assistant',
+  ],
+  'Кулӯлаи AI-ро ба ҳар ҷои экран баред. Бипурсед, таҳлил гиред ё қоидаи барномаро бо тасдиқ тағйир диҳед.':
+      [
+        'Перемещайте AI-шарик в любую точку экрана. Задавайте вопросы, получайте анализ или меняйте правила после подтверждения.',
+        'Move the AI bubble anywhere on screen. Ask questions, get analysis or change an app rule after confirmation.',
+      ],
+  'Саволу ҷавоб дар бораи ҳолати оила': [
+    'Вопросы и ответы о состоянии семьи',
+    'Questions and answers about family status',
+  ],
+  'Ҳеҷ фармон бе тасдиқ иҷро намешавад': [
+    'Ни одна команда не выполняется без подтверждения',
+    'No command runs without confirmation',
+  ],
+  'Бозиро 1 соат кун': ['Ограничь игру до 1 часа', 'Limit the game to 1 hour'],
+  'Қоида омода аст • тасдиқ?': [
+    'Правило готово • подтвердить?',
+    'Rule ready • confirm?',
+  ],
+
   // Permissions wizard.
   'Иҷозатҳоро як бор медиҳед — баъд NIGOH дар пасзамина кор мекунад. Ҳар қадамро гузаронидан мумкин аст.':
       [
@@ -854,12 +956,33 @@ const Map<String, List<String>> coreStrings = {
     '{value} {unit} of {max}',
   ],
   '{value} аз {max}': ['{value} из {max}', '{value} of {max}'],
-  'Агар Android иҷозатро бо маҳдудият баста бошад': ['Если Android ограничил это разрешение', 'If Android has restricted this permission'],
-  'Тугмаи «App info»-ро пахш кунед — саҳифаи маълумоти NIGOH Family кушода мешавад.': ['Нажмите «О приложении» — откроется страница NIGOH Family.', 'Tap "App info" — the NIGOH Family page opens.'],
-  'Дар кунҷи рости боло ⋮ (се нуқта)-ро пахш кунед.': ['Нажмите ⋮ (три точки) в правом верхнем углу.', 'Tap the three dots in the top-right corner.'],
-  '«Разрешить ограниченные настройки»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.': ['Выберите «Разрешить ограниченные настройки» и подтвердите кодом телефона.', 'Choose "Allow restricted settings" and confirm with your phone lock.'],
-  'Ба NIGOH баргардед ва «Иҷозат додан»-ро аз нав пахш кунед.': ['Вернитесь в NIGOH и снова нажмите «Разрешить».', 'Come back to NIGOH and tap "Allow" again.'],
-  'Агар дар менюи ⋮ ин банд набошад, аввал як бор «Иҷозат додан»-ро пахш кунед, баъд ин ҷо баргардед.': ['Если в меню нет этого пункта, сначала один раз нажмите «Разрешить», потом вернитесь сюда.', 'If the menu lacks this item, tap "Allow" once first, then come back here.'],
+  'Агар Android иҷозатро бо маҳдудият баста бошад': [
+    'Если Android ограничил это разрешение',
+    'If Android has restricted this permission',
+  ],
+  'Тугмаи «App info»-ро пахш кунед — саҳифаи маълумоти NIGOH Family кушода мешавад.':
+      [
+        'Нажмите «О приложении» — откроется страница NIGOH Family.',
+        'Tap "App info" — the NIGOH Family page opens.',
+      ],
+  'Дар кунҷи рости боло ⋮ (се нуқта)-ро пахш кунед.': [
+    'Нажмите ⋮ (три точки) в правом верхнем углу.',
+    'Tap the three dots in the top-right corner.',
+  ],
+  '«Разрешить ограниченные настройки»-ро интихоб кунед ва бо рамзи телефон тасдиқ намоед.':
+      [
+        'Выберите «Разрешить ограниченные настройки» и подтвердите кодом телефона.',
+        'Choose "Allow restricted settings" and confirm with your phone lock.',
+      ],
+  'Ба NIGOH баргардед ва «Иҷозат додан»-ро аз нав пахш кунед.': [
+    'Вернитесь в NIGOH и снова нажмите «Разрешить».',
+    'Come back to NIGOH and tap "Allow" again.',
+  ],
+  'Агар дар менюи ⋮ ин банд набошад, аввал як бор «Иҷозат додан»-ро пахш кунед, баъд ин ҷо баргардед.':
+      [
+        'Если в меню нет этого пункта, сначала один раз нажмите «Разрешить», потом вернитесь сюда.',
+        'If the menu lacks this item, tap "Allow" once first, then come back here.',
+      ],
   // Ҳимояи дуқабата (OTP) ва рамз ба почта.
   '1. Ин рамзи QR-ро дар барномаи Authenticator скан кунед': [
     '1. Отсканируйте этот QR-код в приложении Authenticator',

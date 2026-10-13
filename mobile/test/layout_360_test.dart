@@ -5,6 +5,7 @@ import 'package:nigoh_family_parent/features/parent/apps_screen.dart';
 import 'package:nigoh_family_parent/features/parent/family_controller.dart';
 import 'package:nigoh_family_parent/features/parent/parent_home.dart';
 import 'package:nigoh_family_parent/ui/avatar.dart';
+import 'package:nigoh_family_parent/ui/nigoh_bottom_bar.dart';
 import 'package:nigoh_family_parent/ui/theme.dart';
 
 import 'parent_features_test.dart' show FakeServer, richSnapshot;
@@ -94,7 +95,7 @@ void main() {
     // Bottom navigation: every label fits in its slot.
     for (final label in ['Оила', 'Барномаҳо', 'Харита', 'Чат', 'Танзимот']) {
       final text = find.descendant(
-        of: find.byType(NavigationBar),
+        of: find.byType(NigohBottomBar),
         matching: find.text(label),
       );
       expect(text, findsWidgets);

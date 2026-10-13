@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.25.0 — 2026-10-13
+- New accounts now see five short animated lessons before role selection, explaining family pairing, accurate foreground-only limits, 100 m place rules, SOS and NIGOH AI without demo data.
+- The tour is stored per account, appears only once, supports skip/back/progress, and can be replayed from Settings.
+- Parent and child bottom navigation now share a new minimalist component with larger tap targets, clearer active states and improved compact-screen spacing.
+- Added focused onboarding and 360 px navigation tests.
+
 ## 2.24.0 — 2026-10-12
 - A small NIGOH AI bubble now stays above every parent tab, can be dragged anywhere within the safe screen area, remembers its position and expands into a full chat.
 - Parents can ask product questions or request app blocks, unblocks, limits and schedules in plain language. AI actions remain previews until the parent explicitly confirms them.

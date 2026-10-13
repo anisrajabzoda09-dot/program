@@ -5,6 +5,7 @@ import 'package:nigoh_family_parent/core/models.dart';
 import 'package:nigoh_family_parent/core/session.dart';
 import 'package:nigoh_family_parent/features/parent/family_controller.dart';
 import 'package:nigoh_family_parent/features/parent/parent_home.dart';
+import 'package:nigoh_family_parent/ui/nigoh_bottom_bar.dart';
 
 import 'family_controller_test.dart' show snapshotJson;
 import 'parent_features_test.dart' show FakeServer;
@@ -146,13 +147,13 @@ void main() {
     expect(homeTarget.value, isNull);
     expect(c.selectedChildId, 2);
     expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      tester.widget<NigohBottomBar>(find.byType(NigohBottomBar)).selectedIndex,
       2,
     );
     homeTarget.value = const HomeTarget('overview');
     await tester.pump();
     expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      tester.widget<NigohBottomBar>(find.byType(NigohBottomBar)).selectedIndex,
       0,
     );
     await tester.pumpWidget(const SizedBox());

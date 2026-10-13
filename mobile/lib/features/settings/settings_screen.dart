@@ -9,6 +9,7 @@ import '../../core/notify_bridge.dart';
 import '../../core/session.dart';
 import '../../core/user_journey_logic.dart';
 import '../onboarding/permissions_wizard.dart';
+import '../onboarding/product_tour_screen.dart';
 import '../../ui/language_picker.dart';
 import '../../ui/nigoh_design.dart';
 import '../../ui/day_night_switch.dart';
@@ -449,6 +450,23 @@ class _SettingsScreenState extends State<SettingsScreen>
             index: i++,
             child: _Group(
               children: [
+                _Tile(
+                  key: const ValueKey('settings-product-tour'),
+                  icon: Icons.play_circle_outline_rounded,
+                  color: NigohDesign.violet,
+                  title: tr('Шиносоӣ бо NIGOH'),
+                  subtitle: tr(
+                    'Дарсҳои кӯтоҳи ҳаракаткунанда дар бораи имкониятҳо',
+                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => ProductTourScreen.open(
+                    context,
+                    identity:
+                        session.user?['id']?.toString() ??
+                        (session.email.isEmpty ? 'this-device' : session.email),
+                  ),
+                ),
+                const Divider(height: 1),
                 _Tile(
                   icon: Icons.info_outline_rounded,
                   color: NigohDesign.sky,

@@ -8,8 +8,8 @@
 
 Барномаи мобилӣ (Flutter + Kotlin) · Сервер (FastAPI) · Сайт бо се забон · Панели админ
 
-[![Version](https://img.shields.io/badge/version-2.24.0-2563eb)](CHANGELOG.md)
-[![Releases](https://img.shields.io/badge/releases-29-14b8a6)](#-роҳи-лоиҳа-29-версия-дар-22-рӯз)
+[![Version](https://img.shields.io/badge/version-2.25.0-2563eb)](CHANGELOG.md)
+[![Releases](https://img.shields.io/badge/releases-30-14b8a6)](#-роҳи-лоиҳа-30-версия-дар-22-рӯз)
 [![Commits](https://img.shields.io/badge/commits-700%2B-7c3aed)](https://github.com/anisrajabzoda09-dot/program/commits/main)
 [![Tests](https://img.shields.io/badge/tests-374%20Flutter%20%7C%201000%2B%20server%20checks-16a34a)](#-санҷишҳо)
 [![Live](https://img.shields.io/badge/live-nigohfamily.qobus.tj-0ea5e9)](https://nigohfamily.qobus.tj)
@@ -33,7 +33,7 @@ NIGOH Family ба волидайн нишон медиҳад, ки фарзан�
 | | |
 |---|---|
 | **700+ коммит** | дар 15 рӯз (21.09 – 05.10.2026), 213 коммит танҳо дар як рӯз |
-| **29 версияи нашршуда** | аз v1.0.0 то v2.24.0, ҳар яке бо APK-и имзошуда |
+| **30 версияи нашршуда** | аз v1.0.0 то v2.25.0, ҳар яке бо APK-и имзошуда |
 | **~25 400 сатр Dart** | барномаи Flutter (100+ файл) |
 | **~3 900 сатр Kotlin** | қисми native: бастани барномаҳо, огоҳиномаҳо, VPN-и филтри сайтҳо, навсозӣ |
 | **~7 500 сатр Python** | сервер: 160 роут дар 11 router |
@@ -124,10 +124,11 @@ flowchart LR
 
 Ҳар файли сервер, барнома ва сайт дар аввал шарҳи тоҷикӣ дорад, ки барои чӣ аст, ва ҳар функсия — шарҳи кӯтоҳ.
 
-## 🛣 Роҳи лоиҳа: 29 версия дар 22 рӯз
+## 🛣 Роҳи лоиҳа: 30 версия дар 22 рӯз
 
 | Версия | Сана | Чӣ илова шуд |
 |---|---|---|
+| **2.25.0** | 13.10 | 5 дарси ҳаракаткунанда барои корбари нав ва navigation-и поёни тамоман нав |
 | **1.0.0** | 22.09 | APK-и аввал, QR барои боргирӣ |
 | **2.0 – 2.2** | 23.09 | Логотип, саҳифаи асосӣ, навсозии OTA |
 | **2.4 – 2.6** | 24.09 | Домени HTTPS `nigohfamily.qobus.tj`, QR-и динамикӣ, пайдо кардани APK аз чанд версия |
@@ -261,7 +262,7 @@ NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
 
 **NIGOH Family** is a complete, self-hosted parental-control system for Android, built from scratch: a Flutter + Kotlin app (one APK, parent or child role chosen after sign-in), a FastAPI server with 131 routes, a trilingual website (Tajik / Russian / English) and an admin panel. It runs in production at [nigohfamily.qobus.tj](https://nigohfamily.qobus.tj) with no Firebase or third-party push service.
 
-- **Scale:** 800+ commits and 29 signed releases (v1.0.0 → v2.24.0); ~25k lines of Dart, ~3.9k Kotlin, ~7.5k Python, ~18k HTML/CSS/JS.
+- **Scale:** 800+ commits and 30 signed releases (v1.0.0 → v2.25.0); ~25k lines of Dart, ~3.9k Kotlin, ~7.5k Python, ~18k HTML/CSS/JS.
 - **Parents:** per-app limits and blocking, categories, school/bedtime/focus schedules, live map with 24 h history and safe places, weekly reports, extra-time requests, SOS alarm, battery/offline alerts.
 - **Children:** "My rules", extra-time requests, SOS, quick messages; uninstalling needs the parent PIN.
 - **Both:** chat with read receipts, WebRTC voice calls, one-tap signature-checked self-update.
