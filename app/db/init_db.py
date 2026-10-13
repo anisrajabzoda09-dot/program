@@ -17,7 +17,7 @@ from app.models.app_bundle import AppBundle
 from app.models.contact import ContactMessage  # noqa: F401  (create_all)
 from app.models.email_code import EmailCode  # noqa: F401  (create_all)
 from app.models.mobile_session import MobileSession  # noqa: F401  (create_all)
-from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace  # noqa: F401  (create_all)
+from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace, SafeRoute  # noqa: F401  (create_all)
 from app.crud.crud_bundle import ensure_initial_bundle
 from app.core.security import hash_password
 

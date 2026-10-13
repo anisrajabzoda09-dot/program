@@ -62,6 +62,31 @@ class SafePlace(Base):
         }
 
 
+class SafeRoute(Base):
+    """Масири бехатари байни ду ҷойи воқеии фарзандро нигоҳ медорад."""
+
+    __tablename__ = "safe_routes"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    child_id = Column(Integer, ForeignKey("children.id"), nullable=False, index=True)
+    start_place_id = Column(Integer, ForeignKey("safe_places.id"), nullable=False, index=True)
+    end_place_id = Column(Integer, ForeignKey("safe_places.id"), nullable=False, index=True)
+    name = Column(String(80), nullable=False)
+    start_time = Column(String(5), nullable=False, default="07:30")
+    arrive_by = Column(String(5), nullable=False, default="08:00")
+    weekdays_json = Column(String, nullable=False, default="[1,2,3,4,5]")
+    corridor_meters = Column(Integer, nullable=False, default=300)
+    enabled = Column(Integer, nullable=False, default=1)
+    trip_date = Column(String(10), nullable=True)
+    arrival_date = Column(String(10), nullable=True)
+    late_date = Column(String(10), nullable=True)
+    checkin_status = Column(String(16), nullable=True)
+    outside_count = Column(Integer, nullable=False, default=0)
+    deviation_active = Column(Integer, nullable=False, default=0)
+    last_deviation_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+
 class FamilyEvent(Base):
     """Сабти `FamilyEvent`-ро дар model-и SQLAlchemy муаррифӣ мекунад."""
 

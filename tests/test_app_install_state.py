@@ -138,10 +138,10 @@ class InstalledAppSnapshotTests(unittest.TestCase):
         update = self.client.get(
             "/api/mobile/version?current_version_code=49"
         ).json()
-        self.assertEqual(update["version"], "2.25.0")
-        self.assertEqual(update["version_code"], 53)
+        self.assertEqual(update["version"], "2.26.0")
+        self.assertEqual(update["version_code"], 54)
         self.assertTrue(update["update_available"])
-        self.assertTrue(update["release_notes"].startswith("v2.25.0:"))
+        self.assertTrue(update["release_notes"].startswith("v2.26.0:"))
 
 
 if __name__ == "__main__":

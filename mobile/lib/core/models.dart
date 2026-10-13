@@ -187,6 +187,7 @@ class FamilyChild {
     this.protection = const {},
     this.protectionReportedAt,
     this.places = const [],
+    this.safeRoutes = const [],
     this.currentPlaceId,
     this.childAvatar,
     this.parentAvatar,
@@ -209,6 +210,9 @@ class FamilyChild {
 
   /// Ҷойҳои бехатар бо қоидаҳо (дар snapshot меоянд; телефон онҳоро бе интернет иҷро мекунад).
   final List<SafePlace> places;
+
+  /// Масирҳои бехатари воқеӣ; аз ҷойҳои бехатар сохта мешаванд.
+  final List<SafeRoute> safeRoutes;
 
   /// Ҷойе, ки сервер охирин бор фарзандро дар он дид.
   final int? currentPlaceId;
@@ -280,6 +284,10 @@ class FamilyChild {
     places: (j['places'] as List? ?? const [])
         .whereType<Map>()
         .map((p) => SafePlace.fromJson(Map<String, dynamic>.from(p)))
+        .toList(),
+    safeRoutes: (j['safe_routes'] as List? ?? const [])
+        .whereType<Map>()
+        .map((route) => SafeRoute.fromJson(Map<String, dynamic>.from(route)))
         .toList(),
     currentPlaceId: (j['current_place_id'] as num?)?.toInt(),
     childAvatar: j['child_avatar']?.toString(),
@@ -512,6 +520,96 @@ class SafePlace {
     notify: notify ?? this.notify,
     alertChild: alertChild ?? this.alertChild,
     vibrateChild: vibrateChild ?? this.vibrateChild,
+  );
+}
+
+/// Масири бехатар байни ду ҷойи сабтшуда.
+class SafeRoute {
+  const SafeRoute({
+    required this.id,
+    required this.name,
+    required this.startPlaceId,
+    required this.endPlaceId,
+    required this.startName,
+    required this.endName,
+    required this.startLatitude,
+    required this.startLongitude,
+    required this.endLatitude,
+    required this.endLongitude,
+    required this.startTime,
+    required this.arriveBy,
+    required this.weekdays,
+    required this.corridorMeters,
+    required this.enabled,
+    this.todayStatus = 'idle',
+  });
+
+  final int id;
+  final String name;
+  final int startPlaceId;
+  final int endPlaceId;
+  final String startName;
+  final String endName;
+  final double startLatitude;
+  final double startLongitude;
+  final double endLatitude;
+  final double endLongitude;
+  final String startTime;
+  final String arriveBy;
+  final List<int> weekdays;
+  final int corridorMeters;
+  final bool enabled;
+  final String todayStatus;
+
+  bool get needsCheckIn => todayStatus == 'pending' || todayStatus == 'late';
+
+  factory SafeRoute.fromJson(Map<String, dynamic> json) {
+    final start = json['start_place'] is Map
+        ? Map<String, dynamic>.from(json['start_place'] as Map)
+        : const <String, dynamic>{};
+    final end = json['end_place'] is Map
+        ? Map<String, dynamic>.from(json['end_place'] as Map)
+        : const <String, dynamic>{};
+    return SafeRoute(
+      id: (json['id'] as num).toInt(),
+      name: json['name']?.toString() ?? '',
+      startPlaceId: (json['start_place_id'] as num).toInt(),
+      endPlaceId: (json['end_place_id'] as num).toInt(),
+      startName: start['name']?.toString() ?? '',
+      endName: end['name']?.toString() ?? '',
+      startLatitude: (start['latitude'] as num).toDouble(),
+      startLongitude: (start['longitude'] as num).toDouble(),
+      endLatitude: (end['latitude'] as num).toDouble(),
+      endLongitude: (end['longitude'] as num).toDouble(),
+      startTime: json['start_time']?.toString() ?? '07:30',
+      arriveBy: json['arrive_by']?.toString() ?? '08:00',
+      weekdays: (json['weekdays'] as List? ?? const [])
+          .whereType<num>()
+          .map((day) => day.toInt())
+          .toList(),
+      corridorMeters: (json['corridor_meters'] as num?)?.toInt() ?? 300,
+      enabled: json['enabled'] == true || json['enabled'] == 1,
+      todayStatus: json['today_status']?.toString() ?? 'idle',
+    );
+  }
+
+  SafeRoute copyWith({bool? enabled}) => SafeRoute(
+    id: id,
+    name: name,
+    startPlaceId: startPlaceId,
+    endPlaceId: endPlaceId,
+    startName: startName,
+    endName: endName,
+    startLatitude: startLatitude,
+    startLongitude: startLongitude,
+    endLatitude: endLatitude,
+    endLongitude: endLongitude,
+    startTime: startTime,
+    arriveBy: arriveBy,
+    weekdays: weekdays,
+    corridorMeters: corridorMeters,
+    enabled: enabled ?? this.enabled,
+    todayStatus: todayStatus,
   );
 }
 

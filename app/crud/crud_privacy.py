@@ -9,7 +9,7 @@ from app.models.analytics import SiteAnalytics
 from app.models.app_usage import AppUsageDaily
 from app.models.chat import ChatMessage
 from app.models.extension_request import AppExtensionRequest
-from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace
+from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace, SafeRoute
 
 # Таърихи макон ҳамин қадар рӯз нигоҳ дошта мешавад; волидайн дар барнома 24 соатро мебинанд.
 LOCATION_RETENTION_DAYS = 30
@@ -42,7 +42,7 @@ def purge_child_history(db: Session, child_id: int) -> None:
     call_ids = [row.id for row in db.query(CallSession.id).filter(CallSession.child_id == child_id)]
     if call_ids:
         db.query(CallSignal).filter(CallSignal.call_id.in_(call_ids)).delete(synchronize_session=False)
-    for model in (CallSession, LocationPoint, ChatMessage, SafePlace, FamilyEvent, AppExtensionRequest):
+    for model in (CallSession, LocationPoint, ChatMessage, SafeRoute, SafePlace, FamilyEvent, AppExtensionRequest):
         db.query(model).filter(model.child_id == child_id).delete(synchronize_session=False)
 
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.26.0 — 2026-10-13
+- Added Safe Routes between real family places, with configurable weekdays, departure/arrival times and a 100–1000 m safety corridor; no demo routes are created.
+- Route deviation requires two accurate GPS fixes to avoid false alerts. Parents are also notified when the child returns to the route or reaches the destination.
+- Late arrival sends a parent alert and a child check-in card with “Everything is fine”, “Call me” and SOS actions.
+- School-place app rules continue to activate locally and offline on arrival. Precise coordinates never go to AI, and routes are erased with the child's private data.
+
 ## 2.25.0 — 2026-10-13
 - New accounts now see five short animated lessons before role selection, explaining family pairing, accurate foreground-only limits, 100 m place rules, SOS and NIGOH AI without demo data.
 - The tour is stored per account, appears only once, supports skip/back/progress, and can be replayed from Settings.

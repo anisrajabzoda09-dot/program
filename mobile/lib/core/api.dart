@@ -603,6 +603,59 @@ class NigohApi {
   Future<void> deleteSafePlace(int childId, int placeId) =>
       _send('DELETE', '/api/mobile/v2/children/$childId/places/$placeId');
 
+  Future<List<Map<String, dynamic>>> safeRoutes(int childId) async => _list(
+    (await _send(
+      'GET',
+      '/api/mobile/v2/children/$childId/safe-routes',
+    ))['routes'],
+  );
+
+  Future<Map<String, dynamic>> addSafeRoute(
+    int childId, {
+    required String name,
+    required int startPlaceId,
+    required int endPlaceId,
+    required String startTime,
+    required String arriveBy,
+    required List<int> weekdays,
+    required int corridorMeters,
+  }) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/safe-routes',
+    body: {
+      'name': name,
+      'start_place_id': startPlaceId,
+      'end_place_id': endPlaceId,
+      'start_time': startTime,
+      'arrive_by': arriveBy,
+      'weekdays': weekdays,
+      'corridor_meters': corridorMeters,
+    },
+  );
+
+  Future<Map<String, dynamic>> updateSafeRoute(
+    int childId,
+    int routeId, {
+    bool? enabled,
+  }) => _send(
+    'PUT',
+    '/api/mobile/v2/children/$childId/safe-routes/$routeId',
+    body: {'enabled': ?enabled},
+  );
+
+  Future<void> deleteSafeRoute(int childId, int routeId) =>
+      _send('DELETE', '/api/mobile/v2/children/$childId/safe-routes/$routeId');
+
+  Future<void> answerSafeRouteCheckIn(
+    int childId,
+    int routeId,
+    String status,
+  ) => _send(
+    'POST',
+    '/api/mobile/v2/children/$childId/safe-routes/$routeId/checkin',
+    body: {'status': status},
+  );
+
   /// Ҳолати воқеии муҳофизати телефони фарзандро ба сервер мефиристад.
   Future<void> reportProtection(int childId, Map<String, dynamic> protection) =>
       _send(

@@ -54,10 +54,10 @@ from app.models.app_usage import AppUsageDaily
 from app.models.extension_request import AppExtensionRequest
 from app.models.app_bundle import AppBundle
 from app.models.chat import ChatMessage
-from app.models.family_extras import LocationPoint, SafePlace
+from app.models.family_extras import LocationPoint, SafePlace, SafeRoute
 from app.crud.crud_privacy import prune_location_history, purge_child_history
 from app.core import events as family_events
-from app.core import pairing, place_rules, web_filter
+from app.core import pairing, place_rules, safe_routes, web_filter
 from app.models.user import User
 from app.core.firebase_mobile import find_user_by_firebase_uid
 from app.core.mobile_auth import require_mobile_user
@@ -190,6 +190,9 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
     ).order_by(AppRule.app_name.asc()).all()
     child_user = db.query(User).filter(User.id == child.user_id).first() if child.user_id else None
     parent_user = db.query(User).filter(User.id == child.parent_id).first() if child.parent_id else None
+    places = db.query(SafePlace).filter(SafePlace.child_id == child.id).order_by(SafePlace.id.asc()).all()
+    places_by_id = {place.id: place for place in places}
+    routes = db.query(SafeRoute).filter(SafeRoute.child_id == child.id).order_by(SafeRoute.id.asc()).all()
     return {
         **child.to_dict(),
         "firebase_uid": child_user.firebase_uid if child_user else None,
@@ -215,7 +218,8 @@ def _mobile_child_payload(db: Session, child: Child) -> dict:
         "protection": _json_or_none(child.protection_json) or {},
         "protection_reported_at": child.protection_reported_at.isoformat() if child.protection_reported_at else None,
         # Ҷойҳо бо қоидаҳо: телефони фарзанд онҳоро бе интернет ҳам иҷро мекунад.
-        "places": [p.to_dict() for p in db.query(SafePlace).filter(SafePlace.child_id == child.id).order_by(SafePlace.id.asc())],
+        "places": [place.to_dict() for place in places],
+        "safe_routes": [item for route in routes if (item := safe_routes.route_payload(route, places_by_id))],
         "current_place_id": child.current_place_id,
         "battery_level": child.battery_level if child.location_updated_at else None,
         "unread_from_child": _unread(db, child.id, "child"),
@@ -705,6 +709,10 @@ def update_mobile_location_v2(
     # Ҷойи ҳозира ва огоҳии «расид / баромад» (агар волидайн онро фаъол карда бошанд).
     places = db.query(SafePlace).filter(SafePlace.child_id == child.id).all()
     place_rules.on_location(db, child, places, payload.latitude, payload.longitude, payload.accuracy)
+    routes = db.query(SafeRoute).filter(SafeRoute.child_id == child.id, SafeRoute.enabled == 1).all()
+    safe_routes.on_location(
+        db, child, routes, places, payload.latitude, payload.longitude, payload.accuracy,
+    )
     db.commit()
     return {"status": "success", "location": _mobile_child_payload(db, child)["location"]}
 

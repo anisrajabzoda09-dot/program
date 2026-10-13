@@ -19,7 +19,8 @@ from app.models.app_usage import AppUsageDaily
 from app.models.chat import ChatMessage
 from app.models.child import Child
 from app.models.extension_request import AppExtensionRequest
-from app.models.family_extras import LocationPoint, SafePlace
+from app.models.family_extras import LocationPoint, SafePlace, SafeRoute
+from app.core import safe_routes
 
 router = APIRouter(prefix="/api/mobile/v2/children/{child_id}", tags=["Mobile family"])
 
@@ -753,11 +754,183 @@ def delete_place(child_id: int, place_id: int, request: Request, db: Session = D
     user = require_mobile_user(request, db)
     _parent_only(user)
     child = _child(db, user, child_id)
+    db.query(SafeRoute).filter(
+        SafeRoute.child_id == child.id,
+        (SafeRoute.start_place_id == place_id) | (SafeRoute.end_place_id == place_id),
+    ).delete(synchronize_session=False)
     deleted = db.query(SafePlace).filter(SafePlace.id == place_id, SafePlace.child_id == child.id).delete()
     db.commit()
     if not deleted:
         raise HTTPException(status_code=404, detail="Ҷой ёфт нашуд")
     return {"status": "success"}
+
+
+# ---------- Safe routes ----------
+
+class SafeRouteCreate(BaseModel):
+    """Масири нав байни ду ҷойи бехатар."""
+
+    name: str = Field(..., min_length=1, max_length=80)
+    start_place_id: int = Field(..., ge=1)
+    end_place_id: int = Field(..., ge=1)
+    start_time: str = Field(default="07:30", pattern=_TIME)
+    arrive_by: str = Field(default="08:00", pattern=_TIME)
+    weekdays: list[int] = Field(default_factory=lambda: [1, 2, 3, 4, 5], min_length=1, max_length=7)
+    corridor_meters: int = Field(default=300, ge=100, le=2000)
+    enabled: bool = True
+
+    @model_validator(mode="after")
+    def valid_route(self):
+        if self.start_place_id == self.end_place_id:
+            raise ValueError("start and end places must differ")
+        if any(day < 1 or day > 7 for day in self.weekdays):
+            raise ValueError("weekday must be 1..7")
+        self.weekdays = sorted(set(self.weekdays))
+        if self.arrive_by <= self.start_time:
+            raise ValueError("arrive_by must be after start_time")
+        return self
+
+
+class SafeRouteUpdate(BaseModel):
+    """Тағйири ихтиёрии масир."""
+
+    name: Optional[str] = Field(default=None, min_length=1, max_length=80)
+    start_time: Optional[str] = Field(default=None, pattern=_TIME)
+    arrive_by: Optional[str] = Field(default=None, pattern=_TIME)
+    weekdays: Optional[list[int]] = Field(default=None, min_length=1, max_length=7)
+    corridor_meters: Optional[int] = Field(default=None, ge=100, le=2000)
+    enabled: Optional[bool] = None
+
+    @model_validator(mode="after")
+    def valid_days(self):
+        if self.weekdays is not None:
+            if any(day < 1 or day > 7 for day in self.weekdays):
+                raise ValueError("weekday must be 1..7")
+            self.weekdays = sorted(set(self.weekdays))
+        return self
+
+
+class SafeRouteCheckIn(BaseModel):
+    status: Literal["ok", "call", "sos"]
+
+
+def _route_context(db: Session, child: Child):
+    places = db.query(SafePlace).filter(SafePlace.child_id == child.id).all()
+    return places, {place.id: place for place in places}
+
+
+@router.get("/safe-routes")
+def list_safe_routes(child_id: int, request: Request, db: Session = Depends(get_db)):
+    """Танҳо масирҳои ин оиларо бармегардонад."""
+
+    user = require_mobile_user(request, db)
+    child = _child(db, user, child_id)
+    places, by_id = _route_context(db, child)
+    rows = db.query(SafeRoute).filter(SafeRoute.child_id == child.id).order_by(SafeRoute.id.asc()).all()
+    if rows and safe_routes.check_overdue(db, child, rows, places):
+        db.commit()
+    return {"status": "success", "routes": [item for row in rows if (item := safe_routes.route_payload(row, by_id))]}
+
+
+@router.post("/safe-routes")
+def add_safe_route(child_id: int, payload: SafeRouteCreate, request: Request, db: Session = Depends(get_db)):
+    """Масири бехатарро бе ҳеҷ маълумоти demo месозад."""
+
+    user = require_mobile_user(request, db)
+    _parent_only(user)
+    child = _child(db, user, child_id)
+    if db.query(func.count(SafeRoute.id)).filter(SafeRoute.child_id == child.id).scalar() >= 6:
+        raise HTTPException(status_code=400, detail="Ҳадди аксар 6 масир")
+    _, by_id = _route_context(db, child)
+    if payload.start_place_id not in by_id or payload.end_place_id not in by_id:
+        raise HTTPException(status_code=400, detail="Ҷойи оғоз ё манзил ба ин фарзанд тааллуқ надорад")
+    row = SafeRoute(
+        child_id=child.id,
+        name=payload.name.strip(),
+        start_place_id=payload.start_place_id,
+        end_place_id=payload.end_place_id,
+        start_time=payload.start_time,
+        arrive_by=payload.arrive_by,
+        weekdays_json=json.dumps(payload.weekdays),
+        corridor_meters=payload.corridor_meters,
+        enabled=1 if payload.enabled else 0,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {"status": "success", "route": safe_routes.route_payload(row, by_id)}
+
+
+@router.put("/safe-routes/{route_id}")
+def update_safe_route(child_id: int, route_id: int, payload: SafeRouteUpdate, request: Request, db: Session = Depends(get_db)):
+    """Вақт, рӯз, паҳнои роҳ ё ҳолати масирро иваз мекунад."""
+
+    user = require_mobile_user(request, db)
+    _parent_only(user)
+    child = _child(db, user, child_id)
+    row = db.query(SafeRoute).filter(SafeRoute.id == route_id, SafeRoute.child_id == child.id).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Масир ёфт нашуд")
+    start_time = payload.start_time or row.start_time
+    arrive_by = payload.arrive_by or row.arrive_by
+    if arrive_by <= start_time:
+        raise HTTPException(status_code=422, detail="Вақти расидан бояд аз вақти рафтан дертар бошад")
+    if payload.name is not None:
+        row.name = payload.name.strip()
+    row.start_time, row.arrive_by = start_time, arrive_by
+    if payload.weekdays is not None:
+        row.weekdays_json = json.dumps(payload.weekdays)
+    if payload.corridor_meters is not None:
+        row.corridor_meters = payload.corridor_meters
+    if payload.enabled is not None:
+        row.enabled = 1 if payload.enabled else 0
+    db.commit()
+    db.refresh(row)
+    _, by_id = _route_context(db, child)
+    return {"status": "success", "route": safe_routes.route_payload(row, by_id)}
+
+
+@router.delete("/safe-routes/{route_id}")
+def delete_safe_route(child_id: int, route_id: int, request: Request, db: Session = Depends(get_db)):
+    user = require_mobile_user(request, db)
+    _parent_only(user)
+    child = _child(db, user, child_id)
+    deleted = db.query(SafeRoute).filter(SafeRoute.id == route_id, SafeRoute.child_id == child.id).delete()
+    db.commit()
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Масир ёфт нашуд")
+    return {"status": "success"}
+
+
+@router.post("/safe-routes/{route_id}/checkin")
+def safe_route_checkin(child_id: int, route_id: int, payload: SafeRouteCheckIn, request: Request, db: Session = Depends(get_db)):
+    """Ҷавоби фарзандро ба огоҳии дермонӣ ба волид мерасонад."""
+
+    user = require_mobile_user(request, db)
+    _child_only(user)
+    child = _child(db, user, child_id)
+    row = db.query(SafeRoute).filter(SafeRoute.id == route_id, SafeRoute.child_id == child.id).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Масир ёфт нашуд")
+    if safe_routes.today_status(row) not in ("pending", "late"):
+        raise HTTPException(status_code=409, detail="Ин савол дигар фаъол нест")
+    row.checkin_status = payload.status
+    titles = {
+        "ok": f"{child.name}: ҳамааш хуб аст",
+        "call": f"{child.name} занг мепурсад",
+        "sos": f"SOS: {child.name} ба кӯмак ниёз дорад",
+    }
+    bodies = {
+        "ok": "Фарзанд ба саволи масир ҷавоб дод.",
+        "call": "Лутфан ҳозир занг занед.",
+        "sos": "Ҳолати фарзандро фавран санҷед.",
+    }
+    family_events.emit(
+        db, child, "parent", f"safe_route_{payload.status}", titles[payload.status], bodies[payload.status],
+        {"route_id": row.id, "route": row.name},
+    )
+    db.commit()
+    return {"status": "success", "checkin_status": row.checkin_status}
 
 
 # ---------- Read receipts ----------

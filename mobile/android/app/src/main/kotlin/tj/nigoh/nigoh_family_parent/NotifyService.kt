@@ -567,7 +567,9 @@ class NotifyService : Service() {
 
     /** Огоҳии оилавиро барои вақт, батарея, offline ё барномаи нав нишон медиҳад. */
     private fun showFamily(eventId: Int, kind: String, childId: Int?, title: String, body: String, childName: String?) {
-        if (kind == "place_arrive" || kind == "place_leave") vibratePlaceAlert()
+        val routeAlert = kind == "safe_route_deviation" || kind == "safe_route_late" || kind == "safe_route_call"
+        val locationAlert = kind == "place_arrive" || kind == "place_leave" || routeAlert
+        if (locationAlert) vibratePlaceAlert()
         val notification = NotificationCompat.Builder(this, CH_FAMILY)
             .setSmallIcon(R.drawable.ic_stat_nigoh)
             .setContentTitle(title)
@@ -579,12 +581,12 @@ class NotifyService : Service() {
                 else NotificationCompat.CATEGORY_STATUS
             )
             .setPriority(
-                if (kind == "place_arrive" || kind == "place_leave")
+                if (locationAlert)
                     NotificationCompat.PRIORITY_HIGH
                 else NotificationCompat.PRIORITY_DEFAULT
             )
             .setVibrate(
-                if (kind == "place_arrive" || kind == "place_leave")
+                if (locationAlert)
                     longArrayOf(0, 180, 90, 260)
                 else null
             )

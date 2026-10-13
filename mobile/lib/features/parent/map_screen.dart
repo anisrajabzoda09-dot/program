@@ -12,6 +12,7 @@ import '../../core/api.dart';
 import 'family_controller.dart';
 import 'parent_logic.dart';
 import 'places_sheets.dart';
+import 'safe_routes_sheet.dart';
 import '../../l10n/l10n.dart';
 
 /// Экрани MapScreen-ро барои харита, ҷойгиршавӣ ва таърихи ҳаракати фарзанд месозад.
@@ -164,6 +165,30 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  void _openRoutes(FamilyChild child) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => SafeRoutesSheet(
+        controller: widget.controller,
+        childId: child.id,
+        onShow: (route) {
+          Navigator.pop(context);
+          if (_mapReady) {
+            _map.move(
+              LatLng(
+                (route.startLatitude + route.endLatitude) / 2,
+                (route.startLongitude + route.endLongitude) / 2,
+              ),
+              14,
+            );
+          }
+        },
+      ),
+    );
+  }
+
   /// Харитаро бо нишонаи фарзанд, ҷойҳои бехатар ва корти ҷойгиршавӣ месозад.
   @override
   Widget build(BuildContext context) => ListenableBuilder(
@@ -197,6 +222,7 @@ class _MapScreenState extends State<MapScreen> {
       final point = LatLng(location.latitude, location.longitude);
       _follow(point);
       final places = widget.controller.placesFor(child.id);
+      final routes = widget.controller.routesFor(child.id);
       final history = _showHistory && _historyChild == child.id
           ? (_history ?? const <HistoryPoint>[])
           : const <HistoryPoint>[];
@@ -243,6 +269,25 @@ class _MapScreenState extends State<MapScreen> {
                       strokeWidth: 4,
                       color: NigohDesign.violet.withValues(alpha: .85),
                     ),
+                  ],
+                ),
+              if (routes.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    for (final route in routes)
+                      Polyline(
+                        points: [
+                          LatLng(route.startLatitude, route.startLongitude),
+                          LatLng(route.endLatitude, route.endLongitude),
+                        ],
+                        strokeWidth: route.todayStatus == 'deviation' ? 7 : 5,
+                        color: !route.enabled
+                            ? Theme.of(context).colorScheme.outline
+                                  .withValues(alpha: .55)
+                            : route.todayStatus == 'deviation'
+                            ? Theme.of(context).colorScheme.error
+                            : NigohDesign.blue.withValues(alpha: .9),
+                      ),
                   ],
                 ),
               MarkerLayer(
@@ -343,6 +388,17 @@ class _MapScreenState extends State<MapScreen> {
                               'Хона, мактаб — вақте фарзанд дар он ҷост, мебинед',
                             ),
                             onTap: () => _openPlaces(child),
+                          ),
+                          const SizedBox(width: 8),
+                          _MapChip(
+                            key: const ValueKey('safe-routes-open'),
+                            icon: Icons.route_rounded,
+                            label: routes.isEmpty
+                                ? tr('Роҳи бехатар')
+                                : tr('{count} масир', {'count': routes.length}),
+                            tooltip: tr('Огоҳӣ ҳангоми дуршавӣ ё дер расидан'),
+                            selected: routes.any((route) => route.enabled),
+                            onTap: () => _openRoutes(child),
                           ),
                         ],
                       ),

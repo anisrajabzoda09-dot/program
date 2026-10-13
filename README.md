@@ -8,7 +8,7 @@
 
 Барномаи мобилӣ (Flutter + Kotlin) · Сервер (FastAPI) · Сайт бо се забон · Панели админ
 
-[![Version](https://img.shields.io/badge/version-2.25.0-2563eb)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.26.0-2563eb)](CHANGELOG.md)
 [![Releases](https://img.shields.io/badge/releases-30-14b8a6)](#-роҳи-лоиҳа-30-версия-дар-22-рӯз)
 [![Commits](https://img.shields.io/badge/commits-700%2B-7c3aed)](https://github.com/anisrajabzoda09-dot/program/commits/main)
 [![Tests](https://img.shields.io/badge/tests-374%20Flutter%20%7C%201000%2B%20server%20checks-16a34a)](#-санҷишҳо)
@@ -33,7 +33,7 @@ NIGOH Family ба волидайн нишон медиҳад, ки фарзан�
 | | |
 |---|---|
 | **700+ коммит** | дар 15 рӯз (21.09 – 05.10.2026), 213 коммит танҳо дар як рӯз |
-| **30 версияи нашршуда** | аз v1.0.0 то v2.25.0, ҳар яке бо APK-и имзошуда |
+| **31 версияи нашршуда** | аз v1.0.0 то v2.26.0, ҳар яке бо APK-и имзошуда |
 | **~25 400 сатр Dart** | барномаи Flutter (100+ файл) |
 | **~3 900 сатр Kotlin** | қисми native: бастани барномаҳо, огоҳиномаҳо, VPN-и филтри сайтҳо, навсозӣ |
 | **~7 500 сатр Python** | сервер: 160 роут дар 11 router |
@@ -124,10 +124,11 @@ flowchart LR
 
 Ҳар файли сервер, барнома ва сайт дар аввал шарҳи тоҷикӣ дорад, ки барои чӣ аст, ва ҳар функсия — шарҳи кӯтоҳ.
 
-## 🛣 Роҳи лоиҳа: 30 версия дар 22 рӯз
+## 🛣 Роҳи лоиҳа: 31 версия дар 22 рӯз
 
 | Версия | Сана | Чӣ илова шуд |
 |---|---|---|
+| **2.26.0** | 13.10 | «Роҳи бехатар», огоҳии дуршавӣ/дермонӣ ва check-in бо занг ё SOS |
 | **2.25.0** | 13.10 | 5 дарси ҳаракаткунанда барои корбари нав ва navigation-и поёни тамоман нав |
 | **1.0.0** | 22.09 | APK-и аввал, QR барои боргирӣ |
 | **2.0 – 2.2** | 23.09 | Логотип, саҳифаи асосӣ, навсозии OTA |
@@ -262,15 +263,16 @@ NIGOH_SKIP_BUILD=1 venv/bin/python scripts/deploy_production.py
 
 **NIGOH Family** is a complete, self-hosted parental-control system for Android, built from scratch: a Flutter + Kotlin app (one APK, parent or child role chosen after sign-in), a FastAPI server with 131 routes, a trilingual website (Tajik / Russian / English) and an admin panel. It runs in production at [nigohfamily.qobus.tj](https://nigohfamily.qobus.tj) with no Firebase or third-party push service.
 
-- **Scale:** 800+ commits and 30 signed releases (v1.0.0 → v2.25.0); ~25k lines of Dart, ~3.9k Kotlin, ~7.5k Python, ~18k HTML/CSS/JS.
+- **Scale:** 800+ commits and 31 signed releases (v1.0.0 → v2.26.0); ~25k lines of Dart, ~3.9k Kotlin, ~7.5k Python, ~18k HTML/CSS/JS.
 - **Parents:** per-app limits and blocking, categories, school/bedtime/focus schedules, live map with 24 h history and safe places, weekly reports, extra-time requests, SOS alarm, battery/offline alerts.
 - **Children:** "My rules", extra-time requests, SOS, quick messages; uninstalling needs the parent PIN.
 - **Both:** chat with read receipts, WebRTC voice calls, one-tap signature-checked self-update.
 - **Engineering highlights:** replaced Firebase with own long-poll notification service; worked around Android 13+ "restricted settings"; offline-first on-device blocking; Google / GitHub / Apple sign-in with CSRF state and single-use nonce-bound mobile tickets; SHA-256 session tokens; signing-certificate pinning in the deploy pipeline.
 - **Rules by place:** block, limit or always allow apps per safe place (school, home), applied on the phone from GPS even offline, with arrive/leave alerts.
+- **Safe routes:** scheduled Home → School corridors with confirmed deviation/late-arrival alerts and child check-ins for Fine, Call me or SOS.
 - **Age-based site filter:** a local DNS-only VPN on the child phone (CleanBrowsing Family/Adult, SafeSearch, DoH bypass blocked, parent alert when switched off).
 - **Two-step verification:** TOTP with QR and recovery codes, email codes, account lock after 5 failures; CSP, CSRF origin checks, expiring rate-limited pairing codes, data retention limits.
-- **Tests:** 365 Flutter tests, 9 JUnit tests, 1000+ server checks in 15 suites, headless-browser QA of every page at three widths in light and dark themes.
+- **Tests:** 378 Flutter tests, 9 JUnit tests, 1000+ server checks in 16 suites, headless-browser QA of every page at three widths in light and dark themes.
 - **Docs:** [How it works](docs/HOW_IT_WORKS.md) and an auto-generated index of [every function](docs/FUNCTIONS.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for every release.

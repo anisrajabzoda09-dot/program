@@ -3,6 +3,36 @@
 # Ҳар сабт: версия, сана (YYYY-MM-DD), сарлавҳаи кӯтоҳ ва рӯйхати тағйирот бо се забон.
 RELEASES = [
     {
+        "version": "2.26.0",
+        "date": "2026-10-13",
+        "highlight": True,
+        "title": {
+            "tg": "Роҳи бехатар ва check-in",
+            "ru": "Безопасный маршрут и check-in",
+            "en": "Safe routes and check-ins",
+        },
+        "items": {
+            "tg": [
+                "Волидайн аз ҷойҳои воқеии худ, масалан «Хона → Мактаб», масири бехатар месозанд ва барои он рӯз, вақт ва паҳноиро интихоб мекунанд.",
+                "Дуршавӣ танҳо баъд аз ду нуқтаи GPS тасдиқ мешавад; бозгашт ба роҳ ва расидан ҳам огоҳӣ медиҳанд.",
+                "Агар фарзанд сари вақт нарасад, телефон «Ҳама чиз хуб аст?» мепурсад; ҷавобҳои «Ҳамааш хуб», занг ва SOS мустақиман ба волид мерасанд.",
+                "Макони дақиқ ба AI фиристода намешавад; ҳангоми нест кардани фарзанд масирҳо ҳам пок мешаванд.",
+            ],
+            "ru": [
+                "Родители создают маршрут, например «Дом → Школа», из реальных мест семьи и выбирают дни, время и безопасную ширину.",
+                "Отклонение подтверждается двумя GPS-точками; возврат на маршрут и прибытие тоже приходят как уведомления.",
+                "При опоздании телефон спрашивает «Всё в порядке?»; ответ, запрос звонка и SOS сразу доходят до родителя.",
+                "Точные координаты не отправляются AI; маршруты удаляются вместе с данными ребёнка.",
+            ],
+            "en": [
+                "Parents build a route such as Home → School from real family places and choose its days, times and safety width.",
+                "A deviation needs two GPS fixes for confirmation; returning to the route and arriving also notify the parent.",
+                "When a child is late, the phone asks if everything is okay; Fine, Call me and SOS responses reach the parent directly.",
+                "Precise coordinates are never sent to AI, and routes are erased with the child's private data.",
+            ],
+        },
+    },
+    {
         "version": "2.25.0",
         "date": "2026-10-13",
         "highlight": True,

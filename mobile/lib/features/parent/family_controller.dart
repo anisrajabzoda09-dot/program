@@ -115,6 +115,7 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
           // Ҳангоми нокомӣ роҳи эҳтиётӣ истифода мешавад.
           if (!await loadPlaces(child.id)) places.remove(child.id);
         }
+        if (child.paired && _pending == 0) routes[child.id] = child.safeRoutes;
       }
     } catch (e) {
       error = e is ApiException
@@ -278,11 +279,90 @@ class FamilyController extends ChangeNotifier with WidgetsBindingObserver {
   /// Қимати places-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   final Map<int, List<SafePlace>> places = {};
 
+  final Map<int, List<SafeRoute>> routes = {};
+
   /// Қимати placesError-ро барои боркунӣ ва навсозии ҳолати оила нигоҳ медорад.
   String? placesError;
 
   /// placesFor мантиқи зарурии боркунӣ ва навсозии ҳолати оиларо иҷро мекунад.
   List<SafePlace> placesFor(int childId) => places[childId] ?? const [];
+
+  List<SafeRoute> routesFor(int childId) => routes[childId] ?? const [];
+
+  Future<bool> loadRoutes(int childId) async {
+    try {
+      final raw = await api.safeRoutes(childId);
+      routes[childId] = raw.map(SafeRoute.fromJson).toList();
+      _notify();
+      return true;
+    } catch (_) {
+      _notify();
+      return false;
+    }
+  }
+
+  Future<void> addRoute(
+    int childId, {
+    required String name,
+    required int startPlaceId,
+    required int endPlaceId,
+    required String startTime,
+    required String arriveBy,
+    required List<int> weekdays,
+    required int corridorMeters,
+  }) async {
+    await _guard(
+      () => api.addSafeRoute(
+        childId,
+        name: name,
+        startPlaceId: startPlaceId,
+        endPlaceId: endPlaceId,
+        startTime: startTime,
+        arriveBy: arriveBy,
+        weekdays: weekdays,
+        corridorMeters: corridorMeters,
+      ),
+    );
+    await loadRoutes(childId);
+  }
+
+  Future<void> setRouteEnabled(
+    int childId,
+    SafeRoute route,
+    bool enabled,
+  ) async {
+    final before = routesFor(childId);
+    routes[childId] = [
+      for (final item in before)
+        item.id == route.id ? item.copyWith(enabled: enabled) : item,
+    ];
+    _notify();
+    try {
+      await _guard(
+        () => api.updateSafeRoute(childId, route.id, enabled: enabled),
+      );
+    } catch (_) {
+      routes[childId] = before;
+      _notify();
+      rethrow;
+    }
+  }
+
+  Future<void> deleteRoute(int childId, SafeRoute route) async {
+    final before = routesFor(childId);
+    routes[childId] = [
+      for (final item in before)
+        if (item.id != route.id) item,
+    ];
+    _notify();
+    try {
+      await _guard(() => api.deleteSafeRoute(childId, route.id));
+    } catch (_) {
+      routes[childId] = before;
+      _notify();
+      rethrow;
+    }
+  }
 
   /// loadPlaces додаҳоро мехонад ва ҳолати экранро нав мекунад.
   Future<bool> loadPlaces(int childId) async {

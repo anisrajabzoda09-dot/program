@@ -10,6 +10,7 @@ import '../../ui/nigoh_design.dart';
 import '../../ui/nigoh_bottom_bar.dart';
 import '../../ui/widgets.dart';
 import '../chat/chat_screen.dart';
+import '../call/call_screen.dart';
 import '../onboarding/permissions_wizard.dart';
 import '../settings/settings_screen.dart';
 import 'child_rules.dart';
@@ -478,6 +479,39 @@ class _PairedView extends StatelessWidget {
   /// sendSos дархостро ба API мефиристад ва натиҷаро коркард мекунад.
   Future<void> _sendSos(BuildContext context) => sendChildSos(context, sync);
 
+  Future<void> _answerRoute(
+    BuildContext context,
+    SafeRoute route,
+    String status,
+  ) async {
+    final childId = sync.childId;
+    if (childId == null) return;
+    if (status == 'sos') {
+      await _sendSos(context);
+      try {
+        await sync.api.answerSafeRouteCheckIn(childId, route.id, status);
+      } catch (_) {}
+      await sync.forceSync();
+      return;
+    }
+    try {
+      await sync.api.answerSafeRouteCheckIn(childId, route.id, status);
+      if (!context.mounted) return;
+      if (status == 'call') {
+        await CallScreen.openOutgoing(
+          context,
+          childId: childId,
+          peerName: sync.parentName ?? tr('Волидайн'),
+        );
+      } else {
+        showMessage(context, tr('Ҷавоб ба волидайн фиристода шуд'));
+      }
+      await sync.forceSync();
+    } catch (error) {
+      if (context.mounted) showMessage(context, error, error: true);
+    }
+  }
+
   /// Widget-и PairedView-ро барои саҳифаи асосӣ ва пайвасткунии фарзанд месозад.
   @override
   Widget build(BuildContext context) {
@@ -485,6 +519,9 @@ class _PairedView extends StatelessWidget {
     final missing = sync.missingPermissions;
     final protectionOk = sync.protectionKnown && missing.isEmpty;
     final child = sync.child;
+    final pendingRoute = child?.safeRoutes
+        .where((route) => route.needsCheckIn)
+        .firstOrNull;
     final bedtimeActive = child?.bedtime.activeAt(sync.now()) ?? false;
     final studyActive =
         !bedtimeActive && (child?.study.activeAt(sync.now()) ?? false);
@@ -605,6 +642,16 @@ class _PairedView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (pendingRoute != null) ...[
+                FadeIn(
+                  child: _SafeRouteCheckInCard(
+                    route: pendingRoute,
+                    onAnswer: (status) =>
+                        _answerRoute(context, pendingRoute, status),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               if (bedtimeActive) ...[
                 FadeIn(child: BedtimeNotice(bedtime: child!.bedtime)),
                 const SizedBox(height: 12),
@@ -694,6 +741,102 @@ class _PairedView extends StatelessWidget {
           filterCard,
         ],
       ],
+    );
+  }
+}
+
+class _SafeRouteCheckInCard extends StatefulWidget {
+  const _SafeRouteCheckInCard({required this.route, required this.onAnswer});
+
+  final SafeRoute route;
+  final Future<void> Function(String status) onAnswer;
+
+  @override
+  State<_SafeRouteCheckInCard> createState() => _SafeRouteCheckInCardState();
+}
+
+class _SafeRouteCheckInCardState extends State<_SafeRouteCheckInCard> {
+  String? _busy;
+
+  Future<void> _answer(String status) async {
+    setState(() => _busy = status);
+    try {
+      await widget.onAnswer(status);
+    } finally {
+      if (mounted) setState(() => _busy = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      key: const ValueKey('safe-route-checkin'),
+      color: scheme.errorContainer.withValues(alpha: .5),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.route_rounded, color: scheme.error),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    tr('Ҳама чиз хуб аст?'),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              tr('Вақти «{name}» гузашт. Як ҷавобро интихоб кунед.', {
+                'name': widget.route.name,
+              }),
+              style: TextStyle(color: scheme.onSurfaceVariant, height: 1.35),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: _busy == null ? () => _answer('ok') : null,
+              icon: _busy == 'ok'
+                  ? const SizedBox.square(
+                      dimension: 17,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.check_circle_rounded),
+              label: Text(tr('Ҳамааш хуб')),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _busy == null ? () => _answer('call') : null,
+                    icon: const Icon(Icons.call_rounded),
+                    label: Text(tr('Ба ман занг зан')),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    style: FilledButton.styleFrom(
+                      foregroundColor: scheme.error,
+                    ),
+                    onPressed: _busy == null ? () => _answer('sos') : null,
+                    icon: const Icon(Icons.sos_rounded),
+                    label: const Text('SOS'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

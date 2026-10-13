@@ -18,7 +18,7 @@ from app.models.app_usage import AppUsageDaily
 from app.models.chat import ChatMessage
 from app.models.child import Child
 from app.models.extension_request import AppExtensionRequest
-from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace
+from app.models.family_extras import CallSession, CallSignal, FamilyEvent, LocationPoint, SafePlace, SafeRoute
 from app.crud.crud_privacy import (
     ANALYTICS_RETENTION_DAYS, LOCATION_RETENTION_DAYS, anonymize_site_analytics,
     delete_child_data, prune_location_history, purge_child_history,
@@ -56,13 +56,19 @@ def seed(db, code: str) -> Child:
     db.add(child)
     db.flush()
     now = _utcnow()
+    place = SafePlace(child_id=child.id, name="School", latitude=1, longitude=2)
+    db.add(place)
+    db.flush()
     db.add_all([
         LocationPoint(child_id=child.id, latitude=1, longitude=2, created_at=now),
         LocationPoint(child_id=child.id, latitude=1, longitude=2, created_at=now - timedelta(days=LOCATION_RETENTION_DAYS - 1)),
         LocationPoint(child_id=child.id, latitude=1, longitude=2, created_at=now - timedelta(days=LOCATION_RETENTION_DAYS + 1)),
         LocationPoint(child_id=child.id, latitude=1, longitude=2, created_at=now - timedelta(days=400)),
         ChatMessage(child_id=child.id, sender_role="parent", sender_name="P", content="hi"),
-        SafePlace(child_id=child.id, name="School", latitude=1, longitude=2),
+        SafeRoute(
+            child_id=child.id, start_place_id=place.id, end_place_id=place.id,
+            name="Home — School", start_time="07:30", arrive_by="08:00",
+        ),
         FamilyEvent(child_id=child.id, target_role="parent", kind="sos", title="SOS"),
         AppExtensionRequest(child_id=child.id, package_name="a.b", requested_minutes=10),
         AppRule(child_id=child.id, package_name="a.b", app_name="A"),
@@ -98,7 +104,7 @@ def run_checks() -> None:
     # 2. Хориҷ кардан: таърих нест мешавад, қоидаҳо мемонанд.
     purge_child_history(db, a.id)
     db.commit()
-    for model in (LocationPoint, ChatMessage, SafePlace, FamilyEvent, AppExtensionRequest, CallSession):
+    for model in (LocationPoint, ChatMessage, SafeRoute, SafePlace, FamilyEvent, AppExtensionRequest, CallSession):
         check(f"unlink purges {model.__tablename__}", count(db, model, a.id) == 0)
     check("unlink purges call signals", db.query(CallSignal).count() == 1)
     check("unlink keeps app rules", count(db, AppRule, a.id) == 1)
@@ -107,7 +113,7 @@ def run_checks() -> None:
 
     # 3. Нест кардани пурра (панели админ): ҳамааш, аз ҷумла қоидаҳо ва вақти истифода.
     check("delete_child returns True", delete_child(db, b.id) is True)
-    for model in (LocationPoint, ChatMessage, SafePlace, FamilyEvent, AppExtensionRequest,
+    for model in (LocationPoint, ChatMessage, SafeRoute, SafePlace, FamilyEvent, AppExtensionRequest,
                   CallSession, AppRule, AppUsageDaily):
         check(f"delete removes {model.__tablename__}", count(db, model, b.id) == 0)
     check("delete removes all call signals", db.query(CallSignal).count() == 0)

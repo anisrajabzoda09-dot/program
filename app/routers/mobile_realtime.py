@@ -11,10 +11,11 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.core import events as family_events
+from app.core import safe_routes
 from app.core.mobile_auth import require_mobile_user
 from app.db.session import get_db
 from app.models.child import Child
-from app.models.family_extras import CallSession, CallSignal, FamilyEvent
+from app.models.family_extras import CallSession, CallSignal, FamilyEvent, SafePlace, SafeRoute
 
 router = APIRouter(prefix="/api/mobile/v3", tags=["Mobile realtime"])
 
@@ -51,8 +52,15 @@ def events(
     while True:
         children = _my_children(db, user)
         ids = [c.id for c in children]
+        routes_changed = False
+        for child in children:
+            routes = db.query(SafeRoute).filter(SafeRoute.child_id == child.id, SafeRoute.enabled == 1).all()
+            if routes:
+                places = db.query(SafePlace).filter(SafePlace.child_id == child.id).all()
+                routes_changed = safe_routes.check_overdue(db, child, routes, places) or routes_changed
         if role == "parent" and children:
             family_events.check_offline(db, children)
+        if (role == "parent" and children) or routes_changed:
             db.commit()
         query = db.query(FamilyEvent).filter(
             FamilyEvent.child_id.in_(ids or [-1]),
