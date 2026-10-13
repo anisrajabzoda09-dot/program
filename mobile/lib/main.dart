@@ -15,6 +15,7 @@ import 'features/onboarding/child_setup_screen.dart';
 import 'features/onboarding/permissions_wizard.dart';
 import 'features/onboarding/role_screen.dart';
 import 'features/parent/parent_home.dart';
+import 'features/parent/ai_assistant_overlay.dart';
 import 'features/settings/app_update.dart';
 import 'features/settings/theme_mode.dart';
 import 'ui/theme.dart';
@@ -98,6 +99,10 @@ class _NigohAppState extends State<NigohApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          builder: (context, child) => AiAssistantPortal(
+            navigatorKey: navigatorKey,
+            child: child ?? const SizedBox.shrink(),
+          ),
           home: const RootGate(),
         ),
       ),
@@ -251,7 +256,8 @@ class _RootGateState extends State<RootGate> {
     try {
       done = await PermissionsWizard.isDone(role);
     } catch (_) {
-      done = false; // Агар flag хонда нашавад, роҳнамо аз нав нишон дода мешавад.
+      done =
+          false; // Агар flag хонда нашавад, роҳнамо аз нав нишон дода мешавад.
     }
     if (!mounted || wizardRole != role) return;
     setState(() {

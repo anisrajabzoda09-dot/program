@@ -13,11 +13,12 @@ class Settings:
 
     PROJECT_NAME: str = "Нигоҳ — Сомонаи расмии муаррифӣ ва боргирии барнома"
     PROJECT_DESCRIPTION: str = "NIGOH Family Parental Control Platform"
-    APP_VERSION: str = "2.23.0"
-    APP_VERSION_CODE: int = 51
+    APP_VERSION: str = "2.24.0"
+    APP_VERSION_CODE: int = 52
     APP_RELEASE_NOTES: str = (
-        "геозонаи 100м бо огоҳӣ ва ларзиш; Маркази муҳофизат; "
-        "NIGOH AI барои preview-и қоидаҳо ва хулосаи ҳафтаина."
+        "кулӯлаи ҳаракаткунандаи NIGOH AI дар ҳамаи саҳифаҳо; "
+        "чат ва тасдиқи бехатари бастан, кушодан ё лимити барнома; "
+        "панели поёни минималӣ ва бароҳат."
     )
     # Санаи охирини навсозии матни сайт (барои <lastmod> дар sitemap.xml).
     SITE_UPDATED: str = "2026-10-12"
@@ -132,6 +133,7 @@ class Settings:
     ]
 
     APK_CANDIDATES = [
+        "NIGOH_Family_Android_v2.24.0.apk",
         "NIGOH_Family_Android_v2.23.0.apk",
         "NIGOH_Family_Android_v2.22.0.apk",
         "NIGOH_Family_Android_v2.21.0.apk",

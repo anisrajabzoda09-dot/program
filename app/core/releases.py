@@ -3,6 +3,36 @@
 # Ҳар сабт: версия, сана (YYYY-MM-DD), сарлавҳаи кӯтоҳ ва рӯйхати тағйирот бо се забон.
 RELEASES = [
     {
+        "version": "2.24.0",
+        "date": "2026-10-12",
+        "highlight": True,
+        "title": {
+            "tg": "Ёвари доимии NIGOH AI",
+            "ru": "Постоянный помощник NIGOH AI",
+            "en": "Always-available NIGOH AI assistant",
+        },
+        "items": {
+            "tg": [
+                "Кулӯлаи хурди NIGOH AI дар ҳамаи саҳифаҳои волидайн дида мешавад, ба ҳар гӯшаи экран кашида мешавад ва ҷояшро дар хотир нигоҳ медорад.",
+                "Бо як зеркунӣ чати калон кушода мешавад: волидайн савол медиҳанд ё бо забони оддӣ бастан, кушодан ва лимити барномаро мегӯянд.",
+                "AI аввал пешниҳодро нишон медиҳад; тағйирот танҳо пас аз тасдиқи волидайн иҷро мешаванд.",
+                "Панели поёнӣ минималӣ, равшан ва аз матни саҳифа ҷудотар шуд.",
+            ],
+            "ru": [
+                "Маленькая кнопка NIGOH AI видна на всех родительских вкладках, перетаскивается по экрану и запоминает позицию.",
+                "По нажатию открывается чат: можно задавать вопросы или обычными словами просить заблокировать, открыть или ограничить приложение.",
+                "AI сначала показывает предложение; изменения вступают в силу только после подтверждения родителя.",
+                "Нижняя панель стала более чистой, минималистичной и лучше отделена от содержимого.",
+            ],
+            "en": [
+                "A small NIGOH AI button stays visible across every parent tab, can be dragged around the safe screen area and remembers its position.",
+                "One tap opens a full chat where parents can ask questions or request app blocks, unblocks and limits in plain language.",
+                "AI first shows a preview; changes apply only after explicit parent confirmation.",
+                "The bottom navigation is cleaner, more minimal and visually separated from page content.",
+            ],
+        },
+    },
+    {
         "version": "2.23.0",
         "date": "2026-10-12",
         "highlight": True,

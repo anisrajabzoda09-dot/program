@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.24.0 — 2026-10-12
+- A small NIGOH AI bubble now stays above every parent tab, can be dragged anywhere within the safe screen area, remembers its position and expands into a full chat.
+- Parents can ask product questions or request app blocks, unblocks, limits and schedules in plain language. AI actions remain previews until the parent explicitly confirms them.
+- The AI chat supports switching between children and shows each proposed app change before applying it.
+- The bottom navigation is now a clearer floating minimalist panel with a border, softer indicator and improved separation from page content.
+
 ## 2.23.0 — 2026-10-12
 - Safe places default to a precise 100 m radius and can independently notify the parent, notify the child, and vibrate the child's phone when entering or leaving. Place app rules still switch immediately and work offline.
 - Protection Center reports the child's real Android protection state (usage access, overlay, Accessibility, location, notifications, GPS, device admin and app version) and alerts the parent when an important layer is disabled.

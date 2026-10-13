@@ -750,6 +750,38 @@ const Map<String, List<String>> parentStrings = {
       ],
   'GPS': ['GPS', 'GPS'],
   'NIGOH AI': ['NIGOH AI', 'NIGOH AI'],
+  'Ба NIGOH AI нависед...': ['Напишите NIGOH AI...', 'Message NIGOH AI...'],
+  'Ҷавоб гирифта нашуд.': ['Ответ не получен.', 'No answer was received.'],
+  'Кашида бурда мешавад. Барои кушодан зер кунед.': [
+    'Кнопку можно перетаскивать. Нажмите, чтобы открыть.',
+    'Drag to move. Tap to open.',
+  ],
+  'Лимит чӣ тавр кор мекунад?': [
+    'Как работает лимит?',
+    'How does the limit work?',
+  ],
+  'Ман ёвари NIGOH ҳастам. Савол диҳед ё бигӯед кадом барномаро дар телефони {name} бандем ё кушоем.':
+      [
+        'Я помощник NIGOH. Задайте вопрос или скажите, какое приложение заблокировать или открыть на телефоне {name}.',
+        'I am the NIGOH assistant. Ask a question or tell me which app to block or unblock on {name}\'s phone.',
+      ],
+  'Савол диҳед ё барномаҳоро идора кунед': [
+    'Задавайте вопросы или управляйте приложениями',
+    'Ask questions or manage apps',
+  ],
+  'TikTok-ро банд кун': ['Заблокируй TikTok', 'Block TikTok'],
+  'YouTube-ро 1 соат мон': [
+    'Оставь YouTube на 1 час',
+    'Limit YouTube to 1 hour',
+  ],
+  'Фармон тайёр аст.': ['Команда готова.', 'The command is ready.'],
+  'Тағйирот танҳо пас аз тасдиқи шумо иҷро мешавад.': [
+    'Изменения будут применены только после вашего подтверждения.',
+    'Changes apply only after your confirmation.',
+  ],
+  'Тасдиқ ва татбиқ кардан': ['Подтвердить и применить', 'Confirm and apply'],
+  'Татбиқ шуд': ['Применено', 'Applied'],
+  'Тағйирот татбиқ шуд.': ['Изменения применены.', 'Changes applied.'],
   'NIGOH AI · қоидаҳои бехатар': [
     'NIGOH AI · безопасные правила',
     'NIGOH AI · safe rules',

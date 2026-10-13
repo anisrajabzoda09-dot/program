@@ -95,8 +95,8 @@ def main() -> None:
             accessibility=True,
             location=True,
             notifications=True,
-            appVersion="2.23.0",
-            versionCode=51,
+            appVersion="2.24.0",
+            versionCode=52,
         ),
         child_request,
         db,
@@ -104,7 +104,7 @@ def main() -> None:
     assert result["protection"]["overlay"] is False
     snapshot = mobile_snapshot_v2(parent_request, db)
     payload = snapshot["children"][0]
-    assert payload["protection"]["appVersion"] == "2.23.0"
+    assert payload["protection"]["appVersion"] == "2.24.0"
 
     original = gemini_ai.generate_json
     try:

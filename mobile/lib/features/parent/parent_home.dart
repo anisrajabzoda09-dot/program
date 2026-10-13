@@ -15,6 +15,7 @@ import '../chat/chat_screen.dart';
 import '../settings/parent_pin.dart';
 import '../settings/settings_screen.dart';
 import 'add_child_screen.dart';
+import 'ai_assistant_overlay.dart';
 import 'apps_screen.dart';
 import 'family_controller.dart';
 import 'map_screen.dart';
@@ -148,12 +149,23 @@ class _ParentHomeState extends State<ParentHome> {
       _owned = true;
     }
     controller.start();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && aiAssistantPortalMounted) {
+        parentAiController.value = controller;
+      }
+    });
   }
 
   /// Controller ва listener-ҳои ParentHome-ро озод мекунад.
   @override
   void dispose() {
     homeTarget.removeListener(_onHomeTarget);
+    final current = controller;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (identical(parentAiController.value, current)) {
+        parentAiController.value = null;
+      }
+    });
     if (_owned) _controller?.dispose();
     super.dispose();
   }
@@ -372,60 +384,57 @@ class _ParentHomeState extends State<ParentHome> {
           body: SafeArea(top: _tab >= 3, bottom: false, child: content),
           bottomNavigationBar: wide
               ? null
-              : NavigationBar(
+              : _ParentBottomNavigation(
                   selectedIndex: _tab,
-                  onDestinationSelected: (i) => setState(() => _tab = i),
-                  destinations: [
-                    for (final item in items)
-                      NavigationDestination(
-                        key: item.key,
-                        icon: item.icon,
-                        selectedIcon: item.selectedIcon,
-                        label: item.label,
-                      ),
-                  ],
+                  items: items,
+                  onSelected: (i) => setState(() => _tab = i),
                 ),
         );
-        if (!wide) return page;
-        return Material(
-          color: Theme.of(context).colorScheme.surface,
-          child: SafeArea(
-            child: Row(
-              children: [
-                NavigationRail(
-                  selectedIndex: _tab,
-                  onDestinationSelected: (i) => setState(() => _tab = i),
-                  labelType: NavigationRailLabelType.all,
-                  groupAlignment: -0.9,
-                  minWidth: 88,
-                  leading: Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 16),
-                    child: Tooltip(
-                      message: tr('Илова кардани фарзанд'),
-                      child: FloatingActionButton.small(
-                        heroTag: 'rail-add-child',
-                        elevation: 0,
-                        onPressed: _addChild,
-                        child: const Icon(Icons.person_add_alt_1_rounded),
+        final Widget shell;
+        if (!wide) {
+          shell = page;
+        } else {
+          shell = Material(
+            color: Theme.of(context).colorScheme.surface,
+            child: SafeArea(
+              child: Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: _tab,
+                    onDestinationSelected: (i) => setState(() => _tab = i),
+                    labelType: NavigationRailLabelType.all,
+                    groupAlignment: -0.9,
+                    minWidth: 88,
+                    leading: Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      child: Tooltip(
+                        message: tr('Илова кардани фарзанд'),
+                        child: FloatingActionButton.small(
+                          heroTag: 'rail-add-child',
+                          elevation: 0,
+                          onPressed: _addChild,
+                          child: const Icon(Icons.person_add_alt_1_rounded),
+                        ),
                       ),
                     ),
+                    destinations: [
+                      for (final item in items)
+                        NavigationRailDestination(
+                          icon: KeyedSubtree(key: item.key, child: item.icon),
+                          selectedIcon: item.selectedIcon,
+                          label: Text(item.label),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                        ),
+                    ],
                   ),
-                  destinations: [
-                    for (final item in items)
-                      NavigationRailDestination(
-                        icon: KeyedSubtree(key: item.key, child: item.icon),
-                        selectedIcon: item.selectedIcon,
-                        label: Text(item.label),
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                      ),
-                  ],
-                ),
-                const VerticalDivider(width: 1),
-                Expanded(child: page),
-              ],
+                  const VerticalDivider(width: 1),
+                  Expanded(child: page),
+                ],
+              ),
             ),
-          ),
-        );
+          );
+        }
+        return shell;
       },
     );
   }
@@ -488,6 +497,63 @@ class _NavItem {
   final Widget icon;
   final Widget selectedIcon;
   final String label;
+}
+
+class _ParentBottomNavigation extends StatelessWidget {
+  const _ParentBottomNavigation({
+    required this.selectedIndex,
+    required this.items,
+    required this.onSelected,
+  });
+
+  final int selectedIndex;
+  final List<_NavItem> items;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: scheme.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: scheme.outlineVariant.withValues(alpha: .8),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: .08),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(23),
+          child: NavigationBar(
+            height: 70,
+            backgroundColor: scheme.surface,
+            surfaceTintColor: Colors.transparent,
+            indicatorColor: scheme.primary.withValues(alpha: .12),
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onSelected,
+            destinations: [
+              for (final item in items)
+                NavigationDestination(
+                  key: item.key,
+                  icon: item.icon,
+                  selectedIcon: item.selectedIcon,
+                  label: item.label,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// EmptyFamily додаҳо ва рафтори панели волид-ро ифода мекунад.
